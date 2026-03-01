@@ -6,14 +6,31 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Alert,
   AlertDescription,
   AlertTitle,
+  AspectRatio,
   Avatar,
   AvatarFallback,
   Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
   Button,
   Checkbox,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
   Combobox,
   ComboboxContent,
   ComboboxEmpty,
@@ -39,6 +56,10 @@ import {
   DialogDescription,
   DialogTitle,
   DialogTrigger,
+  Drawer,
+  DrawerContent,
+  DrawerTitle,
+  DrawerTrigger,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -46,6 +67,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   Input,
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
   Menubar,
   MenubarContent,
   MenubarItem,
@@ -85,6 +109,8 @@ import {
   TabsList,
   TabsTrigger,
   Toggle,
+  ToggleGroup,
+  ToggleGroupItem,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -205,6 +231,31 @@ describe("@synthex/ui web components", () => {
     expect(screen.getByTestId("skeleton")).toBeInTheDocument();
   });
 
+  it("renders breadcrumb and aspect ratio helpers", () => {
+    render(
+      <ThemeProvider>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#docs">Docs</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Components</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <AspectRatio ratio={4 / 3} data-testid="ratio-box">
+          <div>Preview</div>
+        </AspectRatio>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByLabelText("Breadcrumb")).toBeInTheDocument();
+    expect(screen.getByText("Components")).toBeInTheDocument();
+    expect(screen.getByTestId("ratio-box")).toBeInTheDocument();
+  });
+
   it("supports accordion, select, and dialog interactions", () => {
     render(
       <ThemeProvider>
@@ -249,6 +300,63 @@ describe("@synthex/ui web components", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Open dialog" }));
     expect(screen.getByRole("dialog")).toHaveTextContent("Dialog body");
+  });
+
+  it("supports collapsible, hover card, and drawer overlays", () => {
+    render(
+      <ThemeProvider>
+        <Collapsible defaultOpen>
+          <CollapsibleTrigger>Toggle section</CollapsibleTrigger>
+          <CollapsibleContent>Collapsible body</CollapsibleContent>
+        </Collapsible>
+
+        <HoverCard openDelay={0} closeDelay={0}>
+          <HoverCardTrigger>Hover target</HoverCardTrigger>
+          <HoverCardContent>Hover card body</HoverCardContent>
+        </HoverCard>
+
+        <Drawer>
+          <DrawerTrigger>Open drawer</DrawerTrigger>
+          <DrawerContent>
+            <DrawerTitle>Drawer title</DrawerTitle>
+          </DrawerContent>
+        </Drawer>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByText("Collapsible body")).toBeInTheDocument();
+    fireEvent.mouseEnter(screen.getByText("Hover target"));
+    expect(screen.getByText("Hover card body")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Open drawer" }));
+    expect(screen.getByRole("dialog")).toHaveTextContent("Drawer title");
+  });
+
+  it("supports alert dialog and toggle group state changes", () => {
+    render(
+      <ThemeProvider>
+        <AlertDialog>
+          <AlertDialogTrigger>Delete file</AlertDialogTrigger>
+          <AlertDialogContent hideClose>
+            <AlertDialogTitle>Delete asset</AlertDialogTitle>
+            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+            <AlertDialogAction>Confirm</AlertDialogAction>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <ToggleGroup type="multiple" defaultValue={["design"]}>
+          <ToggleGroupItem value="design">Design</ToggleGroupItem>
+          <ToggleGroupItem value="code">Code</ToggleGroupItem>
+        </ToggleGroup>
+      </ThemeProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Delete file" }));
+    expect(screen.getByRole("dialog")).toHaveTextContent("Delete asset");
+
+    const code = screen.getByRole("button", { name: "Code" });
+    fireEvent.click(code);
+    expect(code).toHaveAttribute("aria-pressed", "true");
   });
 
   it("filters command results and selects combobox options", () => {

@@ -74,6 +74,24 @@ export {
   AccordionItem,
   AccordionTrigger,
 } from "../accordion/accordion.native";
+export { AspectRatio } from "../aspect-ratio/aspect-ratio.native";
+export type { AspectRatioSharedProps } from "../aspect-ratio/aspect-ratio.shared";
+export {
+  Breadcrumb,
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "../breadcrumb/breadcrumb.native";
+export type { BreadcrumbLinkSharedProps } from "../breadcrumb/breadcrumb.shared";
+export {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../collapsible/collapsible.native";
+export type { CollapsibleSharedProps } from "../collapsible/collapsible.shared";
 export type {
   AccordionItemSharedProps,
   AccordionSharedProps,
@@ -91,6 +109,11 @@ export {
   type SwitchVariantProps,
 } from "../switch/switch.shared";
 export { Toggle } from "../toggle/toggle.native";
+export {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "../toggle-group/toggle-group.native";
+export type { ToggleGroupSharedProps } from "../toggle-group/toggle-group.shared";
 export {
   toggleVariants,
   resolveToggleVariants,
@@ -201,6 +224,18 @@ export {
   type BadgeVariantProps,
 } from "../badge/badge.shared";
 export {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../alert-dialog/alert-dialog.native";
+export type { AlertDialogSharedProps } from "../alert-dialog/alert-dialog.shared";
+export {
   Dialog,
   DialogClose,
   DialogContent,
@@ -211,6 +246,23 @@ export {
   DialogTrigger,
 } from "../dialog/dialog.native";
 export type { DialogSharedProps } from "../dialog/dialog.shared";
+export {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "../drawer/drawer.native";
+export type { DrawerSharedProps } from "../drawer/drawer.shared";
+export {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "../hover-card/hover-card.native";
+export type { HoverCardSharedProps } from "../hover-card/hover-card.shared";
 export {
   Popover,
   PopoverContent,
