@@ -83,6 +83,17 @@ export {
 } from "../progress/progress.shared";
 export { Slider } from "../slider/slider.native";
 export type { SliderSharedProps } from "../slider/slider.shared";
+export {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "../resizable/resizable.native";
+export type {
+  ResizableDirection,
+  ResizableHandleSharedProps,
+  ResizablePanelGroupSharedProps,
+  ResizablePanelSharedProps,
+} from "../resizable/resizable.shared";
 export { Skeleton } from "../skeleton/skeleton.native";
 export {
   skeletonVariants,

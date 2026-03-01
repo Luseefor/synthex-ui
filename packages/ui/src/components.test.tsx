@@ -106,6 +106,9 @@ import {
   PopoverTrigger,
   RadioGroup,
   RadioGroupItem,
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
   Select,
   SelectContent,
   SelectItem,
@@ -206,6 +209,38 @@ describe("@synthex/ui web components", () => {
 
     expect(screen.getByLabelText("Opacity")).toHaveValue("58");
     expect(screen.getByLabelText("Digit 3")).toHaveValue("7");
+  });
+
+  it("supports resizable panel groups", () => {
+    render(
+      <ThemeProvider>
+        <ResizablePanelGroup direction="horizontal">
+          <ResizablePanel defaultSize={60}>
+            <div>Primary pane</div>
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel defaultSize={40}>
+            <div>Secondary pane</div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </ThemeProvider>,
+    );
+
+    const group = screen.getByTestId("resizable-group");
+    const primaryPanel = screen.getByText("Primary pane").closest('[data-slot="resizable-panel"]');
+
+    Object.defineProperty(group, "clientWidth", {
+      configurable: true,
+      value: 400,
+    });
+
+    expect(primaryPanel).toHaveAttribute("data-size", "60.00");
+
+    fireEvent.mouseDown(screen.getByLabelText("Resize panels"), { clientX: 200 });
+    fireEvent.mouseMove(window, { clientX: 240 });
+    fireEvent.mouseUp(window);
+
+    expect(Number(primaryPanel?.getAttribute("data-size"))).toBeGreaterThan(60);
   });
 
   it("supports calendar navigation", () => {
