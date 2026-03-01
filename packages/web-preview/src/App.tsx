@@ -1426,11 +1426,11 @@ function WorkbenchSection({
       <div className="preview-section-heading">
         <H2>Live workbench</H2>
         <Muted>
-          This route validates the actual layout engine with a restrained studio-style workspace instead of a one-off product mockup.
+          This route validates the actual layout engine with a restrained workspace shell instead of a one-off product mockup.
         </Muted>
       </div>
 
-      <ThemeProvider mode="dark" theme={workbenchThemeOverride}>
+      <ThemeProvider mode={siteTheme.mode} theme={workbenchThemeOverride}>
         <WorkbenchSurface workbench={workbench} />
       </ThemeProvider>
     </section>
@@ -1465,7 +1465,7 @@ function WorkbenchSurface({
           </div>
           <H3>General-purpose tiling workspace</H3>
           <Muted>
-            Compact by default, neutral in dark mode, and built to validate real layout behavior rather than imitate one product vertical.
+            Compact, theme-aware, and built to validate real layout behavior rather than imitate one product vertical.
           </Muted>
         </div>
 
