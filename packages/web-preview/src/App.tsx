@@ -1406,33 +1406,15 @@ function WorkbenchSection({
 }: {
   readonly workbench: WorkbenchController;
 }) {
-  const siteTheme = useTheme();
-  const workbenchThemeOverride = useMemo(
-    () => ({
-      colors: {
-        primary: siteTheme.colors.primary,
-        primaryHover: siteTheme.colors.primaryHover,
-        primaryMuted: siteTheme.colors.primaryMuted,
-        accent: siteTheme.colors.accent,
-        accentMuted: siteTheme.colors.accentMuted,
-        ring: siteTheme.colors.ring,
-      },
-    }),
-    [siteTheme],
-  );
-
   return (
     <section id="playground" className="preview-section">
       <div className="preview-section-heading">
         <H2>Live workbench</H2>
         <Muted>
-          This route validates the actual layout engine with a restrained workspace shell instead of a one-off product mockup.
+          This route validates the actual layout engine inside the same visual system used across the rest of the docs site.
         </Muted>
       </div>
-
-      <ThemeProvider mode={siteTheme.mode} theme={workbenchThemeOverride}>
-        <WorkbenchSurface workbench={workbench} />
-      </ThemeProvider>
+      <WorkbenchSurface workbench={workbench} />
     </section>
   );
 }
@@ -1465,7 +1447,7 @@ function WorkbenchSurface({
           </div>
           <H3>General-purpose tiling workspace</H3>
           <Muted>
-            Compact, theme-aware, and built to validate real layout behavior rather than imitate one product vertical.
+            Built to validate real split, tab, resize, undo, and serialization behavior without drifting away from the surrounding documentation UI.
           </Muted>
         </div>
 
