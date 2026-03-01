@@ -12,6 +12,7 @@ vi.mock("react-native", () => ({
 }));
 
 vi.mock("lucide-react-native", () => ({
+  CalendarDays: "CalendarDays",
   Check: "Check",
   ChevronDown: "ChevronDown",
   ChevronLeft: "ChevronLeft",

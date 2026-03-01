@@ -1,5 +1,6 @@
 import * as React from "react";
 import {
+  CalendarDays,
   Check,
   ChevronDown,
   ChevronLeft,
@@ -23,6 +24,7 @@ import type { IconName, IconProps } from "./shared";
 
 export const iconMap: Record<IconName, LucideIcon> = {
   add: Plus,
+  calendar: CalendarDays,
   check: Check,
   close: X,
   search: Search,
@@ -63,6 +65,10 @@ export function CloseIcon(props: Omit<IconProps, "name">) {
 
 export function CheckIcon(props: Omit<IconProps, "name">) {
   return <Icon name="check" {...props} />;
+}
+
+export function CalendarIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="calendar" {...props} />;
 }
 
 export function SearchIcon(props: Omit<IconProps, "name">) {

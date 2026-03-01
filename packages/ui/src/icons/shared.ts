@@ -1,5 +1,6 @@
 export const iconNames = [
   "add",
+  "calendar",
   "check",
   "close",
   "search",

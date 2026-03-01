@@ -28,6 +28,7 @@ import {
   BreadcrumbSeparator,
   Button,
   Checkbox,
+  Calendar,
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
@@ -56,6 +57,7 @@ import {
   DialogDescription,
   DialogTitle,
   DialogTrigger,
+  DatePicker,
   Drawer,
   DrawerContent,
   DrawerTitle,
@@ -166,6 +168,33 @@ describe("@synthex/ui web components", () => {
 
     expect(screen.getByLabelText("Opacity")).toHaveValue("58");
     expect(screen.getByLabelText("Digit 3")).toHaveValue("7");
+  });
+
+  it("supports calendar navigation", () => {
+    render(
+      <ThemeProvider>
+        <Calendar defaultValue={new Date(2026, 2, 12)} />
+      </ThemeProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Next month" }));
+    expect(screen.getByText(/\w+ 2026/)).toBeInTheDocument();
+  });
+
+  it("supports date picker selection", () => {
+    render(
+      <ThemeProvider>
+        <DatePicker placeholder="Pick a date" />
+      </ThemeProvider>,
+    );
+
+    const datePickerTrigger = screen.getByRole("button", { name: "Pick a date" });
+
+    fireEvent.click(datePickerTrigger);
+    fireEvent.click(screen.getAllByRole("button", { name: "12" })[0]!);
+
+    expect(datePickerTrigger).not.toHaveTextContent("Pick a date");
+    expect(datePickerTrigger.textContent).toMatch(/\d{4}/);
   });
 
   it("switches tabs in uncontrolled mode", () => {

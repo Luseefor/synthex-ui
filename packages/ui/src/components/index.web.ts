@@ -83,6 +83,8 @@ export {
   AccordionItem,
   AccordionTrigger,
 } from "../accordion/accordion.web";
+export { Calendar } from "../calendar/calendar.web";
+export type { CalendarSharedProps } from "../calendar/calendar.shared";
 export { AspectRatio } from "../aspect-ratio/aspect-ratio.web";
 export type { AspectRatioSharedProps } from "../aspect-ratio/aspect-ratio.shared";
 export {
@@ -255,6 +257,8 @@ export {
   DialogTrigger,
 } from "../dialog/dialog.web";
 export type { DialogSharedProps } from "../dialog/dialog.shared";
+export { DatePicker } from "../date-picker/date-picker.web";
+export type { DatePickerSharedProps } from "../date-picker/date-picker.shared";
 export {
   Drawer,
   DrawerClose,
