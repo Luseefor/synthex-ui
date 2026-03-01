@@ -378,6 +378,29 @@ export {
   useToast,
 } from "../toast/toast.web";
 export type { ToastDescriptor, ToastSharedProps } from "../toast/toast.shared";
+export {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+  useSidebar,
+} from "../sidebar/sidebar.web";
+export type {
+  SidebarMenuButtonSharedProps,
+  SidebarProviderSharedProps,
+  SidebarSharedProps,
+  SidebarTriggerSharedProps,
+} from "../sidebar/sidebar.shared";
 export { Separator } from "../separator/separator.web";
 export {
   separatorVariants,

@@ -142,6 +142,18 @@ import {
   SheetContent,
   SheetTitle,
   SheetTrigger,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
   Slider,
   Sonner,
   Switch,
@@ -423,6 +435,44 @@ describe("@synthex/ui web components", () => {
     expect(screen.getAllByText("Visitors")).toHaveLength(2);
     expect(screen.getByRole("img", { name: "Traffic chart" })).toBeInTheDocument();
     expect(screen.getByText("Tuesday")).toBeInTheDocument();
+  });
+
+  it("toggles the shared sidebar shell", () => {
+    render(
+      <ThemeProvider>
+        <SidebarProvider defaultOpen>
+          <div className="flex gap-4">
+            <Sidebar>
+              <SidebarHeader>
+                <SidebarTrigger>Toggle navigation</SidebarTrigger>
+              </SidebarHeader>
+              <SidebarContent>
+                <SidebarGroup>
+                  <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton active>Overview</SidebarMenuButton>
+                      </SidebarMenuItem>
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+              </SidebarContent>
+            </Sidebar>
+            <SidebarInset>
+              <div>Content</div>
+            </SidebarInset>
+          </div>
+        </SidebarProvider>
+      </ThemeProvider>,
+    );
+
+    const sidebar = screen.getByRole("complementary");
+    expect(sidebar).toHaveAttribute("data-state", "open");
+
+    fireEvent.click(screen.getByRole("button", { name: "Toggle navigation" }));
+
+    expect(sidebar).toHaveAttribute("data-state", "closed");
   });
 
   it("supports date picker selection", () => {
