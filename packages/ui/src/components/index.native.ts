@@ -394,4 +394,10 @@ export {
   TableHeader,
   TableRow,
 } from "../table/table.native";
+export { DataTable } from "../data-table/data-table.native";
+export type {
+  DataTableAlign,
+  DataTableColumn,
+  DataTableSharedProps,
+} from "../data-table/data-table.shared";
 export { H1, H2, H3, Lead, Muted, Small } from "../typography/typography.native";

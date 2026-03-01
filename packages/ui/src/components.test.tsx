@@ -56,6 +56,7 @@ import {
   ContextMenuLabel,
   ContextMenuSeparator,
   ContextMenuTrigger,
+  DataTable,
   Command,
   CommandEmpty,
   CommandGroup,
@@ -438,6 +439,41 @@ describe("@synthex/ui web components", () => {
 
     expect(datePickerTrigger).not.toHaveTextContent("Pick a date");
     expect(datePickerTrigger.textContent).toMatch(/\d{4}/);
+  });
+
+  it("supports data table sorting and filtering", () => {
+    render(
+      <ThemeProvider>
+        <DataTable
+          columns={[
+            { id: "package", header: "Package", accessor: "package" },
+            { id: "status", header: "Status", accessor: "status" },
+            { id: "downloads", header: "Downloads", accessor: "downloads", align: "right" },
+          ]}
+          data={[
+            { package: "@synthex/ui", status: "Stable", downloads: 8200 },
+            { package: "@synthex/core", status: "Stable", downloads: 6400 },
+            { package: "@synthex/react-web", status: "Preview", downloads: 2300 },
+          ]}
+          searchKey="package"
+        />
+      </ThemeProvider>,
+    );
+
+    fireEvent.change(screen.getByLabelText("Filter table rows"), {
+      target: { value: "core" },
+    });
+
+    expect(screen.getByText("@synthex/core")).toBeInTheDocument();
+    expect(screen.queryByText("@synthex/ui")).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Filter table rows"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Downloads/ }));
+
+    const rows = screen.getAllByRole("row");
+    expect(rows.at(1)).toHaveTextContent("@synthex/react-web");
   });
 
   it("switches tabs in uncontrolled mode", () => {
