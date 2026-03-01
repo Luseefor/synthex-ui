@@ -590,40 +590,75 @@ export function App() {
             </div>
           </aside>
 
-          {/* ── Mobile nav (Sheet) ── */}
-          <div className="preview-mobile-nav">
-            <Sheet>
-              <SheetTrigger className="preview-mobile-menu-btn">
-                <GridIcon size={16} />
-                Menu
-              </SheetTrigger>
-              <SheetContent side="left" className="preview-mobile-sheet">
-                <SheetHeader>
-                  <SheetTitle>Navigation</SheetTitle>
-                  <SheetDescription>Browse documentation pages.</SheetDescription>
-                </SheetHeader>
-                <nav className="preview-nav preview-mobile-sheet-nav">
-                  {navItems.map((item) => (
-                    <NavLink
-                      key={item.to}
-                      className={({ isActive }) =>
-                        isActive ? "preview-nav-link preview-nav-link-active" : "preview-nav-link"
+          {/* ── Mobile sidebar shell (visible ≤ 1320px) ── */}
+          <div className="preview-mobile-shell">
+            <SidebarProvider defaultOpen={false}>
+              <Sidebar className="preview-mobile-sidebar">
+                <SidebarHeader>
+                  <Small>Navigation</Small>
+                </SidebarHeader>
+                <SidebarContent>
+                  <SidebarGroup>
+                    <SidebarGroupLabel>Pages</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                      <SidebarMenu>
+                        {navItems.map((item) => (
+                          <SidebarMenuItem key={item.to}>
+                            <SidebarMenuButton
+                              active={location.pathname === item.to || (item.to === "/" && location.pathname === "/")}
+                              onClick={() => navigate(item.to)}
+                            >
+                              {item.label}
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        ))}
+                      </SidebarMenu>
+                    </SidebarGroupContent>
+                  </SidebarGroup>
+                </SidebarContent>
+              </Sidebar>
+              <SidebarInset className="preview-mobile-inset">
+                <div className="preview-mobile-topbar">
+                  <SidebarTrigger>Menu</SidebarTrigger>
+                  <span className="preview-mobile-breadcrumb">
+                    {navItems.find((n) => n.to === location.pathname)?.label ?? "Overview"}
+                  </span>
+                </div>
+                <main className="preview-main preview-main-mobile">
+                  <Routes>
+                    <Route
+                      path="/"
+                      element={
+                        <>
+                          <OverviewSection onNavigate={navigate} />
+                          <PackageScopeSection />
+                          <RoadmapSection />
+                        </>
                       }
-                      to={item.to}
-                    >
-                      <span>{item.label}</span>
-                      <small>{item.description}</small>
-                    </NavLink>
-                  ))}
-                </nav>
-              </SheetContent>
-            </Sheet>
-            <span className="preview-mobile-breadcrumb">
-              {navItems.find((n) => n.to === location.pathname)?.label ?? "Overview"}
-            </span>
+                    />
+                    <Route path="/installation" element={<GettingStartedSection />} />
+                    <Route path="/components" element={<ComponentGallerySection />} />
+                    <Route path="/theme" element={<ThemeSection />} />
+                    <Route
+                      path="/engine"
+                      element={
+                        <>
+                          <SupportMatrixSection />
+                          <ExportsSection />
+                          <PackageScopeSection />
+                        </>
+                      }
+                    />
+                    <Route path="/playground" element={<WorkbenchSection workbench={workbench} />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </main>
+              </SidebarInset>
+            </SidebarProvider>
           </div>
 
-          <main className="preview-main">
+          {/* ── Desktop main content ── */}
+          <main className="preview-main preview-main-desktop">
             <Routes>
               <Route
                 path="/"
