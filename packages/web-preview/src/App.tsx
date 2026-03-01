@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { Navigate, NavLink, Route, Routes, useNavigate } from "react-router-dom";
+import { Navigate, NavLink, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import {
   createLayoutEngine,
   findNodeById,
@@ -291,6 +291,7 @@ const roadmapItems: readonly string[] = [
 const defaultAccentPreset: AccentPresetName = "blue";
 
 export function App() {
+  const location = useLocation();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") {
@@ -332,6 +333,13 @@ export function App() {
   useEffect(() => {
     window.localStorage.setItem("synthex-preview-accent", accentPreset);
   }, [accentPreset]);
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "auto",
+    });
+  }, [location.pathname]);
 
   return (
     <ThemeProvider mode={mode} accentPreset={accentPreset}>
@@ -391,8 +399,8 @@ export function App() {
                 <div className="preview-search">
                   <SearchIcon size={16} />
                   <Input
-                    aria-label="Filter sections"
-                    placeholder="Filter sections"
+                    aria-label="Filter pages"
+                    placeholder="Filter pages"
                     value={navQuery}
                     onChange={(event) => setNavQuery(event.target.value)}
                   />
@@ -402,7 +410,9 @@ export function App() {
                   {filteredNavItems.map((item) => (
                     <NavLink
                       key={item.to}
-                      className="preview-nav-link"
+                      className={({ isActive }) =>
+                        isActive ? "preview-nav-link preview-nav-link-active" : "preview-nav-link"
+                      }
                       to={item.to}
                     >
                       <span>{item.label}</span>
