@@ -73,6 +73,7 @@ import {
   ContextMenuLabel,
   ContextMenuSeparator,
   ContextMenuTrigger,
+  DataTable,
   Command,
   CommandEmpty,
   CommandGroup,
@@ -1613,6 +1614,23 @@ function ComponentGallerySection() {
             </CardDescription>
           </CardHeader>
           <CardContent className="preview-stack-md">
+            <DataTable
+              columns={[
+                { id: "package", header: "Package", accessor: "package" },
+                { id: "surface", header: "Surface", accessor: "surface" },
+                { id: "status", header: "Status", accessor: "status", align: "right" },
+              ]}
+              data={[
+                { package: "@synthex/ui", surface: "Design system", status: "Stable" },
+                { package: "@synthex/core", surface: "Layout engine", status: "Stable" },
+                { package: "@synthex/react-web", surface: "Workbench adapter", status: "Ready" },
+                { package: "@synthex/web-preview", surface: "Docs app", status: "Internal" },
+              ]}
+              pageSize={4}
+              searchKey="package"
+              searchPlaceholder="Filter packages"
+            />
+
             <Accordion type="single" defaultValue="surface" collapsible>
               <AccordionItem value="surface">
                 <AccordionTrigger>Surface model</AccordionTrigger>
