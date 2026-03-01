@@ -34,6 +34,11 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  ChartContainer,
+  ChartLegend,
+  ChartTooltip,
+  ChartTooltipContent,
+  LineChart,
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
@@ -371,6 +376,52 @@ describe("@synthex/ui web components", () => {
     expect(screen.getByText("Slide one")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Next slide" }));
     expect(screen.getByText("Slide two")).toBeInTheDocument();
+  });
+
+  it("renders chart primitives with legend and tooltip content", () => {
+    render(
+      <ThemeProvider>
+        <ChartContainer>
+          <ChartLegend
+            series={[
+              {
+                key: "visitors",
+                label: "Visitors",
+                data: [
+                  { label: "Mon", value: 16 },
+                  { label: "Tue", value: 24 },
+                  { label: "Wed", value: 20 },
+                ],
+              },
+            ]}
+          />
+          <LineChart
+            ariaLabel="Traffic chart"
+            series={[
+              {
+                key: "visitors",
+                label: "Visitors",
+                data: [
+                  { label: "Mon", value: 16 },
+                  { label: "Tue", value: 24 },
+                  { label: "Wed", value: 20 },
+                ],
+              },
+            ]}
+          />
+          <ChartTooltip>
+            <ChartTooltipContent
+              items={[{ label: "Visitors", value: 24 }]}
+              label="Tuesday"
+            />
+          </ChartTooltip>
+        </ChartContainer>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getAllByText("Visitors")).toHaveLength(2);
+    expect(screen.getByRole("img", { name: "Traffic chart" })).toBeInTheDocument();
+    expect(screen.getByText("Tuesday")).toBeInTheDocument();
   });
 
   it("supports date picker selection", () => {

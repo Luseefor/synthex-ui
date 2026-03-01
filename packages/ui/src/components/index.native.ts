@@ -131,6 +131,23 @@ export {
   CarouselPrevious,
 } from "../carousel/carousel.native";
 export type { CarouselSharedProps } from "../carousel/carousel.shared";
+export {
+  AreaChart,
+  BarChart,
+  ChartContainer,
+  ChartLegend,
+  ChartTooltip,
+  ChartTooltipContent,
+  LineChart,
+} from "../chart/chart.native";
+export type {
+  ChartContainerSharedProps,
+  ChartDatum,
+  ChartLegendSharedProps,
+  ChartSeries,
+  ChartTooltipContentSharedProps,
+  ChartTooltipItem,
+} from "../chart/chart.shared";
 export { Calendar } from "../calendar/calendar.native";
 export type { CalendarSharedProps } from "../calendar/calendar.shared";
 export { AspectRatio } from "../aspect-ratio/aspect-ratio.native";

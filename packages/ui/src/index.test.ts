@@ -31,6 +31,16 @@ vi.mock("lucide-react-native", () => ({
   X: "X",
 }));
 
+vi.mock("react-native-svg", () => ({
+  default: "Svg",
+  Circle: "Circle",
+  Line: "Line",
+  Path: "Path",
+  Polyline: "Polyline",
+  Rect: "Rect",
+  Text: "SvgText",
+}));
+
 describe("package exports", () => {
   it("exposes the web design system surface", () => {
     expect(web.Button).toBeDefined();
