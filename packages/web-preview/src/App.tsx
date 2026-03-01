@@ -221,6 +221,12 @@ import {
   EmptyHeader,
   EmptyTitle,
   Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+  FieldSet,
+  FieldLegend,
 } from "synthex-ui/components";
 import {
   AddIcon,
@@ -876,31 +882,40 @@ function ComponentGallerySection() {
                   placeholder="Describe the current workspace state, task intent, or panel metadata."
                 />
               </div>
-              <div className="preview-field-stack">
-                <Label htmlFor="component-invalid">Validation example</Label>
-                <Input
-                  id="component-invalid"
-                  invalid
-                  placeholder="Missing required value"
-                />
-              </div>
-              <div className="preview-field-stack">
-                <Label htmlFor="component-notes">Notes</Label>
-                <Textarea id="component-notes" uiSize="sm" placeholder="Compact note field" />
-              </div>
-              <div className="preview-field-stack preview-form-grid-span-2">
-                <Label>Active workspace</Label>
-                <Select defaultValue="schematic" placeholder="Choose a panel">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="schematic">Schematic editor</SelectItem>
-                    <SelectItem value="pcb">PCB layout</SelectItem>
-                    <SelectItem value="console">Command console</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Field>
+                <FieldLabel htmlFor="component-invalid">Validation example</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="component-invalid"
+                    invalid
+                    placeholder="Missing required value"
+                  />
+                  <FieldError>This field is required before publishing.</FieldError>
+                </FieldContent>
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="component-notes">Notes</FieldLabel>
+                <FieldContent>
+                  <Textarea id="component-notes" uiSize="sm" placeholder="Compact note field" />
+                  <FieldDescription>Compact multiline inputs share the same field rhythm.</FieldDescription>
+                </FieldContent>
+              </Field>
+              <Field className="preview-form-grid-span-2">
+                <FieldLabel>Active workspace</FieldLabel>
+                <FieldContent>
+                  <Select defaultValue="schematic" placeholder="Choose a panel">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="schematic">Schematic editor</SelectItem>
+                      <SelectItem value="pcb">PCB layout</SelectItem>
+                      <SelectItem value="console">Command console</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FieldDescription>Single-line controls now share one chrome system.</FieldDescription>
+                </FieldContent>
+              </Field>
             </div>
           </CardContent>
         </Card>
@@ -983,22 +998,25 @@ function ComponentGallerySection() {
                   <CardDescription>Labels, descriptions, and errors share ids automatically through the form contract.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Form>
-                    <FormField
-                      name="package-name"
-                      description="This package id will be used in generated docs and release notes."
-                      error="Package name is required."
-                    >
-                      <FormItem>
-                        <FormLabel>Package name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="synthex-ui" />
-                        </FormControl>
-                        <FormDescription />
-                        <FormMessage />
-                      </FormItem>
-                    </FormField>
-                  </Form>
+                  <FieldSet>
+                    <FieldLegend>Release package</FieldLegend>
+                    <Form>
+                      <FormField
+                        name="package-name"
+                        description="This package id will be used in generated docs and release notes."
+                        error="Package name is required."
+                      >
+                        <FormItem>
+                          <FormLabel>Package name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="synthex-ui" />
+                          </FormControl>
+                          <FormDescription />
+                          <FormMessage />
+                        </FormItem>
+                      </FormField>
+                    </Form>
+                  </FieldSet>
                 </CardContent>
               </Card>
             </div>
