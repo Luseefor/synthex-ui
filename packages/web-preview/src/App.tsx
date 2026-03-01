@@ -176,6 +176,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  ScrollArea,
   Sidebar,
   SidebarContent,
   SidebarGroup,
@@ -1594,6 +1595,33 @@ function ComponentGallerySection() {
                 </CardHeader>
               </Card>
             </DirectionProvider>
+          </CardContent>
+        </Card>
+
+        <Card variant="default">
+          <CardHeader>
+            <CardTitle>Scroll area</CardTitle>
+            <CardDescription>
+              Scroll areas are available directly from the component surface for bounded inspectors, logs, and nested documentation panes.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="preview-stack-md">
+            <ScrollArea
+              background="surfaceMuted"
+              border
+              padding="md"
+              radius="lg"
+              style={{ maxHeight: 220 }}
+            >
+              <div className="preview-stack-sm">
+                <Small>Release notes</Small>
+                <Muted>Scroll areas keep dense content readable inside cards, panes, and side panels.</Muted>
+                <Muted>Use them for long filters, inspector fields, console output, and schema summaries.</Muted>
+                <Muted>The same primitive already powers the layout helpers, and is now visible directly in the component surface too.</Muted>
+                <Muted>Because it is a shared primitive, it stays theme-aware across both light and dark routes.</Muted>
+                <Muted>This is the final parity piece from the current shadcn index.</Muted>
+              </div>
+            </ScrollArea>
           </CardContent>
         </Card>
 
