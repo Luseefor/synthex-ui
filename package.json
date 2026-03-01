@@ -13,6 +13,7 @@
     "check-types": "bun run --filter '@synthex/core' typecheck && bun run --filter 'synthex-ui' typecheck && bun run --filter '@synthex/react-web' typecheck && bun run --filter '@synthex/cli' typecheck && bun run --filter '@synthex/web-preview' typecheck",
     "dev": "bun run --filter '@synthex/web-preview' dev",
     "pack:check": "bun run ./scripts/pack-check.mjs",
+    "publish:public": "bun run ./scripts/publish-packages.mjs",
     "release:check": "bun run ./scripts/release-check.mjs",
     "test": "bun run --filter 'synthex-ui' test && bun run --filter '@synthex/react-web' test"
   },
