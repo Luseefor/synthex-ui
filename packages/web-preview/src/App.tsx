@@ -732,7 +732,7 @@ function PackageScopeSection() {
 
       <div className="preview-card-grid preview-card-grid-2">
         {packageCards.map((item) => (
-          <Card key={item.title} variant="interactive">
+          <Card key={item.title} variant="interactive" className="preview-package-card">
             <CardHeader>
               <CardTitle>{item.title}</CardTitle>
               <CardDescription>{item.description}</CardDescription>

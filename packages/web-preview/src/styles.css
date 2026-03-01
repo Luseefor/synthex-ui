@@ -242,19 +242,22 @@ body {
 .preview-main {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 3rem;
   min-width: 0;
+  max-width: 1120px;
+  width: 100%;
 }
 
 .preview-section,
 .preview-hero {
   scroll-margin-top: 100px;
+  max-width: 1120px;
 }
 
 .preview-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.85fr);
-  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.75fr);
+  gap: 1.5rem;
   align-items: start;
 }
 
@@ -268,16 +271,17 @@ body {
   border-radius: 20px;
   background: color-mix(in srgb, var(--sx-color-surface) 96%, var(--sx-color-background) 4%);
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
-  padding: 1.6rem;
+  padding: 1.85rem;
 }
 
 .preview-hero-copy h1 {
-  max-width: 14ch;
+  max-width: 12ch;
   margin: 0;
+  line-height: 0.98;
 }
 
 .preview-hero-copy p {
-  max-width: 60ch;
+  max-width: 58ch;
 }
 
 .preview-chip-row,
@@ -288,8 +292,8 @@ body {
 }
 
 .preview-inline-note {
-  max-width: 62ch;
-  margin-top: 0.5rem;
+  max-width: 56ch;
+  margin-top: 0.35rem;
 }
 
 .preview-hero-panel .preview-metric-grid {
@@ -300,6 +304,7 @@ body {
 
 .preview-hero-panel {
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+  align-self: stretch;
 }
 
 .preview-metric-card {
@@ -320,8 +325,8 @@ body {
 .preview-section {
   display: flex;
   flex-direction: column;
-  gap: 1.15rem;
-  padding-top: 0.5rem;
+  gap: 1.35rem;
+  padding-top: 0.85rem;
 }
 
 .preview-section-heading {
@@ -337,11 +342,24 @@ body {
 
 .preview-card-grid {
   display: grid;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .preview-card-grid-2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.preview-package-card {
+  min-height: 10.5rem;
+}
+
+.preview-package-card [class*="card-header"] {
+  gap: 0.75rem;
+}
+
+.preview-package-card [class*="card-description"] {
+  max-width: 32ch;
+  line-height: 1.7;
 }
 
 .preview-gallery-grid,
@@ -349,7 +367,7 @@ body {
 .preview-code-grid,
 .preview-roadmap-grid {
   display: grid;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .preview-card-grid > *,
@@ -1209,6 +1227,12 @@ body {
 
   .preview-sidebar {
     position: static;
+  }
+
+  .preview-main,
+  .preview-section,
+  .preview-hero {
+    max-width: none;
   }
 
   .workbench-body {
