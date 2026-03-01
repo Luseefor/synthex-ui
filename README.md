@@ -71,6 +71,10 @@ Run the docs and preview app:
 bun run dev
 ```
 
+Architecture diagrams:
+
+- [Mermaid documentation](/Users/lucifer/Programming/synthex-ui/docs/mermaid-architecture.md)
+
 ## Minimal Usage
 
 ```tsx
