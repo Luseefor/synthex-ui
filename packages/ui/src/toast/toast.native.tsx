@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useTheme } from "../_shared/theme/context";
 import { Button } from "../button/button.native";
+import { CheckIcon, CloseIcon } from "../icons/index.native";
 import {
   ToastProviderStore,
   useToast,
@@ -59,14 +60,66 @@ export function ToastViewport({ style, ...props }: ToastViewportProps) {
               borderColor: theme.colors.border,
               borderRadius: theme.radius.lg,
               borderWidth: 1,
+              flexDirection: "row",
+              gap: 12,
               padding: 16,
             }}
           >
-            <ToastTitle>{toast.title}</ToastTitle>
-            {toast.description ? <ToastDescription>{toast.description}</ToastDescription> : null}
-            <View style={{ flexDirection: "row", gap: 8, marginTop: 12 }}>
-              {toast.actionLabel ? <ToastAction>{toast.actionLabel}</ToastAction> : null}
-              <ToastClose onPress={() => store.dismissToast(toast.id)} />
+            <View
+              style={{
+                alignItems: "center",
+                backgroundColor:
+                  toast.variant === "success"
+                    ? theme.colors.primaryMuted
+                    : toast.variant === "warning"
+                      ? theme.colors.accentMuted
+                      : toast.variant === "destructive"
+                        ? theme.colors.destructiveMuted
+                        : theme.colors.surfaceMuted,
+                borderColor: theme.colors.border,
+                borderRadius: 999,
+                borderWidth: 1,
+                height: 36,
+                justifyContent: "center",
+                width: 36,
+              }}
+            >
+              {toast.variant === "destructive" ? (
+                <CloseIcon
+                  color={theme.colors.destructive}
+                  size={14}
+                  strokeWidth={2.2}
+                />
+              ) : (
+                <CheckIcon
+                  color={
+                    toast.variant === "warning"
+                      ? theme.colors.accent
+                      : toast.variant === "success"
+                        ? theme.colors.primary
+                        : theme.colors.foregroundMuted
+                  }
+                  size={14}
+                  strokeWidth={2.2}
+                />
+              )}
+            </View>
+            <View style={{ flex: 1 }}>
+              <ToastTitle>{toast.title}</ToastTitle>
+              {toast.description ? <ToastDescription>{toast.description}</ToastDescription> : null}
+              <View style={{ flexDirection: "row", gap: 8, marginTop: 12 }}>
+                {toast.actionLabel ? (
+                  <ToastAction
+                    onPress={() => {
+                      toast.action?.();
+                      store.dismissToast(toast.id);
+                    }}
+                  >
+                    {toast.actionLabel}
+                  </ToastAction>
+                ) : null}
+                <ToastClose onPress={() => store.dismissToast(toast.id)} />
+              </View>
             </View>
           </View>
         ))}
@@ -86,6 +139,7 @@ export function Toast({ children, style, ...props }: ToastProps) {
           borderColor: theme.colors.border,
           borderRadius: theme.radius.lg,
           borderWidth: 1,
+          flexDirection: "row",
           padding: 16,
         },
         style,
@@ -108,6 +162,7 @@ export function ToastTitle({ style, ...props }: ToastTitleProps) {
           fontFamily: theme.typography.family.sans,
           fontSize: theme.typography.size.sm,
           fontWeight: "600",
+          lineHeight: 20,
         },
         style,
       ]}
@@ -126,6 +181,7 @@ export function ToastDescription({ style, ...props }: ToastDescriptionProps) {
           color: theme.colors.foregroundMuted,
           fontFamily: theme.typography.family.sans,
           fontSize: theme.typography.size.sm,
+          lineHeight: 20,
           marginTop: 4,
         },
         style,
@@ -137,7 +193,7 @@ export function ToastDescription({ style, ...props }: ToastDescriptionProps) {
 
 export interface ToastActionProps extends React.ComponentPropsWithoutRef<typeof Button> {}
 export function ToastAction(props: ToastActionProps) {
-  return <Button size="sm" variant="outline" {...props} />;
+  return <Button size="sm" variant="secondary" {...props} />;
 }
 
 export interface ToastCloseProps extends Omit<PressableProps, "children" | "style"> {

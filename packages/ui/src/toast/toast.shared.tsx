@@ -4,14 +4,17 @@ export interface ToastSharedProps {
   readonly duration?: number;
   readonly open?: boolean;
   readonly onOpenChange?: (open: boolean) => void;
+  readonly variant?: "default" | "success" | "warning" | "destructive";
 }
 
 export interface ToastDescriptor {
+  readonly action?: (() => void) | undefined;
   readonly actionLabel?: string;
   readonly description?: React.ReactNode;
   readonly duration?: number;
   readonly id: string;
   readonly title: React.ReactNode;
+  readonly variant?: ToastSharedProps["variant"];
 }
 
 interface ToastContextValue {

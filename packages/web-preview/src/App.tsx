@@ -2087,6 +2087,7 @@ function ToastPreviewContent() {
             toast({
               title: "Build finished",
               description: "Declaration files, bundles, and preview assets were generated successfully.",
+              variant: "success",
             })
           }
         >
@@ -2099,10 +2100,24 @@ function ToastPreviewContent() {
               title: "Review required",
               description: "One workspace package still has unpublished changes.",
               actionLabel: "Inspect",
+              variant: "warning",
             })
           }
         >
           Show action toast
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={() =>
+            toast({
+              title: "Publish blocked",
+              description: "One package is missing a release tag and cannot be published yet.",
+              actionLabel: "Resolve",
+              variant: "destructive",
+            })
+          }
+        >
+          Show critical toast
         </Button>
       </div>
       <Muted>

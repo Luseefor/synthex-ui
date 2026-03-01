@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "../_shared/variants";
 import { Button } from "../button/button.web";
-import { CloseIcon } from "../icons/index.web";
+import { CheckIcon, CloseIcon } from "../icons/index.web";
 import {
   ToastProviderStore,
   useToast,
@@ -42,13 +42,22 @@ export const ToastViewport = React.forwardRef<HTMLDivElement, ToastViewportProps
         {...props}
       >
         {store.toasts.map((toast) => (
-          <Toast key={toast.id} duration={toast.duration}>
+          <Toast key={toast.id} duration={toast.duration} variant={toast.variant}>
             <ToastTitle>{toast.title}</ToastTitle>
             {toast.description ? (
               <ToastDescription>{toast.description}</ToastDescription>
             ) : null}
-            <div className="mt-3 flex items-center gap-2">
-              {toast.actionLabel ? <ToastAction>{toast.actionLabel}</ToastAction> : null}
+            <div className="mt-4 flex items-center gap-2">
+              {toast.actionLabel ? (
+                <ToastAction
+                  onClick={() => {
+                    toast.action?.();
+                    store.dismissToast(toast.id);
+                  }}
+                >
+                  {toast.actionLabel}
+                </ToastAction>
+              ) : null}
               <ToastClose onClick={() => store.dismissToast(toast.id)} />
             </div>
           </Toast>
@@ -65,7 +74,18 @@ export interface ToastProps
     ToastSharedProps {}
 
 export const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
-  ({ children, className, duration = 4000, onOpenChange, open = true, ...props }, ref) => {
+  (
+    {
+      children,
+      className,
+      duration = 4000,
+      onOpenChange,
+      open = true,
+      variant = "default",
+      ...props
+    },
+    ref,
+  ) => {
     const [visible, setVisible] = React.useState(open);
 
     React.useEffect(() => {
@@ -91,17 +111,37 @@ export const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
       return null;
     }
 
+    const accentClass =
+      variant === "success"
+        ? "bg-[color:color-mix(in_srgb,var(--sx-color-primary)_14%,var(--sx-color-surface))] text-[color:var(--sx-color-primary)]"
+        : variant === "warning"
+          ? "bg-[color:color-mix(in_srgb,var(--sx-color-accent)_22%,var(--sx-color-surface))] text-[color:var(--sx-color-accent)]"
+          : variant === "destructive"
+            ? "bg-[color:var(--sx-color-destructive-muted)] text-[color:var(--sx-color-destructive)]"
+            : "bg-[color:var(--sx-color-surface-muted)] text-[color:var(--sx-color-foreground-muted)]";
+
     return (
       <div
         ref={ref}
         role="status"
         className={cn(
-          "rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-4 shadow-[0_18px_42px_rgba(15,23,42,0.14)]",
+          "relative overflow-hidden rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-4 shadow-[0_18px_42px_rgba(15,23,42,0.14)]",
           className,
         )}
         {...props}
       >
-        {children}
+        <div className="absolute inset-y-0 left-0 w-1 rounded-l-[inherit] bg-[color:var(--sx-color-primary)] opacity-70" />
+        <div className="flex gap-3 pl-2">
+          <div
+            className={cn(
+              "mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[color:var(--sx-color-border)]",
+              accentClass,
+            )}
+          >
+            {variant === "destructive" ? <CloseIcon size={14} /> : <CheckIcon size={14} />}
+          </div>
+          <div className="min-w-0 flex-1">{children}</div>
+        </div>
       </div>
     );
   },
@@ -113,7 +153,7 @@ export interface ToastTitleProps extends React.HTMLAttributes<HTMLDivElement> {}
 export function ToastTitle({ className, ...props }: ToastTitleProps) {
   return (
     <div
-      className={cn("text-sm font-semibold text-[color:var(--sx-color-foreground)]", className)}
+      className={cn("text-sm font-semibold leading-5 text-[color:var(--sx-color-foreground)]", className)}
       {...props}
     />
   );
@@ -123,7 +163,7 @@ export interface ToastDescriptionProps extends React.HTMLAttributes<HTMLParagrap
 export function ToastDescription({ className, ...props }: ToastDescriptionProps) {
   return (
     <p
-      className={cn("mt-1 text-sm text-[color:var(--sx-color-foreground-muted)]", className)}
+      className={cn("mt-1 text-sm leading-5 text-[color:var(--sx-color-foreground-muted)]", className)}
       {...props}
     />
   );
@@ -131,7 +171,7 @@ export function ToastDescription({ className, ...props }: ToastDescriptionProps)
 
 export interface ToastActionProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
 export function ToastAction({ className, type = "button", ...props }: ToastActionProps) {
-  return <Button type={type} size="sm" variant="outline" className={className} {...props} />;
+  return <Button type={type} size="sm" variant="secondary" className={className} {...props} />;
 }
 
 export interface ToastCloseProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
@@ -141,7 +181,7 @@ export function ToastClose({ className, type = "button", ...props }: ToastCloseP
       type={type}
       aria-label="Dismiss toast"
       className={cn(
-        "inline-flex h-8 w-8 items-center justify-center rounded-full border border-[color:var(--sx-color-border)] text-[color:var(--sx-color-foreground-muted)] transition-colors duration-150 hover:bg-[color:var(--sx-color-surface-muted)] hover:text-[color:var(--sx-color-foreground)]",
+        "inline-flex h-8 w-8 items-center justify-center rounded-full border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] text-[color:var(--sx-color-foreground-muted)] transition-colors duration-150 hover:bg-[color:var(--sx-color-surface-muted)] hover:text-[color:var(--sx-color-foreground)]",
         className,
       )}
       {...props}

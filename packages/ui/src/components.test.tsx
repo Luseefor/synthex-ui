@@ -366,6 +366,7 @@ describe("synthex-ui web components", () => {
               toast({
                 description: "Workspace state persisted to disk.",
                 title: "Saved layout",
+                variant: "success",
               })
             }
           >
