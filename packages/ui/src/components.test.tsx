@@ -132,6 +132,7 @@ import {
   SheetTitle,
   SheetTrigger,
   Slider,
+  Sonner,
   Switch,
   Tabs,
   TabsContent,
@@ -140,11 +141,14 @@ import {
   Toggle,
   ToggleGroup,
   ToggleGroupItem,
+  ToastProvider,
+  Toaster,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
   NativeSelect,
   Spinner,
+  useSonner,
 } from "./components";
 import { Box, Surface } from "./primitives";
 
@@ -295,6 +299,41 @@ describe("@synthex/ui web components", () => {
     fireEvent.mouseUp(window);
 
     expect(Number(primaryPanel?.getAttribute("data-size"))).toBeGreaterThan(60);
+  });
+
+  it("renders toast notifications through the provider and viewport", () => {
+    function ToastHarness() {
+      const { toast } = useSonner();
+
+      return (
+        <>
+          <Button
+            onClick={() =>
+              toast({
+                description: "Workspace state persisted to disk.",
+                title: "Saved layout",
+              })
+            }
+          >
+            Show toast
+          </Button>
+          <Toaster />
+        </>
+      );
+    }
+
+    render(
+      <ThemeProvider>
+        <ToastProvider>
+          <ToastHarness />
+        </ToastProvider>
+      </ThemeProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Show toast" }));
+
+    expect(screen.getByText("Saved layout")).toBeInTheDocument();
+    expect(screen.getByText("Workspace state persisted to disk.")).toBeInTheDocument();
   });
 
   it("supports calendar navigation", () => {

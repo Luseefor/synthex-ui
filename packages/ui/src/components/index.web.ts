@@ -339,6 +339,20 @@ export {
   TooltipTrigger,
 } from "../tooltip/tooltip.web";
 export type { TooltipSharedProps } from "../tooltip/tooltip.shared";
+export {
+  Sonner,
+  Toaster,
+  Toast,
+  ToastAction,
+  ToastClose,
+  ToastDescription,
+  ToastProvider,
+  ToastTitle,
+  ToastViewport,
+  useSonner,
+  useToast,
+} from "../toast/toast.web";
+export type { ToastDescriptor, ToastSharedProps } from "../toast/toast.shared";
 export { Separator } from "../separator/separator.web";
 export {
   separatorVariants,
