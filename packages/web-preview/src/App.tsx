@@ -189,6 +189,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
   Slider,
   Small,
   Spinner,
@@ -1530,50 +1531,7 @@ function ComponentGallerySection() {
             </CardDescription>
           </CardHeader>
           <CardContent className="preview-stack-md">
-            <SidebarProvider defaultOpen>
-              <div
-                style={{
-                  display: "grid",
-                  gap: "1rem",
-                  gridTemplateColumns: "minmax(16rem, 18rem) minmax(0, 1fr)",
-                }}
-              >
-                <Sidebar>
-                  <SidebarHeader>
-                    <div className="preview-stack-sm">
-                      <Small>Navigation</Small>
-                      <SidebarTrigger>Collapse navigation</SidebarTrigger>
-                    </div>
-                  </SidebarHeader>
-                  <SidebarContent>
-                    <SidebarGroup>
-                      <SidebarGroupLabel>Workspace</SidebarGroupLabel>
-                      <SidebarGroupContent>
-                        <SidebarMenu>
-                          <SidebarMenuItem>
-                            <SidebarMenuButton active>Overview</SidebarMenuButton>
-                          </SidebarMenuItem>
-                          <SidebarMenuItem>
-                            <SidebarMenuButton>Packages</SidebarMenuButton>
-                          </SidebarMenuItem>
-                          <SidebarMenuItem>
-                            <SidebarMenuButton>Theme</SidebarMenuButton>
-                          </SidebarMenuItem>
-                        </SidebarMenu>
-                      </SidebarGroupContent>
-                    </SidebarGroup>
-                  </SidebarContent>
-                </Sidebar>
-                <SidebarInset>
-                  <div className="preview-stack-md" style={{ padding: "1.25rem" }}>
-                    <H3>Sidebar inset</H3>
-                    <Muted>
-                      Keep the main page body in the inset while the sidebar owns navigation groups, triggers, and supporting chrome.
-                    </Muted>
-                  </div>
-                </SidebarInset>
-              </div>
-            </SidebarProvider>
+            <SidebarPreview />
           </CardContent>
         </Card>
 
@@ -1960,6 +1918,98 @@ function ToastPreview() {
       <ToastPreviewContent />
       <Toaster />
     </ToastProvider>
+  );
+}
+
+function SidebarPreview() {
+  return (
+    <SidebarProvider defaultOpen>
+      <SidebarPreviewContent />
+    </SidebarProvider>
+  );
+}
+
+function SidebarPreviewContent() {
+  const { open } = useSidebar();
+  const [activeItem, setActiveItem] = useState<"overview" | "packages" | "theme">("overview");
+
+  const previewCopy = {
+    overview: {
+      body: "Use the sidebar shell for application-level navigation while the inset owns the primary page body.",
+      eyebrow: "Overview",
+      title: "Product navigation",
+    },
+    packages: {
+      body: "Package-level sections stay navigable without binding the shell to one documentation site or workbench surface.",
+      eyebrow: "Packages",
+      title: "Workspace packages",
+    },
+    theme: {
+      body: "Theme sections can live in the same shell while keeping tokens, accent presets, and mode controls within reach.",
+      eyebrow: "Theme",
+      title: "Theme controls",
+    },
+  } as const;
+
+  const current = previewCopy[activeItem];
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: "1rem",
+        minHeight: "20rem",
+      }}
+    >
+      <Sidebar>
+        <SidebarHeader>
+          <div className="preview-stack-sm">
+            {open ? <Small>Navigation</Small> : null}
+            <SidebarTrigger>{open ? "Collapse" : "Expand"}</SidebarTrigger>
+          </div>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    active={activeItem === "overview"}
+                    onClick={() => setActiveItem("overview")}
+                  >
+                    Overview
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    active={activeItem === "packages"}
+                    onClick={() => setActiveItem("packages")}
+                  >
+                    Packages
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    active={activeItem === "theme"}
+                    onClick={() => setActiveItem("theme")}
+                  >
+                    Theme
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+      <SidebarInset>
+        <div className="preview-stack-md" style={{ minHeight: "100%", padding: "1.25rem" }}>
+          <Small>{current.eyebrow}</Small>
+          <H3>{current.title}</H3>
+          <Muted>{current.body}</Muted>
+        </div>
+      </SidebarInset>
+    </div>
   );
 }
 
