@@ -103,20 +103,20 @@ function renderPanelBody(panel: PanelNode) {
           <div className="workbench-document-toolbar">
             <span>Overview draft</span>
             <span>12 sections</span>
-            <span>Synced</span>
+            <span>Updated 2m ago</span>
           </div>
           <div className="workbench-document-grid">
             <div className="workbench-document-card">
               <div className="workbench-document-card-title">Header</div>
-              <p>Clear hierarchy, restrained surfaces, and strong spacing rhythm.</p>
+              <p>Clear hierarchy and restrained surfaces.</p>
             </div>
             <div className="workbench-document-card">
               <div className="workbench-document-card-title">Content</div>
-              <p>Single-column primary flow with side context, not a crowded dashboard.</p>
+              <p>Single-column reading flow with supporting context.</p>
             </div>
             <div className="workbench-document-card workbench-document-card-wide">
-              <div className="workbench-document-card-title">Notes</div>
-              <p>General-purpose workspace panels remain useful across admin, docs, data, and engineering apps.</p>
+              <div className="workbench-document-card-title">Summary</div>
+              <p>Keep the workspace generic enough to validate layout behavior without product-specific art direction.</p>
             </div>
           </div>
         </div>
@@ -162,8 +162,8 @@ function renderPanelBody(panel: PanelNode) {
                 <dd>Comfortable</dd>
               </div>
               <div>
-                <dt>Theme</dt>
-                <dd>Dark</dd>
+                <dt>Mode</dt>
+                <dd>Studio</dd>
               </div>
             </dl>
           </section>
@@ -225,7 +225,7 @@ function renderPanelBody(panel: PanelNode) {
     case "notes":
       return (
         <div className="workbench-note-surface">
-          <p>Keep the workbench generic enough to validate layout behavior without hardcoding one product domain.</p>
+          <p>Use the workbench to validate layout behavior, not to imitate one specific product.</p>
           <ul>
             <li>Clear split directions</li>
             <li>Predictable tab hosts</li>

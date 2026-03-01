@@ -1406,6 +1406,42 @@ function WorkbenchSection({
 }: {
   readonly workbench: WorkbenchController;
 }) {
+  const siteTheme = useTheme();
+  const workbenchThemeOverride = useMemo(
+    () => ({
+      colors: {
+        primary: siteTheme.colors.primary,
+        primaryHover: siteTheme.colors.primaryHover,
+        primaryMuted: siteTheme.colors.primaryMuted,
+        accent: siteTheme.colors.accent,
+        accentMuted: siteTheme.colors.accentMuted,
+        ring: siteTheme.colors.ring,
+      },
+    }),
+    [siteTheme],
+  );
+
+  return (
+    <section id="playground" className="preview-section">
+      <div className="preview-section-heading">
+        <H2>Live workbench</H2>
+        <Muted>
+          This route validates the actual layout engine with a restrained studio-style workspace instead of a one-off product mockup.
+        </Muted>
+      </div>
+
+      <ThemeProvider mode="dark" theme={workbenchThemeOverride}>
+        <WorkbenchSurface workbench={workbench} />
+      </ThemeProvider>
+    </section>
+  );
+}
+
+function WorkbenchSurface({
+  workbench,
+}: {
+  readonly workbench: WorkbenchController;
+}) {
   const theme = useTheme();
   const rendererTheme = useMemo(() => createWorkbenchRendererTheme(theme), [theme]);
   const shellStyle = useMemo(() => createWorkbenchShellStyle(theme), [theme]);
@@ -1416,172 +1452,163 @@ function WorkbenchSection({
   const stats = useMemo(() => summarizeLayout(workbench.layout), [workbench.layout]);
 
   return (
-    <section id="playground" className="preview-section">
-      <div className="preview-section-heading">
-        <H2>Live workbench</H2>
-        <Muted>
-          This route validates the actual layout engine with a general-purpose workspace shell instead of a one-off product mockup.
-        </Muted>
-      </div>
-
-      <div className="workbench-shell" style={shellStyle}>
-        <div className="workbench-shell-main">
-          <div className="workbench-shell-header">
-            <div className="workbench-shell-heading">
-              <Small>Workspace shell</Small>
-              <div className="workbench-shell-heading-row">
-                <H3>General-purpose tiling workspace</H3>
-                <div className="preview-chip-row">
-                  <Badge variant="outline">Resizable splits</Badge>
-                  <Badge variant="outline">Tab stacks</Badge>
-                  <Badge variant="outline">Serializable state</Badge>
-                </div>
+    <div className="workbench-shell" style={shellStyle}>
+      <div className="workbench-shell-main">
+        <div className="workbench-shell-header">
+          <div className="workbench-shell-heading">
+            <Small>Workspace shell</Small>
+            <div className="workbench-shell-heading-row">
+              <H3>General-purpose tiling workspace</H3>
+              <div className="preview-chip-row">
+                <Badge variant="outline">Resizable splits</Badge>
+                <Badge variant="outline">Tab stacks</Badge>
+                <Badge variant="outline">Serializable state</Badge>
               </div>
-              <Muted>
-                The dock area is intentionally generic. It is there to prove reducer behavior, tab orchestration, resize handling, and selection state without locking the preview to one domain.
-              </Muted>
             </div>
-
-            <Toolbar
-              canRedo={workbench.redoDepth > 0}
-              canUndo={workbench.undoDepth > 0}
-              lastAction={workbench.lastAction}
-              selectedLabel={selectedNode ? describeWorkbenchNode(selectedNode) : "Nothing selected"}
-              onAddPanel={() => void workbench.addPanel()}
-              onSplitColumns={() => void workbench.splitSelection("horizontal")}
-              onSplitRows={() => void workbench.splitSelection("vertical")}
-              onUndo={() => void workbench.undo()}
-              onRedo={() => void workbench.redo()}
-            />
+            <Muted>
+              The workspace keeps a dedicated dark studio theme so layout behavior stays readable regardless of the surrounding docs mode.
+            </Muted>
           </div>
 
-          <div className="workbench-frame">
-            <LayoutRenderer
-              layout={workbench.layout}
-              theme={rendererTheme}
-              selectedNodeId={workbench.selectedNodeId}
-              onSelectNode={workbench.setSelectedNodeId}
-              onAction={(action) => {
-                void workbench.dispatch(action);
-              }}
-              renderTabLabel={(panel) => (
-                <span className="workbench-tab-label">{panel.title ?? panel.panelType}</span>
-              )}
-              renderPanel={(panel) => (
-                <PreviewPanel
-                  panel={panel}
-                  isSelected={panel.id === workbench.selectedNodeId}
-                />
-              )}
-            />
+          <Toolbar
+            canRedo={workbench.redoDepth > 0}
+            canUndo={workbench.undoDepth > 0}
+            lastAction={workbench.lastAction}
+            selectedLabel={selectedNode ? describeWorkbenchNode(selectedNode) : "Nothing selected"}
+            onAddPanel={() => void workbench.addPanel()}
+            onSplitColumns={() => void workbench.splitSelection("horizontal")}
+            onSplitRows={() => void workbench.splitSelection("vertical")}
+            onUndo={() => void workbench.undo()}
+            onRedo={() => void workbench.redo()}
+          />
+        </div>
+
+        <div className="workbench-frame">
+          <LayoutRenderer
+            layout={workbench.layout}
+            theme={rendererTheme}
+            selectedNodeId={workbench.selectedNodeId}
+            onSelectNode={workbench.setSelectedNodeId}
+            onAction={(action) => {
+              void workbench.dispatch(action);
+            }}
+            renderTabLabel={(panel) => (
+              <span className="workbench-tab-label">{panel.title ?? panel.panelType}</span>
+            )}
+            renderPanel={(panel) => (
+              <PreviewPanel
+                panel={panel}
+                isSelected={panel.id === workbench.selectedNodeId}
+              />
+            )}
+          />
+        </div>
+      </div>
+
+      <aside className="workbench-sidebar">
+        <div className="workbench-sidebar-pane">
+          <div className="workbench-pane-title-row">
+            <H3>Workspace</H3>
+            <Badge variant="secondary">{workbench.lastAction}</Badge>
+          </div>
+          <div className="workbench-stat-grid">
+            <div className="workbench-stat">
+              <Small>Panels</Small>
+              <strong>{stats.panels}</strong>
+            </div>
+            <div className="workbench-stat">
+              <Small>Tab hosts</Small>
+              <strong>{stats.tabs}</strong>
+            </div>
+            <div className="workbench-stat">
+              <Small>Splits</Small>
+              <strong>{stats.splits}</strong>
+            </div>
+            <div className="workbench-stat">
+              <Small>Depth</Small>
+              <strong>{stats.depth}</strong>
+            </div>
+          </div>
+          <div className="workbench-chip-strip">
+            <Badge variant="outline">Undo {workbench.undoDepth}</Badge>
+            <Badge variant="outline">Redo {workbench.redoDepth}</Badge>
+          </div>
+          <div className="workbench-activity-log">
+            {workbench.recentActions.map((entry) => (
+              <div key={entry} className="workbench-activity-log-item">
+                {entry}
+              </div>
+            ))}
           </div>
         </div>
 
-        <aside className="workbench-sidebar">
-          <div className="workbench-sidebar-pane">
-            <div className="workbench-pane-title-row">
-              <H3>Workspace</H3>
-              <Badge variant="secondary">{workbench.lastAction}</Badge>
-            </div>
-            <div className="workbench-stat-grid">
-              <div className="workbench-stat">
-                <Small>Panels</Small>
-                <strong>{stats.panels}</strong>
-              </div>
-              <div className="workbench-stat">
-                <Small>Tab hosts</Small>
-                <strong>{stats.tabs}</strong>
-              </div>
-              <div className="workbench-stat">
-                <Small>Splits</Small>
-                <strong>{stats.splits}</strong>
-              </div>
-              <div className="workbench-stat">
-                <Small>Depth</Small>
-                <strong>{stats.depth}</strong>
-              </div>
-            </div>
-            <div className="workbench-chip-strip">
-              <Badge variant="outline">Undo {workbench.undoDepth}</Badge>
-              <Badge variant="outline">Redo {workbench.redoDepth}</Badge>
-            </div>
-            <div className="workbench-activity-log">
-              {workbench.recentActions.map((entry) => (
-                <div key={entry} className="workbench-activity-log-item">
-                  {entry}
-                </div>
-              ))}
-            </div>
+        <div className="workbench-sidebar-pane">
+          <div className="workbench-pane-title-row">
+            <H3>Selection</H3>
+            <Small>{selectedNode ? selectedNode.id : "none"}</Small>
           </div>
+          <Muted>
+            {selectedNode
+              ? describeWorkbenchNode(selectedNode)
+              : "Select a panel, tab host, or split frame to inspect it here."}
+          </Muted>
+          {selectedNode ? (
+            <dl className="workbench-definition-list">
+              <div>
+                <dt>Node type</dt>
+                <dd>{selectedNode.type}</dd>
+              </div>
+              {selectedNode.type === "panel" ? (
+                <>
+                  <div>
+                    <dt>Panel type</dt>
+                    <dd>{selectedNode.panelType}</dd>
+                  </div>
+                  <div>
+                    <dt>Title</dt>
+                    <dd>{selectedNode.title ?? "Untitled"}</dd>
+                  </div>
+                </>
+              ) : null}
+              {selectedNode.type === "tabs" ? (
+                <>
+                  <div>
+                    <dt>Active panel</dt>
+                    <dd>{selectedNode.activePanelId}</dd>
+                  </div>
+                  <div>
+                    <dt>Children</dt>
+                    <dd>{selectedNode.children.length}</dd>
+                  </div>
+                </>
+              ) : null}
+              {selectedNode.type === "split" ? (
+                <>
+                  <div>
+                    <dt>Direction</dt>
+                    <dd>{selectedNode.direction}</dd>
+                  </div>
+                  <div>
+                    <dt>Ratios</dt>
+                    <dd>{selectedNode.sizes.map((size) => size.toFixed(2)).join(" / ")}</dd>
+                  </div>
+                </>
+              ) : null}
+            </dl>
+          ) : null}
+        </div>
 
-          <div className="workbench-sidebar-pane">
-            <div className="workbench-pane-title-row">
-              <H3>Selection</H3>
-              <Small>{selectedNode ? selectedNode.id : "none"}</Small>
-            </div>
-            <Muted>
-              {selectedNode
-                ? describeWorkbenchNode(selectedNode)
-                : "Select a panel, tab host, or split frame to inspect it here."}
-            </Muted>
-            {selectedNode ? (
-              <dl className="workbench-definition-list">
-                <div>
-                  <dt>Node type</dt>
-                  <dd>{selectedNode.type}</dd>
-                </div>
-                {selectedNode.type === "panel" ? (
-                  <>
-                    <div>
-                      <dt>Panel type</dt>
-                      <dd>{selectedNode.panelType}</dd>
-                    </div>
-                    <div>
-                      <dt>Title</dt>
-                      <dd>{selectedNode.title ?? "Untitled"}</dd>
-                    </div>
-                  </>
-                ) : null}
-                {selectedNode.type === "tabs" ? (
-                  <>
-                    <div>
-                      <dt>Active panel</dt>
-                      <dd>{selectedNode.activePanelId}</dd>
-                    </div>
-                    <div>
-                      <dt>Children</dt>
-                      <dd>{selectedNode.children.length}</dd>
-                    </div>
-                  </>
-                ) : null}
-                {selectedNode.type === "split" ? (
-                  <>
-                    <div>
-                      <dt>Direction</dt>
-                      <dd>{selectedNode.direction}</dd>
-                    </div>
-                    <div>
-                      <dt>Ratios</dt>
-                      <dd>{selectedNode.sizes.map((size) => size.toFixed(2)).join(" / ")}</dd>
-                    </div>
-                  </>
-                ) : null}
-              </dl>
-            ) : null}
+        <div className="workbench-sidebar-pane workbench-sidebar-pane-code">
+          <div className="workbench-pane-title-row">
+            <H3>Serialized layout</H3>
+            <Small>Current snapshot</Small>
           </div>
-
-          <div className="workbench-sidebar-pane workbench-sidebar-pane-code">
-            <div className="workbench-pane-title-row">
-              <H3>Serialized layout</H3>
-              <Small>Current snapshot</Small>
-            </div>
-            <pre className="workbench-code">
-              <code>{serializeLayout(workbench.layout)}</code>
-            </pre>
-          </div>
-        </aside>
-      </div>
-    </section>
+          <pre className="workbench-code">
+            <code>{serializeLayout(workbench.layout)}</code>
+          </pre>
+        </div>
+      </aside>
+    </div>
   );
 }
 
@@ -1891,49 +1918,39 @@ function describeLayoutAction(action: LayoutAction): string {
 }
 
 function createWorkbenchRendererTheme(theme: SynthexTheme) {
-  const isDark = theme.mode === "dark";
-
   return {
-    canvasBackground: isDark ? "#0a1019" : theme.colors.backgroundSubtle,
-    surfaceBackground: isDark ? "#0f1724" : theme.colors.surface,
-    surfaceMutedBackground: isDark ? "#0d1520" : theme.colors.surfaceMuted,
-    surfaceRaisedBackground: isDark ? "#152033" : theme.colors.surfaceRaised,
-    borderColor: isDark ? "rgba(148, 163, 184, 0.16)" : theme.colors.border,
-    borderColorStrong: isDark ? "rgba(148, 163, 184, 0.28)" : theme.colors.borderStrong,
+    canvasBackground: theme.colors.background,
+    surfaceBackground: theme.colors.surface,
+    surfaceMutedBackground: theme.colors.surfaceMuted,
+    surfaceRaisedBackground: theme.colors.surfaceRaised,
+    borderColor: theme.colors.border,
+    borderColorStrong: theme.colors.borderStrong,
     selectedBorderColor: theme.colors.primary,
-    textColor: isDark ? "#e2e8f0" : theme.colors.foreground,
-    mutedTextColor: isDark ? "#93a3b8" : theme.colors.foregroundMuted,
-    tabRailBackground: isDark ? "#0c1522" : theme.colors.backgroundSubtle,
-    tabActiveBackground: isDark ? "#172235" : theme.colors.surfaceRaised,
+    textColor: theme.colors.foreground,
+    mutedTextColor: theme.colors.foregroundMuted,
+    tabRailBackground: theme.colors.backgroundSubtle,
+    tabActiveBackground: theme.colors.surfaceRaised,
     tabInactiveBackground: "transparent",
-    tabActiveTextColor: isDark ? "#f8fafc" : theme.colors.foreground,
-    tabInactiveTextColor: isDark ? "#94a3b8" : theme.colors.foregroundMuted,
-    resizeHandleBackground: isDark ? "#0a1019" : theme.colors.backgroundSubtle,
-    resizeHandleColor: isDark ? "rgba(148, 163, 184, 0.34)" : "rgba(100, 116, 139, 0.28)",
+    tabActiveTextColor: theme.colors.foreground,
+    tabInactiveTextColor: theme.colors.foregroundMuted,
+    resizeHandleBackground: theme.colors.backgroundSubtle,
+    resizeHandleColor: "rgba(148, 163, 184, 0.26)",
     resizeHandleHoverColor: theme.colors.primary,
   };
 }
 
 function createWorkbenchShellStyle(theme: SynthexTheme): CSSProperties {
-  const isDark = theme.mode === "dark";
-
   return {
-    ["--workbench-shell-background" as string]: isDark ? "#0b121d" : theme.colors.surface,
-    ["--workbench-shell-background-muted" as string]: isDark ? "#0f1724" : theme.colors.surfaceMuted,
-    ["--workbench-shell-background-raised" as string]: isDark ? "#121d2c" : theme.colors.surfaceRaised,
-    ["--workbench-shell-border" as string]: isDark
-      ? "rgba(148, 163, 184, 0.16)"
-      : theme.colors.border,
-    ["--workbench-shell-border-strong" as string]: isDark
-      ? "rgba(148, 163, 184, 0.28)"
-      : theme.colors.borderStrong,
-    ["--workbench-shell-foreground" as string]: isDark ? "#e2e8f0" : theme.colors.foreground,
-    ["--workbench-shell-foreground-muted" as string]: isDark ? "#93a3b8" : theme.colors.foregroundMuted,
+    ["--workbench-shell-background" as string]: theme.colors.background,
+    ["--workbench-shell-background-muted" as string]: theme.colors.surfaceMuted,
+    ["--workbench-shell-background-raised" as string]: theme.colors.surfaceRaised,
+    ["--workbench-shell-border" as string]: theme.colors.border,
+    ["--workbench-shell-border-strong" as string]: theme.colors.borderStrong,
+    ["--workbench-shell-foreground" as string]: theme.colors.foreground,
+    ["--workbench-shell-foreground-muted" as string]: theme.colors.foregroundMuted,
     ["--workbench-shell-accent" as string]: theme.colors.primary,
-    ["--workbench-shell-code-background" as string]: isDark ? "#07101c" : "#0f172a",
-    ["--workbench-shell-code-foreground" as string]: isDark ? "#dbe7f7" : "#dbeafe",
-    ["--workbench-shell-grid" as string]: isDark
-      ? "rgba(148, 163, 184, 0.1)"
-      : "rgba(148, 163, 184, 0.2)",
+    ["--workbench-shell-code-background" as string]: "#0a1120",
+    ["--workbench-shell-code-foreground" as string]: "#dce7f8",
+    ["--workbench-shell-grid" as string]: "rgba(148, 163, 184, 0.1)",
   };
 }

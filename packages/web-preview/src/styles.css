@@ -822,12 +822,12 @@ body {
 
 .workbench-panel-header h4 {
   margin: 0.2rem 0 0;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--workbench-shell-foreground);
 }
 
 .workbench-panel-kicker {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -844,7 +844,7 @@ body {
   border-radius: 999px;
   background: color-mix(in srgb, var(--workbench-shell-background-raised) 82%, transparent);
   color: var(--workbench-shell-foreground);
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -855,7 +855,8 @@ body {
   min-height: 0;
   overflow: auto;
   background: var(--workbench-shell-background);
-  padding: 0.9rem;
+  padding: 0.8rem;
+  font-size: 0.88rem;
 }
 
 .workbench-stack-surface,
@@ -919,6 +920,7 @@ body {
   color: var(--workbench-shell-foreground);
   padding: 0 0.8rem;
   text-align: left;
+  font-size: 0.88rem;
 }
 
 .workbench-tree-item-active {
@@ -975,7 +977,7 @@ body {
   background: color-mix(in srgb, var(--workbench-shell-background) 88%, transparent);
   color: var(--workbench-shell-foreground-muted);
   padding: 0.75rem 0.95rem;
-  font-size: 0.8rem;
+  font-size: 0.76rem;
 }
 
 .workbench-document-grid {
@@ -988,7 +990,7 @@ body {
 .workbench-document-card {
   display: grid;
   gap: 0.45rem;
-  min-height: 9rem;
+  min-height: 7rem;
   border: 1px solid var(--workbench-shell-border);
   border-radius: 0.9rem;
   background: color-mix(in srgb, var(--workbench-shell-background) 94%, transparent);
@@ -997,7 +999,7 @@ body {
 
 .workbench-document-card-wide {
   grid-column: 1 / -1;
-  min-height: 6rem;
+  min-height: 5rem;
 }
 
 .workbench-document-card-title {
@@ -1011,7 +1013,9 @@ body {
 .workbench-document-card p {
   margin: 0;
   color: var(--workbench-shell-foreground);
+  font-size: 0.84rem;
   line-height: 1.55;
+  max-width: 24ch;
 }
 
 .workbench-metric-row {
@@ -1044,6 +1048,7 @@ body {
   gap: 0.75rem;
   padding: 0.95rem;
   color: var(--workbench-shell-foreground);
+  font-size: 0.84rem;
 }
 
 .workbench-inspector {
@@ -1089,6 +1094,7 @@ body {
 .workbench-property-list dd {
   margin: 0;
   color: var(--workbench-shell-foreground);
+  font-size: 0.9rem;
 }
 
 .workbench-outline-list {
@@ -1158,7 +1164,7 @@ body {
   border-left: 2px solid var(--workbench-shell-accent);
   padding-left: 0.7rem;
   color: var(--workbench-shell-foreground-muted);
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   line-height: 1.5;
 }
 
