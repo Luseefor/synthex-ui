@@ -175,6 +175,18 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
   Slider,
   Small,
   Spinner,
@@ -1505,6 +1517,61 @@ function ComponentGallerySection() {
                 </ItemDescription>
               </Item>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card variant="default">
+          <CardHeader>
+            <CardTitle>Sidebar shell</CardTitle>
+            <CardDescription>
+              Sidebar primitives provide a reusable shell for docs chrome, tool navigation, and split application layouts without binding that structure to one product vertical.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="preview-stack-md">
+            <SidebarProvider defaultOpen>
+              <div
+                style={{
+                  display: "grid",
+                  gap: "1rem",
+                  gridTemplateColumns: "minmax(16rem, 18rem) minmax(0, 1fr)",
+                }}
+              >
+                <Sidebar>
+                  <SidebarHeader>
+                    <div className="preview-stack-sm">
+                      <Small>Navigation</Small>
+                      <SidebarTrigger>Collapse navigation</SidebarTrigger>
+                    </div>
+                  </SidebarHeader>
+                  <SidebarContent>
+                    <SidebarGroup>
+                      <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+                      <SidebarGroupContent>
+                        <SidebarMenu>
+                          <SidebarMenuItem>
+                            <SidebarMenuButton active>Overview</SidebarMenuButton>
+                          </SidebarMenuItem>
+                          <SidebarMenuItem>
+                            <SidebarMenuButton>Packages</SidebarMenuButton>
+                          </SidebarMenuItem>
+                          <SidebarMenuItem>
+                            <SidebarMenuButton>Theme</SidebarMenuButton>
+                          </SidebarMenuItem>
+                        </SidebarMenu>
+                      </SidebarGroupContent>
+                    </SidebarGroup>
+                  </SidebarContent>
+                </Sidebar>
+                <SidebarInset>
+                  <div className="preview-stack-md" style={{ padding: "1.25rem" }}>
+                    <H3>Sidebar inset</H3>
+                    <Muted>
+                      Keep the main page body in the inset while the sidebar owns navigation groups, triggers, and supporting chrome.
+                    </Muted>
+                  </div>
+                </SidebarInset>
+              </div>
+            </SidebarProvider>
           </CardContent>
         </Card>
 
