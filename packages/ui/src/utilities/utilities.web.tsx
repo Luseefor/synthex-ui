@@ -1,4 +1,5 @@
 import * as React from "react";
+import { getFieldControlClassName } from "../_shared/field-control.web";
 import { cn } from "../_shared/variants";
 import { Label } from "../label/label.web";
 
@@ -54,7 +55,60 @@ export function ButtonGroup({ className, ...props }: ButtonGroupProps) {
 export interface FieldProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function Field({ className, ...props }: FieldProps) {
-  return <div className={cn("grid gap-2", className)} {...props} />;
+  return <div className={cn("grid gap-2.5", className)} {...props} />;
+}
+
+export interface FieldSetProps extends React.FieldsetHTMLAttributes<HTMLFieldSetElement> {}
+export function FieldSet({ className, ...props }: FieldSetProps) {
+  return (
+    <fieldset
+      className={cn(
+        "grid gap-3 rounded-[var(--sx-radius-lg)] border border-[color:var(--sx-color-border)] p-4",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+export interface FieldLegendProps extends React.HTMLAttributes<HTMLLegendElement> {}
+export function FieldLegend({ className, ...props }: FieldLegendProps) {
+  return (
+    <legend
+      className={cn("px-1 text-sm font-semibold text-[color:var(--sx-color-foreground)]", className)}
+      {...props}
+    />
+  );
+}
+
+export interface FieldContentProps extends React.HTMLAttributes<HTMLDivElement> {}
+export function FieldContent({ className, ...props }: FieldContentProps) {
+  return <div className={cn("grid gap-1.5", className)} {...props} />;
+}
+
+export interface FieldLabelProps extends React.ComponentPropsWithoutRef<typeof Label> {}
+export function FieldLabel({ className, ...props }: FieldLabelProps) {
+  return <Label className={cn("text-[13px] font-semibold", className)} {...props} />;
+}
+
+export interface FieldDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {}
+export function FieldDescription({ className, ...props }: FieldDescriptionProps) {
+  return (
+    <p
+      className={cn("text-[13px] leading-5 text-[color:var(--sx-color-foreground-muted)]", className)}
+      {...props}
+    />
+  );
+}
+
+export interface FieldErrorProps extends React.HTMLAttributes<HTMLParagraphElement> {}
+export function FieldError({ className, ...props }: FieldErrorProps) {
+  return (
+    <p
+      className={cn("text-[13px] font-medium leading-5 text-[color:var(--sx-color-destructive)]", className)}
+      {...props}
+    />
+  );
 }
 
 export interface InputGroupProps extends React.HTMLAttributes<HTMLDivElement> {}
@@ -63,7 +117,7 @@ export function InputGroup({ className, ...props }: InputGroupProps) {
   return (
     <div
       className={cn(
-        "flex items-stretch overflow-hidden rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-raised)]",
+        "flex items-stretch overflow-hidden rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-raised)] shadow-[inset_0_1px_1px_rgba(15,23,42,0.03)]",
         className,
       )}
       {...props}
@@ -143,15 +197,9 @@ export interface NativeSelectProps extends React.SelectHTMLAttributes<HTMLSelect
 
 export function NativeSelect({ children, className, label, ...props }: NativeSelectProps) {
   return (
-    <div className="grid gap-2">
+    <div className="grid gap-2.5">
       {label ? <Label>{label}</Label> : null}
-      <select
-        className={cn(
-          "h-10 rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-raised)] px-3.5 text-sm text-[color:var(--sx-color-foreground)] shadow-[inset_0_1px_1px_rgba(15,23,42,0.04)] outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)]",
-          className,
-        )}
-        {...props}
-      >
+      <select className={getFieldControlClassName({ className })} {...props}>
         {children}
       </select>
     </div>

@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { CheckIcon, ChevronDownIcon } from "../icons/index.native";
 import { useTheme } from "../_shared/theme/context";
+import { createFieldControlStyle } from "../_shared/field-control.native";
 import {
   SelectProvider,
   useSelectContext,
@@ -80,12 +81,7 @@ export const SelectTrigger = React.forwardRef<
       }}
       style={({ pressed }) => [
         {
-          minHeight: 40,
-          borderWidth: 1,
-          borderColor: theme.colors.border,
-          borderRadius: theme.radius.md,
-          backgroundColor: theme.colors.surfaceRaised,
-          paddingHorizontal: 14,
+          ...createFieldControlStyle(theme, {}),
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",

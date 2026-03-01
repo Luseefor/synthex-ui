@@ -6,6 +6,7 @@ import {
   type TextStyle,
 } from "react-native";
 import { useTheme } from "../_shared/theme/context";
+import { createFieldControlStyle } from "../_shared/field-control.native";
 import {
   resolveTextareaVariants,
   type TextareaSharedProps,
@@ -25,37 +26,13 @@ export const Textarea = React.forwardRef<
   const resolved = resolveTextareaVariants({ invalid, uiSize });
 
   const textareaStyle = React.useMemo<TextStyle>(() => {
-    const sizeStyle: Record<typeof resolved.size, TextStyle> = {
-      sm: {
-        minHeight: 104,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
-        fontSize: 13,
-      },
-      md: {
-        minHeight: 128,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        fontSize: theme.typography.size.sm,
-      },
-      lg: {
-        minHeight: 160,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        fontSize: 15,
-      },
-    };
-
     return {
-      borderWidth: 1,
-      borderRadius: theme.radius.md,
-      borderColor:
-        resolved.tone === "invalid" ? theme.colors.destructive : theme.colors.border,
-      backgroundColor: theme.colors.surfaceRaised,
-      color: theme.colors.foreground,
-      fontFamily: theme.typography.family.sans,
+      ...createFieldControlStyle(theme, {
+        multiline: true,
+        size: resolved.size,
+        tone: resolved.tone,
+      }),
       textAlignVertical: "top",
-      ...sizeStyle[resolved.size],
     };
   }, [resolved.size, resolved.tone, theme]);
 

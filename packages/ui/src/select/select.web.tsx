@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "../_shared/variants";
+import { getFieldControlClassName } from "../_shared/field-control.web";
 import { CheckIcon, ChevronDownIcon } from "../icons/index.web";
 import {
   SelectProvider,
@@ -85,10 +86,9 @@ export const SelectTrigger = React.forwardRef<
       ref={ref}
       type={type}
       aria-expanded={context.open}
-      className={cn(
-        "inline-flex h-10 w-full items-center justify-between gap-3 rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-raised)] px-3.5 text-sm text-[color:var(--sx-color-foreground)] shadow-[inset_0_1px_1px_rgba(15,23,42,0.04)] transition-[border-color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)]",
-        className,
-      )}
+      className={getFieldControlClassName({
+        className: cn("inline-flex items-center justify-between gap-3 text-left", className),
+      })}
       onClick={(event) => {
         context.setOpen(!context.open);
         onClick?.(event);
@@ -178,7 +178,7 @@ export const SelectItem = React.forwardRef<HTMLButtonElement, SelectItemProps>(
         role="option"
         aria-selected={active}
         className={cn(
-          "flex w-full items-center justify-between gap-3 rounded-[var(--sx-radius-md)] px-3 py-2.5 text-left text-sm text-[color:var(--sx-color-foreground)] transition-colors duration-150 hover:bg-[color:var(--sx-color-surface-muted)]",
+          "flex w-full items-center justify-between gap-3 rounded-[var(--sx-radius-md)] px-3 py-2.5 text-left text-sm text-[color:var(--sx-color-foreground)] transition-colors duration-150 hover:bg-[color:var(--sx-color-surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[color:var(--sx-color-surface)]",
           active && "bg-[color:var(--sx-color-primary-muted)] text-[color:var(--sx-color-primary)]",
           className,
         )}

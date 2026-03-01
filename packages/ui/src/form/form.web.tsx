@@ -13,7 +13,7 @@ export interface FormProps extends React.FormHTMLAttributes<HTMLFormElement> {}
 
 export const Form = React.forwardRef<HTMLFormElement, FormProps>(
   ({ className, ...props }, ref) => (
-    <form ref={ref} className={cn("space-y-6", className)} {...props} />
+    <form ref={ref} className={cn("space-y-8", className)} {...props} />
   ),
 );
 
@@ -31,7 +31,7 @@ export const FormItem = React.forwardRef<
 
   return (
     <FormItemProvider id={id}>
-      <div ref={ref} className={cn("space-y-2", className)} {...props}>
+      <div ref={ref} className={cn("grid gap-2.5", className)} {...props}>
         {children}
       </div>
     </FormItemProvider>
@@ -94,7 +94,7 @@ export const FormDescription = React.forwardRef<
     <p
       ref={ref}
       id={meta.descriptionId}
-      className={cn("text-sm text-[color:var(--sx-color-foreground-muted)]", className)}
+      className={cn("text-[13px] leading-5 text-[color:var(--sx-color-foreground-muted)]", className)}
       {...props}
     >
       {content}
@@ -119,7 +119,7 @@ export const FormMessage = React.forwardRef<
     <p
       ref={ref}
       id={meta.messageId}
-      className={cn("text-sm font-medium text-[color:var(--sx-color-destructive)]", className)}
+      className={cn("text-[13px] font-medium leading-5 text-[color:var(--sx-color-destructive)]", className)}
       {...props}
     >
       {content}

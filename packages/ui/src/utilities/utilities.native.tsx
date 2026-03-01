@@ -7,6 +7,7 @@ import {
   type TextProps as NativeTextProps,
   type ViewProps,
 } from "react-native";
+import { createFieldControlStyle } from "../_shared/field-control.native";
 import { useTheme } from "../_shared/theme/context";
 import { Label } from "../label/label.native";
 
@@ -90,7 +91,95 @@ export function ButtonGroup({ style, ...props }: ButtonGroupProps) {
 
 export interface FieldProps extends ViewProps {}
 export function Field({ style, ...props }: FieldProps) {
-  return <View style={[{ gap: 8 }, style]} {...props} />;
+  return <View style={[{ gap: 10 }, style]} {...props} />;
+}
+
+export interface FieldSetProps extends ViewProps {}
+export function FieldSet({ style, ...props }: FieldSetProps) {
+  const theme = useTheme();
+  return (
+    <View
+      style={[
+        {
+          borderColor: theme.colors.border,
+          borderRadius: theme.radius.lg,
+          borderWidth: 1,
+          gap: 12,
+          padding: 16,
+        },
+        style,
+      ]}
+      {...props}
+    />
+  );
+}
+
+export interface FieldLegendProps extends NativeTextProps {}
+export function FieldLegend({ style, ...props }: FieldLegendProps) {
+  const theme = useTheme();
+  return (
+    <NativeText
+      style={[
+        {
+          color: theme.colors.foreground,
+          fontFamily: theme.typography.family.sans,
+          fontSize: 14,
+          fontWeight: "600",
+        },
+        style,
+      ]}
+      {...props}
+    />
+  );
+}
+
+export interface FieldContentProps extends ViewProps {}
+export function FieldContent({ style, ...props }: FieldContentProps) {
+  return <View style={[{ gap: 6 }, style]} {...props} />;
+}
+
+export interface FieldLabelProps extends React.ComponentPropsWithoutRef<typeof Label> {}
+export function FieldLabel({ style, ...props }: FieldLabelProps) {
+  return <Label style={[{ fontSize: 13, fontWeight: "600" }, style]} {...props} />;
+}
+
+export interface FieldDescriptionProps extends NativeTextProps {}
+export function FieldDescription({ style, ...props }: FieldDescriptionProps) {
+  const theme = useTheme();
+  return (
+    <NativeText
+      style={[
+        {
+          color: theme.colors.foregroundMuted,
+          fontFamily: theme.typography.family.sans,
+          fontSize: 13,
+          lineHeight: 20,
+        },
+        style,
+      ]}
+      {...props}
+    />
+  );
+}
+
+export interface FieldErrorProps extends NativeTextProps {}
+export function FieldError({ style, ...props }: FieldErrorProps) {
+  const theme = useTheme();
+  return (
+    <NativeText
+      style={[
+        {
+          color: theme.colors.destructive,
+          fontFamily: theme.typography.family.sans,
+          fontSize: 13,
+          fontWeight: "600",
+          lineHeight: 20,
+        },
+        style,
+      ]}
+      {...props}
+    />
+  );
 }
 
 export interface InputGroupProps extends ViewProps {}
@@ -271,18 +360,12 @@ export function NativeSelect({ label, style, ...props }: NativeSelectProps) {
   const theme = useTheme();
 
   return (
-    <View style={{ gap: 8 }}>
+    <View style={{ gap: 10 }}>
       {label ? <Label>{label}</Label> : null}
       <TextInput
         style={[
           {
-            backgroundColor: theme.colors.surfaceRaised,
-            borderColor: theme.colors.border,
-            borderRadius: theme.radius.md,
-            borderWidth: 1,
-            color: theme.colors.foreground,
-            minHeight: 40,
-            paddingHorizontal: 14,
+            ...createFieldControlStyle(theme, {}),
             paddingVertical: 10,
           },
           style,

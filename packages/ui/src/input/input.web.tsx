@@ -4,35 +4,23 @@ import {
   resolveVariantStyles,
   type VariantStyleDefinition,
 } from "../_shared/variants";
+import { getFieldControlClassName } from "../_shared/field-control.web";
 import { inputVariants, resolveInputVariants, type InputSharedProps } from "./input.shared";
 
 const inputClassStyles = {
   slots: ["root"] as const,
   base: {
-    root:
-      "w-full rounded-[var(--sx-radius-md)] border bg-[color:var(--sx-color-surface-raised)] text-[color:var(--sx-color-foreground)] shadow-[inset_0_1px_1px_rgba(15,23,42,0.04)] transition-[border-color,box-shadow,background-color] duration-150 placeholder:text-[color:var(--sx-color-foreground-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:cursor-not-allowed disabled:opacity-50",
+    root: "",
   },
   variants: {
     size: {
-      sm: {
-        root: "h-9 px-3 text-[13px]",
-      },
-      md: {
-        root: "h-10 px-3.5 text-sm",
-      },
-      lg: {
-        root: "h-11 px-4 text-[15px]",
-      },
+      sm: { root: "" },
+      md: { root: "" },
+      lg: { root: "" },
     },
     tone: {
-      default: {
-        root:
-          "border-[color:var(--sx-color-border)] hover:border-[color:var(--sx-color-border-strong)] focus-visible:border-[color:var(--sx-color-primary)]",
-      },
-      invalid: {
-        root:
-          "border-[color:var(--sx-color-destructive)] focus-visible:ring-[color:color-mix(in_srgb,var(--sx-color-destructive)_28%,transparent)]",
-      },
+      default: { root: "" },
+      invalid: { root: "" },
     },
   },
 } satisfies VariantStyleDefinition<typeof inputVariants.variants, "root", string>;
@@ -51,7 +39,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         type={type}
         aria-invalid={invalid || undefined}
-        className={cn(...slots.root, className)}
+        className={getFieldControlClassName({
+          className: cn(...slots.root, className),
+          size: resolved.size,
+          tone: resolved.tone,
+        })}
         {...props}
       />
     );

@@ -45,7 +45,7 @@ export const FormItem = React.forwardRef<React.ElementRef<typeof View>, FormItem
 
     return (
       <FormItemProvider id={id}>
-        <View ref={ref} style={[{ gap: 8 }, style]} {...props}>
+        <View ref={ref} style={[{ gap: 10 }, style]} {...props}>
           {children}
         </View>
       </FormItemProvider>
@@ -119,8 +119,8 @@ function FormText({
         {
           color,
           fontFamily: theme.typography.family.sans,
-          fontSize: theme.typography.size.sm,
-          lineHeight: theme.typography.size.sm * theme.typography.lineHeight.normal,
+          fontSize: 13,
+          lineHeight: 20,
         },
         style,
       ]}

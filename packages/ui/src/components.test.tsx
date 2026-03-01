@@ -93,6 +93,12 @@ import {
   EmptyHeader,
   EmptyTitle,
   Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
   InputGroup,
   InputGroupAddon,
   Input,
@@ -228,6 +234,29 @@ describe("synthex-ui web components", () => {
     expect(screen.getByLabelText("Loading")).toBeInTheDocument();
     expect(screen.getByText("No saved layouts")).toBeInTheDocument();
     expect(screen.getByText("Command palette")).toBeInTheDocument();
+  });
+
+  it("renders field composition helpers with consistent helper text", () => {
+    render(
+      <ThemeProvider>
+        <FieldSet>
+          <FieldLegend>Release gate</FieldLegend>
+          <Field>
+            <FieldLabel htmlFor="publish-token">Publish token</FieldLabel>
+            <FieldContent>
+              <Input id="publish-token" placeholder="npm_xxxxx" />
+              <FieldDescription>Used only during release automation.</FieldDescription>
+              <FieldError>Token is required.</FieldError>
+            </FieldContent>
+          </Field>
+        </FieldSet>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByText("Release gate")).toBeInTheDocument();
+    expect(screen.getByLabelText("Publish token")).toBeInTheDocument();
+    expect(screen.getByText("Used only during release automation.")).toBeInTheDocument();
+    expect(screen.getByText("Token is required.")).toBeInTheDocument();
   });
 
   it("marks invalid inputs and supports ui sizing", () => {

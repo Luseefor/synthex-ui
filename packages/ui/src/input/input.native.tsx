@@ -6,6 +6,7 @@ import {
   type TextStyle,
 } from "react-native";
 import { useTheme } from "../_shared/theme/context";
+import { createFieldControlStyle } from "../_shared/field-control.native";
 import { resolveInputVariants, type InputSharedProps } from "./input.shared";
 
 export interface InputProps
@@ -22,33 +23,11 @@ export const Input = React.forwardRef<
   const resolved = resolveInputVariants({ invalid, uiSize });
 
   const inputStyle = React.useMemo<TextStyle>(() => {
-    const sizeStyle: Record<typeof resolved.size, TextStyle> = {
-      sm: {
-        minHeight: 36,
-        paddingHorizontal: 12,
-        fontSize: 13,
-      },
-      md: {
-        minHeight: 40,
-        paddingHorizontal: 14,
-        fontSize: theme.typography.size.sm,
-      },
-      lg: {
-        minHeight: 44,
-        paddingHorizontal: 16,
-        fontSize: 15,
-      },
-    };
-
     return {
-      borderWidth: 1,
-      borderRadius: theme.radius.md,
-      borderColor:
-        resolved.tone === "invalid" ? theme.colors.destructive : theme.colors.border,
-      backgroundColor: theme.colors.surfaceRaised,
-      color: theme.colors.foreground,
-      fontFamily: theme.typography.family.sans,
-      ...sizeStyle[resolved.size],
+      ...createFieldControlStyle(theme, {
+        size: resolved.size,
+        tone: resolved.tone,
+      }),
     };
   }, [resolved.size, resolved.tone, theme]);
 
