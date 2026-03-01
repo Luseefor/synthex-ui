@@ -157,6 +157,7 @@ import {
   SidebarTrigger,
   Slider,
   Sonner,
+  ScrollArea,
   Switch,
   Tabs,
   TabsContent,
@@ -621,6 +622,9 @@ describe("@synthex/ui web components", () => {
         </Avatar>
         <Progress value={64} />
         <Skeleton data-testid="skeleton" className="h-4 w-24" />
+        <ScrollArea data-testid="scroll-area" style={{ maxHeight: 120 }}>
+          <div>Scrollable content</div>
+        </ScrollArea>
       </ThemeProvider>,
     );
 
@@ -628,6 +632,7 @@ describe("@synthex/ui web components", () => {
     expect(screen.getByText("SX")).toBeInTheDocument();
     expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "64");
     expect(screen.getByTestId("skeleton")).toBeInTheDocument();
+    expect(screen.getByTestId("scroll-area")).toBeInTheDocument();
   });
 
   it("renders breadcrumb and aspect ratio helpers", () => {

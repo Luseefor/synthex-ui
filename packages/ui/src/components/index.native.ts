@@ -419,6 +419,7 @@ export {
   TableHeader,
   TableRow,
 } from "../table/table.native";
+export { ScrollArea } from "../primitives/index.native";
 export { DataTable } from "../data-table/data-table.native";
 export type {
   DataTableAlign,

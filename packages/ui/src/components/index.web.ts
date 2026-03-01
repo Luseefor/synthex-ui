@@ -419,6 +419,7 @@ export {
   TableHeader,
   TableRow,
 } from "../table/table.web";
+export { ScrollArea } from "../primitives/index.web";
 export { DataTable } from "../data-table/data-table.web";
 export type {
   DataTableAlign,
