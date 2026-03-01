@@ -362,6 +362,19 @@ body {
   line-height: 1.7;
 }
 
+.preview-install-card {
+  min-height: 100%;
+}
+
+.preview-install-card [class*="card-header"] {
+  gap: 0.65rem;
+}
+
+.preview-install-card [class*="card-description"] {
+  max-width: 40ch;
+  line-height: 1.65;
+}
+
 .preview-gallery-grid,
 .preview-workbench-grid,
 .preview-code-grid,
@@ -832,6 +845,10 @@ body {
   margin: 0;
   padding: 1rem 1.1rem;
   white-space: pre-wrap;
+}
+
+.preview-install-card .code-block {
+  min-height: 100%;
 }
 
 .workbench-tab-label {

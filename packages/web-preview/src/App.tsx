@@ -2181,8 +2181,8 @@ function GettingStartedSection() {
         </Muted>
       </div>
 
-      <div className="preview-code-grid">
-        <Card variant="elevated">
+      <div className="preview-card-grid preview-card-grid-2">
+        <Card variant="elevated" className="preview-install-card">
           <CardHeader>
             <CardTitle>Workspace commands</CardTitle>
             <CardDescription>
@@ -2196,7 +2196,7 @@ function GettingStartedSection() {
           </CardContent>
         </Card>
 
-        <Card variant="default">
+        <Card variant="default" className="preview-install-card">
           <CardHeader>
             <CardTitle>Minimal usage</CardTitle>
             <CardDescription>
@@ -2210,7 +2210,7 @@ function GettingStartedSection() {
           </CardContent>
         </Card>
 
-        <Card variant="default">
+        <Card variant="default" className="preview-install-card">
           <CardHeader>
             <CardTitle>Layout integration</CardTitle>
             <CardDescription>
@@ -2224,7 +2224,7 @@ function GettingStartedSection() {
           </CardContent>
         </Card>
 
-        <Card variant="muted">
+        <Card variant="default" className="preview-install-card">
           <CardHeader>
             <CardTitle>Project shape</CardTitle>
             <CardDescription>
