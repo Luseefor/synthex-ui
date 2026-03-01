@@ -79,7 +79,7 @@ export const AccordionTrigger = React.forwardRef<
       type="button"
       aria-expanded={open}
       className={cn(
-        "flex w-full items-center justify-between gap-4 py-4 text-left text-sm font-medium tracking-[-0.01em] text-[color:var(--sx-color-foreground)] transition-colors duration-150 hover:text-[color:var(--sx-color-primary)]",
+        "flex w-full items-center justify-between gap-4 py-4 text-left text-sm font-medium tracking-[-0.01em] text-[color:var(--sx-color-foreground)] transition-colors duration-[var(--sx-motion-fast)] hover:text-[color:var(--sx-color-primary)]",
         className,
       )}
       onClick={(event) => {
@@ -89,7 +89,7 @@ export const AccordionTrigger = React.forwardRef<
       {...props}
     >
       <span>{children}</span>
-      <span className={cn("transition-transform duration-150", open && "rotate-180")}>
+      <span className={cn("transition-transform duration-[var(--sx-motion-fast)]", open && "rotate-180")}>
         <ChevronDownIcon size={16} strokeWidth={2} />
       </span>
     </button>

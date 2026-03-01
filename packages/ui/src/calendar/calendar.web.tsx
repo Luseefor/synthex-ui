@@ -87,7 +87,7 @@ export const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
                 key={day.key}
                 type="button"
                 className={cn(
-                  "flex h-10 items-center justify-center rounded-[var(--sx-radius-md)] text-sm transition-colors duration-150",
+                  "flex h-10 items-center justify-center rounded-[var(--sx-radius-md)] text-sm transition-colors duration-[var(--sx-motion-fast)]",
                   day.inCurrentMonth
                     ? "text-[color:var(--sx-color-foreground)]"
                     : "text-[color:var(--sx-color-foreground-muted)] opacity-70",

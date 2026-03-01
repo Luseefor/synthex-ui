@@ -16,9 +16,9 @@ const checkboxClassStyles = {
   slots: ["root", "indicator"] as const,
   base: {
     root:
-      "inline-flex shrink-0 items-center justify-center rounded-[calc(var(--sx-radius-sm)-1px)] border transition-[border-color,background-color,box-shadow,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-50",
+      "inline-flex shrink-0 items-center justify-center rounded-[calc(var(--sx-radius-sm)-1px)] border transition-[border-color,background-color,box-shadow,transform] duration-[var(--sx-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-45",
     indicator:
-      "scale-0 text-[color:var(--sx-color-foreground-on-brand)] opacity-0 transition-[transform,opacity] duration-150",
+      "scale-0 text-[color:var(--sx-color-foreground-on-brand)] opacity-0 transition-[transform,opacity] duration-[var(--sx-motion-fast)]",
   },
   variants: {
     size: {

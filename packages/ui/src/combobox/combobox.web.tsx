@@ -94,7 +94,7 @@ export const ComboboxTrigger = React.forwardRef<
       aria-expanded={context.open}
       aria-haspopup="listbox"
       className={cn(
-        "inline-flex h-10 w-full items-center justify-between gap-3 rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-raised)] px-3.5 text-sm text-[color:var(--sx-color-foreground)] shadow-[inset_0_1px_1px_rgba(15,23,42,0.04)] transition-[border-color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)]",
+        "inline-flex h-10 w-full items-center justify-between gap-3 rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-raised)] px-3.5 text-sm text-[color:var(--sx-color-foreground)] shadow-[inset_0_1px_1px_rgba(15,23,42,0.04)] transition-[border-color,box-shadow] duration-[var(--sx-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)]",
         className,
       )}
       onClick={(event) => {
@@ -104,7 +104,7 @@ export const ComboboxTrigger = React.forwardRef<
       {...props}
     >
       <span className="min-w-0 flex-1 text-left">{children}</span>
-      <span className={cn("transition-transform duration-150", context.open && "rotate-180")}>
+      <span className={cn("transition-transform duration-[var(--sx-motion-fast)]", context.open && "rotate-180")}>
         <ChevronDownIcon size={16} />
       </span>
     </button>
@@ -270,7 +270,7 @@ export const ComboboxItem = React.forwardRef<HTMLButtonElement, ComboboxItemProp
         role="option"
         aria-selected={active}
         className={cn(
-          "flex w-full items-center justify-between gap-3 rounded-[var(--sx-radius-md)] px-3 py-2.5 text-left text-sm text-[color:var(--sx-color-foreground)] transition-colors duration-150 hover:bg-[color:var(--sx-color-surface-muted)]",
+          "flex w-full items-center justify-between gap-3 rounded-[var(--sx-radius-md)] px-3 py-2.5 text-left text-sm text-[color:var(--sx-color-foreground)] transition-colors duration-[var(--sx-motion-fast)] hover:bg-[color:var(--sx-color-surface-muted)]",
           active && "bg-[color:var(--sx-color-primary-muted)] text-[color:var(--sx-color-primary)]",
           className,
         )}

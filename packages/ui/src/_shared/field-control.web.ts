@@ -23,7 +23,7 @@ const toneClassMap: Record<FieldControlTone, string> = {
 };
 
 const fieldControlBaseClass =
-  "w-full rounded-[var(--sx-radius-md)] border bg-[color:var(--sx-color-surface-raised)] text-[color:var(--sx-color-foreground)] shadow-[inset_0_1px_1px_rgba(15,23,42,0.03)] transition-[border-color,box-shadow,background-color,color] duration-150 placeholder:text-[color:var(--sx-color-foreground-muted)] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)]";
+  "w-full rounded-[var(--sx-radius-md)] border bg-[color:var(--sx-color-surface-raised)] text-[color:var(--sx-color-foreground)] shadow-[inset_0_1px_1px_rgba(15,23,42,0.03)] transition-[border-color,box-shadow,background-color,color] duration-[var(--sx-motion-fast)] ease-[var(--sx-easing-standard)] placeholder:text-[color:var(--sx-color-foreground-muted)] disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)]";
 
 export function getFieldControlClassName({
   className,

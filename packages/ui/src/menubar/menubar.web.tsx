@@ -42,7 +42,7 @@ export const MenubarTrigger = React.forwardRef<HTMLButtonElement, DropdownMenuTr
     <DropdownMenuTrigger
       ref={ref}
       className={cn(
-        "inline-flex min-w-[6rem] items-center justify-center rounded-[var(--sx-radius-md)] px-3 py-2 text-sm font-medium text-[color:var(--sx-color-foreground-muted)] transition-[background-color,color,box-shadow] duration-150 hover:bg-[color:var(--sx-color-surface)] hover:text-[color:var(--sx-color-foreground)]",
+        "inline-flex min-w-[6rem] items-center justify-center rounded-[var(--sx-radius-md)] px-3 py-2 text-sm font-medium text-[color:var(--sx-color-foreground-muted)] transition-[background-color,color,box-shadow] duration-[var(--sx-motion-fast)] hover:bg-[color:var(--sx-color-surface)] hover:text-[color:var(--sx-color-foreground)]",
         className,
       )}
       {...props}

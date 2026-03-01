@@ -43,7 +43,7 @@ export const BreadcrumbLink = React.forwardRef<HTMLAnchorElement, BreadcrumbLink
       ref={ref}
       aria-current={current ? "page" : undefined}
       className={cn(
-        "transition-colors duration-150 hover:text-[color:var(--sx-color-foreground)]",
+        "transition-colors duration-[var(--sx-motion-fast)] hover:text-[color:var(--sx-color-foreground)]",
         current && "font-medium text-[color:var(--sx-color-foreground)]",
         className,
       )}

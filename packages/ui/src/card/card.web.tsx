@@ -10,7 +10,7 @@ const cardClassStyles = {
   slots: ["root"] as const,
   base: {
     root:
-      "rounded-[calc(var(--sx-radius-lg)+2px)] border text-[color:var(--sx-color-foreground)] transition-[background-color,border-color,box-shadow,transform] duration-150",
+      "rounded-[calc(var(--sx-radius-lg)+2px)] border text-[color:var(--sx-color-foreground)] transition-[background-color,border-color,box-shadow,transform] duration-[var(--sx-motion-fast)]",
   },
   variants: {
     variant: {

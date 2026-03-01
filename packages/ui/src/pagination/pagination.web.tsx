@@ -49,7 +49,7 @@ export const PaginationLink = React.forwardRef<HTMLButtonElement, PaginationLink
       type={type}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "inline-flex h-10 min-w-10 items-center justify-center rounded-[var(--sx-radius-md)] border px-3 text-sm font-medium tracking-[-0.01em] transition-[background-color,border-color,color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)]",
+        "inline-flex h-10 min-w-10 items-center justify-center rounded-[var(--sx-radius-md)] border px-3 text-sm font-medium tracking-[-0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--sx-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)]",
         isActive
           ? "border-[color:var(--sx-color-primary)] bg-[color:var(--sx-color-primary)] text-[color:var(--sx-color-foreground-on-brand)] shadow-[0_8px_20px_rgba(29,78,216,0.18)]"
           : "border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] text-[color:var(--sx-color-foreground)] hover:border-[color:var(--sx-color-border-strong)] hover:bg-[color:var(--sx-color-surface-muted)]",

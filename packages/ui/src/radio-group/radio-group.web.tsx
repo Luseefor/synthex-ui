@@ -52,7 +52,7 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
         data-state={isActive ? "checked" : "unchecked"}
         disabled={disabled}
         className={cn(
-          "inline-flex items-center gap-3 rounded-[var(--sx-radius-md)] px-1 py-1 text-left text-sm font-medium text-[color:var(--sx-color-foreground)] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-45",
+          "inline-flex items-center gap-3 rounded-[var(--sx-radius-md)] px-1 py-1 text-left text-sm font-medium text-[color:var(--sx-color-foreground)] transition-colors duration-[var(--sx-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-45",
           className,
         )}
         onClick={(event) => {
@@ -64,7 +64,7 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
         <span
           aria-hidden="true"
           className={cn(
-            "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-[border-color,box-shadow] duration-150",
+            "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-[border-color,box-shadow] duration-[var(--sx-motion-fast)]",
             isActive
               ? "border-[color:var(--sx-color-primary)] shadow-[0_0_0_4px_color-mix(in_srgb,var(--sx-color-primary)_12%,transparent)]"
               : "border-[color:var(--sx-color-border-strong)]",
@@ -72,7 +72,7 @@ export const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItem
         >
           <span
             className={cn(
-              "h-2.5 w-2.5 rounded-full bg-[color:var(--sx-color-primary)] transition-[transform,opacity] duration-150",
+              "h-2.5 w-2.5 rounded-full bg-[color:var(--sx-color-primary)] transition-[transform,opacity] duration-[var(--sx-motion-fast)]",
               isActive ? "scale-100 opacity-100" : "scale-50 opacity-0",
             )}
           />

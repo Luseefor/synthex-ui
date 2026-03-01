@@ -35,7 +35,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
         aria-pressed={currentPressed}
         data-state={currentPressed ? "on" : "off"}
         className={cn(
-          "inline-flex items-center justify-center gap-2 rounded-[var(--sx-radius-md)] border font-medium tracking-[-0.01em] transition-[background-color,border-color,color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-45",
+          "inline-flex items-center justify-center gap-2 rounded-[var(--sx-radius-md)] border font-medium tracking-[-0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--sx-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-45",
           resolved.size === "sm"
             ? "h-9 px-3.5 text-[13px]"
             : resolved.size === "lg"

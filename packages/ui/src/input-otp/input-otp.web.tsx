@@ -41,7 +41,7 @@ export const InputOTPSlot = React.forwardRef<HTMLInputElement, InputOTPSlotProps
         maxLength={1}
         value={context.value[index] ?? ""}
         className={cn(
-          "flex h-11 w-11 items-center justify-center rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border-strong)] bg-[color:var(--sx-color-surface)] text-center text-lg font-semibold text-[color:var(--sx-color-foreground)] outline-none transition-colors duration-150 focus:border-[color:var(--sx-color-primary)] focus:ring-2 focus:ring-[color:var(--sx-color-ring)]",
+          "flex h-11 w-11 items-center justify-center rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border-strong)] bg-[color:var(--sx-color-surface)] text-center text-lg font-semibold text-[color:var(--sx-color-foreground)] outline-none transition-colors duration-[var(--sx-motion-fast)] focus:border-[color:var(--sx-color-primary)] focus:ring-2 focus:ring-[color:var(--sx-color-ring)]",
           className,
         )}
         onChange={(event) => {

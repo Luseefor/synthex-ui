@@ -118,7 +118,7 @@ export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps
             <button
               type="button"
               aria-label="Close dialog"
-              className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] text-[color:var(--sx-color-foreground-muted)] transition-colors duration-150 hover:text-[color:var(--sx-color-foreground)]"
+              className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] text-[color:var(--sx-color-foreground-muted)] transition-colors duration-[var(--sx-motion-fast)] hover:text-[color:var(--sx-color-foreground)]"
               onClick={() => context.setOpen(false)}
             >
               <CloseIcon size={16} />

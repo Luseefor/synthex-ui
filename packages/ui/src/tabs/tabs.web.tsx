@@ -11,10 +11,10 @@ import {
 
 export interface TabsProps
   extends Omit<
-      React.HTMLAttributes<HTMLDivElement>,
-      "defaultValue" | "onChange" | "value"
-    >,
-    TabsSharedProps {}
+    React.HTMLAttributes<HTMLDivElement>,
+    "defaultValue" | "onChange" | "value"
+  >,
+  TabsSharedProps { }
 
 export function Tabs({
   children,
@@ -38,7 +38,7 @@ export function Tabs({
   );
 }
 
-export interface TabsListProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface TabsListProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export const TabsList = React.forwardRef<HTMLDivElement, TabsListProps>(
   ({ className, ...props }, ref) => (
@@ -58,7 +58,7 @@ TabsList.displayName = "TabsList";
 
 export interface TabsTriggerProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "value">,
-    TabsTriggerSharedProps {}
+  TabsTriggerSharedProps { }
 
 export const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(
   ({ children, className, disabled, onClick, value, ...props }, ref) => {
@@ -74,7 +74,7 @@ export const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>
         data-state={isActive ? "active" : "inactive"}
         disabled={disabled}
         className={cn(
-          "inline-flex min-w-[6.5rem] items-center justify-center rounded-[var(--sx-radius-md)] px-3 py-2 text-sm font-medium tracking-[-0.01em] transition-[background-color,color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-45",
+          "inline-flex min-w-[6.5rem] items-center justify-center select-none rounded-[var(--sx-radius-md)] px-3 py-2 text-sm font-medium tracking-[-0.01em] transition-[background-color,color,box-shadow] duration-[var(--sx-motion-fast)] ease-[var(--sx-easing-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-45",
           isActive
             ? "bg-[color:var(--sx-color-surface)] text-[color:var(--sx-color-foreground)] shadow-[0_8px_18px_rgba(15,23,42,0.08)]"
             : "text-[color:var(--sx-color-foreground-muted)] hover:text-[color:var(--sx-color-foreground)]",
@@ -96,7 +96,7 @@ TabsTrigger.displayName = "TabsTrigger";
 
 export interface TabsContentProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    TabsContentSharedProps {}
+  TabsContentSharedProps { }
 
 export const TabsContent = React.forwardRef<HTMLDivElement, TabsContentProps>(
   ({ children, className, forceMount, value, ...props }, ref) => {

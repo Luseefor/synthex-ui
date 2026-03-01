@@ -41,7 +41,7 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
         data-state={currentChecked ? "checked" : "unchecked"}
         disabled={disabled}
         className={cn(
-          "inline-flex shrink-0 items-center rounded-full border border-transparent transition-[background-color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-50",
+          "inline-flex shrink-0 items-center rounded-full border border-transparent transition-[background-color,box-shadow] duration-[var(--sx-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-45",
           isSmall ? "h-6 w-10 p-0.5" : "h-7 w-12 p-0.5",
           currentChecked
             ? "bg-[color:var(--sx-color-primary)] shadow-[0_8px_18px_rgba(29,78,216,0.22)]"
@@ -62,7 +62,7 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
         <span
           aria-hidden="true"
           className={cn(
-            "block rounded-full bg-[color:var(--sx-color-surface)] shadow-[0_2px_8px_rgba(15,23,42,0.16)] transition-transform duration-150",
+            "block rounded-full bg-[color:var(--sx-color-surface)] shadow-[0_2px_8px_rgba(15,23,42,0.16)] transition-transform duration-[var(--sx-motion-fast)]",
             isSmall ? "h-5 w-5" : "h-6 w-6",
             currentChecked
               ? isSmall

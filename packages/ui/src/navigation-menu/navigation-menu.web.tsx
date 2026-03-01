@@ -83,7 +83,7 @@ export const NavigationMenuTrigger = React.forwardRef<
       type={type}
       aria-expanded={isActive}
       className={cn(
-        "inline-flex min-w-[7rem] items-center justify-center rounded-[var(--sx-radius-md)] px-3 py-2 text-sm font-medium transition-[background-color,color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)]",
+        "inline-flex min-w-[7rem] items-center justify-center rounded-[var(--sx-radius-md)] px-3 py-2 text-sm font-medium transition-[background-color,color,box-shadow] duration-[var(--sx-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)]",
         isActive
           ? "bg-[color:var(--sx-color-surface)] text-[color:var(--sx-color-foreground)] shadow-[0_8px_18px_rgba(15,23,42,0.08)]"
           : "text-[color:var(--sx-color-foreground-muted)] hover:bg-[color:var(--sx-color-surface)] hover:text-[color:var(--sx-color-foreground)]",
@@ -109,7 +109,7 @@ export const NavigationMenuLink = React.forwardRef<
   <a
     ref={ref}
     className={cn(
-      "inline-flex min-w-[7rem] items-center justify-center rounded-[var(--sx-radius-md)] px-3 py-2 text-sm font-medium text-[color:var(--sx-color-foreground-muted)] transition-[background-color,color] duration-150 hover:bg-[color:var(--sx-color-surface)] hover:text-[color:var(--sx-color-foreground)]",
+      "inline-flex min-w-[7rem] items-center justify-center rounded-[var(--sx-radius-md)] px-3 py-2 text-sm font-medium text-[color:var(--sx-color-foreground-muted)] transition-[background-color,color] duration-[var(--sx-motion-fast)] hover:bg-[color:var(--sx-color-surface)] hover:text-[color:var(--sx-color-foreground)]",
       className,
     )}
     {...props}

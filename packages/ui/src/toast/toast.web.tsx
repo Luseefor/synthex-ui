@@ -181,7 +181,7 @@ export function ToastClose({ className, type = "button", ...props }: ToastCloseP
       type={type}
       aria-label="Dismiss toast"
       className={cn(
-        "inline-flex h-8 w-8 items-center justify-center rounded-full border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] text-[color:var(--sx-color-foreground-muted)] transition-colors duration-150 hover:bg-[color:var(--sx-color-surface-muted)] hover:text-[color:var(--sx-color-foreground)]",
+        "inline-flex h-8 w-8 items-center justify-center rounded-full border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] text-[color:var(--sx-color-foreground-muted)] transition-colors duration-[var(--sx-motion-fast)] hover:bg-[color:var(--sx-color-surface-muted)] hover:text-[color:var(--sx-color-foreground)]",
         className,
       )}
       {...props}

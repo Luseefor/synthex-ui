@@ -10,15 +10,15 @@ const buttonClassStyles = {
   slots: ["root"] as const,
   base: {
     root:
-      "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--sx-radius-md)] border border-transparent font-medium tracking-[-0.01em] transition-[background-color,border-color,color,box-shadow,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-50 active:translate-y-px",
+      "inline-flex items-center justify-center gap-2 whitespace-nowrap select-none rounded-[var(--sx-radius-md)] border border-transparent font-medium tracking-[-0.01em] transition-[background-color,border-color,color,box-shadow,transform] duration-[var(--sx-motion-fast)] ease-[var(--sx-easing-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-45 active:scale-[0.98]",
   },
   variants: {
     variant: {
       default:
-        {
-          root:
-            "bg-[color:var(--sx-color-primary)] text-[color:var(--sx-color-foreground-on-brand)] shadow-[0_1px_2px_rgba(15,23,42,0.18)] hover:bg-[color:var(--sx-color-primary-hover)]",
-        },
+      {
+        root:
+          "bg-[color:var(--sx-color-primary)] text-[color:var(--sx-color-foreground-on-brand)] shadow-[0_1px_2px_rgba(15,23,42,0.18)] hover:bg-[color:var(--sx-color-primary-hover)]",
+      },
       secondary: {
         root:
           "bg-[color:var(--sx-color-secondary-muted)] text-[color:var(--sx-color-foreground)] shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] hover:bg-[color:var(--sx-color-secondary)]",
@@ -67,7 +67,7 @@ const buttonClassStyles = {
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    ButtonSharedProps {}
+  ButtonSharedProps { }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, size, type = "button", variant, ...props }, ref) => {

@@ -102,7 +102,7 @@ export const ResizableHandle = React.forwardRef<HTMLButtonElement, ResizableHand
         <span
           aria-hidden="true"
           className={cn(
-            "absolute rounded-full bg-[color:var(--sx-color-border-strong)] transition-colors duration-150 group-hover:bg-[color:var(--sx-color-primary)]",
+            "absolute rounded-full bg-[color:var(--sx-color-border-strong)] transition-colors duration-[var(--sx-motion-fast)] group-hover:bg-[color:var(--sx-color-primary)]",
             isHorizontal
               ? "left-1/2 top-1/2 h-12 w-1 -translate-x-1/2 -translate-y-1/2"
               : "left-1/2 top-1/2 h-1 w-12 -translate-x-1/2 -translate-y-1/2",
