@@ -181,6 +181,9 @@ import {
   Toggle,
   ToggleGroup,
   ToggleGroupItem,
+  ToastProvider,
+  Toaster,
+  useSonner,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -1572,6 +1575,18 @@ function ComponentGallerySection() {
 
         <Card variant="default">
           <CardHeader>
+            <CardTitle>Toast and sonner notifications</CardTitle>
+            <CardDescription>
+              Transient feedback now ships from the library too, including the provider, viewport, and a simple sonner-style hook layer.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ToastPreview />
+          </CardContent>
+        </Card>
+
+        <Card variant="default">
+          <CardHeader>
             <CardTitle>Icons and runtime hooks</CardTitle>
             <CardDescription>
               Named icons stay behind the library contract, while hooks expose cross-platform runtime state.
@@ -1611,6 +1626,51 @@ function HookStatusCard() {
       </div>
       <Muted>
         The same hooks surface branches cleanly by platform while keeping the consumer API stable.
+      </Muted>
+    </div>
+  );
+}
+
+function ToastPreview() {
+  return (
+    <ToastProvider>
+      <ToastPreviewContent />
+      <Toaster />
+    </ToastProvider>
+  );
+}
+
+function ToastPreviewContent() {
+  const { toast } = useSonner();
+
+  return (
+    <div className="preview-stack-md">
+      <div className="preview-chip-row">
+        <Button
+          onClick={() =>
+            toast({
+              title: "Build finished",
+              description: "Declaration files, bundles, and preview assets were generated successfully.",
+            })
+          }
+        >
+          Show success toast
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            toast({
+              title: "Review required",
+              description: "One workspace package still has unpublished changes.",
+              actionLabel: "Inspect",
+            })
+          }
+        >
+          Show action toast
+        </Button>
+      </div>
+      <Muted>
+        The preview uses the same exported provider and hook that consumers will use in their own app shell.
       </Muted>
     </div>
   );
