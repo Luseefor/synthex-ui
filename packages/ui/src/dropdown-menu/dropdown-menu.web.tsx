@@ -59,9 +59,12 @@ export function DropdownMenu({
   );
 }
 
+export interface DropdownMenuTriggerProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+
 export const DropdownMenuTrigger = React.forwardRef<
   HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement>
+  DropdownMenuTriggerProps
 >(({ children, onClick, type = "button", ...props }, ref) => {
   const context = useDropdownMenuContext();
 
@@ -84,9 +87,11 @@ export const DropdownMenuTrigger = React.forwardRef<
 
 DropdownMenuTrigger.displayName = "DropdownMenuTrigger";
 
+export interface DropdownMenuContentProps extends React.HTMLAttributes<HTMLDivElement> {}
+
 export const DropdownMenuContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
+  DropdownMenuContentProps
 >(({ className, ...props }, ref) => {
   const context = useDropdownMenuContext();
 
@@ -109,10 +114,10 @@ export const DropdownMenuContent = React.forwardRef<
 
 DropdownMenuContent.displayName = "DropdownMenuContent";
 
-export const DropdownMenuLabel = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+export interface DropdownMenuLabelProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+export const DropdownMenuLabel = React.forwardRef<HTMLDivElement, DropdownMenuLabelProps>(
+  ({ className, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
@@ -121,13 +126,16 @@ export const DropdownMenuLabel = React.forwardRef<
     )}
     {...props}
   />
-));
+  ),
+);
 
 DropdownMenuLabel.displayName = "DropdownMenuLabel";
 
+export interface DropdownMenuSeparatorProps extends React.HTMLAttributes<HTMLDivElement> {}
+
 export const DropdownMenuSeparator = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
+  DropdownMenuSeparatorProps
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
@@ -138,10 +146,11 @@ export const DropdownMenuSeparator = React.forwardRef<
 
 DropdownMenuSeparator.displayName = "DropdownMenuSeparator";
 
-export const DropdownMenuItem = React.forwardRef<
-  HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement>
->(({ children, className, onClick, type = "button", ...props }, ref) => {
+export interface DropdownMenuItemProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+
+export const DropdownMenuItem = React.forwardRef<HTMLButtonElement, DropdownMenuItemProps>(
+  ({ children, className, onClick, type = "button", ...props }, ref) => {
   const context = useDropdownMenuContext();
 
   return (
@@ -162,6 +171,7 @@ export const DropdownMenuItem = React.forwardRef<
       {children}
     </button>
   );
-});
+  },
+);
 
 DropdownMenuItem.displayName = "DropdownMenuItem";

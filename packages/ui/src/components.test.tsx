@@ -46,6 +46,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   Input,
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarLabel,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarTrigger,
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
   Pagination,
   PaginationContent,
   PaginationItem,
@@ -360,6 +373,48 @@ describe("@synthex/ui web components", () => {
 
     fireEvent.contextMenu(screen.getByTestId("context-surface"));
     expect(screen.getByRole("menu")).toHaveTextContent("Rename panel");
+  });
+
+  it("supports menubar and navigation menu patterns", () => {
+    render(
+      <ThemeProvider>
+        <Menubar>
+          <MenubarMenu>
+            <MenubarTrigger>File</MenubarTrigger>
+            <MenubarContent>
+              <MenubarLabel>Project</MenubarLabel>
+              <MenubarItem>New file</MenubarItem>
+              <MenubarSeparator />
+              <MenubarItem>Open recent</MenubarItem>
+            </MenubarContent>
+          </MenubarMenu>
+        </Menubar>
+
+        <NavigationMenu defaultValue="guides">
+          <NavigationMenuList>
+            <NavigationMenuItem value="guides">
+              <NavigationMenuTrigger>Guides</NavigationMenuTrigger>
+            </NavigationMenuItem>
+            <NavigationMenuItem value="api">
+              <NavigationMenuTrigger>API</NavigationMenuTrigger>
+            </NavigationMenuItem>
+            <NavigationMenuLink href="https://example.com/changelog">Changelog</NavigationMenuLink>
+          </NavigationMenuList>
+          <NavigationMenuItem value="guides">
+            <NavigationMenuContent>Guides content</NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem value="api">
+            <NavigationMenuContent>API content</NavigationMenuContent>
+          </NavigationMenuItem>
+        </NavigationMenu>
+      </ThemeProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "File" }));
+    expect(screen.getByRole("menu")).toHaveTextContent("New file");
+
+    fireEvent.click(screen.getByRole("button", { name: "API" }));
+    expect(screen.getByText("API content")).toBeInTheDocument();
   });
 
   it("applies theme mode and primitive styles", () => {

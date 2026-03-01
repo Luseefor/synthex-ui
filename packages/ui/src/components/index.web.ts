@@ -168,6 +168,31 @@ export {
   ContextMenuTrigger,
 } from "../context-menu/context-menu.web";
 export type { ContextMenuSharedProps } from "../context-menu/context-menu.shared";
+export {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarLabel,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarTrigger,
+} from "../menubar/menubar.web";
+export type {
+  MenubarMenuSharedProps,
+  MenubarSharedProps,
+} from "../menubar/menubar.shared";
+export {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "../navigation-menu/navigation-menu.web";
+export type {
+  NavigationMenuItemSharedProps,
+  NavigationMenuSharedProps,
+} from "../navigation-menu/navigation-menu.shared";
 export { Badge } from "../badge/badge.web";
 export {
   badgeVariants,

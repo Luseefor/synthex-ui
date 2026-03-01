@@ -69,7 +69,20 @@ import {
   Input,
   Label,
   Lead,
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarLabel,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarTrigger,
   Muted,
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
   Pagination,
   PaginationContent,
   PaginationEllipsis,
@@ -874,6 +887,69 @@ function ComponentGallerySection() {
                 </Pagination>
               </TabsContent>
             </Tabs>
+          </CardContent>
+        </Card>
+
+        <Card variant="default">
+          <CardHeader>
+            <CardTitle>Structured navigation</CardTitle>
+            <CardDescription>
+              Menubar and navigation menu primitives cover app-shell navigation without pulling those patterns into custom product code.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="preview-stack-md">
+            <Menubar>
+              <MenubarMenu>
+                <MenubarTrigger>File</MenubarTrigger>
+                <MenubarContent>
+                  <MenubarLabel>Workspace</MenubarLabel>
+                  <MenubarItem>New design</MenubarItem>
+                  <MenubarItem>Open recent</MenubarItem>
+                  <MenubarSeparator />
+                  <MenubarItem>Export netlist</MenubarItem>
+                </MenubarContent>
+              </MenubarMenu>
+              <MenubarMenu>
+                <MenubarTrigger>View</MenubarTrigger>
+                <MenubarContent>
+                  <MenubarLabel>Panels</MenubarLabel>
+                  <MenubarItem>Show inspector</MenubarItem>
+                  <MenubarItem>Toggle console</MenubarItem>
+                </MenubarContent>
+              </MenubarMenu>
+            </Menubar>
+
+            <NavigationMenu defaultValue="guides">
+              <NavigationMenuList>
+                <NavigationMenuItem value="guides">
+                  <NavigationMenuTrigger>Guides</NavigationMenuTrigger>
+                </NavigationMenuItem>
+                <NavigationMenuItem value="api">
+                  <NavigationMenuTrigger>API</NavigationMenuTrigger>
+                </NavigationMenuItem>
+                <NavigationMenuLink href="#installation">Install</NavigationMenuLink>
+              </NavigationMenuList>
+              <NavigationMenuItem value="guides">
+                <NavigationMenuContent>
+                  <div className="preview-stack-sm">
+                    <Small>Guides overview</Small>
+                    <Muted>
+                      Structure package docs, engine integration notes, and workspace setup in a consistent top-level navigation system.
+                    </Muted>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+              <NavigationMenuItem value="api">
+                <NavigationMenuContent>
+                  <div className="preview-stack-sm">
+                    <Small>API focus</Small>
+                    <Muted>
+                      Navigation content panels can expose grouped entry points without collapsing the page into a giant link list.
+                    </Muted>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenu>
           </CardContent>
         </Card>
 
