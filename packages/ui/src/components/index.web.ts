@@ -25,6 +25,13 @@ export {
   type InputSharedProps,
   type InputVariantProps,
 } from "../input/input.shared";
+export {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "../input-otp/input-otp.web";
+export type { InputOTPSharedProps } from "../input-otp/input-otp.shared";
 export { Label } from "../label/label.web";
 export { Alert, AlertDescription, AlertTitle } from "../alert/alert.web";
 export {
@@ -61,6 +68,8 @@ export {
   type ProgressSharedProps,
   type ProgressVariantProps,
 } from "../progress/progress.shared";
+export { Slider } from "../slider/slider.web";
+export type { SliderSharedProps } from "../slider/slider.shared";
 export { Skeleton } from "../skeleton/skeleton.web";
 export {
   skeletonVariants,

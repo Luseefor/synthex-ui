@@ -67,6 +67,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   Input,
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
@@ -103,6 +107,7 @@ import {
   SheetContent,
   SheetTitle,
   SheetTrigger,
+  Slider,
   Switch,
   Tabs,
   TabsContent,
@@ -138,6 +143,29 @@ describe("@synthex/ui web components", () => {
     );
 
     expect(screen.getByLabelText("Search")).toHaveAttribute("aria-invalid", "true");
+  });
+
+  it("supports slider and otp input interactions", () => {
+    render(
+      <ThemeProvider>
+        <Slider aria-label="Opacity" defaultValue={[42]} />
+        <InputOTP defaultValue="12">
+          <InputOTPGroup>
+            <InputOTPSlot index={0} aria-label="Digit 1" />
+            <InputOTPSlot index={1} aria-label="Digit 2" />
+            <InputOTPSeparator />
+            <InputOTPSlot index={2} aria-label="Digit 3" />
+            <InputOTPSlot index={3} aria-label="Digit 4" />
+          </InputOTPGroup>
+        </InputOTP>
+      </ThemeProvider>,
+    );
+
+    fireEvent.change(screen.getByLabelText("Opacity"), { target: { value: "58" } });
+    fireEvent.change(screen.getByLabelText("Digit 3"), { target: { value: "7" } });
+
+    expect(screen.getByLabelText("Opacity")).toHaveValue("58");
+    expect(screen.getByLabelText("Digit 3")).toHaveValue("7");
   });
 
   it("switches tabs in uncontrolled mode", () => {
