@@ -13,8 +13,7 @@
     }
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "scripts": {
     "build": "rm -rf ./dist && bun build ./src/index.ts --outdir ./dist --target bun --format esm --sourcemap && bunx tsc -p tsconfig.build.json",
