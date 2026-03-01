@@ -416,39 +416,48 @@ const packageCards: readonly PackageCardItem[] = [
 
 const roadmapItems = [
   {
-    title: "Release hardening",
-    status: "In progress",
-    summary: "Lock package metadata, tarballs, CI, and docs around a repeatable publish path.",
+    title: "Component surface",
+    status: "Done",
+    summary: "The core shadcn-scale component surface is now in the library and visible in the web preview.",
     bullets: [
-      "Keep public package manifests, README files, and export maps aligned.",
-      "Verify packed artifacts before every release.",
+      "Inputs, overlays, navigation, data display, utility controls, charts, tables, and sidebar primitives ship from the public package.",
+      "The docs gallery exercises the exported components instead of showing static placeholders.",
     ],
   },
   {
-    title: "Cross-platform quality",
-    status: "Next",
-    summary: "Push native confidence higher without weakening the shared component contract.",
+    title: "Package and release flow",
+    status: "Done",
+    summary: "The monorepo now has a real publish path with verified artifacts and CI enforcement.",
     bullets: [
-      "Broaden native import and theme smoke tests.",
-      "Reduce behavioral drift between web and native surfaces.",
+      "Public packages have export maps, package metadata, README files, license files, and pack smoke checks.",
+      "CI runs typecheck, test, build, release verification, and npm pack verification on push and pull request.",
     ],
   },
   {
     title: "Workbench integration",
-    status: "Next",
-    summary: "Show richer panel registries and more realistic engine examples while keeping package boundaries clean.",
+    status: "Active",
+    summary: "The live workbench is in place and usable, but it still has room to become more expressive and more plugin-driven.",
     bullets: [
-      "Document plugin-driven panel renderers.",
-      "Expand engineering-oriented preview scenarios beyond the base workspace.",
+      "The preview validates split, tab, resize, undo, redo, selection, and serialization behavior against the real engine.",
+      "The next refinement is deeper panel-plugin examples and broader engineering-oriented scenarios.",
     ],
   },
   {
-    title: "API guarantees",
-    status: "Ongoing",
-    summary: "Tighten declaration output and public export surfaces before each publish.",
+    title: "Cross-platform confidence",
+    status: "Active",
+    summary: "The shared API is in place across web and native, and the next effort is to keep tightening parity and smoke coverage.",
     bullets: [
-      "Keep generated types flat and leak-free.",
-      "Preserve clean subpath exports and package boundaries.",
+      "Native exports and theme behavior are already wired through the package surface.",
+      "The next step is broader native-focused verification rather than more surface-area churn.",
+    ],
+  },
+  {
+    title: "Publish readiness",
+    status: "Next",
+    summary: "The repo is prepared for publication, with the final remaining step being authenticated npm release execution.",
+    bullets: [
+      "Run the ordered public publish command once npm credentials are available on this machine.",
+      "Keep the release checks green before each public release.",
     ],
   },
 ] as const;
@@ -2426,7 +2435,7 @@ function RoadmapSection() {
       <div className="preview-section-heading">
         <H2>Roadmap</H2>
         <Muted>
-          The next phase is release-focused: stronger package guarantees, tighter native confidence, and a cleaner integration story around the workbench engine.
+          This section now reflects the actual state of the repo: what is already done, what is actively being refined, and what remains before public release.
         </Muted>
       </div>
 
@@ -2439,9 +2448,9 @@ function RoadmapSection() {
                   <H3>{item.title}</H3>
                   <Badge
                     variant={
-                      item.status === "In progress"
+                      item.status === "Done"
                         ? "default"
-                        : item.status === "Ongoing"
+                        : item.status === "Active"
                           ? "outline"
                           : "secondary"
                     }
