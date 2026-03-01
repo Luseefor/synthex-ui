@@ -20,17 +20,17 @@ function useSidebarContext() {
   return context;
 }
 
-export interface SidebarProviderProps extends SidebarProviderSharedProps {}
+export interface SidebarProviderProps extends SidebarProviderSharedProps { }
 export interface SidebarProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "children">,
-    SidebarSharedProps {}
+  SidebarSharedProps { }
 export interface SidebarInsetProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "children">,
-    SidebarSharedProps {}
+  SidebarSharedProps { }
 export interface SidebarMenuButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "children">,
-    SidebarMenuButtonSharedProps {}
-export interface SidebarTriggerProps extends SidebarTriggerSharedProps {}
+  SidebarMenuButtonSharedProps { }
+export interface SidebarTriggerProps extends SidebarTriggerSharedProps { }
 
 export function SidebarProvider({ children, defaultOpen = true }: SidebarProviderProps) {
   const [open, setOpen] = React.useState(defaultOpen);
@@ -198,8 +198,8 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
         className={cn(
           "flex min-h-10 w-full items-center gap-3 overflow-hidden rounded-[var(--sx-radius-md)] py-2.5 text-left text-sm font-medium transition-[background-color,color,padding] duration-200",
           active
-            ? "bg-[color:var(--sx-color-primary-muted)] text-[color:var(--sx-color-foreground)]"
-            : "text-[color:var(--sx-color-foreground-muted)] hover:bg-[color:var(--sx-color-surface-muted)] hover:text-[color:var(--sx-color-foreground)]",
+            ? "bg-[color:var(--sx-color-accent)] text-[color:var(--sx-color-foreground)] font-semibold"
+            : "text-[color:var(--sx-color-foreground-muted)] hover:bg-[color:var(--sx-color-accent)] hover:text-[color:var(--sx-color-foreground)]",
           open ? "px-3" : "justify-center px-0",
           className,
         )}
@@ -242,7 +242,7 @@ export const SidebarInset = React.forwardRef<HTMLDivElement, SidebarInsetProps>(
     <div
       ref={ref}
       className={cn(
-        "min-w-0 flex-1 rounded-[calc(var(--sx-radius-lg)+2px)] bg-[color:var(--sx-color-surface-muted)]",
+        "min-w-0 flex-1 rounded-[calc(var(--sx-radius-lg)+2px)] bg-[color:var(--sx-color-background-subtle)]",
         className,
       )}
       {...props}

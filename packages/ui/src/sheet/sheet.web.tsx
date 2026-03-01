@@ -79,7 +79,7 @@ export const SheetContent = React.forwardRef<HTMLDivElement, SheetContentProps>(
 
     return createPortal(
       <div
-        className="fixed inset-0 z-[100] bg-[rgba(15,23,42,0.38)] backdrop-blur-sm"
+        className="fixed inset-0 z-[100] bg-[rgba(0,0,0,0.5)] backdrop-blur-sm"
         onClick={() => context.setOpen(false)}
       >
         <div
@@ -87,7 +87,7 @@ export const SheetContent = React.forwardRef<HTMLDivElement, SheetContentProps>(
           role="dialog"
           aria-modal="true"
           className={cn(
-            "absolute top-0 h-full w-full max-w-md border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-6 shadow-[0_24px_64px_rgba(15,23,42,0.22)]",
+            "absolute top-0 h-full w-full max-w-md border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-6 shadow-[0_24px_64px_rgba(0,0,0,0.25)]",
             side === "right"
               ? "right-0 border-l"
               : "left-0 border-r",
