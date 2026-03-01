@@ -460,6 +460,20 @@ body {
   padding: 1rem 1.125rem;
 }
 
+.preview-resizable-pane {
+  display: grid;
+  align-content: start;
+  gap: 0.65rem;
+  height: 100%;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--sx-color-surface-muted) 72%, var(--sx-color-surface) 28%);
+}
+
+.preview-resizable-pane h3,
+.preview-resizable-pane p {
+  margin: 0;
+}
+
 .preview-inline-control {
   display: inline-flex;
   align-items: center;

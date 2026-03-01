@@ -138,6 +138,9 @@ import {
   Progress,
   RadioGroup,
   RadioGroupItem,
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
   Select,
   SelectContent,
   SelectItem,
@@ -1201,6 +1204,41 @@ function ComponentGallerySection() {
                 </AlertDialogContent>
               </AlertDialog>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card variant="default">
+          <CardHeader>
+            <CardTitle>Resizable panels</CardTitle>
+            <CardDescription>
+              The library now ships its own resizable panel primitives, so multi-pane editing layouts do not need a separate dependency just to split space.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="preview-stack-md">
+            <ResizablePanelGroup direction="horizontal" style={{ minHeight: 280 }}>
+              <ResizablePanel defaultSize={58}>
+                <div className="preview-resizable-pane">
+                  <Small>Primary pane</Small>
+                  <H3>Editor surface</H3>
+                  <Muted>
+                    Use this area for the main document, canvas, or form surface.
+                  </Muted>
+                </div>
+              </ResizablePanel>
+              <ResizableHandle />
+              <ResizablePanel defaultSize={42}>
+                <div className="preview-resizable-pane">
+                  <Small>Secondary pane</Small>
+                  <H3>Inspector</H3>
+                  <Muted>
+                    Supporting context can stay adjacent without hardcoding a product-specific split implementation.
+                  </Muted>
+                </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+            <Muted>
+              Drag the center handle to resize the panes. This is separate from the engineering workbench renderer and belongs to the shared UI layer.
+            </Muted>
           </CardContent>
         </Card>
 
