@@ -58,7 +58,7 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
       <aside
         ref={ref}
         className={cn(
-          "flex h-full flex-col rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] transition-[width] duration-200",
+          "flex h-full shrink-0 flex-col overflow-hidden rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] transition-[width] duration-200",
           open ? "w-72" : "w-20",
           className,
         )}
@@ -74,33 +74,61 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
 Sidebar.displayName = "Sidebar";
 
 export const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn("border-b border-[color:var(--sx-color-border)] px-4 py-4", className)}
-      {...props}
-    />
-  ),
+  ({ className, ...props }, ref) => {
+    const { open } = useSidebarContext();
+
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "border-b border-[color:var(--sx-color-border)] py-4 transition-[padding] duration-200",
+          open ? "px-4" : "px-2",
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
 );
 
 SidebarHeader.displayName = "SidebarHeader";
 
 export const SidebarFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn("border-t border-[color:var(--sx-color-border)] px-4 py-4", className)}
-      {...props}
-    />
-  ),
+  ({ className, ...props }, ref) => {
+    const { open } = useSidebarContext();
+
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "border-t border-[color:var(--sx-color-border)] py-4 transition-[padding] duration-200",
+          open ? "px-4" : "px-2",
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
 );
 
 SidebarFooter.displayName = "SidebarFooter";
 
 export const SidebarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("flex-1 overflow-y-auto px-3 py-4", className)} {...props} />
-  ),
+  ({ className, ...props }, ref) => {
+    const { open } = useSidebarContext();
+
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "flex-1 overflow-x-hidden overflow-y-auto py-4 transition-[padding] duration-200",
+          open ? "px-3" : "px-2",
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
 );
 
 SidebarContent.displayName = "SidebarContent";
@@ -116,16 +144,21 @@ SidebarGroup.displayName = "SidebarGroup";
 export const SidebarGroupLabel = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "px-3 text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--sx-color-foreground-muted)]",
-      className,
-    )}
-    {...props}
-  />
-));
+>(({ className, ...props }, ref) => {
+  const { open } = useSidebarContext();
+
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--sx-color-foreground-muted)] transition-[opacity,height,padding] duration-200",
+        open ? "h-auto px-3 opacity-100" : "h-0 overflow-hidden px-0 opacity-0",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
 
 SidebarGroupLabel.displayName = "SidebarGroupLabel";
 
@@ -155,22 +188,48 @@ SidebarMenuItem.displayName = "SidebarMenuItem";
 export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
   ({ active, children, className, ...props }, ref) => {
     const { open } = useSidebarContext();
+    const stringChildren = typeof children === "string" ? children : null;
+    const collapsedGlyph = stringChildren?.trim().charAt(0).toUpperCase() ?? null;
 
     return (
       <button
         ref={ref}
+        aria-label={props["aria-label"] ?? (!open ? stringChildren ?? undefined : undefined)}
         className={cn(
-          "flex w-full items-center gap-3 rounded-[var(--sx-radius-md)] px-3 py-2.5 text-left text-sm font-medium transition-colors",
+          "flex min-h-10 w-full items-center gap-3 overflow-hidden rounded-[var(--sx-radius-md)] py-2.5 text-left text-sm font-medium transition-[background-color,color,padding] duration-200",
           active
             ? "bg-[color:var(--sx-color-primary-muted)] text-[color:var(--sx-color-foreground)]"
             : "text-[color:var(--sx-color-foreground-muted)] hover:bg-[color:var(--sx-color-surface-muted)] hover:text-[color:var(--sx-color-foreground)]",
-          !open && "justify-center px-0",
+          open ? "px-3" : "justify-center px-0",
           className,
         )}
+        title={props.title ?? (!open ? stringChildren ?? undefined : undefined)}
         type="button"
         {...props}
       >
-        {children}
+        {stringChildren ? (
+          <>
+            <span
+              aria-hidden={open}
+              className={cn(
+                "inline-flex h-7 shrink-0 items-center justify-center rounded-[var(--sx-radius-sm)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-raised)] text-xs font-semibold uppercase tracking-[0.06em] transition-[opacity,transform,width,border-color] duration-200",
+                open ? "w-0 scale-95 overflow-hidden border-transparent opacity-0" : "w-7 scale-100 opacity-100",
+              )}
+            >
+              {collapsedGlyph}
+            </span>
+            <span
+              className={cn(
+                "truncate transition-[width,opacity] duration-200",
+                open ? "w-auto opacity-100" : "w-0 opacity-0",
+              )}
+            >
+              {stringChildren}
+            </span>
+          </>
+        ) : (
+          children
+        )}
       </button>
     );
   },
@@ -182,7 +241,10 @@ export const SidebarInset = React.forwardRef<HTMLDivElement, SidebarInsetProps>(
   ({ children, className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn("min-w-0 flex-1 rounded-[calc(var(--sx-radius-lg)+2px)] bg-[color:var(--sx-color-surface-muted)]", className)}
+      className={cn(
+        "min-w-0 flex-1 rounded-[calc(var(--sx-radius-lg)+2px)] bg-[color:var(--sx-color-surface-muted)]",
+        className,
+      )}
       {...props}
     >
       {children}
@@ -207,13 +269,16 @@ SidebarRail.displayName = "SidebarRail";
 
 export const SidebarTrigger = React.forwardRef<HTMLButtonElement, SidebarTriggerProps>(
   ({ children = "Toggle sidebar", className, ...props }, ref) => {
-    const { toggle } = useSidebarContext();
+    const { open, toggle } = useSidebarContext();
+    const stringChildren = typeof children === "string" ? children : null;
 
     return (
       <button
         ref={ref}
+        aria-label={props["aria-label"] ?? (open ? stringChildren ?? undefined : "Expand sidebar")}
         className={cn(
-          "inline-flex items-center justify-center rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] px-3 py-2 text-sm font-medium text-[color:var(--sx-color-foreground)]",
+          "inline-flex min-h-10 items-center justify-center rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] text-sm font-medium text-[color:var(--sx-color-foreground)] transition-[padding,width] duration-200",
+          open ? "w-full px-3 py-2" : "w-full px-0 py-2",
           className,
         )}
         onClick={(event) => {
@@ -226,7 +291,7 @@ export const SidebarTrigger = React.forwardRef<HTMLButtonElement, SidebarTrigger
         type="button"
         {...props}
       >
-        {children}
+        {open ? children : <span aria-hidden="true">{stringChildren ? stringChildren.charAt(0).toUpperCase() : "≡"}</span>}
       </button>
     );
   },
