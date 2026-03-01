@@ -1924,6 +1924,9 @@ function createWorkbenchRendererTheme(theme: SynthexTheme) {
 }
 
 function createWorkbenchShellStyle(theme: SynthexTheme): CSSProperties {
+  const codeBackground = theme.mode === "dark" ? "#0a1120" : "#f4f7fc";
+  const codeForeground = theme.mode === "dark" ? "#dce7f8" : "#14233b";
+
   return {
     ["--workbench-shell-background" as string]: theme.colors.background,
     ["--workbench-shell-background-muted" as string]: theme.colors.surfaceMuted,
@@ -1933,8 +1936,8 @@ function createWorkbenchShellStyle(theme: SynthexTheme): CSSProperties {
     ["--workbench-shell-foreground" as string]: theme.colors.foreground,
     ["--workbench-shell-foreground-muted" as string]: theme.colors.foregroundMuted,
     ["--workbench-shell-accent" as string]: theme.colors.primary,
-    ["--workbench-shell-code-background" as string]: "#0a1120",
-    ["--workbench-shell-code-foreground" as string]: "#dce7f8",
+    ["--workbench-shell-code-background" as string]: codeBackground,
+    ["--workbench-shell-code-foreground" as string]: codeForeground,
     ["--workbench-shell-grid" as string]: "rgba(148, 163, 184, 0.1)",
   };
 }
