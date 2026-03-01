@@ -124,6 +124,32 @@ export type {
   SelectItemSharedProps,
   SelectSharedProps,
 } from "../select/select.shared";
+export {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "../command/command.native";
+export type {
+  CommandItemSharedProps,
+  CommandSharedProps,
+} from "../command/command.shared";
+export {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxTrigger,
+  ComboboxValue,
+} from "../combobox/combobox.native";
+export type {
+  ComboboxItemSharedProps,
+  ComboboxSharedProps,
+} from "../combobox/combobox.shared";
 export { Badge } from "../badge/badge.native";
 export {
   badgeVariants,

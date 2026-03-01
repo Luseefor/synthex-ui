@@ -14,6 +14,20 @@ import {
   Badge,
   Button,
   Checkbox,
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxTrigger,
+  ComboboxValue,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -210,6 +224,61 @@ describe("@synthex/ui web components", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Open dialog" }));
     expect(screen.getByRole("dialog")).toHaveTextContent("Dialog body");
+  });
+
+  it("filters command results and selects combobox options", () => {
+    render(
+      <ThemeProvider>
+        <Command>
+          <CommandInput aria-label="Command palette" />
+          <CommandList>
+            <CommandGroup heading="Navigation">
+              <CommandItem value="open-schematic">Open schematic</CommandItem>
+              <CommandItem value="open-console">Open console</CommandItem>
+            </CommandGroup>
+            <CommandEmpty>No matching command.</CommandEmpty>
+          </CommandList>
+        </Command>
+
+        <Combobox defaultValue="pcb" placeholder="Choose workspace">
+          <ComboboxTrigger aria-label="Workspace combobox">
+            <ComboboxValue />
+          </ComboboxTrigger>
+          <ComboboxContent>
+            <ComboboxInput aria-label="Workspace search" />
+            <ComboboxList>
+              <ComboboxEmpty>No matching workspace.</ComboboxEmpty>
+              <ComboboxItem value="schematic">Schematic</ComboboxItem>
+              <ComboboxItem value="pcb">PCB</ComboboxItem>
+              <ComboboxItem value="console">Console</ComboboxItem>
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
+      </ThemeProvider>,
+    );
+
+    fireEvent.change(screen.getByRole("textbox", { name: "Command palette" }), {
+      target: { value: "console" },
+    });
+
+    expect(screen.queryByRole("option", { name: "Open schematic" })).not.toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Open console" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("textbox", { name: "Command palette" }), {
+      target: { value: "missing" },
+    });
+
+    expect(screen.getByText("No matching command.")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Workspace combobox" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Workspace search" }), {
+      target: { value: "schem" },
+    });
+    fireEvent.click(screen.getByRole("option", { name: "Schematic" }));
+
+    expect(screen.getByRole("button", { name: "Workspace combobox" })).toHaveTextContent(
+      "Schematic",
+    );
   });
 
   it("supports popover, sheet, and tooltip overlays", () => {

@@ -47,6 +47,8 @@ describe("package exports", () => {
     expect(web.Toggle).toBeDefined();
     expect(web.Pagination).toBeDefined();
     expect(web.Select).toBeDefined();
+    expect(web.Command).toBeDefined();
+    expect(web.Combobox).toBeDefined();
     expect(web.Dialog).toBeDefined();
     expect(web.Popover).toBeDefined();
     expect(web.Sheet).toBeDefined();
@@ -80,6 +82,8 @@ describe("package exports", () => {
     expect(native.Toggle).toBeDefined();
     expect(native.Pagination).toBeDefined();
     expect(native.Select).toBeDefined();
+    expect(native.Command).toBeDefined();
+    expect(native.Combobox).toBeDefined();
     expect(native.Dialog).toBeDefined();
     expect(native.Popover).toBeDefined();
     expect(native.Sheet).toBeDefined();

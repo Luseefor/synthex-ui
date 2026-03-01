@@ -30,6 +30,20 @@ import {
   CardHeader,
   CardTitle,
   Checkbox,
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxTrigger,
+  ComboboxValue,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -848,6 +862,57 @@ function ComponentGallerySection() {
                 </Pagination>
               </TabsContent>
             </Tabs>
+          </CardContent>
+        </Card>
+
+        <Card variant="default">
+          <CardHeader>
+            <CardTitle>Command surfaces and searchable choice</CardTitle>
+            <CardDescription>
+              Command and combobox primitives now ship from the library, so palette-style workflows and searchable selection controls stay aligned with the rest of the package.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="preview-stack-md">
+            <div className="preview-gallery-grid preview-gallery-grid-2">
+              <Command>
+                <CommandInput placeholder="Search actions, files, or panels" />
+                <CommandList>
+                  <CommandGroup heading="Workbench">
+                    <CommandItem value="open-schematic">Open schematic editor</CommandItem>
+                    <CommandItem value="show-properties">Show properties inspector</CommandItem>
+                  </CommandGroup>
+                  <CommandGroup heading="Navigation">
+                    <CommandItem value="toggle-console">Toggle console</CommandItem>
+                    <CommandItem value="export-netlist">Export netlist</CommandItem>
+                  </CommandGroup>
+                  <CommandEmpty>No matching action.</CommandEmpty>
+                </CommandList>
+              </Command>
+
+              <div className="preview-stack-md">
+                <div className="preview-field-stack">
+                  <Label htmlFor="workspace-combobox">Workspace combobox</Label>
+                  <Combobox defaultValue="schematic" placeholder="Choose a workspace">
+                    <ComboboxTrigger id="workspace-combobox">
+                      <ComboboxValue />
+                    </ComboboxTrigger>
+                    <ComboboxContent>
+                      <ComboboxInput placeholder="Filter workspaces" />
+                      <ComboboxList>
+                        <ComboboxEmpty>No workspace found.</ComboboxEmpty>
+                        <ComboboxItem value="schematic">Schematic editor</ComboboxItem>
+                        <ComboboxItem value="pcb">PCB layout</ComboboxItem>
+                        <ComboboxItem value="waveform">Waveform viewer</ComboboxItem>
+                        <ComboboxItem value="console">Command console</ComboboxItem>
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
+                </div>
+                <Muted>
+                  These two surfaces share the same filtering model: the command palette handles action discovery, while combobox keeps searchable selection lightweight for inspectors and toolbars.
+                </Muted>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
