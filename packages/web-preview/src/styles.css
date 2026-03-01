@@ -764,7 +764,8 @@ body {
   line-height: 1.6;
   margin: 0;
   padding: 0.95rem 1rem;
-  white-space: pre;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .code-block {
@@ -1105,11 +1106,17 @@ body {
   border: 1px solid var(--workbench-shell-border);
   border-radius: var(--sx-radius-md);
   background: color-mix(in srgb, var(--workbench-shell-code-background) 92%, transparent);
+  overflow: auto;
   padding: 0.9rem;
   font-family: var(--sx-font-family-mono);
   font-size: 0.82rem;
   line-height: 1.55;
   color: var(--workbench-shell-code-foreground);
+}
+
+.workbench-console > div {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .workbench-activity-list {
