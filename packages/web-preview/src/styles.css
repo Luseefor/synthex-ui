@@ -561,9 +561,41 @@ body {
 }
 
 .preview-roadmap-item {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.preview-roadmap-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.preview-roadmap-title-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: space-between;
   gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.preview-roadmap-title-row h3 {
+  margin: 0;
+}
+
+.preview-roadmap-bullet {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.65rem;
+  color: var(--sx-color-foreground);
+}
+
+.preview-roadmap-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  margin-top: 0.45rem;
+  border-radius: 999px;
+  background: var(--sx-color-primary);
 }
 
 .workbench-page {

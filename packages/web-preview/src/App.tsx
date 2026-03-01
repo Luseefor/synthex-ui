@@ -414,11 +414,43 @@ const packageCards: readonly PackageCardItem[] = [
   },
 ] as const;
 
-const roadmapItems: readonly string[] = [
-  "Expand component coverage without weakening the shared cross-platform contract.",
-  "Add stronger native-focused smoke tests around exports and theme behavior.",
-  "Broaden layout-engine integration examples for panel plugins and engineering canvases.",
-  "Continue tightening generated declaration output and package-level API guarantees.",
+const roadmapItems = [
+  {
+    title: "Release hardening",
+    status: "In progress",
+    summary: "Lock package metadata, tarballs, CI, and docs around a repeatable publish path.",
+    bullets: [
+      "Keep public package manifests, README files, and export maps aligned.",
+      "Verify packed artifacts before every release.",
+    ],
+  },
+  {
+    title: "Cross-platform quality",
+    status: "Next",
+    summary: "Push native confidence higher without weakening the shared component contract.",
+    bullets: [
+      "Broaden native import and theme smoke tests.",
+      "Reduce behavioral drift between web and native surfaces.",
+    ],
+  },
+  {
+    title: "Workbench integration",
+    status: "Next",
+    summary: "Show richer panel registries and more realistic engine examples while keeping package boundaries clean.",
+    bullets: [
+      "Document plugin-driven panel renderers.",
+      "Expand engineering-oriented preview scenarios beyond the base workspace.",
+    ],
+  },
+  {
+    title: "API guarantees",
+    status: "Ongoing",
+    summary: "Tighten declaration output and public export surfaces before each publish.",
+    bullets: [
+      "Keep generated types flat and leak-free.",
+      "Preserve clean subpath exports and package boundaries.",
+    ],
+  },
 ] as const;
 const defaultAccentPreset: AccentPresetName = "blue";
 
@@ -2394,17 +2426,38 @@ function RoadmapSection() {
       <div className="preview-section-heading">
         <H2>Roadmap</H2>
         <Muted>
-          This milestone is about pre-release hardening, not a shallow component dump. The library will expand only if the package boundaries stay clean.
+          The next phase is release-focused: stronger package guarantees, tighter native confidence, and a cleaner integration story around the workbench engine.
         </Muted>
       </div>
 
       <div className="preview-roadmap-grid">
         {roadmapItems.map((item) => (
-          <Card key={item} variant="interactive">
-            <CardContent>
+          <Card key={item.title} variant="interactive">
+            <CardContent className="preview-roadmap-card">
               <div className="preview-roadmap-item">
-                <Badge variant="secondary">Next</Badge>
-                <span>{item}</span>
+                <div className="preview-roadmap-title-row">
+                  <H3>{item.title}</H3>
+                  <Badge
+                    variant={
+                      item.status === "In progress"
+                        ? "default"
+                        : item.status === "Ongoing"
+                          ? "outline"
+                          : "secondary"
+                    }
+                  >
+                    {item.status}
+                  </Badge>
+                </div>
+                <Muted>{item.summary}</Muted>
+              </div>
+              <div className="preview-stack-sm">
+                {item.bullets.map((bullet) => (
+                  <div key={bullet} className="preview-roadmap-bullet">
+                    <span className="preview-roadmap-dot" />
+                    <span>{bullet}</span>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
