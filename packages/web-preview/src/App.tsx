@@ -51,6 +51,10 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  ChartContainer,
+  ChartLegend,
+  ChartTooltip,
+  ChartTooltipContent,
   Checkbox,
   Collapsible,
   CollapsibleContent,
@@ -120,6 +124,9 @@ import {
   ItemDescription,
   ItemTitle,
   Kbd,
+  LineChart,
+  BarChart,
+  AreaChart,
   Label,
   Lead,
   Menubar,
@@ -1304,6 +1311,139 @@ function ComponentGallerySection() {
                 <CarouselNext />
               </div>
             </Carousel>
+          </CardContent>
+        </Card>
+
+        <Card variant="default">
+          <CardHeader>
+            <CardTitle>Charts</CardTitle>
+            <CardDescription>
+              The chart family keeps lightweight visualization primitives inside the shared UI package without introducing a separate charting dependency.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="preview-stack-md">
+            <div className="preview-gallery-grid preview-gallery-grid-2">
+              <ChartContainer>
+                <div className="preview-stack-sm">
+                  <ChartLegend
+                    series={[
+                      {
+                        key: "usage",
+                        label: "Usage",
+                        data: [
+                          { label: "Mon", value: 24 },
+                          { label: "Tue", value: 32 },
+                          { label: "Wed", value: 28 },
+                          { label: "Thu", value: 36 },
+                        ],
+                      },
+                    ]}
+                  />
+                  <LineChart
+                    ariaLabel="Usage trend"
+                    height={220}
+                    series={[
+                      {
+                        key: "usage",
+                        label: "Usage",
+                        data: [
+                          { label: "Mon", value: 24 },
+                          { label: "Tue", value: 32 },
+                          { label: "Wed", value: 28 },
+                          { label: "Thu", value: 36 },
+                        ],
+                      },
+                    ]}
+                  />
+                </div>
+              </ChartContainer>
+
+              <ChartContainer>
+                <div className="preview-stack-sm">
+                  <ChartLegend
+                    series={[
+                      {
+                        key: "core",
+                        label: "Core",
+                        data: [
+                          { label: "Q1", value: 12 },
+                          { label: "Q2", value: 18 },
+                          { label: "Q3", value: 20 },
+                        ],
+                      },
+                      {
+                        key: "ui",
+                        label: "UI",
+                        color: "var(--sx-color-accent)",
+                        data: [
+                          { label: "Q1", value: 14 },
+                          { label: "Q2", value: 16 },
+                          { label: "Q3", value: 22 },
+                        ],
+                      },
+                    ]}
+                  />
+                  <BarChart
+                    ariaLabel="Package adoption"
+                    height={220}
+                    series={[
+                      {
+                        key: "core",
+                        label: "Core",
+                        data: [
+                          { label: "Q1", value: 12 },
+                          { label: "Q2", value: 18 },
+                          { label: "Q3", value: 20 },
+                        ],
+                      },
+                      {
+                        key: "ui",
+                        label: "UI",
+                        color: "var(--sx-color-accent)",
+                        data: [
+                          { label: "Q1", value: 14 },
+                          { label: "Q2", value: 16 },
+                          { label: "Q3", value: 22 },
+                        ],
+                      },
+                    ]}
+                  />
+                </div>
+              </ChartContainer>
+            </div>
+
+            <div className="preview-gallery-grid preview-gallery-grid-2">
+              <ChartContainer>
+                <div className="preview-stack-sm">
+                  <AreaChart
+                    ariaLabel="Stability area"
+                    height={200}
+                    series={[
+                      {
+                        key: "stability",
+                        label: "Stability",
+                        data: [
+                          { label: "Jan", value: 40 },
+                          { label: "Feb", value: 52 },
+                          { label: "Mar", value: 58 },
+                          { label: "Apr", value: 62 },
+                        ],
+                      },
+                    ]}
+                  />
+                </div>
+              </ChartContainer>
+
+              <ChartTooltip>
+                <ChartTooltipContent
+                  label="Current slice"
+                  items={[
+                    { label: "UI package", value: "62%", color: "var(--sx-color-primary)" },
+                    { label: "Core engine", value: "54%", color: "var(--sx-color-accent)" },
+                  ]}
+                />
+              </ChartTooltip>
+            </div>
           </CardContent>
         </Card>
 
