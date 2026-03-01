@@ -654,9 +654,9 @@ function OverviewSection({
           <Badge variant="outline">Design system + layout engine</Badge>
           <Badge variant="secondary">Bun monorepo</Badge>
         </div>
-        <H1>One component vocabulary for serious web and native product surfaces.</H1>
+        <H1>Design systems and dockable workspaces for serious product software.</H1>
         <Lead>
-          Synthex UI combines a polished cross-platform component library with a deterministic layout engine for complex engineering workflows.
+          Synthex UI combines a cross-platform component library with a deterministic layout engine so teams can build structured web and native applications without stitching the foundations together by hand.
         </Lead>
         <div className="preview-action-row">
           <Button onClick={() => onNavigate("/installation")}>Install and build</Button>
@@ -669,7 +669,7 @@ function OverviewSection({
         </div>
         <div className="preview-inline-note">
           <Muted>
-            Inspired by the clarity of README-first package sites, but built around an actual dockable UI engine instead of a generic component catalog alone.
+            The library stays generic at the UI layer while the workbench stack stays explicit, reducer-driven, and ready for more complex application shells.
           </Muted>
         </div>
       </div>

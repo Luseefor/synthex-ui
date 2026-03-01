@@ -275,9 +275,9 @@ body {
 }
 
 .preview-hero-copy h1 {
-  max-width: 12ch;
+  max-width: 15ch;
   margin: 0;
-  line-height: 0.98;
+  line-height: 1.02;
 }
 
 .preview-hero-copy p {
