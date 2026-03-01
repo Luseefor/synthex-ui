@@ -30,6 +30,7 @@ export function Tabs({
     <TabsProvider value={controller}>
       <div
         className={cn("flex flex-col gap-4", className)}
+        data-orientation="horizontal"
         {...props}
       >
         {children}
@@ -41,14 +42,56 @@ export function Tabs({
 export interface TabsListProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export const TabsList = React.forwardRef<HTMLDivElement, TabsListProps>(
-  ({ className, ...props }, ref) => (
+  ({ className, onKeyDown, ...props }, ref) => (
     <div
       ref={ref}
       role="tablist"
+      aria-orientation="horizontal"
       className={cn(
         "inline-flex items-center gap-1 rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-background-subtle)] p-1",
         className,
       )}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+
+        if (event.defaultPrevented) return;
+
+        const target = event.currentTarget;
+        const triggers = Array.from(
+          target.querySelectorAll<HTMLButtonElement>(
+            '[role="tab"]:not([disabled])',
+          ),
+        );
+        const currentIndex = triggers.indexOf(
+          document.activeElement as HTMLButtonElement,
+        );
+
+        if (currentIndex === -1) return;
+
+        let nextIndex: number | undefined;
+
+        switch (event.key) {
+          case "ArrowRight":
+            nextIndex = (currentIndex + 1) % triggers.length;
+            break;
+          case "ArrowLeft":
+            nextIndex =
+              (currentIndex - 1 + triggers.length) % triggers.length;
+            break;
+          case "Home":
+            nextIndex = 0;
+            break;
+          case "End":
+            nextIndex = triggers.length - 1;
+            break;
+          default:
+            return;
+        }
+
+        event.preventDefault();
+        triggers[nextIndex]?.focus();
+        triggers[nextIndex]?.click();
+      }}
       {...props}
     />
   ),
@@ -71,6 +114,7 @@ export const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>
         type="button"
         role="tab"
         aria-selected={isActive}
+        tabIndex={isActive ? 0 : -1}
         data-state={isActive ? "active" : "inactive"}
         disabled={disabled}
         className={cn(
@@ -111,10 +155,11 @@ export const TabsContent = React.forwardRef<HTMLDivElement, TabsContentProps>(
       <div
         ref={ref}
         role="tabpanel"
+        tabIndex={0}
         hidden={!isActive}
         data-state={isActive ? "active" : "inactive"}
         className={cn(
-          "rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-5 shadow-[0_12px_28px_rgba(15,23,42,0.06)]",
+          "rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-5 shadow-[0_12px_28px_rgba(15,23,42,0.06)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)]",
           className,
         )}
         {...props}
