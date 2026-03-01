@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@synthex/core": [
+        "./packages/core/src/index.ts"
+      ],
+      "@synthex/core/*": [
+        "./packages/core/src/*"
+      ],
+      "@synthex/ui": [
+        "./packages/ui/src/index.ts"
+      ],
+      "@synthex/ui/*": [
+        "./packages/ui/src/*"
+      ],
+      "@synthex/react-web": [
+        "./packages/react-web/src/index.ts"
+      ],
+      "@synthex/react-web/*": [
+        "./packages/react-web/src/*"
+      ]
+    },
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noUncheckedIndexedAccess": true
+  }
+}

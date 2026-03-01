@@ -1,0 +1,26 @@
+import type { ColorScale } from "../types";
+
+export const colors: ColorScale = {
+  background: "#f6f8fb",
+  backgroundSubtle: "#eef3f8",
+  surface: "#ffffff",
+  surfaceMuted: "#f8fafc",
+  surfaceRaised: "#fcfdff",
+  foreground: "#0f172a",
+  foregroundMuted: "#5f6d82",
+  foregroundOnBrand: "#f8fbff",
+  border: "rgba(148, 163, 184, 0.24)",
+  borderStrong: "rgba(100, 116, 139, 0.38)",
+  primary: "#1d4ed8",
+  primaryHover: "#1e40af",
+  primaryMuted: "#dbeafe",
+  secondary: "#e2e8f0",
+  secondaryHover: "#cbd5e1",
+  secondaryMuted: "#f1f5f9",
+  destructive: "#dc2626",
+  destructiveHover: "#b91c1c",
+  destructiveMuted: "#fee2e2",
+  accent: "#0f766e",
+  accentMuted: "#ccfbf1",
+  ring: "rgba(37, 99, 235, 0.45)",
+};

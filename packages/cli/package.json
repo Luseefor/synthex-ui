@@ -1,0 +1,31 @@
+{
+  "name": "@synthex/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/cli/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/cli/src/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "synthex": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "dependencies": {
+    "@synthex/core": "workspace:*",
+    "commander": "^14.0.3"
+  },
+  "scripts": {
+    "build": "rm -rf ./dist && bun build ./src/index.ts --outdir ./dist --target bun --format esm --sourcemap && bunx tsc -p tsconfig.build.json",
+    "dev": "bun --watch run ./src/index.ts test",
+    "typecheck": "bunx tsc -p tsconfig.json --noEmit"
+  },
+  "sideEffects": false
+}

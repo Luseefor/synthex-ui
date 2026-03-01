@@ -1,0 +1,52 @@
+{
+  "name": "@synthex/react-web",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/react-web/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/react-web/src/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./web": {
+      "types": "./dist/react-web/src/index.web.d.ts",
+      "import": "./dist/index.web.js",
+      "default": "./dist/index.web.js"
+    },
+    "./native": {
+      "types": "./dist/react-web/src/index.native.d.ts",
+      "import": "./dist/index.native.js",
+      "default": "./dist/index.native.js"
+    }
+  },
+  "peerDependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "dependencies": {
+    "@synthex/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "jsdom": "^26.1.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "vitest": "^3.2.4"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "rm -rf ./dist && bun build ./src/index.ts ./src/index.web.ts ./src/index.native.ts --outdir ./dist --target browser --format esm --external react --external react-dom --external react/jsx-runtime --sourcemap && bunx tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "typecheck": "bunx tsc -p tsconfig.json --noEmit"
+  },
+  "sideEffects": false
+}

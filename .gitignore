@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.synthex/
+.tmp-preview*.png
+test-results/
+.DS_Store
