@@ -16,40 +16,53 @@ export const lightTheme: SynthexTheme = {
   motion,
 };
 
+/**
+ * Dark theme — Zinc-neutral foundation.
+ * Inspired by shadcn's dark Zinc palette:
+ *   bg ≈ zinc-950, surface ≈ zinc-900, border ≈ white/10%
+ */
 export const darkTheme: SynthexTheme = {
   mode: "dark",
   colors: {
     ...colors,
-    background: "#090c11",
-    backgroundSubtle: "#0d1117",
-    surface: "#11161f",
-    surfaceMuted: "#0d1219",
-    surfaceRaised: "#171d27",
-    foreground: "#e6edf3",
-    foregroundMuted: "#97a6b5",
-    foregroundOnBrand: "#f8fbff",
-    border: "rgba(148, 163, 184, 0.16)",
-    borderStrong: "rgba(148, 163, 184, 0.28)",
-    primary: "#5b8cff",
-    primaryHover: "#7aa2ff",
-    primaryMuted: "rgba(91, 140, 255, 0.18)",
-    secondary: "#202733",
-    secondaryHover: "#2b3544",
-    secondaryMuted: "#161c25",
-    destructive: "#f87171",
-    destructiveHover: "#ef4444",
-    destructiveMuted: "rgba(248, 113, 113, 0.18)",
-    accent: "#56b6ff",
-    accentMuted: "rgba(86, 182, 255, 0.16)",
-    ring: "rgba(91, 140, 255, 0.34)",
+    // ── Surfaces ──────────────────────────────────────────
+    background: "#09090b",           // zinc-950
+    backgroundSubtle: "#18181b",     // zinc-900
+    surface: "#18181b",              // zinc-900
+    surfaceMuted: "#09090b",         // zinc-950
+    surfaceRaised: "#27272a",        // zinc-800
+    // ── Text ──────────────────────────────────────────────
+    foreground: "#fafafa",           // zinc-50
+    foregroundMuted: "#a1a1aa",      // zinc-400
+    foregroundOnBrand: "#fafafa",    // zinc-50
+    // ── Borders ───────────────────────────────────────────
+    border: "#27272a",               // zinc-800
+    borderStrong: "#3f3f46",         // zinc-700
+    // ── Primary ─────────────────────────────────────────
+    primary: "#3b82f6",             // blue-500 (brighter for dark bg)
+    primaryHover: "#60a5fa",        // blue-400
+    primaryMuted: "rgba(59, 130, 246, 0.15)",
+    // ── Secondary ────────────────────────────────────────
+    secondary: "#27272a",           // zinc-800
+    secondaryHover: "#3f3f46",      // zinc-700
+    secondaryMuted: "#18181b",      // zinc-900
+    // ── Destructive (bold red, not pastel) ───────────────
+    destructive: "#ef4444",         // red-500
+    destructiveHover: "#f87171",    // red-400
+    destructiveMuted: "rgba(239, 68, 68, 0.15)",
+    // ── Accent ──────────────────────────────────────────
+    accent: "#27272a",              // zinc-800
+    accentMuted: "#18181b",         // zinc-900
+    // ── Focus ring ──────────────────────────────────────
+    ring: "#3b82f6",                // blue-500 (solid)
   },
   shadows: {
     ...shadows,
-    xs: "0 1px 1px rgba(3, 6, 12, 0.48)",
-    sm: "0 12px 28px rgba(3, 6, 12, 0.34)",
-    md: "0 20px 44px rgba(3, 6, 12, 0.44)",
-    lg: "0 30px 68px rgba(3, 6, 12, 0.52)",
-    inset: "inset 0 1px 1px rgba(3, 6, 12, 0.42)",
+    xs: "0 1px 2px rgba(0, 0, 0, 0.4)",
+    sm: "0 4px 16px rgba(0, 0, 0, 0.3)",
+    md: "0 8px 32px rgba(0, 0, 0, 0.4)",
+    lg: "0 16px 48px rgba(0, 0, 0, 0.5)",
+    inset: "inset 0 1px 2px rgba(0, 0, 0, 0.3)",
   },
   radius,
   space,
@@ -79,57 +92,49 @@ export const accentPresets: Record<
   },
   emerald: {
     label: "Emerald",
-    swatch: "#059669",
+    swatch: "#10b981",
     theme: {
       colors: {
-        primary: "#059669",
-        primaryHover: "#047857",
-        primaryMuted: "rgba(5, 150, 105, 0.18)",
-        accent: "#14b8a6",
-        accentMuted: "rgba(20, 184, 166, 0.18)",
-        ring: "rgba(5, 150, 105, 0.34)",
+        primary: "#10b981",          // emerald-500
+        primaryHover: "#059669",     // emerald-600
+        primaryMuted: "#ecfdf5",     // emerald-50
+        ring: "#10b981",
       },
     },
   },
   violet: {
     label: "Violet",
-    swatch: "#7c3aed",
+    swatch: "#8b5cf6",
     theme: {
       colors: {
-        primary: "#7c3aed",
-        primaryHover: "#6d28d9",
-        primaryMuted: "rgba(124, 58, 237, 0.18)",
-        accent: "#8b5cf6",
-        accentMuted: "rgba(139, 92, 246, 0.16)",
-        ring: "rgba(124, 58, 237, 0.34)",
+        primary: "#8b5cf6",          // violet-500
+        primaryHover: "#7c3aed",     // violet-600
+        primaryMuted: "#f5f3ff",     // violet-50
+        ring: "#8b5cf6",
       },
     },
   },
   amber: {
     label: "Amber",
-    swatch: "#d97706",
+    swatch: "#f59e0b",
     theme: {
       colors: {
-        primary: "#d97706",
-        primaryHover: "#b45309",
-        primaryMuted: "rgba(217, 119, 6, 0.18)",
-        accent: "#ea580c",
-        accentMuted: "rgba(234, 88, 12, 0.18)",
-        ring: "rgba(217, 119, 6, 0.34)",
+        primary: "#f59e0b",          // amber-500
+        primaryHover: "#d97706",     // amber-600
+        primaryMuted: "#fffbeb",     // amber-50
+        ring: "#f59e0b",
       },
     },
   },
   rose: {
     label: "Rose",
-    swatch: "#e11d48",
+    swatch: "#f43f5e",
     theme: {
       colors: {
-        primary: "#e11d48",
-        primaryHover: "#be123c",
-        primaryMuted: "rgba(225, 29, 72, 0.18)",
-        accent: "#f43f5e",
-        accentMuted: "rgba(244, 63, 94, 0.18)",
-        ring: "rgba(225, 29, 72, 0.34)",
+        primary: "#f43f5e",          // rose-500
+        primaryHover: "#e11d48",     // rose-600
+        primaryMuted: "#fff1f2",     // rose-50
+        ring: "#f43f5e",
       },
     },
   },

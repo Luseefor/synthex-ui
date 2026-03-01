@@ -1,26 +1,48 @@
 import type { ColorScale } from "../types";
 
+/**
+ * Light theme color palette.
+ *
+ * Based on a Zinc-neutral foundation (shadcn-grade) with saturated
+ * semantic colors for destructive/accent/primary. All neutrals are
+ * truly neutral — no blue or green tint.
+ */
 export const colors: ColorScale = {
-  background: "#f6f8fb",
-  backgroundSubtle: "#eef3f8",
+  // ── Surfaces ──────────────────────────────────────────
+  background: "#ffffff",
+  backgroundSubtle: "#f4f4f5",       // zinc-100
   surface: "#ffffff",
-  surfaceMuted: "#f7f9fc",
-  surfaceRaised: "#fbfcfe",
-  foreground: "#0f172a",
-  foregroundMuted: "#5f6d82",
-  foregroundOnBrand: "#f8fbff",
-  border: "rgba(148, 163, 184, 0.24)",
-  borderStrong: "rgba(100, 116, 139, 0.38)",
-  primary: "#1d4ed8",
-  primaryHover: "#1e40af",
-  primaryMuted: "#dbeafe",
-  secondary: "#e2e8f0",
-  secondaryHover: "#cbd5e1",
-  secondaryMuted: "#f1f5f9",
-  destructive: "#dc2626",
-  destructiveHover: "#b91c1c",
-  destructiveMuted: "#fee2e2",
-  accent: "#0f766e",
-  accentMuted: "#ccfbf1",
-  ring: "rgba(37, 99, 235, 0.45)",
+  surfaceMuted: "#fafafa",           // zinc-50
+  surfaceRaised: "#f4f4f5",          // zinc-100
+
+  // ── Text ──────────────────────────────────────────────
+  foreground: "#09090b",             // zinc-950
+  foregroundMuted: "#71717a",        // zinc-500
+  foregroundOnBrand: "#fafafa",      // zinc-50
+
+  // ── Borders ───────────────────────────────────────────
+  border: "#e4e4e7",                 // zinc-200
+  borderStrong: "#d4d4d8",           // zinc-300
+
+  // ── Primary (blue-600) ────────────────────────────────
+  primary: "#2563eb",
+  primaryHover: "#1d4ed8",
+  primaryMuted: "#dbeafe",           // blue-100
+
+  // ── Secondary ─────────────────────────────────────────
+  secondary: "#f4f4f5",             // zinc-100
+  secondaryHover: "#e4e4e7",        // zinc-200
+  secondaryMuted: "#fafafa",        // zinc-50
+
+  // ── Destructive (red — bold, not pastel) ──────────────
+  destructive: "#ef4444",           // red-500
+  destructiveHover: "#dc2626",      // red-600
+  destructiveMuted: "#fef2f2",      // red-50
+
+  // ── Accent ────────────────────────────────────────────
+  accent: "#f4f4f5",                // zinc-100 (neutral like shadcn)
+  accentMuted: "#fafafa",           // zinc-50
+
+  // ── Focus ring ────────────────────────────────────────
+  ring: "#2563eb",                  // blue-600 (solid, visible)
 };

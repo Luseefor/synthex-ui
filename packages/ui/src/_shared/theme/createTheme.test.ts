@@ -8,10 +8,8 @@ describe("createTheme", () => {
         colors: {
           primary: "#8b5cf6",
           primaryHover: "#7c3aed",
-          primaryMuted: "rgba(139, 92, 246, 0.18)",
-          accent: "#8b5cf6",
-          accentMuted: "rgba(139, 92, 246, 0.16)",
-          ring: "rgba(139, 92, 246, 0.34)",
+          primaryMuted: "#f5f3ff",
+          ring: "#8b5cf6",
         },
       },
       { mode: "dark" },
@@ -23,7 +21,7 @@ describe("createTheme", () => {
     expect(theme.colors.surfaceMuted).toBe(darkTheme.colors.surfaceMuted);
     expect(theme.colors.surfaceRaised).toBe(darkTheme.colors.surfaceRaised);
     expect(theme.colors.primary).toBe("#8b5cf6");
-    expect(theme.colors.accent).toBe("#8b5cf6");
+    expect(theme.colors.ring).toBe("#8b5cf6");
   });
 
   it("resolves accent presets through createTheme without changing dark surfaces", () => {
@@ -34,7 +32,7 @@ describe("createTheme", () => {
 
     expect(theme.colors.background).toBe(darkTheme.colors.background);
     expect(theme.colors.surface).toBe(darkTheme.colors.surface);
-    expect(theme.colors.primary).toBe("#e11d48");
-    expect(theme.colors.accent).toBe("#f43f5e");
+    expect(theme.colors.primary).toBe("#f43f5e");
+    expect(theme.colors.ring).toBe("#f43f5e");
   });
 });

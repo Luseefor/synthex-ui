@@ -1,48 +1,64 @@
 /* ============================================================
    Synthex UI — Design Token Surface
    ============================================================
-   All component styling references these custom properties.
-   ThemeProvider.web.tsx will override them at runtime, but
-   these serve as the static CSS-only baseline.
+   Zinc-neutral palette inspired by shadcn/ui.
+   All CSS custom properties are overridable by ThemeProvider
+   or by setting [data-theme="dark"] on any ancestor element.
    ============================================================ */
 
 :root {
   /* ── Colors ─────────────────────────────────────────────── */
-  --sx-color-background: #f6f8fb;
-  --sx-color-background-subtle: #eef3f8;
+
+  /* Surfaces */
+  --sx-color-background: #ffffff;
+  --sx-color-background-subtle: #f4f4f5;
   --sx-color-surface: #ffffff;
-  --sx-color-surface-muted: #f8fafc;
-  --sx-color-surface-raised: #fcfdff;
-  --sx-color-foreground: #0f172a;
-  --sx-color-foreground-muted: #5f6d82;
-  --sx-color-foreground-on-brand: #f8fbff;
-  --sx-color-border: rgba(148, 163, 184, 0.24);
-  --sx-color-border-strong: rgba(100, 116, 139, 0.38);
-  --sx-color-primary: #1d4ed8;
-  --sx-color-primary-hover: #1e40af;
+  --sx-color-surface-muted: #fafafa;
+  --sx-color-surface-raised: #f4f4f5;
+
+  /* Text */
+  --sx-color-foreground: #09090b;
+  --sx-color-foreground-muted: #71717a;
+  --sx-color-foreground-on-brand: #fafafa;
+
+  /* Borders */
+  --sx-color-border: #e4e4e7;
+  --sx-color-border-strong: #d4d4d8;
+
+  /* Primary */
+  --sx-color-primary: #2563eb;
+  --sx-color-primary-hover: #1d4ed8;
   --sx-color-primary-muted: #dbeafe;
-  --sx-color-secondary: #e2e8f0;
-  --sx-color-secondary-hover: #cbd5e1;
-  --sx-color-secondary-muted: #f1f5f9;
-  --sx-color-destructive: #dc2626;
-  --sx-color-destructive-hover: #b91c1c;
-  --sx-color-destructive-muted: #fee2e2;
-  --sx-color-accent: #0f766e;
-  --sx-color-accent-muted: #ccfbf1;
-  --sx-color-ring: rgba(37, 99, 235, 0.45);
+
+  /* Secondary */
+  --sx-color-secondary: #f4f4f5;
+  --sx-color-secondary-hover: #e4e4e7;
+  --sx-color-secondary-muted: #fafafa;
+
+  /* Destructive */
+  --sx-color-destructive: #ef4444;
+  --sx-color-destructive-hover: #dc2626;
+  --sx-color-destructive-muted: #fef2f2;
+
+  /* Accent */
+  --sx-color-accent: #f4f4f5;
+  --sx-color-accent-muted: #fafafa;
+
+  /* Focus */
+  --sx-color-ring: #2563eb;
 
   /* ── Shadows / Elevation ────────────────────────────────── */
-  --sx-shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
-  --sx-shadow-sm: 0 10px 24px rgba(15, 23, 42, 0.06);
-  --sx-shadow-md: 0 18px 40px rgba(15, 23, 42, 0.12);
-  --sx-shadow-lg: 0 24px 52px rgba(15, 23, 42, 0.18);
-  --sx-shadow-inset: inset 0 1px 1px rgba(15, 23, 42, 0.06);
+  --sx-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --sx-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --sx-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --sx-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --sx-shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.06);
 
   /* ── Radius ─────────────────────────────────────────────── */
-  --sx-radius-sm: 8px;
-  --sx-radius-md: 12px;
-  --sx-radius-lg: 16px;
-  --sx-radius-xl: 24px;
+  --sx-radius-sm: 6px;
+  --sx-radius-md: 8px;
+  --sx-radius-lg: 12px;
+  --sx-radius-xl: 16px;
   --sx-radius-pill: 999px;
 
   /* ── Space ──────────────────────────────────────────────── */
@@ -54,8 +70,8 @@
   --sx-space-2xl: 32px;
 
   /* ── Typography ─────────────────────────────────────────── */
-  --sx-font-family-sans: "Inter Tight", "Segoe UI", sans-serif;
-  --sx-font-family-mono: "JetBrains Mono", "SFMono-Regular", monospace;
+  --sx-font-family-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --sx-font-family-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
 
   --sx-font-size-xs: 0.75rem;
   --sx-font-size-sm: 0.875rem;
@@ -67,7 +83,7 @@
   --sx-font-size-4xl: 2.25rem;
 
   --sx-line-height-tight: 1.15;
-  --sx-line-height-normal: 1.4;
+  --sx-line-height-normal: 1.5;
   --sx-line-height-relaxed: 1.65;
 
   --sx-font-weight-medium: 500;
@@ -85,71 +101,91 @@
 /* ── Dark Theme ─────────────────────────────────────────── */
 [data-theme="dark"] {
   color-scheme: dark;
-  --sx-color-background: #090c11;
-  --sx-color-background-subtle: #0d1117;
-  --sx-color-surface: #11161f;
-  --sx-color-surface-muted: #0d1219;
-  --sx-color-surface-raised: #171d27;
-  --sx-color-foreground: #e6edf3;
-  --sx-color-foreground-muted: #97a6b5;
-  --sx-color-foreground-on-brand: #f8fbff;
-  --sx-color-border: rgba(148, 163, 184, 0.16);
-  --sx-color-border-strong: rgba(148, 163, 184, 0.28);
-  --sx-color-primary: #5b8cff;
-  --sx-color-primary-hover: #7aa2ff;
-  --sx-color-primary-muted: rgba(91, 140, 255, 0.18);
-  --sx-color-secondary: #202733;
-  --sx-color-secondary-hover: #2b3544;
-  --sx-color-secondary-muted: #161c25;
-  --sx-color-destructive: #f87171;
-  --sx-color-destructive-hover: #ef4444;
-  --sx-color-destructive-muted: rgba(248, 113, 113, 0.18);
-  --sx-color-accent: #56b6ff;
-  --sx-color-accent-muted: rgba(86, 182, 255, 0.16);
-  --sx-color-ring: rgba(91, 140, 255, 0.34);
-  --sx-shadow-xs: 0 1px 1px rgba(3, 6, 12, 0.48);
-  --sx-shadow-sm: 0 12px 28px rgba(3, 6, 12, 0.34);
-  --sx-shadow-md: 0 20px 44px rgba(3, 6, 12, 0.44);
-  --sx-shadow-lg: 0 30px 68px rgba(3, 6, 12, 0.52);
-  --sx-shadow-inset: inset 0 1px 1px rgba(3, 6, 12, 0.42);
+
+  /* Surfaces */
+  --sx-color-background: #09090b;
+  --sx-color-background-subtle: #18181b;
+  --sx-color-surface: #18181b;
+  --sx-color-surface-muted: #09090b;
+  --sx-color-surface-raised: #27272a;
+
+  /* Text */
+  --sx-color-foreground: #fafafa;
+  --sx-color-foreground-muted: #a1a1aa;
+  --sx-color-foreground-on-brand: #fafafa;
+
+  /* Borders */
+  --sx-color-border: #27272a;
+  --sx-color-border-strong: #3f3f46;
+
+  /* Primary */
+  --sx-color-primary: #3b82f6;
+  --sx-color-primary-hover: #60a5fa;
+  --sx-color-primary-muted: rgba(59, 130, 246, 0.15);
+
+  /* Secondary */
+  --sx-color-secondary: #27272a;
+  --sx-color-secondary-hover: #3f3f46;
+  --sx-color-secondary-muted: #18181b;
+
+  /* Destructive */
+  --sx-color-destructive: #ef4444;
+  --sx-color-destructive-hover: #f87171;
+  --sx-color-destructive-muted: rgba(239, 68, 68, 0.15);
+
+  /* Accent */
+  --sx-color-accent: #27272a;
+  --sx-color-accent-muted: #18181b;
+
+  /* Focus */
+  --sx-color-ring: #3b82f6;
+
+  /* Shadows */
+  --sx-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sx-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --sx-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --sx-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4), 0 4px 6px rgba(0, 0, 0, 0.3);
+  --sx-shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* ── Auto dark mode (no ThemeProvider needed) ────────────── */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     color-scheme: dark;
-    --sx-color-background: #090c11;
-    --sx-color-background-subtle: #0d1117;
-    --sx-color-surface: #11161f;
-    --sx-color-surface-muted: #0d1219;
-    --sx-color-surface-raised: #171d27;
-    --sx-color-foreground: #e6edf3;
-    --sx-color-foreground-muted: #97a6b5;
-    --sx-color-foreground-on-brand: #f8fbff;
-    --sx-color-border: rgba(148, 163, 184, 0.16);
-    --sx-color-border-strong: rgba(148, 163, 184, 0.28);
-    --sx-color-primary: #5b8cff;
-    --sx-color-primary-hover: #7aa2ff;
-    --sx-color-primary-muted: rgba(91, 140, 255, 0.18);
-    --sx-color-secondary: #202733;
-    --sx-color-secondary-hover: #2b3544;
-    --sx-color-secondary-muted: #161c25;
-    --sx-color-destructive: #f87171;
-    --sx-color-destructive-hover: #ef4444;
-    --sx-color-destructive-muted: rgba(248, 113, 113, 0.18);
-    --sx-color-accent: #56b6ff;
-    --sx-color-accent-muted: rgba(86, 182, 255, 0.16);
-    --sx-color-ring: rgba(91, 140, 255, 0.34);
-    --sx-shadow-xs: 0 1px 1px rgba(3, 6, 12, 0.48);
-    --sx-shadow-sm: 0 12px 28px rgba(3, 6, 12, 0.34);
-    --sx-shadow-md: 0 20px 44px rgba(3, 6, 12, 0.44);
-    --sx-shadow-lg: 0 30px 68px rgba(3, 6, 12, 0.52);
-    --sx-shadow-inset: inset 0 1px 1px rgba(3, 6, 12, 0.42);
+
+    --sx-color-background: #09090b;
+    --sx-color-background-subtle: #18181b;
+    --sx-color-surface: #18181b;
+    --sx-color-surface-muted: #09090b;
+    --sx-color-surface-raised: #27272a;
+    --sx-color-foreground: #fafafa;
+    --sx-color-foreground-muted: #a1a1aa;
+    --sx-color-foreground-on-brand: #fafafa;
+    --sx-color-border: #27272a;
+    --sx-color-border-strong: #3f3f46;
+    --sx-color-primary: #3b82f6;
+    --sx-color-primary-hover: #60a5fa;
+    --sx-color-primary-muted: rgba(59, 130, 246, 0.15);
+    --sx-color-secondary: #27272a;
+    --sx-color-secondary-hover: #3f3f46;
+    --sx-color-secondary-muted: #18181b;
+    --sx-color-destructive: #ef4444;
+    --sx-color-destructive-hover: #f87171;
+    --sx-color-destructive-muted: rgba(239, 68, 68, 0.15);
+    --sx-color-accent: #27272a;
+    --sx-color-accent-muted: #18181b;
+    --sx-color-ring: #3b82f6;
+    --sx-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --sx-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.24);
+    --sx-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.3);
+    --sx-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4), 0 4px 6px rgba(0, 0, 0, 0.3);
+    --sx-shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 }
 
 /* ── Reduced Motion ─────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
