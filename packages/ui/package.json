@@ -1,7 +1,9 @@
 {
-  "name": "@synthex/ui",
-  "version": "0.1.0",
+  "name": "synthex-ui",
+  "version": "1.0.0",
   "type": "module",
+  "description": "Cross-platform React UI framework for consistent web and native product surfaces.",
+  "license": "MIT",
   "main": "./dist/index.web.js",
   "module": "./dist/index.web.js",
   "types": "./dist/index.d.ts",
@@ -61,8 +63,29 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Luseefor/synthex-ui.git"
+  },
+  "homepage": "https://github.com/Luseefor/synthex-ui",
+  "bugs": {
+    "url": "https://github.com/Luseefor/synthex-ui/issues"
+  },
+  "keywords": [
+    "react",
+    "react-native",
+    "ui",
+    "design-system",
+    "components",
+    "tailwind"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "lucide-react": "^0.542.0",
     "lucide-react-native": "^0.542.0",

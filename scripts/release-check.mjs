@@ -12,7 +12,7 @@ const publicPackages = [
     forbidNative: false,
   },
   {
-    name: "@synthex/ui",
+    name: "synthex-ui",
     dir: path.join(rootDir, "packages/ui"),
     forbidNative: false,
   },

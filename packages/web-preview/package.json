@@ -1,6 +1,6 @@
 {
   "name": "@synthex/web-preview",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@synthex/core": "workspace:*",
-    "@synthex/ui": "workspace:*",
+    "synthex-ui": "workspace:*",
     "@synthex/react-web": "workspace:*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

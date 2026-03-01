@@ -1,7 +1,9 @@
 {
   "name": "@synthex/core",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "Framework-agnostic layout and command engine for Synthex UI.",
+  "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -13,8 +15,28 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Luseefor/synthex-ui.git"
+  },
+  "homepage": "https://github.com/Luseefor/synthex-ui",
+  "bugs": {
+    "url": "https://github.com/Luseefor/synthex-ui/issues"
+  },
+  "keywords": [
+    "layout-engine",
+    "commands",
+    "serialization",
+    "typescript",
+    "headless"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "rm -rf ./dist && bun build ./src/index.ts --outdir ./dist --target bun --format esm --sourcemap && bunx tsc -p tsconfig.build.json",
     "dev": "bun --watch run ./src/index.ts",

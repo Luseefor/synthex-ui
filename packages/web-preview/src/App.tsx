@@ -221,7 +221,7 @@ import {
   EmptyHeader,
   EmptyTitle,
   Field,
-} from "@synthex/ui/components";
+} from "synthex-ui/components";
 import {
   AddIcon,
   GridIcon,
@@ -231,20 +231,20 @@ import {
   SearchIcon,
   SettingsIcon,
   UndoIcon,
-} from "@synthex/ui/icons";
+} from "synthex-ui/icons";
 import {
   ThemeProvider,
   accentPresets,
   useTheme,
   type AccentPresetName,
   type SynthexTheme,
-} from "@synthex/ui/theme";
+} from "synthex-ui/theme";
 import {
   useControllableState,
   useDisclosure,
   usePlatformValue,
   useReducedMotion,
-} from "@synthex/ui/hooks";
+} from "synthex-ui/hooks";
 import { PreviewPanel } from "./components/PreviewPanel";
 import { Toolbar } from "./components/Toolbar";
 import { previewLayout } from "./previewLayout";
@@ -303,31 +303,31 @@ const navItems: readonly NavItem[] = [
 
 const supportRows: readonly SupportRow[] = [
   {
-    area: "@synthex/ui root",
+    area: "synthex-ui root",
     web: "Supported",
     native: "Supported",
     notes: "Platform-specific entry points expose a shared consumer API.",
   },
   {
-    area: "@synthex/ui/components",
+    area: "synthex-ui/components",
     web: "Supported",
     native: "Supported",
     notes: "Core controls ship from a shared variant contract with web and native implementations.",
   },
   {
-    area: "@synthex/ui/primitives",
+    area: "synthex-ui/primitives",
     web: "Supported",
     native: "Supported",
     notes: "Layout primitives, surfaces, and scroll primitives are available on both targets.",
   },
   {
-    area: "@synthex/ui/theme",
+    area: "synthex-ui/theme",
     web: "Supported",
     native: "Supported",
     notes: "Semantic tokens drive CSS variables on web and style-safe values on native.",
   },
   {
-    area: "@synthex/ui/icons",
+    area: "synthex-ui/icons",
     web: "Supported",
     native: "Supported",
     notes: "Curated named icons wrap the Lucide adapters behind a stable library contract.",
@@ -354,37 +354,37 @@ const supportRows: readonly SupportRow[] = [
 
 const exportItems: readonly ExportItem[] = [
   {
-    path: "@synthex/ui/components",
+    path: "synthex-ui/components",
     description: "High-usage controls such as Button, Card, Input, Tabs, Badge, Separator, and Typography helpers.",
     examples: ["Button", "Card", "Input", "Tabs"],
   },
   {
-    path: "@synthex/ui/primitives",
+    path: "synthex-ui/primitives",
     description: "Cross-platform structural primitives for layout, spacing, surfaces, and scrollable regions.",
     examples: ["Box", "Stack", "Inline", "Grid"],
   },
   {
-    path: "@synthex/ui/layout",
+    path: "synthex-ui/layout",
     description: "Generic app-shell helpers that stay separate from the engineering docking system.",
     examples: ["AppShell", "Pane", "PanelFrame", "Section"],
   },
   {
-    path: "@synthex/ui/hooks",
+    path: "synthex-ui/hooks",
     description: "Cross-platform helpers for controllable state, disclosure, platform branching, and motion preferences.",
     examples: ["useControllableState", "useDisclosure", "usePlatformValue"],
   },
   {
-    path: "@synthex/ui/icons",
+    path: "synthex-ui/icons",
     description: "Named icon contract for product chrome so app teams do not import the vendor icon package directly.",
     examples: ["Icon", "AddIcon", "UndoIcon", "RedoIcon"],
   },
   {
-    path: "@synthex/ui/theme",
+    path: "synthex-ui/theme",
     description: "Theme provider, token presets, theme creation utilities, and typed theme contracts.",
     examples: ["ThemeProvider", "createTheme", "lightTheme", "darkTheme"],
   },
   {
-    path: "@synthex/ui/styles.css",
+    path: "synthex-ui/styles.css",
     description: "Base web stylesheet with reset, token variables, and component-safe defaults.",
     examples: ["styles.css"],
   },
@@ -397,7 +397,7 @@ const exportItems: readonly ExportItem[] = [
 
 const packageCards: readonly PackageCardItem[] = [
   {
-    title: "@synthex/ui",
+    title: "synthex-ui",
     description: "Main consumer-facing design-system package with root exports and subpath entry points.",
   },
   {
@@ -642,7 +642,7 @@ function OverviewSection({
         </CardHeader>
         <CardContent>
           <div className="preview-metric-grid">
-            <MetricCard label="Primary package" value="@synthex/ui" />
+            <MetricCard label="Primary package" value="synthex-ui" />
             <MetricCard label="Engine package" value="@synthex/core" />
             <MetricCard label="Web adapter" value="@synthex/react-web" />
             <MetricCard label="Preview app" value="@synthex/web-preview" />
@@ -704,7 +704,7 @@ function PackageScopeSection() {
         <CardContent className="preview-stack-sm">
           <Small>Why this structure matters</Small>
           <Muted>
-            `@synthex/ui` stays generic and reusable. `@synthex/react-web` owns the dockable renderer. `@synthex/core` stays framework-agnostic. That split is what keeps the repo scalable instead of collapsing into a flat UI kit.
+            `synthex-ui` stays generic and reusable. `@synthex/react-web` owns the dockable renderer. `@synthex/core` stays framework-agnostic. That split is what keeps the repo scalable instead of collapsing into a flat UI kit.
           </Muted>
         </CardContent>
       </Card>
@@ -951,7 +951,7 @@ function ComponentGallerySection() {
                       <FormItem>
                         <FormLabel>Package name</FormLabel>
                         <FormControl>
-                          <Input placeholder="@synthex/ui" />
+                          <Input placeholder="synthex-ui" />
                         </FormControl>
                         <FormDescription />
                         <FormMessage />
@@ -1700,7 +1700,7 @@ function ComponentGallerySection() {
                 { id: "status", header: "Status", accessor: "status", align: "right" },
               ]}
               data={[
-                { package: "@synthex/ui", surface: "Design system", status: "Stable" },
+                { package: "synthex-ui", surface: "Design system", status: "Stable" },
                 { package: "@synthex/core", surface: "Layout engine", status: "Stable" },
                 { package: "@synthex/react-web", surface: "Workbench adapter", status: "Ready" },
                 { package: "@synthex/web-preview", surface: "Docs app", status: "Internal" },
@@ -1736,7 +1736,7 @@ function ComponentGallerySection() {
               </TableHeader>
               <TableBody>
                 <TableRow>
-                  <TableCell>@synthex/ui</TableCell>
+                  <TableCell>synthex-ui</TableCell>
                   <TableCell>Cross-platform design system</TableCell>
                   <TableCell>Ready</TableCell>
                 </TableRow>
@@ -2164,7 +2164,7 @@ function GettingStartedSection() {
           </CardHeader>
           <CardContent>
             <CodeBlock
-              code={`import "@synthex/ui/styles.css";\nimport { Button } from "@synthex/ui/components";\nimport { ThemeProvider } from "@synthex/ui/theme";\n\nexport function Example() {\n  return (\n    <ThemeProvider>\n      <Button>Run</Button>\n    </ThemeProvider>\n  );\n}`}
+              code={`import "synthex-ui/styles.css";\nimport { Button } from "synthex-ui/components";\nimport { ThemeProvider } from "synthex-ui/theme";\n\nexport function Example() {\n  return (\n    <ThemeProvider>\n      <Button>Run</Button>\n    </ThemeProvider>\n  );\n}`}
             />
           </CardContent>
         </Card>

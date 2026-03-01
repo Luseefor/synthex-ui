@@ -1,7 +1,9 @@
 {
   "name": "@synthex/react-web",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "React DOM adapter for rendering Synthex layout engine workspaces.",
+  "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -35,8 +37,28 @@
     "vitest": "^3.2.4"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Luseefor/synthex-ui.git"
+  },
+  "homepage": "https://github.com/Luseefor/synthex-ui",
+  "bugs": {
+    "url": "https://github.com/Luseefor/synthex-ui/issues"
+  },
+  "keywords": [
+    "react",
+    "layout",
+    "workbench",
+    "split-view",
+    "tabs"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "rm -rf ./dist && bun build ./src/index.ts ./src/index.web.ts --outdir ./dist --target browser --format esm --external react --external react-dom --external react/jsx-runtime --sourcemap && bunx tsc -p tsconfig.build.json",
     "test": "vitest run",

@@ -1,89 +1,68 @@
 # Synthex UI
 
-Synthex UI is a pre-release monorepo for building serious product surfaces with a cross-platform design system and a framework-agnostic layout engine.
+Synthex UI is a publish-ready monorepo built around three public packages:
 
-It is split into focused packages instead of collapsing everything into one library:
+- `synthex-ui`: cross-platform component library and theme system
+- `@synthex/core`: framework-agnostic layout and command engine
+- `@synthex/react-web`: React DOM adapter for dockable workbench rendering
 
-- `@synthex/ui`: cross-platform design-system package with components, primitives, hooks, icons, theme, and the web stylesheet.
-- `@synthex/core`: pure TypeScript layout and command engine with no React or DOM dependencies.
-- `@synthex/react-web`: thin React DOM adapter for rendering the layout engine on the web.
-- `@synthex/web-preview`: Vite docs and preview app used to verify the public package surface.
-- `@synthex/cli`: Bun-based CLI for scripting and layout workflows.
+The design-system package is installable like a normal consumer library:
 
-## Status
+```sh
+npm install synthex-ui
+```
 
-Synthex UI is in active pre-release development. APIs and package contents are still being hardened before a stable `1.0`.
+For workbench-style engineering surfaces, install the engine packages too:
 
-## Package Model
+```sh
+npm install synthex-ui @synthex/core @synthex/react-web
+```
 
-### `@synthex/ui`
+## Packages
 
-Primary consumer package for application teams.
+### `synthex-ui`
 
-Root exports include:
+Main consumer package for web and native applications.
 
-- `ThemeProvider`, `createTheme`, `defaultTheme`, `lightTheme`, `darkTheme`, `useTheme`
-- `Box`, `Text`, `Stack`, `Inline`, `Grid`, `Surface`, `PressablePrimitive`, `ScrollArea`
-- `Button`, `Card`, `Input`, `Tabs`, `Badge`, `Separator`, `H1`, `H2`, `H3`, `Lead`, `Muted`, `Small`
-- `useControllableState`, `useDisclosure`, `usePlatformValue`, `useReducedMotion`
-- `Icon`, `iconMap`, and a curated named icon set
+Exports:
 
-Subpath exports:
-
-- `@synthex/ui/components`
-- `@synthex/ui/primitives`
-- `@synthex/ui/layout`
-- `@synthex/ui/hooks`
-- `@synthex/ui/icons`
-- `@synthex/ui/theme`
-- `@synthex/ui/styles.css`
-- `@synthex/ui/web`
-- `@synthex/ui/native`
+- `synthex-ui`
+- `synthex-ui/components`
+- `synthex-ui/primitives`
+- `synthex-ui/layout`
+- `synthex-ui/hooks`
+- `synthex-ui/icons`
+- `synthex-ui/theme`
+- `synthex-ui/styles.css`
+- `synthex-ui/web`
+- `synthex-ui/native`
 
 ### `@synthex/core`
 
-Framework-agnostic engine package for:
+Pure TypeScript engine package for:
 
-- layout tree types and reducer logic
-- command dispatch and history
+- layout tree types and reducers
 - serialization and validation
-- deterministic store abstractions
+- deterministic store primitives
+- command execution and history
 
 ### `@synthex/react-web`
 
-Web-only adapter package for the engineering layout surface:
+Web-only adapter for rendering the core layout engine with:
 
 - `LayoutRenderer`
 - `SplitView`
 - `TabView`
 - `useSynthex`
 
-It intentionally does not own design-system components.
-
 ## Development
-
-Install dependencies:
 
 ```sh
 bun install
-```
-
-Type-check the full workspace:
-
-```sh
 bun run check-types
-```
-
-Run tests:
-
-```sh
 bun run test
-```
-
-Build all packages:
-
-```sh
 bun run build
+bun run release:check
 ```
 
 Run the docs and preview app:
@@ -94,12 +73,10 @@ bun run dev
 
 ## Minimal Usage
 
-Web app:
-
 ```tsx
-import "@synthex/ui/styles.css";
-import { Button } from "@synthex/ui/components";
-import { ThemeProvider } from "@synthex/ui/theme";
+import "synthex-ui/styles.css";
+import { Button } from "synthex-ui/components";
+import { ThemeProvider } from "synthex-ui/theme";
 
 export function Example() {
   return (
@@ -110,7 +87,7 @@ export function Example() {
 }
 ```
 
-Layout engine integration:
+Workbench integration:
 
 ```tsx
 import { createLayoutEngine } from "@synthex/core";
@@ -136,24 +113,3 @@ export function Workbench() {
   );
 }
 ```
-
-## Package Structure
-
-```text
-packages/
-  core/         Pure engine package
-  ui/           Cross-platform design system
-  react-web/    Layout-engine React DOM adapter
-  web-preview/  Vite docs and preview app
-  cli/          Bun CLI
-```
-
-## Release Direction
-
-This milestone focuses on:
-
-- stabilizing the `@synthex/ui` public surface
-- keeping `@synthex/react-web` narrowly scoped
-- generating declaration files in `dist`
-- validating subpath exports through the preview app
-- strengthening tests around variants, components, theme, and layout integration

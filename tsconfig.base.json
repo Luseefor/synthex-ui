@@ -8,10 +8,10 @@
       "@synthex/core/*": [
         "./packages/core/src/*"
       ],
-      "@synthex/ui": [
+      "synthex-ui": [
         "./packages/ui/src/index.ts"
       ],
-      "@synthex/ui/*": [
+      "synthex-ui/*": [
         "./packages/ui/src/*"
       ],
       "@synthex/react-web": [

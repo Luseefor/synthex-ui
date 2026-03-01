@@ -1,6 +1,6 @@
-import { Button, Badge } from "@synthex/ui/components";
-import { AddIcon, PanelBottomIcon, PanelRightIcon, RedoIcon, UndoIcon } from "@synthex/ui/icons";
-import { Inline } from "@synthex/ui/primitives";
+import { Button, Badge } from "synthex-ui/components";
+import { AddIcon, PanelBottomIcon, PanelRightIcon, RedoIcon, UndoIcon } from "synthex-ui/icons";
+import { Inline } from "synthex-ui/primitives";
 
 export interface ToolbarProps {
   readonly canRedo: boolean;

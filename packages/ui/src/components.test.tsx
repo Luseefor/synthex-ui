@@ -177,7 +177,7 @@ import {
 } from "./components";
 import { Box, Surface } from "./primitives";
 
-describe("@synthex/ui web components", () => {
+describe("synthex-ui web components", () => {
   it("renders button and badge variants with accessible semantics", () => {
     render(
       <ThemeProvider>
@@ -515,7 +515,7 @@ describe("@synthex/ui web components", () => {
             { id: "downloads", header: "Downloads", accessor: "downloads", align: "right" },
           ]}
           data={[
-            { package: "@synthex/ui", status: "Stable", downloads: 8200 },
+            { package: "synthex-ui", status: "Stable", downloads: 8200 },
             { package: "@synthex/core", status: "Stable", downloads: 6400 },
             { package: "@synthex/react-web", status: "Preview", downloads: 2300 },
           ]}
@@ -529,7 +529,7 @@ describe("@synthex/ui web components", () => {
     });
 
     expect(screen.getByText("@synthex/core")).toBeInTheDocument();
-    expect(screen.queryByText("@synthex/ui")).not.toBeInTheDocument();
+    expect(screen.queryByText("synthex-ui")).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Filter table rows"), {
       target: { value: "" },
