@@ -103,20 +103,20 @@ function renderPanelBody(panel: PanelNode) {
           <div className="workbench-document-toolbar">
             <span>Overview draft</span>
             <span>12 sections</span>
-            <span>Updated 2m ago</span>
+            <span>Synced</span>
           </div>
           <div className="workbench-document-grid">
             <div className="workbench-document-card">
               <div className="workbench-document-card-title">Header</div>
-              <p>Clear hierarchy and restrained surfaces.</p>
+              <p>Readable hierarchy and deliberate spacing.</p>
             </div>
             <div className="workbench-document-card">
               <div className="workbench-document-card-title">Content</div>
-              <p>Single-column reading flow with supporting context.</p>
+              <p>Single-column reading flow with calm supporting context.</p>
             </div>
             <div className="workbench-document-card workbench-document-card-wide">
               <div className="workbench-document-card-title">Summary</div>
-              <p>Keep the workspace generic enough to validate layout behavior without product-specific art direction.</p>
+              <p>Keep the playground generic and structural so split, tab, and resize behavior stays easy to inspect.</p>
             </div>
           </div>
         </div>
@@ -127,22 +127,22 @@ function renderPanelBody(panel: PanelNode) {
         <div className="workbench-stack-surface">
           <div className="workbench-metric-row">
             <div className="workbench-mini-stat">
-              <span>Views</span>
-              <strong>08</strong>
+              <span>Routes</span>
+              <strong>06</strong>
             </div>
             <div className="workbench-mini-stat">
-              <span>Errors</span>
+              <span>Checks</span>
+              <strong>14</strong>
+            </div>
+            <div className="workbench-mini-stat">
+              <span>Issues</span>
               <strong>00</strong>
-            </div>
-            <div className="workbench-mini-stat">
-              <span>Drafts</span>
-              <strong>03</strong>
             </div>
           </div>
           <div className="workbench-preview-list">
-            <div>Landing route updated</div>
-            <div>Accent preset stable in dark mode</div>
-            <div>Sidebar scroll isolated from content</div>
+            <div>Layout renderer stays neutral across theme modes.</div>
+            <div>Sidebar state stays separate from the dock surface.</div>
+            <div>Serialized tree remains readable during edits.</div>
           </div>
         </div>
       );
@@ -197,10 +197,10 @@ function renderPanelBody(panel: PanelNode) {
     case "console":
       return (
         <div className="workbench-console">
-          <div>[engine] layout reducer ready</div>
-          <div>[preview] route switched to /playground</div>
-          <div>[theme] dark graphite palette active</div>
-          <div>[docs] renderer snapshot updated</div>
+          <div>[engine] reducer accepted split preview-root</div>
+          <div>[renderer] tab host updated without remount</div>
+          <div>[preview] selection pinned to current panel</div>
+          <div>[theme] graphite studio surface active</div>
         </div>
       );
 
@@ -209,15 +209,15 @@ function renderPanelBody(panel: PanelNode) {
         <div className="workbench-activity-list">
           <div className="workbench-activity-item">
             <strong>09:24</strong>
-            <span>Split main workspace into editor and context columns.</span>
+            <span>Adjusted dock ratios for a calmer center column.</span>
           </div>
           <div className="workbench-activity-item">
             <strong>09:26</strong>
-            <span>Opened preview metrics for the current page shell.</span>
+            <span>Reduced panel chrome and tightened header spacing.</span>
           </div>
           <div className="workbench-activity-item">
             <strong>09:31</strong>
-            <span>Added a note surface for scratch content.</span>
+            <span>Collapsed the lower rail into one clean runtime pane.</span>
           </div>
         </div>
       );
@@ -225,7 +225,7 @@ function renderPanelBody(panel: PanelNode) {
     case "notes":
       return (
         <div className="workbench-note-surface">
-          <p>Use the workbench to validate layout behavior, not to imitate one specific product.</p>
+          <p>Use this workspace to validate layout behavior, not to imitate one product domain.</p>
           <ul>
             <li>Clear split directions</li>
             <li>Predictable tab hosts</li>

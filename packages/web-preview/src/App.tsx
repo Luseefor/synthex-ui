@@ -1452,37 +1452,56 @@ function WorkbenchSurface({
   const stats = useMemo(() => summarizeLayout(workbench.layout), [workbench.layout]);
 
   return (
-    <div className="workbench-shell" style={shellStyle}>
-      <div className="workbench-shell-main">
-        <div className="workbench-shell-header">
-          <div className="workbench-shell-heading">
+    <div className="workbench-page" style={shellStyle}>
+      <div className="workbench-page-header">
+        <div className="workbench-page-copy">
+          <div className="workbench-page-title-row">
             <Small>Workspace shell</Small>
-            <div className="workbench-shell-heading-row">
-              <H3>General-purpose tiling workspace</H3>
-              <div className="preview-chip-row">
-                <Badge variant="outline">Resizable splits</Badge>
-                <Badge variant="outline">Tab stacks</Badge>
-                <Badge variant="outline">Serializable state</Badge>
-              </div>
+            <div className="preview-chip-row">
+              <Badge variant="outline">Resizable splits</Badge>
+              <Badge variant="outline">Tab stacks</Badge>
+              <Badge variant="outline">Serializable state</Badge>
             </div>
-            <Muted>
-              The workspace keeps a dedicated dark studio theme so layout behavior stays readable regardless of the surrounding docs mode.
-            </Muted>
           </div>
-
-          <Toolbar
-            canRedo={workbench.redoDepth > 0}
-            canUndo={workbench.undoDepth > 0}
-            lastAction={workbench.lastAction}
-            selectedLabel={selectedNode ? describeWorkbenchNode(selectedNode) : "Nothing selected"}
-            onAddPanel={() => void workbench.addPanel()}
-            onSplitColumns={() => void workbench.splitSelection("horizontal")}
-            onSplitRows={() => void workbench.splitSelection("vertical")}
-            onUndo={() => void workbench.undo()}
-            onRedo={() => void workbench.redo()}
-          />
+          <H3>General-purpose tiling workspace</H3>
+          <Muted>
+            Compact by default, neutral in dark mode, and built to validate real layout behavior rather than imitate one product vertical.
+          </Muted>
         </div>
 
+        <div className="workbench-summary-grid">
+          <div className="workbench-summary-card">
+            <Small>Panels</Small>
+            <strong>{stats.panels}</strong>
+          </div>
+          <div className="workbench-summary-card">
+            <Small>Tab hosts</Small>
+            <strong>{stats.tabs}</strong>
+          </div>
+          <div className="workbench-summary-card">
+            <Small>Splits</Small>
+            <strong>{stats.splits}</strong>
+          </div>
+          <div className="workbench-summary-card">
+            <Small>Depth</Small>
+            <strong>{stats.depth}</strong>
+          </div>
+        </div>
+      </div>
+
+      <Toolbar
+        canRedo={workbench.redoDepth > 0}
+        canUndo={workbench.undoDepth > 0}
+        lastAction={workbench.lastAction}
+        selectedLabel={selectedNode ? describeWorkbenchNode(selectedNode) : "Nothing selected"}
+        onAddPanel={() => void workbench.addPanel()}
+        onSplitColumns={() => void workbench.splitSelection("horizontal")}
+        onSplitRows={() => void workbench.splitSelection("vertical")}
+        onUndo={() => void workbench.undo()}
+        onRedo={() => void workbench.redo()}
+      />
+
+      <div className="workbench-body">
         <div className="workbench-frame">
           <LayoutRenderer
             layout={workbench.layout}
@@ -1503,111 +1522,86 @@ function WorkbenchSurface({
             )}
           />
         </div>
+
+        <aside className="workbench-sidebar">
+          <div className="workbench-sidebar-pane">
+            <div className="workbench-pane-title-row">
+              <H3>Workspace state</H3>
+              <Badge variant="secondary">{workbench.lastAction}</Badge>
+            </div>
+            <div className="workbench-chip-strip">
+              <Badge variant="outline">Undo {workbench.undoDepth}</Badge>
+              <Badge variant="outline">Redo {workbench.redoDepth}</Badge>
+            </div>
+          </div>
+
+          <div className="workbench-sidebar-pane">
+            <div className="workbench-pane-title-row">
+              <H3>Selection</H3>
+              <Small>{selectedNode ? selectedNode.id : "none"}</Small>
+            </div>
+            <Muted>
+              {selectedNode
+                ? describeWorkbenchNode(selectedNode)
+                : "Select a panel, tab host, or split frame to inspect it here."}
+            </Muted>
+            {selectedNode ? (
+              <dl className="workbench-definition-list">
+                <div>
+                  <dt>Node type</dt>
+                  <dd>{selectedNode.type}</dd>
+                </div>
+                {selectedNode.type === "panel" ? (
+                  <>
+                    <div>
+                      <dt>Panel type</dt>
+                      <dd>{selectedNode.panelType}</dd>
+                    </div>
+                    <div>
+                      <dt>Title</dt>
+                      <dd>{selectedNode.title ?? "Untitled"}</dd>
+                    </div>
+                  </>
+                ) : null}
+                {selectedNode.type === "tabs" ? (
+                  <>
+                    <div>
+                      <dt>Active panel</dt>
+                      <dd>{selectedNode.activePanelId}</dd>
+                    </div>
+                    <div>
+                      <dt>Children</dt>
+                      <dd>{selectedNode.children.length}</dd>
+                    </div>
+                  </>
+                ) : null}
+                {selectedNode.type === "split" ? (
+                  <>
+                    <div>
+                      <dt>Direction</dt>
+                      <dd>{selectedNode.direction}</dd>
+                    </div>
+                    <div>
+                      <dt>Ratios</dt>
+                      <dd>{selectedNode.sizes.map((size) => size.toFixed(2)).join(" / ")}</dd>
+                    </div>
+                  </>
+                ) : null}
+              </dl>
+            ) : null}
+          </div>
+
+          <div className="workbench-sidebar-pane workbench-sidebar-pane-code">
+            <div className="workbench-pane-title-row">
+              <H3>Serialized layout</H3>
+              <Small>Current snapshot</Small>
+            </div>
+            <pre className="workbench-code">
+              <code>{serializeLayout(workbench.layout)}</code>
+            </pre>
+          </div>
+        </aside>
       </div>
-
-      <aside className="workbench-sidebar">
-        <div className="workbench-sidebar-pane">
-          <div className="workbench-pane-title-row">
-            <H3>Workspace</H3>
-            <Badge variant="secondary">{workbench.lastAction}</Badge>
-          </div>
-          <div className="workbench-stat-grid">
-            <div className="workbench-stat">
-              <Small>Panels</Small>
-              <strong>{stats.panels}</strong>
-            </div>
-            <div className="workbench-stat">
-              <Small>Tab hosts</Small>
-              <strong>{stats.tabs}</strong>
-            </div>
-            <div className="workbench-stat">
-              <Small>Splits</Small>
-              <strong>{stats.splits}</strong>
-            </div>
-            <div className="workbench-stat">
-              <Small>Depth</Small>
-              <strong>{stats.depth}</strong>
-            </div>
-          </div>
-          <div className="workbench-chip-strip">
-            <Badge variant="outline">Undo {workbench.undoDepth}</Badge>
-            <Badge variant="outline">Redo {workbench.redoDepth}</Badge>
-          </div>
-          <div className="workbench-activity-log">
-            {workbench.recentActions.map((entry) => (
-              <div key={entry} className="workbench-activity-log-item">
-                {entry}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="workbench-sidebar-pane">
-          <div className="workbench-pane-title-row">
-            <H3>Selection</H3>
-            <Small>{selectedNode ? selectedNode.id : "none"}</Small>
-          </div>
-          <Muted>
-            {selectedNode
-              ? describeWorkbenchNode(selectedNode)
-              : "Select a panel, tab host, or split frame to inspect it here."}
-          </Muted>
-          {selectedNode ? (
-            <dl className="workbench-definition-list">
-              <div>
-                <dt>Node type</dt>
-                <dd>{selectedNode.type}</dd>
-              </div>
-              {selectedNode.type === "panel" ? (
-                <>
-                  <div>
-                    <dt>Panel type</dt>
-                    <dd>{selectedNode.panelType}</dd>
-                  </div>
-                  <div>
-                    <dt>Title</dt>
-                    <dd>{selectedNode.title ?? "Untitled"}</dd>
-                  </div>
-                </>
-              ) : null}
-              {selectedNode.type === "tabs" ? (
-                <>
-                  <div>
-                    <dt>Active panel</dt>
-                    <dd>{selectedNode.activePanelId}</dd>
-                  </div>
-                  <div>
-                    <dt>Children</dt>
-                    <dd>{selectedNode.children.length}</dd>
-                  </div>
-                </>
-              ) : null}
-              {selectedNode.type === "split" ? (
-                <>
-                  <div>
-                    <dt>Direction</dt>
-                    <dd>{selectedNode.direction}</dd>
-                  </div>
-                  <div>
-                    <dt>Ratios</dt>
-                    <dd>{selectedNode.sizes.map((size) => size.toFixed(2)).join(" / ")}</dd>
-                  </div>
-                </>
-              ) : null}
-            </dl>
-          ) : null}
-        </div>
-
-        <div className="workbench-sidebar-pane workbench-sidebar-pane-code">
-          <div className="workbench-pane-title-row">
-            <H3>Serialized layout</H3>
-            <Small>Current snapshot</Small>
-          </div>
-          <pre className="workbench-code">
-            <code>{serializeLayout(workbench.layout)}</code>
-          </pre>
-        </div>
-      </aside>
     </div>
   );
 }
@@ -1651,7 +1645,6 @@ interface WorkbenchController {
   readonly dispatch: (action: LayoutAction) => Promise<LayoutNode>;
   readonly lastAction: string;
   readonly layout: LayoutNode;
-  readonly recentActions: readonly string[];
   readonly redo: () => Promise<void>;
   readonly redoDepth: number;
   readonly selectedNodeId: string | null;
@@ -1684,15 +1677,10 @@ function useWorkbench(): WorkbenchController {
   const engine = engineRef.current;
   const layout = useSynthex(engine);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>("document");
-  const [lastAction, setLastAction] = useState<string>("INITIAL");
-  const [recentActions, setRecentActions] = useState<readonly string[]>(["Initial layout loaded"]);
+  const [lastAction, setLastAction] = useState<string>("Initial layout loaded");
   const [undoDepth, setUndoDepth] = useState(0);
   const [redoDepth, setRedoDepth] = useState(0);
   const nextPanelCountRef = useRef(1);
-
-  const recordAction = (entry: string) => {
-    setRecentActions((current) => [entry, ...current].slice(0, 6));
-  };
 
   const middleware = useMemo<readonly PreviewMiddleware[]>(
     () => [
@@ -1706,9 +1694,8 @@ function useWorkbench(): WorkbenchController {
         return nextState;
       },
       async (action, _prevState, next) => {
-        setLastAction(action.type);
+        setLastAction(describeLayoutAction(action));
         const nextState = await next(action);
-        recordAction(describeLayoutAction(action));
         return nextState;
       },
     ],
@@ -1766,29 +1753,27 @@ function useWorkbench(): WorkbenchController {
 
   const undo = async () => {
     const undone = await engine.commands.undo();
-    setLastAction("UNDO");
 
     if (!undone) {
       return;
     }
 
+    setLastAction("Undo last change");
     setUndoDepth((value) => Math.max(0, value - 1));
     setRedoDepth((value) => value + 1);
-    recordAction("Undo last change");
     console.log("[synthex-preview] undo", engine.getState());
   };
 
   const redo = async () => {
     const redone = await engine.commands.redo();
-    setLastAction("REDO");
 
     if (!redone) {
       return;
     }
 
+    setLastAction("Redo last change");
     setUndoDepth((value) => value + 1);
     setRedoDepth((value) => Math.max(0, value - 1));
-    recordAction("Redo last change");
     console.log("[synthex-preview] redo", engine.getState());
   };
 
@@ -1797,7 +1782,6 @@ function useWorkbench(): WorkbenchController {
     dispatch,
     lastAction,
     layout,
-    recentActions,
     redo,
     redoDepth,
     selectedNodeId,

@@ -1,6 +1,6 @@
 import { Button, Badge } from "@synthex/ui/components";
 import { AddIcon, PanelBottomIcon, PanelRightIcon, RedoIcon, UndoIcon } from "@synthex/ui/icons";
-import { Inline, Text } from "@synthex/ui/primitives";
+import { Inline } from "@synthex/ui/primitives";
 
 export interface ToolbarProps {
   readonly canRedo: boolean;
@@ -27,10 +27,7 @@ export function Toolbar({
 }: ToolbarProps) {
   return (
     <div className="workbench-toolbar">
-      <div className="workbench-toolbar-group">
-        <Text as="div" size="sm" tone="muted">
-          Commands
-        </Text>
+      <div className="workbench-toolbar-actions">
         <Inline gap="sm" wrap>
           <Button size="sm" onClick={onAddPanel}>
             <AddIcon size={16} />
@@ -54,14 +51,9 @@ export function Toolbar({
           </Button>
         </Inline>
       </div>
-      <div className="workbench-toolbar-group workbench-toolbar-group-meta">
-        <Text as="div" size="sm" tone="muted">
-          Selection
-        </Text>
-        <div className="workbench-toolbar-meta">
-          <Badge variant="outline">{selectedLabel}</Badge>
-          <Badge variant="secondary">{lastAction}</Badge>
-        </div>
+      <div className="workbench-toolbar-meta">
+        <Badge variant="outline">{selectedLabel}</Badge>
+        <Badge variant="secondary">{lastAction}</Badge>
       </div>
     </div>
   );

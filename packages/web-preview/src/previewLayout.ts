@@ -4,7 +4,7 @@ export const previewLayout: LayoutNode = {
   id: "preview-root",
   type: "split",
   direction: "horizontal",
-  sizes: [0.22, 0.78],
+  sizes: [0.2, 0.8],
   children: [
     {
       id: "sidebar-tabs",
@@ -29,13 +29,13 @@ export const previewLayout: LayoutNode = {
       id: "workspace-stack",
       type: "split",
       direction: "vertical",
-      sizes: [0.72, 0.28],
+      sizes: [0.8, 0.2],
       children: [
         {
           id: "workspace-main",
           type: "split",
           direction: "horizontal",
-          sizes: [0.68, 0.32],
+          sizes: [0.72, 0.28],
           children: [
             {
               id: "main-tabs",
@@ -78,29 +78,10 @@ export const previewLayout: LayoutNode = {
           ],
         },
         {
-          id: "bottom-tabs",
-          type: "tabs",
-          activePanelId: "console",
-          children: [
-            {
-              type: "panel",
-              id: "console",
-              panelType: "console",
-              title: "Console",
-            },
-            {
-              type: "panel",
-              id: "activity",
-              panelType: "activity",
-              title: "Activity",
-            },
-            {
-              id: "notes",
-              type: "panel",
-              panelType: "notes",
-              title: "Notes",
-            },
-          ],
+          type: "panel",
+          id: "console",
+          panelType: "console",
+          title: "Console",
         },
       ],
     },
