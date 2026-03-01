@@ -171,6 +171,7 @@ export function createTheme(
 export function themeToCssVariables(theme: SynthexTheme): Record<string, string> {
   return {
     "--sx-theme-mode": theme.mode,
+    // Colors
     "--sx-color-background": theme.colors.background,
     "--sx-color-background-subtle": theme.colors.backgroundSubtle,
     "--sx-color-surface": theme.colors.surface,
@@ -193,18 +194,46 @@ export function themeToCssVariables(theme: SynthexTheme): Record<string, string>
     "--sx-color-accent": theme.colors.accent,
     "--sx-color-accent-muted": theme.colors.accentMuted,
     "--sx-color-ring": theme.colors.ring,
+    // Shadows
     "--sx-shadow-xs": theme.shadows.xs,
     "--sx-shadow-sm": theme.shadows.sm,
     "--sx-shadow-md": theme.shadows.md,
     "--sx-shadow-lg": theme.shadows.lg,
     "--sx-shadow-inset": theme.shadows.inset,
+    // Radius
     "--sx-radius-sm": `${theme.radius.sm}px`,
     "--sx-radius-md": `${theme.radius.md}px`,
     "--sx-radius-lg": `${theme.radius.lg}px`,
     "--sx-radius-xl": `${theme.radius.xl}px`,
     "--sx-radius-pill": `${theme.radius.pill}px`,
+    // Space
+    "--sx-space-xs": `${theme.space.xs}px`,
+    "--sx-space-sm": `${theme.space.sm}px`,
+    "--sx-space-md": `${theme.space.md}px`,
+    "--sx-space-lg": `${theme.space.lg}px`,
+    "--sx-space-xl": `${theme.space.xl}px`,
+    "--sx-space-2xl": `${theme.space["2xl"]}px`,
+    // Typography — families
     "--sx-font-family-sans": theme.typography.family.sans,
     "--sx-font-family-mono": theme.typography.family.mono,
+    // Typography — sizes (px → rem for accessibility)
+    "--sx-font-size-xs": `${theme.typography.size.xs / 16}rem`,
+    "--sx-font-size-sm": `${theme.typography.size.sm / 16}rem`,
+    "--sx-font-size-md": `${theme.typography.size.md / 16}rem`,
+    "--sx-font-size-lg": `${theme.typography.size.lg / 16}rem`,
+    "--sx-font-size-xl": `${theme.typography.size.xl / 16}rem`,
+    "--sx-font-size-2xl": `${theme.typography.size["2xl"] / 16}rem`,
+    "--sx-font-size-3xl": `${theme.typography.size["3xl"] / 16}rem`,
+    "--sx-font-size-4xl": `${theme.typography.size["4xl"] / 16}rem`,
+    // Typography — line heights
+    "--sx-line-height-tight": `${theme.typography.lineHeight.tight}`,
+    "--sx-line-height-normal": `${theme.typography.lineHeight.normal}`,
+    "--sx-line-height-relaxed": `${theme.typography.lineHeight.relaxed}`,
+    // Typography — weights
+    "--sx-font-weight-medium": theme.typography.weight.medium,
+    "--sx-font-weight-semibold": theme.typography.weight.semibold,
+    "--sx-font-weight-bold": theme.typography.weight.bold,
+    // Motion
     "--sx-motion-fast": `${theme.motion.fast}ms`,
     "--sx-motion-normal": `${theme.motion.normal}ms`,
     "--sx-motion-slow": `${theme.motion.slow}ms`,

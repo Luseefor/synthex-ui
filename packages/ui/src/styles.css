@@ -1,4 +1,13 @@
+/* ============================================================
+   Synthex UI — Design Token Surface
+   ============================================================
+   All component styling references these custom properties.
+   ThemeProvider.web.tsx will override them at runtime, but
+   these serve as the static CSS-only baseline.
+   ============================================================ */
+
 :root {
+  /* ── Colors ─────────────────────────────────────────────── */
   --sx-color-background: #f6f8fb;
   --sx-color-background-subtle: #eef3f8;
   --sx-color-surface: #ffffff;
@@ -21,18 +30,51 @@
   --sx-color-accent: #0f766e;
   --sx-color-accent-muted: #ccfbf1;
   --sx-color-ring: rgba(37, 99, 235, 0.45);
+
+  /* ── Shadows / Elevation ────────────────────────────────── */
   --sx-shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
   --sx-shadow-sm: 0 10px 24px rgba(15, 23, 42, 0.06);
   --sx-shadow-md: 0 18px 40px rgba(15, 23, 42, 0.12);
   --sx-shadow-lg: 0 24px 52px rgba(15, 23, 42, 0.18);
   --sx-shadow-inset: inset 0 1px 1px rgba(15, 23, 42, 0.06);
+
+  /* ── Radius ─────────────────────────────────────────────── */
   --sx-radius-sm: 8px;
   --sx-radius-md: 12px;
   --sx-radius-lg: 16px;
   --sx-radius-xl: 24px;
   --sx-radius-pill: 999px;
+
+  /* ── Space ──────────────────────────────────────────────── */
+  --sx-space-xs: 4px;
+  --sx-space-sm: 8px;
+  --sx-space-md: 12px;
+  --sx-space-lg: 16px;
+  --sx-space-xl: 24px;
+  --sx-space-2xl: 32px;
+
+  /* ── Typography ─────────────────────────────────────────── */
   --sx-font-family-sans: "Inter Tight", "Segoe UI", sans-serif;
   --sx-font-family-mono: "JetBrains Mono", "SFMono-Regular", monospace;
+
+  --sx-font-size-xs: 0.75rem;
+  --sx-font-size-sm: 0.875rem;
+  --sx-font-size-md: 1rem;
+  --sx-font-size-lg: 1.125rem;
+  --sx-font-size-xl: 1.25rem;
+  --sx-font-size-2xl: 1.5rem;
+  --sx-font-size-3xl: 1.875rem;
+  --sx-font-size-4xl: 2.25rem;
+
+  --sx-line-height-tight: 1.15;
+  --sx-line-height-normal: 1.4;
+  --sx-line-height-relaxed: 1.65;
+
+  --sx-font-weight-medium: 500;
+  --sx-font-weight-semibold: 600;
+  --sx-font-weight-bold: 700;
+
+  /* ── Motion ─────────────────────────────────────────────── */
   --sx-motion-fast: 120ms;
   --sx-motion-normal: 180ms;
   --sx-motion-slow: 280ms;
@@ -40,10 +82,85 @@
   --sx-easing-standard: cubic-bezier(0.2, 0.2, 0, 1);
 }
 
+/* ── Dark Theme ─────────────────────────────────────────── */
 [data-theme="dark"] {
   color-scheme: dark;
+  --sx-color-background: #090c11;
+  --sx-color-background-subtle: #0d1117;
+  --sx-color-surface: #11161f;
+  --sx-color-surface-muted: #0d1219;
+  --sx-color-surface-raised: #171d27;
+  --sx-color-foreground: #e6edf3;
+  --sx-color-foreground-muted: #97a6b5;
+  --sx-color-foreground-on-brand: #f8fbff;
+  --sx-color-border: rgba(148, 163, 184, 0.16);
+  --sx-color-border-strong: rgba(148, 163, 184, 0.28);
+  --sx-color-primary: #5b8cff;
+  --sx-color-primary-hover: #7aa2ff;
+  --sx-color-primary-muted: rgba(91, 140, 255, 0.18);
+  --sx-color-secondary: #202733;
+  --sx-color-secondary-hover: #2b3544;
+  --sx-color-secondary-muted: #161c25;
+  --sx-color-destructive: #f87171;
+  --sx-color-destructive-hover: #ef4444;
+  --sx-color-destructive-muted: rgba(248, 113, 113, 0.18);
+  --sx-color-accent: #56b6ff;
+  --sx-color-accent-muted: rgba(86, 182, 255, 0.16);
+  --sx-color-ring: rgba(91, 140, 255, 0.34);
+  --sx-shadow-xs: 0 1px 1px rgba(3, 6, 12, 0.48);
+  --sx-shadow-sm: 0 12px 28px rgba(3, 6, 12, 0.34);
+  --sx-shadow-md: 0 20px 44px rgba(3, 6, 12, 0.44);
+  --sx-shadow-lg: 0 30px 68px rgba(3, 6, 12, 0.52);
+  --sx-shadow-inset: inset 0 1px 1px rgba(3, 6, 12, 0.42);
 }
 
+/* ── Auto dark mode (no ThemeProvider needed) ────────────── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --sx-color-background: #090c11;
+    --sx-color-background-subtle: #0d1117;
+    --sx-color-surface: #11161f;
+    --sx-color-surface-muted: #0d1219;
+    --sx-color-surface-raised: #171d27;
+    --sx-color-foreground: #e6edf3;
+    --sx-color-foreground-muted: #97a6b5;
+    --sx-color-foreground-on-brand: #f8fbff;
+    --sx-color-border: rgba(148, 163, 184, 0.16);
+    --sx-color-border-strong: rgba(148, 163, 184, 0.28);
+    --sx-color-primary: #5b8cff;
+    --sx-color-primary-hover: #7aa2ff;
+    --sx-color-primary-muted: rgba(91, 140, 255, 0.18);
+    --sx-color-secondary: #202733;
+    --sx-color-secondary-hover: #2b3544;
+    --sx-color-secondary-muted: #161c25;
+    --sx-color-destructive: #f87171;
+    --sx-color-destructive-hover: #ef4444;
+    --sx-color-destructive-muted: rgba(248, 113, 113, 0.18);
+    --sx-color-accent: #56b6ff;
+    --sx-color-accent-muted: rgba(86, 182, 255, 0.16);
+    --sx-color-ring: rgba(91, 140, 255, 0.34);
+    --sx-shadow-xs: 0 1px 1px rgba(3, 6, 12, 0.48);
+    --sx-shadow-sm: 0 12px 28px rgba(3, 6, 12, 0.34);
+    --sx-shadow-md: 0 20px 44px rgba(3, 6, 12, 0.44);
+    --sx-shadow-lg: 0 30px 68px rgba(3, 6, 12, 0.52);
+    --sx-shadow-inset: inset 0 1px 1px rgba(3, 6, 12, 0.42);
+  }
+}
+
+/* ── Reduced Motion ─────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Reset ──────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
@@ -63,7 +180,11 @@ body {
   background: var(--sx-color-background);
   color: var(--sx-color-foreground);
   font-family: var(--sx-font-family-sans);
+  font-size: var(--sx-font-size-sm);
+  line-height: var(--sx-line-height-normal);
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 button,
@@ -71,6 +192,7 @@ input,
 textarea,
 select {
   font: inherit;
+  color: inherit;
 }
 
 a {
