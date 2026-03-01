@@ -4,22 +4,17 @@
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
-  "types": "./dist/react-web/src/index.d.ts",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/react-web/src/index.d.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
     "./web": {
-      "types": "./dist/react-web/src/index.web.d.ts",
+      "types": "./dist/index.web.d.ts",
       "import": "./dist/index.web.js",
       "default": "./dist/index.web.js"
-    },
-    "./native": {
-      "types": "./dist/react-web/src/index.native.d.ts",
-      "import": "./dist/index.native.js",
-      "default": "./dist/index.native.js"
     }
   },
   "peerDependencies": {
@@ -40,11 +35,10 @@
     "vitest": "^3.2.4"
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "scripts": {
-    "build": "rm -rf ./dist && bun build ./src/index.ts ./src/index.web.ts ./src/index.native.ts --outdir ./dist --target browser --format esm --external react --external react-dom --external react/jsx-runtime --sourcemap && bunx tsc -p tsconfig.build.json",
+    "build": "rm -rf ./dist && bun build ./src/index.ts ./src/index.web.ts --outdir ./dist --target browser --format esm --external react --external react-dom --external react/jsx-runtime --sourcemap && bunx tsc -p tsconfig.build.json",
     "test": "vitest run",
     "typecheck": "bunx tsc -p tsconfig.json --noEmit"
   },

@@ -1,11 +1,16 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
     "noEmit": false,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "paths": {},
+    "rootDir": "./src",
+    "types": ["node", "react", "react-dom"]
   },
-  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "dist"]
+  "include": ["src/index.ts", "src/index.web.ts", "src/layout/**/*.ts", "src/layout/**/*.tsx"],
+  "exclude": ["src/index.native.ts", "src/**/*.test.ts", "src/**/*.test.tsx", "dist", "vitest.config.ts", "vitest.setup.ts"]
 }
