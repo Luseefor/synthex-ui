@@ -635,6 +635,31 @@ describe("synthex-ui web components", () => {
     expect(screen.getByTestId("scroll-area")).toBeInTheDocument();
   });
 
+  it("uses an inset viewport for scroll areas so content does not clip against the shell", () => {
+    render(
+      <ThemeProvider>
+        <ScrollArea
+          data-testid="scroll-area"
+          border
+          padding="md"
+          radius="lg"
+          style={{ height: 120 }}
+        >
+          <div>Scrollable content</div>
+        </ScrollArea>
+      </ThemeProvider>,
+    );
+
+    const root = screen.getByTestId("scroll-area");
+    const viewport = root.firstElementChild as HTMLDivElement | null;
+    const content = viewport?.firstElementChild as HTMLDivElement | null;
+
+    expect(viewport).not.toBeNull();
+    expect(viewport?.style.overflow).toBe("auto");
+    expect(content).not.toBeNull();
+    expect(content?.style.boxSizing).toBe("border-box");
+  });
+
   it("renders breadcrumb and aspect ratio helpers", () => {
     render(
       <ThemeProvider>

@@ -383,13 +383,18 @@ export interface ScrollAreaProps
   extends React.HTMLAttributes<HTMLDivElement>,
     Omit<BoxStyleProps, "direction" | "wrap"> {
   readonly scrollbar?: "visible" | "hidden";
+  readonly viewportStyle?: React.CSSProperties;
+  readonly contentStyle?: React.CSSProperties;
 }
 
 export const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>(
   (
     {
+      children,
       scrollbar = "visible",
       style,
+      viewportStyle,
+      contentStyle,
       align,
       background,
       basis,
@@ -416,7 +421,7 @@ export const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>(
     ref,
   ) => {
     const theme = useTheme();
-    const boxStyle = createBoxStyle(theme, {
+    const shellStyle = createBoxStyle(theme, {
       align,
       background,
       basis,
@@ -439,18 +444,52 @@ export const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>(
       shrink,
       width,
     });
+    const contentBoxStyle = createBoxStyle(theme, {
+      align,
+      foreground,
+      gap,
+      justify,
+      padding,
+      paddingX,
+      paddingY,
+    });
 
     return (
       <div
         {...domProps}
         ref={ref}
         style={{
-          ...boxStyle,
-          overflow: "auto",
-          scrollbarWidth: scrollbar === "hidden" ? "none" : undefined,
+          ...shellStyle,
+          overflow: "hidden",
           ...style,
         }}
-      />
+      >
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            minHeight: 0,
+            minWidth: 0,
+            overflow: "auto",
+            scrollbarWidth: scrollbar === "hidden" ? "none" : undefined,
+            scrollbarGutter: scrollbar === "hidden" ? undefined : "stable both-edges",
+            overscrollBehavior: "contain",
+            ...viewportStyle,
+          }}
+        >
+          <div
+            style={{
+              ...contentBoxStyle,
+              minHeight: "100%",
+              minWidth: "100%",
+              boxSizing: "border-box",
+              ...contentStyle,
+            }}
+          >
+            {children}
+          </div>
+        </div>
+      </div>
     );
   },
 );
