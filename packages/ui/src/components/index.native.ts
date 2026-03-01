@@ -322,6 +322,8 @@ export {
   DialogTrigger,
 } from "../dialog/dialog.native";
 export type { DialogSharedProps } from "../dialog/dialog.shared";
+export { DirectionProvider, useDirection } from "../direction/direction.native";
+export type { DirectionMode, DirectionProviderSharedProps } from "../direction/direction.shared";
 export { DatePicker } from "../date-picker/date-picker.native";
 export type { DatePickerSharedProps } from "../date-picker/date-picker.shared";
 export {

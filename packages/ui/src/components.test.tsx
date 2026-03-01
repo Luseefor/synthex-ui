@@ -68,6 +68,7 @@ import {
   DialogDescription,
   DialogTitle,
   DialogTrigger,
+  DirectionProvider,
   DatePicker,
   Drawer,
   DrawerContent,
@@ -489,6 +490,18 @@ describe("@synthex/ui web components", () => {
 
     expect(datePickerTrigger).not.toHaveTextContent("Pick a date");
     expect(datePickerTrigger.textContent).toMatch(/\d{4}/);
+  });
+
+  it("renders direction provider wrappers", () => {
+    render(
+      <ThemeProvider>
+        <DirectionProvider dir="rtl">
+          <div>Right to left content</div>
+        </DirectionProvider>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByText("Right to left content").parentElement).toHaveAttribute("dir", "rtl");
   });
 
   it("supports data table sorting and filtering", () => {
