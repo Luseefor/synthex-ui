@@ -24,24 +24,52 @@ export interface LayoutRendererThemeProps {
   readonly theme?: Partial<WorkbenchTheme>;
 }
 
+/**
+ * Default workbench theme tokens.
+ *
+ * Each property cascades through three layers:
+ *   1. `--synthex-workbench-*` (consumer override)
+ *   2. `--sx-*` (inherited from SynthexTheme / ThemeProvider)
+ *   3. hardcoded fallback
+ *
+ * This ensures the workbench automatically inherits the active theme
+ * while remaining fully overridable for custom integrations.
+ */
 export const defaultWorkbenchTheme: WorkbenchTheme = {
-  canvasBackground: "var(--synthex-workbench-canvas, transparent)",
-  surfaceBackground: "var(--synthex-workbench-surface, rgba(15, 23, 42, 0.02))",
-  surfaceMutedBackground: "var(--synthex-workbench-surface-muted, rgba(15, 23, 42, 0.04))",
-  surfaceRaisedBackground: "var(--synthex-workbench-surface-raised, rgba(15, 23, 42, 0.06))",
-  borderColor: "var(--synthex-workbench-border, rgba(100, 116, 139, 0.22))",
-  borderColorStrong: "var(--synthex-workbench-border-strong, rgba(100, 116, 139, 0.38))",
-  selectedBorderColor: "var(--synthex-workbench-selected, #3b82f6)",
-  textColor: "var(--synthex-workbench-foreground, currentColor)",
-  mutedTextColor: "var(--synthex-workbench-foreground-muted, rgba(71, 85, 105, 0.92))",
-  tabRailBackground: "var(--synthex-workbench-tab-rail, rgba(15, 23, 42, 0.05))",
-  tabActiveBackground: "var(--synthex-workbench-tab-active, rgba(15, 23, 42, 0.08))",
-  tabInactiveBackground: "var(--synthex-workbench-tab-inactive, transparent)",
-  tabActiveTextColor: "var(--synthex-workbench-tab-active-foreground, currentColor)",
-  tabInactiveTextColor: "var(--synthex-workbench-tab-inactive-foreground, rgba(71, 85, 105, 0.96))",
-  resizeHandleBackground: "var(--synthex-workbench-handle-background, transparent)",
-  resizeHandleColor: "var(--synthex-workbench-handle, rgba(100, 116, 139, 0.34))",
-  resizeHandleHoverColor: "var(--synthex-workbench-handle-hover, rgba(59, 130, 246, 0.72))",
+  canvasBackground:
+    "var(--synthex-workbench-canvas, var(--sx-color-background, transparent))",
+  surfaceBackground:
+    "var(--synthex-workbench-surface, var(--sx-color-surface, #ffffff))",
+  surfaceMutedBackground:
+    "var(--synthex-workbench-surface-muted, var(--sx-color-surface-muted, #f8fafc))",
+  surfaceRaisedBackground:
+    "var(--synthex-workbench-surface-raised, var(--sx-color-surface-raised, #fcfdff))",
+  borderColor:
+    "var(--synthex-workbench-border, var(--sx-color-border, rgba(100, 116, 139, 0.22)))",
+  borderColorStrong:
+    "var(--synthex-workbench-border-strong, var(--sx-color-border-strong, rgba(100, 116, 139, 0.38)))",
+  selectedBorderColor:
+    "var(--synthex-workbench-selected, var(--sx-color-primary, #3b82f6))",
+  textColor:
+    "var(--synthex-workbench-foreground, var(--sx-color-foreground, currentColor))",
+  mutedTextColor:
+    "var(--synthex-workbench-foreground-muted, var(--sx-color-foreground-muted, rgba(71, 85, 105, 0.92)))",
+  tabRailBackground:
+    "var(--synthex-workbench-tab-rail, var(--sx-color-background-subtle, rgba(15, 23, 42, 0.05)))",
+  tabActiveBackground:
+    "var(--synthex-workbench-tab-active, var(--sx-color-surface, rgba(15, 23, 42, 0.08)))",
+  tabInactiveBackground:
+    "var(--synthex-workbench-tab-inactive, transparent)",
+  tabActiveTextColor:
+    "var(--synthex-workbench-tab-active-foreground, var(--sx-color-foreground, currentColor))",
+  tabInactiveTextColor:
+    "var(--synthex-workbench-tab-inactive-foreground, var(--sx-color-foreground-muted, rgba(71, 85, 105, 0.96)))",
+  resizeHandleBackground:
+    "var(--synthex-workbench-handle-background, transparent)",
+  resizeHandleColor:
+    "var(--synthex-workbench-handle, var(--sx-color-border-strong, rgba(100, 116, 139, 0.34)))",
+  resizeHandleHoverColor:
+    "var(--synthex-workbench-handle-hover, var(--sx-color-primary, rgba(59, 130, 246, 0.72)))",
 };
 
 export function resolveWorkbenchTheme(theme?: Partial<WorkbenchTheme>): WorkbenchTheme {

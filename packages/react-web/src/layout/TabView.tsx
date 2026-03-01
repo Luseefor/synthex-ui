@@ -18,8 +18,6 @@ const containerStyle: CSSProperties = {
   minHeight: 0,
   width: "100%",
   height: "100%",
-  border: "1px solid #d4d4d8",
-  background: "#fafafa",
 };
 
 export function TabView({
@@ -40,9 +38,8 @@ export function TabView({
       data-tabs-id={tabs.id}
       style={{
         ...containerStyle,
-        border: `1px solid ${
-          selectedNodeId === tabs.id ? theme.selectedBorderColor : theme.borderColor
-        }`,
+        border: `1px solid ${selectedNodeId === tabs.id ? theme.selectedBorderColor : theme.borderColor
+          }`,
         background: resolveWorkbenchSurface(theme, "surface"),
         color: theme.textColor,
       }}
