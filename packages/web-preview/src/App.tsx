@@ -1569,7 +1569,7 @@ function ComponentGallerySection() {
               border
               padding="md"
               radius="lg"
-              style={{ maxHeight: 220 }}
+              style={{ height: 220 }}
             >
               <div className="preview-stack-sm">
                 <Small>Release notes</Small>
@@ -1578,6 +1578,10 @@ function ComponentGallerySection() {
                 <Muted>The same primitive already powers the layout helpers, and is now visible directly in the component surface too.</Muted>
                 <Muted>Because it is a shared primitive, it stays theme-aware across both light and dark routes.</Muted>
                 <Muted>This is the final parity piece from the current shadcn index.</Muted>
+                <Muted>Teams can also use scroll areas for dense release notes, migration steps, and compact operational logs.</Muted>
+                <Muted>Unlike page-level scrolling, a bounded scroll area keeps surrounding controls and headings anchored in place.</Muted>
+                <Muted>The goal is to isolate long content inside the correct surface rather than forcing the whole card or route to grow.</Muted>
+                <Muted>This demo now intentionally overflows so you can verify the component interaction directly in the preview.</Muted>
               </div>
             </ScrollArea>
           </CardContent>
