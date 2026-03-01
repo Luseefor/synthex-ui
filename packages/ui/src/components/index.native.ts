@@ -123,6 +123,14 @@ export {
   AccordionItem,
   AccordionTrigger,
 } from "../accordion/accordion.native";
+export {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "../carousel/carousel.native";
+export type { CarouselSharedProps } from "../carousel/carousel.shared";
 export { Calendar } from "../calendar/calendar.native";
 export type { CalendarSharedProps } from "../calendar/calendar.shared";
 export { AspectRatio } from "../aspect-ratio/aspect-ratio.native";

@@ -29,6 +29,11 @@ import {
   Button,
   Checkbox,
   Calendar,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
@@ -345,6 +350,27 @@ describe("@synthex/ui web components", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Next month" }));
     expect(screen.getByText(/\w+ 2026/)).toBeInTheDocument();
+  });
+
+  it("supports carousel navigation", () => {
+    render(
+      <ThemeProvider>
+        <Carousel>
+          <CarouselContent>
+            <CarouselItem>Slide one</CarouselItem>
+            <CarouselItem>Slide two</CarouselItem>
+          </CarouselContent>
+          <div>
+            <CarouselPrevious />
+            <CarouselNext />
+          </div>
+        </Carousel>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByText("Slide one")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Next slide" }));
+    expect(screen.getByText("Slide two")).toBeInTheDocument();
   });
 
   it("supports date picker selection", () => {
