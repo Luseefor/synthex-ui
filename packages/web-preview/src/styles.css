@@ -687,11 +687,11 @@ body {
 
 .workbench-sidebar {
   display: grid;
-  grid-template-columns: minmax(16rem, 0.9fr) minmax(18rem, 1fr) minmax(24rem, 1.45fr);
+  grid-template-columns: minmax(18rem, 0.95fr) minmax(20rem, 1.05fr);
   gap: 1rem;
   min-width: 0;
   min-height: 0;
-  align-items: stretch;
+  align-items: start;
 }
 
 .workbench-sidebar-pane {
@@ -706,6 +706,7 @@ body {
 }
 
 .workbench-sidebar-pane-code {
+  grid-column: 1 / -1;
   min-height: 18rem;
 }
 
