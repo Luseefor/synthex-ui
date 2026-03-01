@@ -18,18 +18,38 @@ import {
   AccordionItem,
   AccordionTrigger,
   Alert,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   AlertDescription,
   AlertTitle,
+  AspectRatio,
   Avatar,
   AvatarFallback,
   Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
   Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  Calendar,
   Checkbox,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
   Combobox,
   ComboboxContent,
   ComboboxEmpty,
@@ -57,16 +77,38 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DatePicker,
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
   H1,
   H2,
   H3,
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
   Input,
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
   Label,
   Lead,
   Menubar,
@@ -110,6 +152,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  Slider,
   Small,
   Switch,
   Table,
@@ -125,6 +168,8 @@ import {
   TabsTrigger,
   Textarea,
   Toggle,
+  ToggleGroup,
+  ToggleGroupItem,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -773,6 +818,106 @@ function ComponentGallerySection() {
 
         <Card variant="default">
           <CardHeader>
+            <CardTitle>Form fields, dates, and structured input</CardTitle>
+            <CardDescription>
+              Calendar, date picker, OTP input, slider, and form-field composition now ship from the library instead of being assembled ad hoc in product code.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="preview-stack-md">
+            <Form className="preview-stack-md">
+              <div className="preview-gallery-grid preview-gallery-grid-2">
+                <FormField
+                  name="release-date"
+                  description="Pick the public release date shown in the changelog."
+                >
+                  <FormItem>
+                    <FormLabel>Release date</FormLabel>
+                    <FormControl>
+                      <DatePicker placeholder="Select a date" />
+                    </FormControl>
+                    <FormDescription />
+                    <FormMessage />
+                  </FormItem>
+                </FormField>
+
+                <FormField
+                  name="verification-code"
+                  description="A compact OTP flow for one-time confirmations."
+                >
+                  <FormItem>
+                    <FormLabel>Verification code</FormLabel>
+                    <FormControl>
+                      <InputOTP defaultValue="10">
+                        <InputOTPGroup>
+                          <InputOTPSlot index={0} aria-label="OTP digit 1" />
+                          <InputOTPSlot index={1} aria-label="OTP digit 2" />
+                          <InputOTPSeparator />
+                          <InputOTPSlot index={2} aria-label="OTP digit 3" />
+                          <InputOTPSlot index={3} aria-label="OTP digit 4" />
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </FormControl>
+                    <FormDescription />
+                    <FormMessage />
+                  </FormItem>
+                </FormField>
+              </div>
+
+              <FormField
+                name="publish-threshold"
+                description="Slider primitives cover fine-grained numeric controls without leaving the shared UI layer."
+              >
+                <FormItem>
+                  <FormLabel>Publish readiness threshold</FormLabel>
+                  <FormControl>
+                    <Slider aria-label="Publish readiness threshold" defaultValue={[78]} />
+                  </FormControl>
+                  <FormDescription />
+                </FormItem>
+              </FormField>
+            </Form>
+
+            <div className="preview-gallery-grid preview-gallery-grid-2">
+              <Card variant="muted">
+                <CardHeader>
+                  <CardTitle>Calendar</CardTitle>
+                  <CardDescription>Month navigation and date selection from the same exported surface.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Calendar defaultValue={new Date(2026, 2, 12)} />
+                </CardContent>
+              </Card>
+
+              <Card variant="muted">
+                <CardHeader>
+                  <CardTitle>Form validation wiring</CardTitle>
+                  <CardDescription>Labels, descriptions, and errors share ids automatically through the form contract.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Form>
+                    <FormField
+                      name="package-name"
+                      description="This package id will be used in generated docs and release notes."
+                      error="Package name is required."
+                    >
+                      <FormItem>
+                        <FormLabel>Package name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="@synthex/ui" />
+                        </FormControl>
+                        <FormDescription />
+                        <FormMessage />
+                      </FormItem>
+                    </FormField>
+                  </Form>
+                </CardContent>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card variant="default">
+          <CardHeader>
             <CardTitle>Selection and state controls</CardTitle>
             <CardDescription>
               Checkbox, switch, toggle, and radio-group patterns now live in the public package instead of being improvised inside app code.
@@ -950,6 +1095,112 @@ function ComponentGallerySection() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
             </NavigationMenu>
+          </CardContent>
+        </Card>
+
+        <Card variant="default">
+          <CardHeader>
+            <CardTitle>Structural and advanced composition</CardTitle>
+            <CardDescription>
+              The newer composition layer includes breadcrumb, aspect ratio, collapsible regions, alert dialogs, drawers, hover cards, and grouped toggles.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="preview-stack-md">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="#overview">Docs</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="#components">Components</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Advanced composition</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+
+            <div className="preview-gallery-grid preview-gallery-grid-2">
+              <AspectRatio ratio={16 / 9}>
+                <div className="preview-context-surface h-full">
+                  <div className="preview-stack-sm">
+                    <Small>Aspect ratio</Small>
+                    <Muted>Media and canvas placeholders can stay stable while the layout resizes around them.</Muted>
+                  </div>
+                </div>
+              </AspectRatio>
+
+              <div className="preview-stack-md">
+                <ToggleGroup type="multiple" defaultValue={["grid", "snap"]}>
+                  <ToggleGroupItem value="grid">Grid</ToggleGroupItem>
+                  <ToggleGroupItem value="snap">Snap</ToggleGroupItem>
+                  <ToggleGroupItem value="guides">Guides</ToggleGroupItem>
+                </ToggleGroup>
+
+                <Collapsible defaultOpen>
+                  <div className="preview-stack-sm">
+                    <CollapsibleTrigger className="inline-flex w-fit items-center justify-center rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] px-3 py-2 text-sm font-medium text-[color:var(--sx-color-foreground)]">
+                      Release notes
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="preview-hook-card">
+                      <Muted>
+                        Collapsible regions help compress secondary guidance without losing structure inside inspectors or docs pages.
+                      </Muted>
+                    </CollapsibleContent>
+                  </div>
+                </Collapsible>
+              </div>
+            </div>
+
+            <div className="preview-chip-row">
+              <HoverCard>
+                <HoverCardTrigger className="inline-flex h-10 items-center justify-center rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border-strong)] bg-[color:var(--sx-color-surface)] px-4 text-sm font-medium text-[color:var(--sx-color-foreground)]">
+                  Hover card
+                </HoverCardTrigger>
+                <HoverCardContent className="preview-stack-sm">
+                  <Small>Release metadata</Small>
+                  <Muted>Use hover cards for lightweight context that should not open a full popover or dialog.</Muted>
+                </HoverCardContent>
+              </HoverCard>
+
+              <Drawer>
+                <DrawerTrigger className="inline-flex h-10 items-center justify-center rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border-strong)] bg-[color:var(--sx-color-surface)] px-4 text-sm font-medium text-[color:var(--sx-color-foreground)]">
+                  Open drawer
+                </DrawerTrigger>
+                <DrawerContent>
+                  <DrawerHeader>
+                    <DrawerTitle>Workspace settings</DrawerTitle>
+                    <DrawerDescription>
+                      Drawers work for broader configuration flows that still want a lighter footprint than a full page transition.
+                    </DrawerDescription>
+                  </DrawerHeader>
+                  <DrawerFooter>
+                    <Button variant="ghost">Cancel</Button>
+                    <Button>Save changes</Button>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
+
+              <AlertDialog>
+                <AlertDialogTrigger className="inline-flex h-10 items-center justify-center rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border-strong)] bg-[color:var(--sx-color-surface)] px-4 text-sm font-medium text-[color:var(--sx-color-foreground)]">
+                  Open alert dialog
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete generated preview cache?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This confirms a destructive action while keeping the same shared overlay contract as the rest of the library.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction>Delete cache</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </CardContent>
         </Card>
 
