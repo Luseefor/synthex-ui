@@ -46,6 +46,11 @@ import {
   CardHeader,
   CardTitle,
   Calendar,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
   Checkbox,
   Collapsible,
   CollapsibleContent,
@@ -1256,6 +1261,49 @@ function ComponentGallerySection() {
             <Muted>
               Drag the center handle to resize the panes. This is separate from the engineering workbench renderer and belongs to the shared UI layer.
             </Muted>
+          </CardContent>
+        </Card>
+
+        <Card variant="default">
+          <CardHeader>
+            <CardTitle>Carousel</CardTitle>
+            <CardDescription>
+              Carousel is now part of the shared surface for step-through content, release walkthroughs, and sequential previews.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="preview-stack-md">
+            <Carousel>
+              <CarouselContent>
+                <CarouselItem>
+                  <Card variant="muted">
+                    <CardHeader>
+                      <CardTitle>Step 1</CardTitle>
+                      <CardDescription>Install the workspace packages and base stylesheet.</CardDescription>
+                    </CardHeader>
+                  </Card>
+                </CarouselItem>
+                <CarouselItem>
+                  <Card variant="muted">
+                    <CardHeader>
+                      <CardTitle>Step 2</CardTitle>
+                      <CardDescription>Compose UI primitives and form layers from the exported design system surface.</CardDescription>
+                    </CardHeader>
+                  </Card>
+                </CarouselItem>
+                <CarouselItem>
+                  <Card variant="muted">
+                    <CardHeader>
+                      <CardTitle>Step 3</CardTitle>
+                      <CardDescription>Wire the layout engine into the workbench route once the product shell is stable.</CardDescription>
+                    </CardHeader>
+                  </Card>
+                </CarouselItem>
+              </CarouselContent>
+              <div className="preview-chip-row">
+                <CarouselPrevious />
+                <CarouselNext />
+              </div>
+            </Carousel>
           </CardContent>
         </Card>
 
