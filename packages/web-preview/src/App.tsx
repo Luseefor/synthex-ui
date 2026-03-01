@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { Navigate, NavLink, Route, Routes, useNavigate } from "react-router-dom";
 import {
   createLayoutEngine,
   findNodeById,
@@ -127,10 +128,18 @@ type SectionId =
   | "playground"
   | "roadmap";
 
-interface SectionItem {
+type RoutePath =
+  | "/"
+  | "/installation"
+  | "/components"
+  | "/theme"
+  | "/engine"
+  | "/playground";
+
+interface NavItem {
   readonly description: string;
-  readonly id: SectionId;
   readonly label: string;
+  readonly to: RoutePath;
 }
 
 interface SupportRow {
@@ -151,16 +160,13 @@ interface PackageCardItem {
   readonly title: string;
 }
 
-const sectionItems: readonly SectionItem[] = [
-  { id: "overview", label: "Overview", description: "Positioning, scope, and why Synthex exists." },
-  { id: "packages", label: "Packages", description: "Monorepo responsibilities and package boundaries." },
-  { id: "matrix", label: "Support Matrix", description: "Web, native, and engine support at a glance." },
-  { id: "exports", label: "Exports", description: "Root and subpath APIs for consumers." },
-  { id: "components", label: "Components", description: "Live previews for buttons, inputs, tabs, icons, and hooks." },
-  { id: "theme", label: "Theme", description: "Semantic tokens and runtime theme behavior." },
-  { id: "getting-started", label: "Getting Started", description: "Install, build, and minimal usage." },
-  { id: "playground", label: "Playground", description: "Docking and reducer-backed layout validation." },
-  { id: "roadmap", label: "Roadmap", description: "Hardening priorities before 1.0." },
+const navItems: readonly NavItem[] = [
+  { to: "/", label: "Overview", description: "Positioning, package model, and roadmap." },
+  { to: "/installation", label: "Installation", description: "Install, build, and first integration." },
+  { to: "/components", label: "Components", description: "Live previews for controls and interaction patterns." },
+  { to: "/theme", label: "Theme", description: "Semantic tokens, accents, and dark mode behavior." },
+  { to: "/engine", label: "Engine", description: "Package boundaries, support matrix, and public exports." },
+  { to: "/playground", label: "Playground", description: "Docking, reducer flow, and workbench state." },
 ] as const;
 
 const supportRows: readonly SupportRow[] = [
@@ -285,6 +291,7 @@ const roadmapItems: readonly string[] = [
 const defaultAccentPreset: AccentPresetName = "blue";
 
 export function App() {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") {
       return "light";
@@ -306,24 +313,17 @@ export function App() {
     defaultValue: "",
   });
   const workbench = useWorkbench();
-  const filteredSections = useMemo(() => {
+  const filteredNavItems = useMemo(() => {
     const query = navQuery.trim().toLowerCase();
 
     if (!query) {
-      return sectionItems;
+      return navItems;
     }
 
-    return sectionItems.filter((item) =>
+    return navItems.filter((item) =>
       `${item.label} ${item.description}`.toLowerCase().includes(query),
     );
   }, [navQuery]);
-
-  const scrollToSection = (sectionId: SectionId) => {
-    document.getElementById(sectionId)?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  };
 
   useEffect(() => {
     window.localStorage.setItem("synthex-preview-mode", mode);
@@ -364,10 +364,10 @@ export function App() {
                   </button>
                 ))}
               </div>
-              <Button variant="outline" onClick={() => scrollToSection("getting-started")}>
+              <Button variant="outline" onClick={() => navigate("/installation")}>
                 Getting Started
               </Button>
-              <Button variant="outline" onClick={() => scrollToSection("playground")}>
+              <Button variant="outline" onClick={() => navigate("/playground")}>
                 <GridIcon size={16} />
                 Playground
               </Button>
@@ -399,19 +399,15 @@ export function App() {
                 </div>
 
                 <nav className="preview-nav">
-                  {filteredSections.map((item) => (
-                    <a
-                      key={item.id}
+                  {filteredNavItems.map((item) => (
+                    <NavLink
+                      key={item.to}
                       className="preview-nav-link"
-                      href={`#${item.id}`}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        scrollToSection(item.id);
-                      }}
+                      to={item.to}
                     >
                       <span>{item.label}</span>
                       <small>{item.description}</small>
-                    </a>
+                    </NavLink>
                   ))}
                 </nav>
 
@@ -427,15 +423,33 @@ export function App() {
           </aside>
 
           <main className="preview-main">
-            <OverviewSection onJump={scrollToSection} />
-            <PackageScopeSection />
-            <SupportMatrixSection />
-            <ExportsSection />
-            <ComponentGallerySection />
-            <ThemeSection />
-            <GettingStartedSection />
-            <WorkbenchSection workbench={workbench} />
-            <RoadmapSection />
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <>
+                    <OverviewSection onNavigate={navigate} />
+                    <PackageScopeSection />
+                    <RoadmapSection />
+                  </>
+                }
+              />
+              <Route path="/installation" element={<GettingStartedSection />} />
+              <Route path="/components" element={<ComponentGallerySection />} />
+              <Route path="/theme" element={<ThemeSection />} />
+              <Route
+                path="/engine"
+                element={
+                  <>
+                    <SupportMatrixSection />
+                    <ExportsSection />
+                    <PackageScopeSection />
+                  </>
+                }
+              />
+              <Route path="/playground" element={<WorkbenchSection workbench={workbench} />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
           </main>
         </div>
       </div>
@@ -444,9 +458,9 @@ export function App() {
 }
 
 function OverviewSection({
-  onJump,
+  onNavigate,
 }: {
-  readonly onJump: (sectionId: SectionId) => void;
+  readonly onNavigate: (to: RoutePath) => void;
 }) {
   return (
     <section id="overview" className="preview-hero">
@@ -462,11 +476,11 @@ function OverviewSection({
           Synthex UI combines a polished cross-platform component library with a deterministic layout engine for complex engineering workflows.
         </Lead>
         <div className="preview-action-row">
-          <Button onClick={() => onJump("getting-started")}>Install and build</Button>
-          <Button variant="outline" onClick={() => onJump("playground")}>
+          <Button onClick={() => onNavigate("/installation")}>Install and build</Button>
+          <Button variant="outline" onClick={() => onNavigate("/playground")}>
             Open live playground
           </Button>
-          <Button variant="ghost" onClick={() => onJump("components")}>
+          <Button variant="ghost" onClick={() => onNavigate("/components")}>
             Browse components
           </Button>
         </div>
