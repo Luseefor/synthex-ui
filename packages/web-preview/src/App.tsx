@@ -105,10 +105,16 @@ import {
   HoverCardContent,
   HoverCardTrigger,
   Input,
+  InputGroup,
+  InputGroupAddon,
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
+  Item,
+  ItemDescription,
+  ItemTitle,
+  Kbd,
   Label,
   Lead,
   Menubar,
@@ -141,6 +147,7 @@ import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
+  NativeSelect,
   Select,
   SelectContent,
   SelectItem,
@@ -157,6 +164,7 @@ import {
   SheetTrigger,
   Slider,
   Small,
+  Spinner,
   Switch,
   Table,
   TableBody,
@@ -176,6 +184,12 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  ButtonGroup,
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+  Field,
 } from "@synthex/ui/components";
 import {
   AddIcon,
@@ -1239,6 +1253,66 @@ function ComponentGallerySection() {
             <Muted>
               Drag the center handle to resize the panes. This is separate from the engineering workbench renderer and belongs to the shared UI layer.
             </Muted>
+          </CardContent>
+        </Card>
+
+        <Card variant="default">
+          <CardHeader>
+            <CardTitle>Utility components</CardTitle>
+            <CardDescription>
+              Smaller building blocks matter too: grouped actions, inline keyboard hints, empty states, grouped inputs, and native-select fallbacks now live in the library.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="preview-stack-md">
+            <div className="preview-chip-row">
+              <ButtonGroup>
+                <Button size="sm">Build</Button>
+                <Button size="sm" variant="outline">Preview</Button>
+                <Button size="sm" variant="ghost">Publish</Button>
+              </ButtonGroup>
+              <Kbd>cmd+k</Kbd>
+              <Spinner />
+            </div>
+
+            <div className="preview-gallery-grid preview-gallery-grid-2">
+              <Field>
+                <Label htmlFor="utility-origin">Origin</Label>
+                <InputGroup>
+                  <InputGroupAddon>https://</InputGroupAddon>
+                  <Input
+                    id="utility-origin"
+                    className="border-0 shadow-none focus-visible:ring-0"
+                    placeholder="synthex.dev"
+                  />
+                </InputGroup>
+              </Field>
+
+              <Field>
+                <NativeSelect label="Native select fallback" defaultValue="stable">
+                  <option value="stable">Stable channel</option>
+                  <option value="next">Next channel</option>
+                  <option value="nightly">Nightly channel</option>
+                </NativeSelect>
+              </Field>
+            </div>
+
+            <div className="preview-gallery-grid preview-gallery-grid-2">
+              <Empty>
+                <EmptyHeader>
+                  <EmptyTitle>No release snapshots</EmptyTitle>
+                  <EmptyDescription>
+                    Generate a preview build to inspect package output and release artifacts.
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
+
+              <Item>
+                <ItemTitle>Release checklist</ItemTitle>
+                <ItemDescription>
+                  Utility item rows work well for compact lists, callouts, and selection summaries.
+                </ItemDescription>
+              </Item>
+            </div>
           </CardContent>
         </Card>
 
