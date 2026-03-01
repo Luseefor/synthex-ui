@@ -1420,7 +1420,7 @@ function WorkbenchSection({
       <div className="preview-section-heading">
         <H2>Live workbench</H2>
         <Muted>
-          This is the part CUI-style package sites usually do not cover: Synthex validates a real tiling layout engine and command flow inside the docs app itself.
+          This route validates the actual layout engine with a general-purpose workspace shell instead of a one-off product mockup.
         </Muted>
       </div>
 
@@ -1428,17 +1428,17 @@ function WorkbenchSection({
         <div className="workbench-shell-main">
           <div className="workbench-shell-header">
             <div className="workbench-shell-heading">
-              <Small>Docking workspace</Small>
+              <Small>Workspace shell</Small>
               <div className="workbench-shell-heading-row">
-                <H3>Reducer-backed engineering surface</H3>
+                <H3>General-purpose tiling workspace</H3>
                 <div className="preview-chip-row">
-                  <Badge variant="outline">Split panels</Badge>
-                  <Badge variant="outline">Tab hosts</Badge>
-                  <Badge variant="outline">Undo / redo</Badge>
+                  <Badge variant="outline">Resizable splits</Badge>
+                  <Badge variant="outline">Tab stacks</Badge>
+                  <Badge variant="outline">Serializable state</Badge>
                 </div>
               </div>
               <Muted>
-                Toolbar actions mutate the real layout tree. The dock area, selection state, and JSON snapshot all update from the same engine state.
+                The dock area is intentionally generic. It is there to prove reducer behavior, tab orchestration, resize handling, and selection state without locking the preview to one domain.
               </Muted>
             </div>
 
@@ -1448,8 +1448,8 @@ function WorkbenchSection({
               lastAction={workbench.lastAction}
               selectedLabel={selectedNode ? describeWorkbenchNode(selectedNode) : "Nothing selected"}
               onAddPanel={() => void workbench.addPanel()}
-              onSplitHorizontal={() => void workbench.splitSelection("vertical")}
-              onSplitVertical={() => void workbench.splitSelection("horizontal")}
+              onSplitColumns={() => void workbench.splitSelection("horizontal")}
+              onSplitRows={() => void workbench.splitSelection("vertical")}
               onUndo={() => void workbench.undo()}
               onRedo={() => void workbench.redo()}
             />
@@ -1480,7 +1480,7 @@ function WorkbenchSection({
         <aside className="workbench-sidebar">
           <div className="workbench-sidebar-pane">
             <div className="workbench-pane-title-row">
-              <H3>Session</H3>
+              <H3>Workspace</H3>
               <Badge variant="secondary">{workbench.lastAction}</Badge>
             </div>
             <div className="workbench-stat-grid">
@@ -1504,6 +1504,13 @@ function WorkbenchSection({
             <div className="workbench-chip-strip">
               <Badge variant="outline">Undo {workbench.undoDepth}</Badge>
               <Badge variant="outline">Redo {workbench.redoDepth}</Badge>
+            </div>
+            <div className="workbench-activity-log">
+              {workbench.recentActions.map((entry) => (
+                <div key={entry} className="workbench-activity-log-item">
+                  {entry}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -1566,7 +1573,7 @@ function WorkbenchSection({
           <div className="workbench-sidebar-pane workbench-sidebar-pane-code">
             <div className="workbench-pane-title-row">
               <H3>Serialized layout</H3>
-              <Small>JSON snapshot</Small>
+              <Small>Current snapshot</Small>
             </div>
             <pre className="workbench-code">
               <code>{serializeLayout(workbench.layout)}</code>
@@ -1617,6 +1624,7 @@ interface WorkbenchController {
   readonly dispatch: (action: LayoutAction) => Promise<LayoutNode>;
   readonly lastAction: string;
   readonly layout: LayoutNode;
+  readonly recentActions: readonly string[];
   readonly redo: () => Promise<void>;
   readonly redoDepth: number;
   readonly selectedNodeId: string | null;
@@ -1648,11 +1656,16 @@ function useWorkbench(): WorkbenchController {
 
   const engine = engineRef.current;
   const layout = useSynthex(engine);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>("workspace-tabs");
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>("document");
   const [lastAction, setLastAction] = useState<string>("INITIAL");
+  const [recentActions, setRecentActions] = useState<readonly string[]>(["Initial layout loaded"]);
   const [undoDepth, setUndoDepth] = useState(0);
   const [redoDepth, setRedoDepth] = useState(0);
   const nextPanelCountRef = useRef(1);
+
+  const recordAction = (entry: string) => {
+    setRecentActions((current) => [entry, ...current].slice(0, 6));
+  };
 
   const middleware = useMemo<readonly PreviewMiddleware[]>(
     () => [
@@ -1667,7 +1680,9 @@ function useWorkbench(): WorkbenchController {
       },
       async (action, _prevState, next) => {
         setLastAction(action.type);
-        return next(action);
+        const nextState = await next(action);
+        recordAction(describeLayoutAction(action));
+        return nextState;
       },
     ],
     [],
@@ -1693,27 +1708,33 @@ function useWorkbench(): WorkbenchController {
 
   const addPanel = async () => {
     const panelId = `panel-${nextPanelCountRef.current}`;
+    const panel = createPanel(panelId, nextPanelCountRef.current - 1);
     nextPanelCountRef.current += 1;
 
     await dispatch({
       type: "ADD_PANEL",
       targetNodeId: resolveInsertionTarget(layout, selectedNodeId),
-      panel: createPanel(panelId),
+      panel,
     });
+
+    setSelectedNodeId(panel.id);
   };
 
   const splitSelection = async (direction: LayoutDirection) => {
     const targetNodeId = selectedNodeId ?? layout.id;
+    const panelId = `panel-${nextPanelCountRef.current}`;
+    const panel = createPanel(panelId, nextPanelCountRef.current - 1);
 
     await dispatch({
       type: "SPLIT_NODE",
       targetNodeId,
       direction,
-      node: createPanel(`split-${nextPanelCountRef.current}`),
+      node: panel,
       position: "after",
     });
 
     nextPanelCountRef.current += 1;
+    setSelectedNodeId(panel.id);
   };
 
   const undo = async () => {
@@ -1726,6 +1747,7 @@ function useWorkbench(): WorkbenchController {
 
     setUndoDepth((value) => Math.max(0, value - 1));
     setRedoDepth((value) => value + 1);
+    recordAction("Undo last change");
     console.log("[synthex-preview] undo", engine.getState());
   };
 
@@ -1739,6 +1761,7 @@ function useWorkbench(): WorkbenchController {
 
     setUndoDepth((value) => value + 1);
     setRedoDepth((value) => Math.max(0, value - 1));
+    recordAction("Redo last change");
     console.log("[synthex-preview] redo", engine.getState());
   };
 
@@ -1747,6 +1770,7 @@ function useWorkbench(): WorkbenchController {
     dispatch,
     lastAction,
     layout,
+    recentActions,
     redo,
     redoDepth,
     selectedNodeId,
@@ -1781,12 +1805,22 @@ function resolveInsertionTarget(layout: LayoutNode, selectedNodeId: string | nul
   return targetNodeId;
 }
 
-function createPanel(panelId: string): PanelNode {
+const insertablePanels = [
+  { panelType: "notes", title: "Notes" },
+  { panelType: "preview", title: "Preview" },
+  { panelType: "activity", title: "Activity" },
+  { panelType: "inspector", title: "Inspector" },
+] as const;
+
+function createPanel(panelId: string, index: number): PanelNode {
+  const template =
+    insertablePanels[index % insertablePanels.length] ?? insertablePanels[0];
+
   return {
     id: panelId,
     type: "panel",
-    panelType: "preview",
-    title: toTitle(panelId),
+    panelType: template.panelType,
+    title: `${template.title} ${index + 1}`,
   };
 }
 
@@ -1837,6 +1871,23 @@ function describeWorkbenchNode(node: LayoutNode): string {
   }
 
   return `${node.direction === "horizontal" ? "Left/right" : "Top/bottom"} split with ${node.children.length} regions`;
+}
+
+function describeLayoutAction(action: LayoutAction): string {
+  switch (action.type) {
+    case "ADD_PANEL":
+      return `Added ${action.panel.title ?? toTitle(action.panel.panelType)}`;
+    case "SPLIT_NODE":
+      return `Created ${action.direction === "horizontal" ? "left/right" : "top/bottom"} split`;
+    case "REMOVE_PANEL":
+      return `Removed panel ${action.panelId}`;
+    case "MOVE_NODE":
+      return `Moved ${action.nodeId}`;
+    case "RESIZE_SPLIT":
+      return `Resized split ${action.splitId}`;
+    default:
+      return action.type;
+  }
 }
 
 function createWorkbenchRendererTheme(theme: SynthexTheme) {

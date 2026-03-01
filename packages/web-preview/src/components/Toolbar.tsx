@@ -8,8 +8,8 @@ export interface ToolbarProps {
   readonly lastAction: string;
   readonly onAddPanel: () => void;
   readonly onRedo: () => void;
-  readonly onSplitHorizontal: () => void;
-  readonly onSplitVertical: () => void;
+  readonly onSplitColumns: () => void;
+  readonly onSplitRows: () => void;
   readonly onUndo: () => void;
   readonly selectedLabel: string;
 }
@@ -20,8 +20,8 @@ export function Toolbar({
   lastAction,
   onAddPanel,
   onRedo,
-  onSplitHorizontal,
-  onSplitVertical,
+  onSplitColumns,
+  onSplitRows,
   onUndo,
   selectedLabel,
 }: ToolbarProps) {
@@ -36,13 +36,13 @@ export function Toolbar({
             <AddIcon size={16} />
             Add Panel
           </Button>
-          <Button size="sm" variant="outline" onClick={onSplitHorizontal}>
-            <PanelBottomIcon size={16} />
-            Split Horizontal
-          </Button>
-          <Button size="sm" variant="outline" onClick={onSplitVertical}>
+          <Button size="sm" variant="outline" onClick={onSplitColumns}>
             <PanelRightIcon size={16} />
-            Split Vertical
+            Split Left / Right
+          </Button>
+          <Button size="sm" variant="outline" onClick={onSplitRows}>
+            <PanelBottomIcon size={16} />
+            Split Top / Bottom
           </Button>
           <Button size="sm" variant="ghost" onClick={onUndo} disabled={!canUndo}>
             <UndoIcon size={16} />
