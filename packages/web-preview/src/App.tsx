@@ -87,6 +87,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DirectionProvider,
   DatePicker,
   Drawer,
   DrawerContent,
@@ -1572,6 +1573,27 @@ function ComponentGallerySection() {
                 </SidebarInset>
               </div>
             </SidebarProvider>
+          </CardContent>
+        </Card>
+
+        <Card variant="default">
+          <CardHeader>
+            <CardTitle>Direction provider</CardTitle>
+            <CardDescription>
+              Direction lets component trees flip between left-to-right and right-to-left layouts without rewriting the rest of the application shell.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="preview-stack-md">
+            <DirectionProvider dir="rtl">
+              <Card variant="muted">
+                <CardHeader>
+                  <CardTitle>RTL surface</CardTitle>
+                  <CardDescription>
+                    Use the shared direction wrapper to validate mirrored layouts and internationalized product surfaces.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </DirectionProvider>
           </CardContent>
         </Card>
 
