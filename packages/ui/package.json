@@ -61,8 +61,7 @@
     }
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "peerDependencies": {
     "lucide-react": "^0.542.0",
