@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 export type ThemeMode = "light" | "dark";
+export type AccentPresetName = "blue" | "emerald" | "violet" | "amber" | "rose";
 
 export interface ColorScale {
   readonly background: string;
@@ -103,6 +104,7 @@ export type DeepPartial<T> = {
 
 export interface ThemeProviderProps {
   readonly children: ReactNode;
+  readonly accentPreset?: AccentPresetName;
   readonly mode?: ThemeMode;
   readonly theme?: DeepPartial<SynthexTheme>;
 }

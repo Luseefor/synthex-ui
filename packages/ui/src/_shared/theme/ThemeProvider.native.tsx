@@ -6,11 +6,15 @@ import { ThemeContext } from "./context";
 import type { ThemeProviderProps } from "../types";
 
 export function ThemeProvider({
+  accentPreset,
   children,
   mode = "light",
   theme,
 }: PropsWithChildren<ThemeProviderProps>) {
-  const resolvedTheme = useMemo(() => createTheme(theme, { mode }), [mode, theme]);
+  const resolvedTheme = useMemo(
+    () => createTheme(theme, { accentPreset, mode }),
+    [accentPreset, mode, theme],
+  );
 
   return (
     <ThemeContext.Provider value={resolvedTheme}>

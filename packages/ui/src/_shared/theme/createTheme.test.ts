@@ -25,4 +25,16 @@ describe("createTheme", () => {
     expect(theme.colors.primary).toBe("#8b5cf6");
     expect(theme.colors.accent).toBe("#8b5cf6");
   });
+
+  it("resolves accent presets through createTheme without changing dark surfaces", () => {
+    const theme = createTheme(undefined, {
+      accentPreset: "rose",
+      mode: "dark",
+    });
+
+    expect(theme.colors.background).toBe(darkTheme.colors.background);
+    expect(theme.colors.surface).toBe(darkTheme.colors.surface);
+    expect(theme.colors.primary).toBe("#e11d48");
+    expect(theme.colors.accent).toBe("#f43f5e");
+  });
 });

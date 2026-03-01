@@ -4,7 +4,7 @@ import { radius } from "../tokens/radius";
 import { shadows } from "../tokens/shadows";
 import { space } from "../tokens/space";
 import { typography } from "../tokens/typography";
-import type { DeepPartial, SynthexTheme, ThemeMode } from "../types";
+import type { AccentPresetName, DeepPartial, SynthexTheme, ThemeMode } from "../types";
 
 export const lightTheme: SynthexTheme = {
   mode: "light",
@@ -64,19 +64,108 @@ export const themePresets: Record<ThemeMode, SynthexTheme> = {
 
 export const defaultTheme = lightTheme;
 
+export const accentPresets: Record<
+  AccentPresetName,
+  {
+    readonly label: string;
+    readonly swatch: string;
+    readonly theme: DeepPartial<SynthexTheme>;
+  }
+> = {
+  blue: {
+    label: "Blue",
+    swatch: "#2563eb",
+    theme: {},
+  },
+  emerald: {
+    label: "Emerald",
+    swatch: "#059669",
+    theme: {
+      colors: {
+        primary: "#059669",
+        primaryHover: "#047857",
+        primaryMuted: "rgba(5, 150, 105, 0.18)",
+        accent: "#14b8a6",
+        accentMuted: "rgba(20, 184, 166, 0.18)",
+        ring: "rgba(5, 150, 105, 0.34)",
+      },
+    },
+  },
+  violet: {
+    label: "Violet",
+    swatch: "#7c3aed",
+    theme: {
+      colors: {
+        primary: "#7c3aed",
+        primaryHover: "#6d28d9",
+        primaryMuted: "rgba(124, 58, 237, 0.18)",
+        accent: "#8b5cf6",
+        accentMuted: "rgba(139, 92, 246, 0.16)",
+        ring: "rgba(124, 58, 237, 0.34)",
+      },
+    },
+  },
+  amber: {
+    label: "Amber",
+    swatch: "#d97706",
+    theme: {
+      colors: {
+        primary: "#d97706",
+        primaryHover: "#b45309",
+        primaryMuted: "rgba(217, 119, 6, 0.18)",
+        accent: "#ea580c",
+        accentMuted: "rgba(234, 88, 12, 0.18)",
+        ring: "rgba(217, 119, 6, 0.34)",
+      },
+    },
+  },
+  rose: {
+    label: "Rose",
+    swatch: "#e11d48",
+    theme: {
+      colors: {
+        primary: "#e11d48",
+        primaryHover: "#be123c",
+        primaryMuted: "rgba(225, 29, 72, 0.18)",
+        accent: "#f43f5e",
+        accentMuted: "rgba(244, 63, 94, 0.18)",
+        ring: "rgba(225, 29, 72, 0.34)",
+      },
+    },
+  },
+};
+
+export function resolveAccentPreset(
+  accentPreset?: AccentPresetName,
+): DeepPartial<SynthexTheme> | undefined {
+  if (!accentPreset) {
+    return undefined;
+  }
+
+  return accentPresets[accentPreset]?.theme;
+}
+
 export function createTheme(
   overrides?: DeepPartial<SynthexTheme>,
   options?: {
+    readonly accentPreset?: AccentPresetName;
     readonly mode?: ThemeMode;
   },
 ): SynthexTheme {
   const baseTheme = themePresets[options?.mode ?? "light"];
+  const accentTheme = resolveAccentPreset(options?.accentPreset);
 
-  if (!overrides) {
+  if (!accentTheme && !overrides) {
     return baseTheme;
   }
 
-  return mergeTheme(baseTheme, overrides);
+  const themedBase = accentTheme ? mergeTheme(baseTheme, accentTheme) : baseTheme;
+
+  if (!overrides) {
+    return themedBase;
+  }
+
+  return mergeTheme(themedBase, overrides);
 }
 
 export function themeToCssVariables(theme: SynthexTheme): Record<string, string> {

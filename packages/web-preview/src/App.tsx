@@ -99,7 +99,13 @@ import {
   SettingsIcon,
   UndoIcon,
 } from "@synthex/ui/icons";
-import { ThemeProvider, useTheme, type DeepPartial, type SynthexTheme } from "@synthex/ui/theme";
+import {
+  ThemeProvider,
+  accentPresets,
+  useTheme,
+  type AccentPresetName,
+  type SynthexTheme,
+} from "@synthex/ui/theme";
 import {
   useControllableState,
   useDisclosure,
@@ -276,86 +282,7 @@ const roadmapItems: readonly string[] = [
   "Broaden layout-engine integration examples for panel plugins and engineering canvases.",
   "Continue tightening generated declaration output and package-level API guarantees.",
 ] as const;
-
-type AccentPreset = "blue" | "emerald" | "violet" | "amber" | "rose";
-
-interface AccentPresetItem {
-  readonly id: AccentPreset;
-  readonly label: string;
-  readonly swatch: string;
-  readonly theme: DeepPartial<SynthexTheme>;
-}
-
-const accentPresets: readonly AccentPresetItem[] = [
-  {
-    id: "blue",
-    label: "Blue",
-    swatch: "#2563eb",
-    theme: {},
-  },
-  {
-    id: "emerald",
-    label: "Emerald",
-    swatch: "#059669",
-    theme: {
-      colors: {
-        primary: "#059669",
-        primaryHover: "#047857",
-        primaryMuted: "rgba(5, 150, 105, 0.18)",
-        accent: "#14b8a6",
-        accentMuted: "rgba(20, 184, 166, 0.18)",
-        ring: "rgba(5, 150, 105, 0.34)",
-      },
-    },
-  },
-  {
-    id: "violet",
-    label: "Violet",
-    swatch: "#7c3aed",
-    theme: {
-      colors: {
-        primary: "#7c3aed",
-        primaryHover: "#6d28d9",
-        primaryMuted: "rgba(124, 58, 237, 0.18)",
-        accent: "#6366f1",
-        accentMuted: "rgba(99, 102, 241, 0.18)",
-        ring: "rgba(124, 58, 237, 0.34)",
-      },
-    },
-  },
-  {
-    id: "amber",
-    label: "Amber",
-    swatch: "#d97706",
-    theme: {
-      colors: {
-        primary: "#d97706",
-        primaryHover: "#b45309",
-        primaryMuted: "rgba(217, 119, 6, 0.18)",
-        accent: "#ea580c",
-        accentMuted: "rgba(234, 88, 12, 0.18)",
-        ring: "rgba(217, 119, 6, 0.34)",
-      },
-    },
-  },
-  {
-    id: "rose",
-    label: "Rose",
-    swatch: "#e11d48",
-    theme: {
-      colors: {
-        primary: "#e11d48",
-        primaryHover: "#be123c",
-        primaryMuted: "rgba(225, 29, 72, 0.18)",
-        accent: "#f43f5e",
-        accentMuted: "rgba(244, 63, 94, 0.18)",
-        ring: "rgba(225, 29, 72, 0.34)",
-      },
-    },
-  },
-] as const;
-
-const defaultAccentPreset = accentPresets[0]!;
+const defaultAccentPreset: AccentPresetName = "blue";
 
 export function App() {
   const [mode, setMode] = useState<"light" | "dark">(() => {
@@ -365,25 +292,20 @@ export function App() {
 
     return window.localStorage.getItem("synthex-preview-mode") === "dark" ? "dark" : "light";
   });
-  const [accentPreset, setAccentPreset] = useState<AccentPreset>(() => {
+  const [accentPreset, setAccentPreset] = useState<AccentPresetName>(() => {
     if (typeof window === "undefined") {
-      return defaultAccentPreset.id;
+      return defaultAccentPreset;
     }
 
     const storedValue = window.localStorage.getItem("synthex-preview-accent");
-    return accentPresets.some((preset) => preset.id === storedValue)
-      ? (storedValue as AccentPreset)
-      : defaultAccentPreset.id;
+    return storedValue && storedValue in accentPresets
+      ? (storedValue as AccentPresetName)
+      : defaultAccentPreset;
   });
   const [navQuery, setNavQuery] = useControllableState({
     defaultValue: "",
   });
   const workbench = useWorkbench();
-  const previewTheme = useMemo(
-    () => accentPresets.find((preset) => preset.id === accentPreset)?.theme ?? defaultAccentPreset.theme,
-    [accentPreset],
-  );
-
   const filteredSections = useMemo(() => {
     const query = navQuery.trim().toLowerCase();
 
@@ -412,7 +334,7 @@ export function App() {
   }, [accentPreset]);
 
   return (
-    <ThemeProvider mode={mode} theme={previewTheme}>
+    <ThemeProvider mode={mode} accentPreset={accentPreset}>
       <div className="preview-site">
         <header className="preview-header">
           <div className="preview-header-inner">
@@ -426,14 +348,14 @@ export function App() {
             </div>
             <div className="preview-header-actions">
               <div className="preview-accent-switcher" role="group" aria-label="Accent color">
-                {accentPresets.map((preset) => (
+                {Object.entries(accentPresets).map(([id, preset]) => (
                   <button
-                    key={preset.id}
+                    key={id}
                     type="button"
                     className="preview-accent-button"
                     aria-label={`Use ${preset.label} accent`}
-                    aria-pressed={accentPreset === preset.id}
-                    onClick={() => setAccentPreset(preset.id)}
+                    aria-pressed={accentPreset === id}
+                    onClick={() => setAccentPreset(id as AccentPresetName)}
                   >
                     <span
                       className="preview-accent-swatch"
