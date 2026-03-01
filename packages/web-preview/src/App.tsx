@@ -566,27 +566,44 @@ export function App() {
         </header>
 
         <div className="preview-shell">
+          {/* ── Desktop sidebar ── */}
           <aside className="preview-sidebar">
-            <Card className="preview-sidebar-card" variant="elevated">
-              <CardHeader>
-                <CardTitle>Documentation</CardTitle>
-                <CardDescription>
-                  The preview app now works like a real package site instead of a raw sandbox.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="preview-sidebar-content">
-                <div className="preview-search">
-                  <SearchIcon size={16} />
-                  <Input
-                    aria-label="Filter pages"
-                    placeholder="Filter pages"
-                    value={navQuery}
-                    onChange={(event) => setNavQuery(event.target.value)}
-                  />
-                </div>
+            <div className="preview-sidebar-section-label">Documentation</div>
+            <nav className="preview-nav">
+              {filteredNavItems.map((item) => (
+                <NavLink
+                  key={item.to}
+                  className={({ isActive }) =>
+                    isActive ? "preview-nav-link preview-nav-link-active" : "preview-nav-link"
+                  }
+                  to={item.to}
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+            <Separator />
+            <div className="preview-sidebar-meta">
+              <Badge variant="secondary">Bun-first workspace</Badge>
+              <Badge variant="secondary">Strict TypeScript</Badge>
+              <Badge variant="secondary">Engine-ready</Badge>
+            </div>
+          </aside>
 
-                <nav className="preview-nav">
-                  {filteredNavItems.map((item) => (
+          {/* ── Mobile nav (Sheet) ── */}
+          <div className="preview-mobile-nav">
+            <Sheet>
+              <SheetTrigger className="preview-mobile-menu-btn">
+                <GridIcon size={16} />
+                Menu
+              </SheetTrigger>
+              <SheetContent side="left" className="preview-mobile-sheet">
+                <SheetHeader>
+                  <SheetTitle>Navigation</SheetTitle>
+                  <SheetDescription>Browse documentation pages.</SheetDescription>
+                </SheetHeader>
+                <nav className="preview-nav preview-mobile-sheet-nav">
+                  {navItems.map((item) => (
                     <NavLink
                       key={item.to}
                       className={({ isActive }) =>
@@ -599,17 +616,12 @@ export function App() {
                     </NavLink>
                   ))}
                 </nav>
-
-                <Separator />
-
-                <div className="preview-sidebar-meta">
-                  <Badge variant="secondary">Bun-first workspace</Badge>
-                  <Badge variant="secondary">Strict TypeScript</Badge>
-                  <Badge variant="secondary">Engine-ready</Badge>
-                </div>
-              </CardContent>
-            </Card>
-          </aside>
+              </SheetContent>
+            </Sheet>
+            <span className="preview-mobile-breadcrumb">
+              {navItems.find((n) => n.to === location.pathname)?.label ?? "Overview"}
+            </span>
+          </div>
 
           <main className="preview-main">
             <Routes>
