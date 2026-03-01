@@ -158,4 +158,55 @@ describe("@synthex/react-web", () => {
 
     expect(screen.getByText("Inspector")).toBeInTheDocument();
   });
+
+  it("coalesces consecutive split resize commands into one undo step", async () => {
+    const engine = createLayoutEngine({
+      id: "root",
+      type: "split",
+      direction: "horizontal",
+      sizes: [0.5, 0.5],
+      children: [
+        { id: "left", type: "panel", panelType: "editor", title: "Editor" },
+        { id: "right", type: "panel", panelType: "inspector", title: "Inspector" },
+      ],
+    });
+
+    await engine.commands.dispatch("RESIZE_SPLIT", {
+      type: "RESIZE_SPLIT",
+      splitId: "root",
+      sizes: [0.55, 0.45],
+    });
+    await engine.commands.dispatch("RESIZE_SPLIT", {
+      type: "RESIZE_SPLIT",
+      splitId: "root",
+      sizes: [0.61, 0.39],
+    });
+    await engine.commands.dispatch("RESIZE_SPLIT", {
+      type: "RESIZE_SPLIT",
+      splitId: "root",
+      sizes: [0.68, 0.32],
+    });
+
+    expect(engine.commands.getHistoryState()).toMatchObject({
+      undoDepth: 1,
+      redoDepth: 0,
+    });
+    expect(engine.getState()).toMatchObject({
+      id: "root",
+      type: "split",
+      sizes: [0.68, 0.32],
+    });
+
+    await engine.commands.undo();
+
+    expect(engine.getState()).toMatchObject({
+      id: "root",
+      type: "split",
+      sizes: [0.5, 0.5],
+    });
+    expect(engine.commands.getHistoryState()).toMatchObject({
+      undoDepth: 0,
+      redoDepth: 1,
+    });
+  });
 });

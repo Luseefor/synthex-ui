@@ -126,6 +126,16 @@ function registerLayoutCommands(registry: CommandRegistry<LayoutCommandContext>)
       context.dispatch(payload);
       return snapshot;
     },
+    mergeHistory: (previous, next) => {
+      if (previous.payload.splitId !== next.payload.splitId) {
+        return null;
+      }
+
+      return {
+        payload: next.payload,
+        result: previous.result,
+      };
+    },
     undo: (context, _payload, snapshot) => {
       context.dispatch({
         type: "SET_LAYOUT",

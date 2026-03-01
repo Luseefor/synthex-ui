@@ -9,6 +9,10 @@ interface HistoryEntry<TContext> {
 export interface CommandRegistry<TContext> {
   register: <TPayload, TResult>(command: Command<TContext, TPayload, TResult>) => void;
   dispatch: <TPayload, TResult>(commandId: string, payload: TPayload) => Promise<TResult>;
+  getHistoryState: () => {
+    readonly redoDepth: number;
+    readonly undoDepth: number;
+  };
   undo: () => Promise<boolean>;
   redo: () => Promise<boolean>;
 }
@@ -35,6 +39,32 @@ export function createCommandRegistry<TContext>(
       const result = await command.execute(getContext(), payload);
 
       if (command.undo) {
+        const previousEntry = undoStack.at(-1);
+
+        if (
+          previousEntry &&
+          previousEntry.command === command &&
+          command.mergeHistory
+        ) {
+          const merged = command.mergeHistory(
+            {
+              payload: previousEntry.payload as TPayload,
+              result: previousEntry.result as TResult,
+            },
+            {
+              payload,
+              result: result as TResult,
+            },
+          );
+
+          if (merged) {
+            previousEntry.payload = merged.payload;
+            previousEntry.result = merged.result;
+            redoStack.length = 0;
+            return result as TResult;
+          }
+        }
+
         undoStack.push({
           command,
           payload,
@@ -44,6 +74,13 @@ export function createCommandRegistry<TContext>(
       }
 
       return result as TResult;
+    },
+
+    getHistoryState() {
+      return {
+        undoDepth: undoStack.length,
+        redoDepth: redoStack.length,
+      };
     },
 
     async undo() {

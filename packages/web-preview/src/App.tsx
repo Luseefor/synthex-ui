@@ -1678,9 +1678,16 @@ function useWorkbench(): WorkbenchController {
   const layout = useSynthex(engine);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>("document");
   const [lastAction, setLastAction] = useState<string>("Initial layout loaded");
-  const [undoDepth, setUndoDepth] = useState(0);
-  const [redoDepth, setRedoDepth] = useState(0);
+  const initialHistory = engine.commands.getHistoryState();
+  const [undoDepth, setUndoDepth] = useState(initialHistory.undoDepth);
+  const [redoDepth, setRedoDepth] = useState(initialHistory.redoDepth);
   const nextPanelCountRef = useRef(1);
+
+  const syncHistoryState = () => {
+    const historyState = engine.commands.getHistoryState();
+    setUndoDepth(historyState.undoDepth);
+    setRedoDepth(historyState.redoDepth);
+  };
 
   const middleware = useMemo<readonly PreviewMiddleware[]>(
     () => [
@@ -1708,8 +1715,7 @@ function useWorkbench(): WorkbenchController {
 
       if (!layer) {
         await engine.commands.dispatch(currentAction.type, currentAction);
-        setUndoDepth((value) => value + 1);
-        setRedoDepth(0);
+        syncHistoryState();
         return engine.getState();
       }
 
@@ -1759,8 +1765,7 @@ function useWorkbench(): WorkbenchController {
     }
 
     setLastAction("Undo last change");
-    setUndoDepth((value) => Math.max(0, value - 1));
-    setRedoDepth((value) => value + 1);
+    syncHistoryState();
     console.log("[synthex-preview] undo", engine.getState());
   };
 
@@ -1772,8 +1777,7 @@ function useWorkbench(): WorkbenchController {
     }
 
     setLastAction("Redo last change");
-    setUndoDepth((value) => value + 1);
-    setRedoDepth((value) => Math.max(0, value - 1));
+    syncHistoryState();
     console.log("[synthex-preview] redo", engine.getState());
   };
 
