@@ -68,6 +68,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
   Input,
   InputOTP,
   InputOTPGroup,
@@ -145,6 +152,37 @@ describe("@synthex/ui web components", () => {
     );
 
     expect(screen.getByLabelText("Search")).toHaveAttribute("aria-invalid", "true");
+  });
+
+  it("wires form field labels, descriptions, and messages", () => {
+    render(
+      <ThemeProvider>
+        <Form>
+          <FormField
+            name="email"
+            description="We only use this for updates."
+            error="Email is required."
+          >
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input aria-label="Email input" placeholder="name@example.com" />
+              </FormControl>
+              <FormDescription />
+              <FormMessage />
+            </FormItem>
+          </FormField>
+        </Form>
+      </ThemeProvider>,
+    );
+
+    const input = screen.getByLabelText("Email input");
+
+    expect(screen.getByText("We only use this for updates.")).toBeInTheDocument();
+    expect(screen.getByText("Email is required.")).toBeInTheDocument();
+    expect(screen.getByText("Email")).toHaveAttribute("for", input.getAttribute("id"));
+    expect(input).toHaveAttribute("aria-invalid", "true");
+    expect(input).toHaveAttribute("aria-describedby");
   });
 
   it("supports slider and otp input interactions", () => {

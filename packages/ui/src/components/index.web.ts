@@ -33,6 +33,19 @@ export {
 } from "../input-otp/input-otp.web";
 export type { InputOTPSharedProps } from "../input-otp/input-otp.shared";
 export { Label } from "../label/label.web";
+export {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../form/form.web";
+export type {
+  FormFieldSharedProps,
+  FormItemSharedProps,
+} from "../form/form.shared";
 export { Alert, AlertDescription, AlertTitle } from "../alert/alert.web";
 export {
   alertVariants,
