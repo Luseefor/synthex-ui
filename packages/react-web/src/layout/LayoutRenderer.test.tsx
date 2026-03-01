@@ -7,6 +7,7 @@ import { useSynthex } from "./useSynthex";
 describe("@synthex/react-web", () => {
   it("dispatches tab activation actions through the renderer", () => {
     const onAction = vi.fn();
+    const renderTabLabel = vi.fn((panel: PanelNode) => `Panel: ${panel.title ?? panel.panelType}`);
 
     render(
       <LayoutRenderer
@@ -20,19 +21,21 @@ describe("@synthex/react-web", () => {
           ],
         }}
         onAction={onAction}
+        renderTabLabel={renderTabLabel}
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Console" }));
+    fireEvent.click(screen.getByRole("button", { name: "Panel: Console" }));
 
     expect(onAction).toHaveBeenCalledWith({
       type: "SET_ACTIVE_PANEL",
       tabsId: "tabs",
       panelId: "console",
     });
+    expect(renderTabLabel).toHaveBeenCalledTimes(2);
   });
 
-  it("wires split resize handles back to layout actions", () => {
+  it("wires split resize handles back to layout actions and exposes layout direction", () => {
     const onAction = vi.fn();
 
     render(
@@ -49,6 +52,11 @@ describe("@synthex/react-web", () => {
         }}
         onAction={onAction}
       />,
+    );
+
+    expect(screen.getByLabelText("Resize split").parentElement).toHaveAttribute(
+      "data-layout-direction",
+      "horizontal",
     );
 
     vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
@@ -71,6 +79,51 @@ describe("@synthex/react-web", () => {
     expect(onAction.mock.calls.at(-1)?.[0]).toMatchObject({
       type: "RESIZE_SPLIT",
       splitId: "root",
+    });
+  });
+
+  it("applies a custom neutral renderer theme to split and tab surfaces", () => {
+    const { container } = render(
+      <LayoutRenderer
+        layout={{
+          id: "root",
+          type: "split",
+          direction: "vertical",
+          sizes: [0.5, 0.5],
+          children: [
+            {
+              id: "tabs",
+              type: "tabs",
+              activePanelId: "schematic",
+              children: [
+                { id: "schematic", type: "panel", panelType: "schematic", title: "Schematic" },
+                { id: "netlist", type: "panel", panelType: "netlist", title: "Netlist" },
+              ],
+            },
+            { id: "console", type: "panel", panelType: "console", title: "Console" },
+          ],
+        }}
+        selectedNodeId="tabs"
+        theme={{
+          canvasBackground: "rgb(10, 14, 22)",
+          surfaceBackground: "rgb(18, 24, 38)",
+          tabActiveBackground: "rgb(27, 36, 56)",
+          selectedBorderColor: "rgb(96, 165, 250)",
+        }}
+      />,
+    );
+
+    const tabsContainer = container.querySelector("[data-tabs-id='tabs']");
+
+    expect(tabsContainer).not.toBeNull();
+    expect(tabsContainer).toHaveStyle({
+      background: "rgb(18, 24, 38)",
+    });
+    expect(tabsContainer).toHaveStyle({
+      border: "1px solid rgb(96, 165, 250)",
+    });
+    expect(screen.getByRole("button", { name: "Schematic" })).toHaveStyle({
+      background: "rgb(27, 36, 56)",
     });
   });
 

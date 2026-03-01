@@ -2,16 +2,23 @@ import type { CSSProperties, ReactNode } from "react";
 import type { LayoutAction, LayoutNode, PanelNode } from "@synthex/core";
 import { SplitView } from "./SplitView";
 import { TabView } from "./TabView";
+import {
+  resolveWorkbenchSurface,
+  resolveWorkbenchTheme,
+  type LayoutRendererThemeProps,
+} from "./theme";
 
-export interface LayoutRendererProps {
+export interface LayoutRendererProps extends LayoutRendererThemeProps {
   readonly layout: LayoutNode;
   readonly onAction?: (action: LayoutAction) => void;
   readonly onSelectNode?: (nodeId: string) => void;
   readonly selectedNodeId?: string | null;
   readonly renderPanel?: (panel: PanelNode) => ReactNode;
+  readonly renderTabLabel?: (panel: PanelNode) => ReactNode;
 }
 
 const frameStyle: CSSProperties = {
+  display: "flex",
   minWidth: 0,
   minHeight: 0,
   width: "100%",
@@ -19,9 +26,22 @@ const frameStyle: CSSProperties = {
 };
 
 export function LayoutRenderer(props: LayoutRendererProps) {
+  const theme = resolveWorkbenchTheme(props.theme);
+
   return (
-    <div style={frameStyle}>
-      <LayoutNodeView {...props} node={props.layout} />
+    <div
+      data-synthex-layout-root="true"
+      style={{
+        ...frameStyle,
+        background: resolveWorkbenchSurface(theme, "canvas"),
+        color: theme.textColor,
+      }}
+    >
+      <LayoutNodeView
+        {...props}
+        node={props.layout}
+        theme={theme}
+      />
     </div>
   );
 }
@@ -32,6 +52,8 @@ interface LayoutNodeViewProps {
   readonly onSelectNode?: (nodeId: string) => void;
   readonly selectedNodeId?: string | null;
   readonly renderPanel?: (panel: PanelNode) => ReactNode;
+  readonly renderTabLabel?: (panel: PanelNode) => ReactNode;
+  readonly theme: ReturnType<typeof resolveWorkbenchTheme>;
 }
 
 function LayoutNodeView({
@@ -40,12 +62,15 @@ function LayoutNodeView({
   onSelectNode,
   selectedNodeId,
   renderPanel,
+  renderTabLabel,
+  theme,
 }: LayoutNodeViewProps) {
   if (node.type === "split") {
     return (
       <SplitView
         split={node}
         selectedNodeId={selectedNodeId}
+        theme={theme}
         onResize={(sizes) =>
           onAction?.({
             type: "RESIZE_SPLIT",
@@ -62,6 +87,8 @@ function LayoutNodeView({
             onSelectNode={onSelectNode}
             selectedNodeId={selectedNodeId}
             renderPanel={renderPanel}
+            renderTabLabel={renderTabLabel}
+            theme={theme}
           />
         ))}
       </SplitView>
@@ -73,7 +100,9 @@ function LayoutNodeView({
       <TabView
         tabs={node}
         selectedNodeId={selectedNodeId}
+        theme={theme}
         renderPanel={renderPanel}
+        renderTabLabel={renderTabLabel}
         onSelectNode={onSelectNode}
         onSetActivePanel={(panelId) =>
           onAction?.({
@@ -90,14 +119,17 @@ function LayoutNodeView({
     <button
       type="button"
       onClick={() => onSelectNode?.(node.id)}
-      style={createPanelFrameStyle(selectedNodeId === node.id)}
+      style={createPanelFrameStyle(selectedNodeId === node.id, theme)}
     >
       {renderPanel ? renderPanel(node) : node.title ?? node.panelType}
     </button>
   );
 }
 
-function createPanelFrameStyle(isSelected: boolean): CSSProperties {
+function createPanelFrameStyle(
+  isSelected: boolean,
+  theme: ReturnType<typeof resolveWorkbenchTheme>,
+): CSSProperties {
   return {
     display: "flex",
     alignItems: "stretch",
@@ -107,8 +139,9 @@ function createPanelFrameStyle(isSelected: boolean): CSSProperties {
     minWidth: 0,
     minHeight: 0,
     padding: 0,
-    border: isSelected ? "1px solid #2563eb" : "1px solid #d4d4d8",
-    background: "transparent",
+    border: `1px solid ${isSelected ? theme.selectedBorderColor : theme.borderColor}`,
+    background: resolveWorkbenchSurface(theme, "surface"),
+    color: theme.textColor,
     textAlign: "left",
     cursor: "pointer",
   };

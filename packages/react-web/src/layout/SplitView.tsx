@@ -1,8 +1,9 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import type { SplitNode } from "@synthex/core";
+import { resolveWorkbenchSurface, resolveWorkbenchTheme, type LayoutRendererThemeProps } from "./theme";
 
-export interface SplitViewProps {
+export interface SplitViewProps extends LayoutRendererThemeProps {
   readonly split: SplitNode;
   readonly children: readonly ReactNode[];
   readonly selectedNodeId?: string | null;
@@ -15,21 +16,23 @@ const containerBaseStyle: CSSProperties = {
   height: "100%",
   minWidth: 0,
   minHeight: 0,
-  gap: "6px",
 };
 
-export function SplitView({ split, children, selectedNodeId, onResize }: SplitViewProps) {
+export function SplitView({ split, children, selectedNodeId, onResize, theme: themeOverrides }: SplitViewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const theme = resolveWorkbenchTheme(themeOverrides);
   const isHorizontal = split.direction === "horizontal";
 
   return (
     <div
       ref={containerRef}
+      data-layout-direction={split.direction}
       style={{
         ...containerBaseStyle,
         flexDirection: isHorizontal ? "row" : "column",
-        outline: selectedNodeId === split.id ? "1px solid #60a5fa" : "none",
-        outlineOffset: 0,
+        background: resolveWorkbenchSurface(theme, "canvas"),
+        outline: selectedNodeId === split.id ? `1px solid ${theme.selectedBorderColor}` : "none",
+        boxShadow: selectedNodeId === split.id ? `inset 0 0 0 1px ${theme.selectedBorderColor}` : "none",
       }}
     >
       {children.map((child, index) => {
@@ -45,6 +48,7 @@ export function SplitView({ split, children, selectedNodeId, onResize }: SplitVi
             onResize={onResize}
             split={split}
             containerRef={containerRef}
+            theme={theme}
           >
             {child}
           </FragmentWithHandle>
@@ -63,6 +67,7 @@ interface FragmentWithHandleProps {
   readonly onResize?: (sizes: readonly number[]) => void;
   readonly ratio: number;
   readonly split: SplitNode;
+  readonly theme: ReturnType<typeof resolveWorkbenchTheme>;
 }
 
 function FragmentWithHandle({
@@ -74,8 +79,10 @@ function FragmentWithHandle({
   onResize,
   ratio,
   split,
+  theme,
 }: FragmentWithHandleProps) {
   const isLast = index === childCount - 1;
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <>
@@ -93,6 +100,8 @@ function FragmentWithHandle({
         <button
           type="button"
           aria-label="Resize split"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
           onMouseDown={(event) => {
             event.preventDefault();
 
@@ -136,14 +145,29 @@ function FragmentWithHandle({
           }}
           style={{
             flex: "0 0 auto",
-            width: isHorizontal ? "6px" : "100%",
-            height: isHorizontal ? "100%" : "6px",
+            width: isHorizontal ? "14px" : "100%",
+            height: isHorizontal ? "100%" : "14px",
             border: 0,
-            background: "#d4d4d8",
+            background: theme.resizeHandleBackground,
             cursor: isHorizontal ? "col-resize" : "row-resize",
             padding: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-        />
+        >
+          <span
+            aria-hidden="true"
+            style={{
+              display: "block",
+              width: isHorizontal ? "2px" : "28px",
+              height: isHorizontal ? "28px" : "2px",
+              borderRadius: 999,
+              background: isHovered ? theme.resizeHandleHoverColor : theme.resizeHandleColor,
+              transition: "background-color 120ms ease",
+            }}
+          />
+        </button>
       ) : null}
     </>
   );
