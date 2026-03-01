@@ -38,6 +38,12 @@ import {
   ComboboxList,
   ComboboxTrigger,
   ComboboxValue,
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
   Command,
   CommandEmpty,
   CommandGroup,
@@ -51,6 +57,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
   H1,
   H2,
   H3,
@@ -1020,7 +1032,7 @@ function ComponentGallerySection() {
           <CardHeader>
             <CardTitle>Overlay baseline</CardTitle>
             <CardDescription>
-              The library now includes dialog, popover, sheet, and tooltip primitives so product flows can build overlays without reaching for an external UI framework.
+              The library now includes dialog, popover, dropdown, context, sheet, and tooltip primitives so product flows can build overlays without reaching for an external UI framework.
             </CardDescription>
           </CardHeader>
           <CardContent className="preview-stack-md">
@@ -1074,6 +1086,19 @@ function ComponentGallerySection() {
                   </SheetFooter>
                 </SheetContent>
               </Sheet>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger className="inline-flex h-10 items-center justify-center rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border-strong)] bg-[color:var(--sx-color-surface)] px-4 text-sm font-medium tracking-[-0.01em] text-[color:var(--sx-color-foreground)] shadow-[0_1px_2px_rgba(15,23,42,0.06)] transition-[background-color,border-color,color] duration-150 hover:bg-[color:var(--sx-color-surface-muted)]">
+                  Open dropdown
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuLabel>Panel actions</DropdownMenuLabel>
+                  <DropdownMenuItem>Open schematic</DropdownMenuItem>
+                  <DropdownMenuItem>Focus console</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>Export snapshot</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             <div className="preview-chip-row">
               <Tooltip>
@@ -1083,6 +1108,23 @@ function ComponentGallerySection() {
                 <TooltipContent>Tooltips are for short contextual hints, not full interactions.</TooltipContent>
               </Tooltip>
             </div>
+            <ContextMenu>
+              <ContextMenuTrigger className="preview-context-surface">
+                <div className="preview-stack-sm">
+                  <Small>Context menu surface</Small>
+                  <Muted>
+                    Right click this surface to open contextual actions for the focused panel.
+                  </Muted>
+                </div>
+              </ContextMenuTrigger>
+              <ContextMenuContent>
+                <ContextMenuLabel>Selection</ContextMenuLabel>
+                <ContextMenuItem>Rename panel</ContextMenuItem>
+                <ContextMenuItem>Duplicate panel</ContextMenuItem>
+                <ContextMenuSeparator />
+                <ContextMenuItem>Close panel</ContextMenuItem>
+              </ContextMenuContent>
+            </ContextMenu>
             <Muted>
               This is the baseline overlay layer. Menus, sheets, and popovers can build on the same contract without polluting the core engine packages.
             </Muted>

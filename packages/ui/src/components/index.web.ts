@@ -150,6 +150,24 @@ export type {
   ComboboxItemSharedProps,
   ComboboxSharedProps,
 } from "../combobox/combobox.shared";
+export {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../dropdown-menu/dropdown-menu.web";
+export type { DropdownMenuSharedProps } from "../dropdown-menu/dropdown-menu.shared";
+export {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "../context-menu/context-menu.web";
+export type { ContextMenuSharedProps } from "../context-menu/context-menu.shared";
 export { Badge } from "../badge/badge.web";
 export {
   badgeVariants,

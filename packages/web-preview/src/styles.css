@@ -448,6 +448,18 @@ body {
   padding: 1rem;
 }
 
+.preview-context-surface {
+  display: flex;
+  min-height: 6.5rem;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.75rem;
+  border: 1px dashed var(--sx-color-border-strong);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--sx-color-surface) 88%, var(--sx-color-background) 12%);
+  padding: 1rem 1.125rem;
+}
+
 .preview-inline-control {
   display: inline-flex;
   align-items: center;

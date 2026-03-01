@@ -22,6 +22,12 @@ import {
   ComboboxList,
   ComboboxTrigger,
   ComboboxValue,
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
   Command,
   CommandEmpty,
   CommandGroup,
@@ -33,6 +39,12 @@ import {
   DialogDescription,
   DialogTitle,
   DialogTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
   Input,
   Pagination,
   PaginationContent,
@@ -311,6 +323,43 @@ describe("@synthex/ui web components", () => {
 
     fireEvent.mouseEnter(screen.getByText("Hover target"));
     expect(screen.getByRole("tooltip")).toHaveTextContent("Tooltip body");
+  });
+
+  it("supports dropdown menus and context menus", () => {
+    render(
+      <ThemeProvider>
+        <DropdownMenu>
+          <DropdownMenuTrigger>Open menu</DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>Panels</DropdownMenuLabel>
+            <DropdownMenuItem>Schematic</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Console</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <ContextMenu>
+          <ContextMenuTrigger data-testid="context-surface">
+            <div>Right click area</div>
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuLabel>Inspector</ContextMenuLabel>
+            <ContextMenuItem>Rename panel</ContextMenuItem>
+            <ContextMenuSeparator />
+            <ContextMenuItem>Duplicate panel</ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
+      </ThemeProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    expect(screen.getByRole("menu")).toHaveTextContent("Panels");
+
+    fireEvent.click(screen.getByRole("menuitem", { name: "Console" }));
+    expect(screen.queryByRole("menuitem", { name: "Console" })).not.toBeInTheDocument();
+
+    fireEvent.contextMenu(screen.getByTestId("context-surface"));
+    expect(screen.getByRole("menu")).toHaveTextContent("Rename panel");
   });
 
   it("applies theme mode and primitive styles", () => {
