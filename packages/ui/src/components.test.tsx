@@ -75,11 +75,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  ButtonGroup,
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+  Field,
+  InputGroup,
+  InputGroupAddon,
   Input,
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
+  Item,
+  ItemDescription,
+  ItemTitle,
+  Kbd,
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
@@ -131,6 +143,8 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  NativeSelect,
+  Spinner,
 } from "./components";
 import { Box, Surface } from "./primitives";
 
@@ -145,6 +159,46 @@ describe("@synthex/ui web components", () => {
 
     expect(screen.getByRole("button", { name: "Run" })).toBeEnabled();
     expect(screen.getByText("Preview")).toBeInTheDocument();
+  });
+
+  it("renders utility surfaces for grouped input and empty states", () => {
+    render(
+      <ThemeProvider>
+        <Field>
+          <ButtonGroup>
+            <Button size="sm">Run</Button>
+            <Button size="sm" variant="outline">Preview</Button>
+          </ButtonGroup>
+          <InputGroup>
+            <InputGroupAddon>https://</InputGroupAddon>
+            <Input aria-label="Repository URL" placeholder="example.com/repo" />
+          </InputGroup>
+          <NativeSelect aria-label="Native select fallback" defaultValue="one">
+            <option value="one">One</option>
+            <option value="two">Two</option>
+          </NativeSelect>
+          <Kbd>cmd+k</Kbd>
+          <Spinner />
+        </Field>
+        <Empty>
+          <EmptyHeader>
+            <EmptyTitle>No saved layouts</EmptyTitle>
+            <EmptyDescription>Create a new workspace snapshot to begin.</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+        <Item>
+          <ItemTitle>Command palette</ItemTitle>
+          <ItemDescription>Search actions, files, and panels.</ItemDescription>
+        </Item>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByLabelText("Repository URL")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Native select fallback" })).toBeInTheDocument();
+    expect(screen.getByText("cmd+k")).toBeInTheDocument();
+    expect(screen.getByLabelText("Loading")).toBeInTheDocument();
+    expect(screen.getByText("No saved layouts")).toBeInTheDocument();
+    expect(screen.getByText("Command palette")).toBeInTheDocument();
   });
 
   it("marks invalid inputs and supports ui sizing", () => {

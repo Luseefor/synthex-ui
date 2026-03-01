@@ -34,6 +34,22 @@ export {
 export type { InputOTPSharedProps } from "../input-otp/input-otp.shared";
 export { Label } from "../label/label.web";
 export {
+  ButtonGroup,
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+  Field,
+  InputGroup,
+  InputGroupAddon,
+  Item,
+  ItemDescription,
+  ItemTitle,
+  Kbd,
+  NativeSelect,
+  Spinner,
+} from "../utilities/utilities.web";
+export {
   Form,
   FormControl,
   FormDescription,
