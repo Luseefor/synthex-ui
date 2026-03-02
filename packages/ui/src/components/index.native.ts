@@ -18,6 +18,7 @@ export {
   resolveCardVariants,
   type CardVariantProps,
 } from "../card/card.shared";
+export * from "../dashboard";
 export { Input } from "../input/input.native";
 export {
   inputVariants,

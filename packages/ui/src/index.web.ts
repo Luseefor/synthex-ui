@@ -4,6 +4,7 @@ export * from "./layout";
 export * from "./hooks";
 export * from "./icons";
 export * from "./theme";
+export * from "./dashboard";
 export {
   cn,
   defineVariants,

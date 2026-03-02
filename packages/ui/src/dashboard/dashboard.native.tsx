@@ -1,0 +1,142 @@
+import * as React from "react";
+import {
+    Button,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    Input,
+    Table,
+    TableBody,
+    TableCell,
+    TableRow,
+} from "../components/index.native";
+import { SearchIcon } from "../icons/index.native";
+import { Inline, Stack, Surface, Text } from "../primitives/index.native";
+import { H2 } from "../typography/typography.native";
+import type { DashboardViewProps } from "./dashboard.shared";
+
+export function DashboardView({
+    metrics,
+    updates,
+    onDocumentationClick,
+}: DashboardViewProps) {
+    return (
+        <Stack grow gap="xl" padding="xl" background="background">
+            <Surface tone="raised" border padding="md" radius="xl">
+                <Inline align="center" justify="space-between" gap="md">
+                    <Inline align="center" gap="lg" grow>
+                        <Text size="lg" weight="bold">Synthex</Text>
+                        <Surface tone="muted" radius="pill" paddingX="md" paddingY="xs" grow>
+                            <Inline align="center" gap="sm">
+                                <SearchIcon size={16} color="#71717a" />
+                                <Input
+                                    placeholder="Search..."
+                                    style={{ height: 32, padding: 0, flex: 1 }}
+                                />
+                            </Inline>
+                        </Surface>
+                    </Inline>
+                    <Inline align="center" gap="md">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" style={{ height: 36, width: 36, borderRadius: 999 }}>
+                                    <Text weight="semibold" size="xs">SU</Text>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuLabel>Developer Account</DropdownMenuLabel>
+                                <DropdownMenuItem>Profile</DropdownMenuItem>
+                                <DropdownMenuItem>Settings</DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem>
+                                    <Text style={{ color: "red" }}>Log out</Text>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </Inline>
+                </Inline>
+            </Surface>
+
+            <Stack gap="md">
+                <H2>Dashboard</H2>
+            </Stack>
+
+            {/* Metrics Grid */}
+            <Stack gap="md">
+                {metrics.map((metric, i) => (
+                    <Surface
+                        key={i}
+                        tone="raised"
+                        padding="lg"
+                        radius="lg"
+                        style={{ position: "relative", overflow: "hidden" }}
+                    >
+                        <Stack gap="sm">
+                            <Inline justify="space-between" align="center">
+                                <Text size="sm" tone="muted">
+                                    {metric.label}
+                                </Text>
+                                <Text size="lg">{metric.icon}</Text>
+                            </Inline>
+                            <Stack gap="xs">
+                                <Text size="2xl" weight="bold">{metric.value}</Text>
+                                {metric.description ? (
+                                    <Inline gap="xs" align="center">
+                                        {metric.trend ? (
+                                            <Text size="xs" weight="medium" style={{ color: "#10b981" }}>
+                                                {metric.trend.value}
+                                            </Text>
+                                        ) : null}
+                                        <Text size="xs" tone="muted">
+                                            {metric.description}
+                                        </Text>
+                                    </Inline>
+                                ) : null}
+                            </Stack>
+                        </Stack>
+                    </Surface>
+                ))}
+            </Stack>
+
+            {/* Recent Updates */}
+            <Surface tone="raised" padding={0} radius="lg" grow>
+                <Stack>
+                    <Surface tone="transparent" padding="lg">
+                        <Text weight="semibold" size="lg">Recent Updates</Text>
+                    </Surface>
+                    <Table>
+                        <TableBody>
+                            {updates.map((update, i) => (
+                                <TableRow key={i}>
+                                    <TableCell style={{ width: 60, paddingLeft: 16 }}>
+                                        <Surface
+                                            tone="muted"
+                                            radius="pill"
+                                            width={36}
+                                            height={36}
+                                            align="center"
+                                            justify="center"
+                                        >
+                                            <Text size="xs" weight="bold">{update.initials}</Text>
+                                        </Surface>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Stack gap="xs">
+                                            <Text size="sm" weight="semibold">{update.title}</Text>
+                                            <Text size="xs" tone="muted">
+                                                @{update.user} • {update.time}
+                                            </Text>
+                                        </Stack>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </Stack>
+            </Surface>
+        </Stack>
+    );
+}
