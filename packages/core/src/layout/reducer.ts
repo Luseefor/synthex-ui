@@ -48,23 +48,29 @@ export interface MoveNodeAction {
   nodeId: LayoutNodeId;
   targetNodeId: LayoutNodeId;
   position:
-    | {
-        kind: "tab";
-        index?: number;
-        tabsId?: LayoutNodeId;
-      }
-    | {
-        kind: "before" | "after";
-        direction: LayoutDirection;
-        splitId?: LayoutNodeId;
-        sizes?: readonly number[];
-      };
+  | {
+    kind: "tab";
+    index?: number;
+    tabsId?: LayoutNodeId;
+  }
+  | {
+    kind: "before" | "after";
+    direction: LayoutDirection;
+    splitId?: LayoutNodeId;
+    sizes?: readonly number[];
+  };
 }
 
 export interface ResizeSplitAction {
   type: "RESIZE_SPLIT";
   splitId: LayoutNodeId;
   sizes: readonly number[];
+}
+
+export interface UpdatePanelAction {
+  type: "UPDATE_PANEL";
+  panelId: LayoutNodeId;
+  update: Partial<Omit<PanelNode, "id" | "type">>;
 }
 
 export type LayoutAction =
@@ -74,7 +80,8 @@ export type LayoutAction =
   | RemovePanelAction
   | SplitNodeAction
   | MoveNodeAction
-  | ResizeSplitAction;
+  | ResizeSplitAction
+  | UpdatePanelAction;
 
 export function layoutReducer(state: LayoutNode, action: LayoutAction): LayoutNode {
   switch (action.type) {
@@ -170,6 +177,21 @@ export function layoutReducer(state: LayoutNode, action: LayoutAction): LayoutNo
       });
 
       return normalizeAndValidate(resized, state);
+    }
+
+    case "UPDATE_PANEL": {
+      const updated = mapLayout(state, (node) => {
+        if (node.id !== action.panelId || node.type !== "panel") {
+          return node;
+        }
+
+        return {
+          ...node,
+          ...action.update,
+        };
+      });
+
+      return normalizeAndValidate(updated, state);
     }
 
     default:
