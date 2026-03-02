@@ -1,18 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Navigate, NavLink, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { AppSidebar } from "./components/AppSidebar";
-import {
-  createLayoutEngine,
-  findNodeById,
-  serializeLayout,
-  traverseLayout,
-  type LayoutAction,
-  type LayoutDirection,
-  type LayoutEngine,
-  type LayoutNode,
-  type PanelNode,
-} from "@synthex/core";
-import { LayoutRenderer, useSynthex } from "@synthex/react-web";
+
 import {
   Accordion,
   AccordionContent,
@@ -252,9 +241,7 @@ import {
   usePlatformValue,
   useReducedMotion,
 } from "synthex-ui/hooks";
-import { PreviewPanel } from "./components/PreviewPanel";
-import { Toolbar } from "./components/Toolbar";
-import { previewLayout } from "./previewLayout";
+import { Builder } from "./components/Builder";
 
 type SectionId =
   | "overview"
@@ -308,29 +295,7 @@ const navItems: readonly NavItem[] = [
   { to: "/playground", label: "Playground", description: "Docking, reducer flow, and workbench state." },
 ] as const;
 
-const layoutPresets = {
-  default: previewLayout,
-  columns: {
-    id: "root",
-    type: "split",
-    direction: "horizontal",
-    sizes: [0.5, 0.5],
-    children: [
-      { id: "p1", type: "panel", panelType: "document", title: "Editor" },
-      { id: "p2", type: "panel", panelType: "preview", title: "Preview" },
-    ],
-  },
-  rows: {
-    id: "root",
-    type: "split",
-    direction: "vertical",
-    sizes: [0.6, 0.4],
-    children: [
-      { id: "p1", type: "panel", panelType: "document", title: "Editor" },
-      { id: "p2", type: "panel", panelType: "console", title: "Console" },
-    ],
-  },
-} as const;
+
 
 const supportRows: readonly SupportRow[] = [
   {
@@ -519,7 +484,7 @@ export function App() {
   const [navQuery, setNavQuery] = useControllableState({
     defaultValue: "",
   });
-  const workbench = useWorkbench();
+
   const filteredNavItems = useMemo(() => {
     const query = navQuery.trim().toLowerCase();
 
@@ -587,13 +552,7 @@ export function App() {
               <Routes>
                 <Route
                   path="/"
-                  element={
-                    <>
-                      <OverviewSection onNavigate={navigate} />
-                      <PackageScopeSection />
-                      <RoadmapSection />
-                    </>
-                  }
+                  element={<Dashboard onNavigate={navigate} />}
                 />
                 <Route path="/installation" element={<GettingStartedSection />} />
                 <Route path="/components" element={<ComponentGallerySection />} />
@@ -608,7 +567,7 @@ export function App() {
                     </>
                   }
                 />
-                <Route path="/playground" element={<WorkbenchSection workbench={workbench} />} />
+                <Route path="/playground" element={<Builder />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>
@@ -619,72 +578,182 @@ export function App() {
   );
 }
 
-function OverviewSection({
-  onNavigate,
-}: {
-  readonly onNavigate: (to: RoutePath) => void;
-}) {
+function Dashboard({ onNavigate }: { readonly onNavigate: (to: RoutePath) => void }) {
   return (
-    <section id="overview" className="preview-hero relative">
-      <div className="bg-glow-hero" />
-      <div className="preview-hero-copy">
-        <Small className="text-primary font-bold tracking-widest uppercase">Synthex UI</Small>
-        <div className="preview-chip-row">
-          <Badge className="bg-primary/20 text-primary border-primary/30">Cross-platform</Badge>
-          <Badge variant="outline" className="border-border-strong glass-premium">Design system + layout engine</Badge>
-          <Badge variant="secondary" className="glass-premium">Bun monorepo</Badge>
+    <div className="flex flex-col w-full min-h-full">
+      {/* Top Navigation Bar */}
+      <header className="flex h-16 items-center px-6 border-b border-border/50 bg-surface/50 backdrop-blur-xl sticky top-0 z-50">
+        <div className="font-semibold text-lg tracking-tight mr-8 text-foreground">
+          Synthex UI
         </div>
-        <H1 className="text-fh-xl mt-4 mb-6 bg-gradient-to-br from-foreground to-muted-foreground/50 bg-clip-text text-transparent border-none">
-          Design systems and dockable workspaces for serious product software.
-        </H1>
-        <Lead className="text-[1.1rem] text-muted-foreground/80 leading-relaxed mb-8 max-w-[95%]">
-          Synthex UI combines a cross-platform component library with a deterministic layout engine so teams can build structured web and native applications without stitching the foundations together by hand.
-        </Lead>
-        <div className="preview-action-row mb-12">
-          <Button size="lg" className="hover-premium shadow-lg shadow-primary/25" onClick={() => onNavigate("/installation")}>Install and build</Button>
-          <Button size="lg" variant="outline" className="hover-premium bg-surface/50 backdrop-blur-md border-border-strong" onClick={() => onNavigate("/playground")}>
-            Open live playground
+        <div className="flex items-center space-x-4 flex-1">
+          <div className="relative w-96">
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground-muted" />
+            <Input
+              placeholder="Search components, tokens, or hooks..."
+              className="pl-9 h-9 bg-surface/50 border-border/50 focus-visible:ring-1 focus-visible:ring-primary/50 transition-all rounded-full"
+            />
+          </div>
+        </div>
+        <div className="flex items-center space-x-4">
+          <Button variant="outline" size="sm" className="hidden md:flex h-9 border-border/50 glass-premium">
+            <span className="mr-2">v1.0.4</span> Latest Release
           </Button>
-          <Button size="lg" variant="ghost" className="hover-premium" onClick={() => onNavigate("/components")}>
-            Browse components
+          <Button variant="default" size="sm" className="h-9 shadow-sm shadow-primary/20">
+            View Documentation
           </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full bg-surface-muted/50 border border-border/50">
+                <div className="font-semibold text-xs">SU</div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent style={{ width: 220, right: 0 }} className="mr-6 mt-2">
+              <DropdownMenuLabel>Developer Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Profile</DropdownMenuItem>
+              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem>API Tokens</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-destructive">Log out</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        <div className="preview-inline-note glass-premium rounded-xl p-5 border border-border/50">
-          <Muted className="text-sm">
-            The library stays generic at the UI layer while the workbench stack stays explicit, reducer-driven, and ready for more complex application shells.
-          </Muted>
-        </div>
-      </div>
+      </header>
 
-      <Card className="preview-hero-panel glass-premium border-border-strong shadow-2xl relative overflow-hidden" variant="elevated">
-        <div className="bg-glow-radial absolute inset-0 opacity-40 z-0 pointer-events-none" />
-        <CardHeader className="relative z-10">
-          <CardTitle className="text-fh-lg">Library snapshot</CardTitle>
-          <CardDescription className="text-base text-muted-foreground/90">
-            Clean package boundaries, stronger type artifacts, and a docs surface that validates the real public API.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="relative z-10">
-          <div className="preview-metric-grid">
-            <MetricCard label="Primary package" value="synthex-ui" />
-            <MetricCard label="Engine package" value="@synthex/core" />
-            <MetricCard label="Web adapter" value="@synthex/react-web" />
-            <MetricCard label="Preview app" value="@synthex/web-preview" />
-          </div>
-          <Separator className="my-6 opacity-50" />
-          <div className="preview-stack-sm">
-            <Muted className="leading-relaxed">
-              Similar in clarity to compact package sites like CUI, but centered on a deeper architecture: shared UI, explicit adapters, and a real tiling layout kernel.
-            </Muted>
-            <div className="preview-chip-row mt-4">
-              <Badge variant="outline" className="glass-premium">Generated declarations</Badge>
-              <Badge variant="outline" className="glass-premium">Subpath exports</Badge>
-              <Badge variant="outline" className="glass-premium">Reducer-backed layout</Badge>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </section>
+      {/* Main Content */}
+      <main className="flex-1 p-8 pt-6 space-y-8">
+        <div className="flex items-center justify-between space-y-2">
+          <H2 className="text-3xl font-bold tracking-tight border-none m-0">Dashboard</H2>
+        </div>
+
+        {/* Metrics Grid */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="glass-premium border-border/50 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-foreground-muted">Total Components</CardTitle>
+              <span className="text-foreground-muted">🧩</span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">51</div>
+              <p className="text-xs text-foreground-muted mt-1">
+                <span className="text-emerald-500 font-medium">+3</span> in the latest release
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="glass-premium border-border/50 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-foreground-muted">Packages</CardTitle>
+              <span className="text-foreground-muted">📦</span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">5</div>
+              <p className="text-xs text-foreground-muted mt-1">
+                Managed by Bun workspaces
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="glass-premium border-border/50 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-foreground-muted">Core Hooks</CardTitle>
+              <span className="text-foreground-muted">🪝</span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">11</div>
+              <p className="text-xs text-foreground-muted mt-1">
+                Cross-platform abstractions
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="glass-premium border-border/50 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-foreground-muted">Total Commits</CardTitle>
+              <span className="text-foreground-muted">🔥</span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">85</div>
+              <p className="text-xs text-foreground-muted mt-1">
+                <span className="text-emerald-500 font-medium">+12</span> this week
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Charts and Tables */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+          <Card className="col-span-4 glass-premium border-border/50 shadow-sm">
+            <CardHeader>
+              <CardTitle>Usage Overview</CardTitle>
+              <CardDescription>Monthly NPM downloads over the current year.</CardDescription>
+            </CardHeader>
+            <CardContent className="pl-2">
+              <div className="h-[300px] w-full flex items-end justify-between px-4 pb-4 mt-4 gap-2">
+                {[
+                  { m: "Jan", v: 40 }, { m: "Feb", v: 30 }, { m: "Mar", v: 80 },
+                  { m: "Apr", v: 40 }, { m: "May", v: 60 }, { m: "Jun", v: 20 },
+                  { m: "Jul", v: 50 }, { m: "Aug", v: 90 }, { m: "Sep", v: 60 },
+                  { m: "Oct", v: 70 }, { m: "Nov", v: 85 }, { m: "Dec", v: 100 }
+                ].map((data) => (
+                  <div key={data.m} className="flex flex-col items-center justify-end w-full group">
+                    <div
+                      className="w-full bg-primary/20 rounded-t-sm transition-all duration-300 group-hover:bg-primary"
+                      style={{ height: `${data.v}%` }}
+                    />
+                    <span className="text-[10px] text-foreground-muted mt-2 font-medium">{data.m}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="col-span-3 glass-premium border-border/50 shadow-sm overflow-hidden flex flex-col">
+            <CardHeader className="flex flex-row items-center">
+              <div className="grid gap-2">
+                <CardTitle>Recent Updates</CardTitle>
+                <CardDescription>
+                  Latest commits and merges to the main branch.
+                </CardDescription>
+              </div>
+              <Button size="sm" variant="outline" className="ml-auto gap-1 border-border/50 bg-surface/50 hidden lg:flex">
+                View Repository
+              </Button>
+            </CardHeader>
+            <CardContent className="flex-1 overflow-auto p-0 px-6">
+              <Table>
+                <TableBody>
+                  {[
+                    { title: "feat: apply flagship premium UI, glassmorphism...", user: "Luseefor", time: "10 hours ago", initials: "LF" },
+                    { title: "feat: introduce collapsible AppSidebar", user: "Luseefor", time: "10 hours ago", initials: "LF" },
+                    { title: "feat: implement shared hooks, icons, and primiti...", user: "Luseefor", time: "10 hours ago", initials: "LF" },
+                    { title: "feat: add UPDATE_PANEL action", user: "Luseefor", time: "10 hours ago", initials: "LF" },
+                    { title: "style: redesign desktop sidebar", user: "Luseefor", time: "15 hours ago", initials: "LF" },
+                  ].map((row, i) => (
+                    <TableRow key={i} className="border-border/30 hover:bg-surface-muted/50 transition-colors">
+                      <TableCell className="w-[50px] py-4">
+                        <div className="h-9 w-9 rounded-full bg-surface-muted flex items-center justify-center border border-border/50 text-xs font-semibold">
+                          {row.initials}
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-4">
+                        <div className="font-medium">{row.title}</div>
+                        <div className="text-sm text-foreground-muted">by @{row.user}</div>
+                      </TableCell>
+                      <TableCell className="text-right text-sm text-foreground-muted py-4">
+                        {row.time}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
   );
 }
 
@@ -2220,72 +2289,11 @@ function GettingStartedSection() {
   );
 }
 
-function WorkbenchSection({
-  workbench,
-}: {
-  readonly workbench: WorkbenchController;
-}) {
+function BuilderSection() {
   return (
     <section id="playground" className="flex flex-1 w-full h-full flex-col overflow-hidden m-0 p-0 absolute inset-0">
-      <WorkbenchSurface workbench={workbench} />
+      <Builder />
     </section>
-  );
-}
-
-function WorkbenchSurface({
-  workbench,
-}: {
-  readonly workbench: WorkbenchController;
-}) {
-  const theme = useTheme();
-  const rendererTheme = useMemo(() => createWorkbenchRendererTheme(theme), [theme]);
-  const selectedNode = useMemo(
-    () => (workbench.selectedNodeId ? findNodeById(workbench.layout, workbench.selectedNodeId) : null),
-    [workbench.layout, workbench.selectedNodeId],
-  );
-
-  return (
-    <div className="flex flex-1 flex-col overflow-hidden bg-background">
-      <div className="border-b bg-surface/40 px-4 py-2 backdrop-blur-xl">
-        <Toolbar
-          canRedo={workbench.redoDepth > 0}
-          canUndo={workbench.undoDepth > 0}
-          lastAction={workbench.lastAction}
-          selectedLabel={selectedNode ? describeWorkbenchNode(selectedNode) : "Ready"}
-          onAddPanel={() => void workbench.addPanel()}
-          onSplitColumns={() => void workbench.splitSelection("horizontal")}
-          onSplitRows={() => void workbench.splitSelection("vertical")}
-          onUndo={() => void workbench.undo()}
-          onRedo={() => void workbench.redo()}
-          onSetLayout={workbench.setLayout}
-        />
-      </div>
-
-      <div className="relative flex-1 bg-[color:var(--sx-color-background-subtle)]/30">
-        <div className="absolute inset-0 p-1">
-          <LayoutRenderer
-            layout={workbench.layout}
-            theme={rendererTheme}
-            selectedNodeId={workbench.selectedNodeId}
-            onSelectNode={workbench.setSelectedNodeId}
-            onAction={(action) => {
-              void workbench.dispatch(action);
-            }}
-            renderTabLabel={(panel) => (
-              <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.06em] opacity-80 group-data-[active=true]:opacity-100 transition-opacity">
-                {panel.title ?? panel.panelType}
-              </span>
-            )}
-            renderPanel={(panel) => (
-              <PreviewPanel
-                panel={panel}
-                isSelected={panel.id === workbench.selectedNodeId}
-              />
-            )}
-          />
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -2342,318 +2350,4 @@ function CodeBlock({ code }: { readonly code: string }) {
       <code>{code}</code>
     </pre>
   );
-}
-
-interface WorkbenchController {
-  readonly addPanel: () => Promise<void>;
-  readonly dispatch: (action: LayoutAction) => Promise<LayoutNode>;
-  readonly lastAction: string;
-  readonly layout: LayoutNode;
-  readonly redo: () => Promise<void>;
-  readonly redoDepth: number;
-  readonly selectedNodeId: string | null;
-  readonly setSelectedNodeId: (nodeId: string | null) => void;
-  readonly splitSelection: (direction: LayoutDirection) => Promise<void>;
-  readonly undo: () => Promise<void>;
-  readonly undoDepth: number;
-  readonly setLayout: (name: string) => Promise<void>;
-}
-
-interface WorkbenchStats {
-  readonly depth: number;
-  readonly panels: number;
-  readonly splits: number;
-  readonly tabs: number;
-}
-
-type PreviewMiddleware = (
-  action: LayoutAction,
-  prevState: LayoutNode,
-  next: (action: LayoutAction) => Promise<LayoutNode>,
-) => Promise<LayoutNode>;
-
-function useWorkbench(): WorkbenchController {
-  const engineRef = useRef<LayoutEngine | null>(null);
-
-  if (!engineRef.current) {
-    engineRef.current = createLayoutEngine(previewLayout);
-  }
-
-  const engine = engineRef.current;
-  const layout = useSynthex(engine);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>("document");
-  const [lastAction, setLastAction] = useState<string>("Initial layout loaded");
-  const initialHistory = engine.commands.getHistoryState();
-  const [undoDepth, setUndoDepth] = useState(initialHistory.undoDepth);
-  const [redoDepth, setRedoDepth] = useState(initialHistory.redoDepth);
-  const nextPanelCountRef = useRef(1);
-
-  const syncHistoryState = () => {
-    const historyState = engine.commands.getHistoryState();
-    setUndoDepth(historyState.undoDepth);
-    setRedoDepth(historyState.redoDepth);
-  };
-
-  const middleware = useMemo<readonly PreviewMiddleware[]>(
-    () => [
-      async (action, prevState, next) => {
-        const nextState = await next(action);
-        console.log("[synthex-preview] action", action.type, {
-          action,
-          prevState,
-          nextState,
-        });
-        return nextState;
-      },
-      async (action, _prevState, next) => {
-        setLastAction(describeLayoutAction(action));
-        const nextState = await next(action);
-        return nextState;
-      },
-    ],
-    [],
-  );
-
-  const dispatch = async (action: LayoutAction): Promise<LayoutNode> => {
-    const invoke = async (index: number, currentAction: LayoutAction): Promise<LayoutNode> => {
-      const layer = middleware[index];
-
-      if (!layer) {
-        await engine.commands.dispatch(currentAction.type, currentAction);
-        syncHistoryState();
-        return engine.getState();
-      }
-
-      const previous = engine.getState();
-      return layer(currentAction, previous, (nextAction) => invoke(index + 1, nextAction));
-    };
-
-    return invoke(0, action);
-  };
-
-  const addPanel = async () => {
-    const panelId = `panel-${nextPanelCountRef.current}`;
-    const panel = createPanel(panelId, nextPanelCountRef.current - 1);
-    nextPanelCountRef.current += 1;
-
-    await dispatch({
-      type: "ADD_PANEL",
-      targetNodeId: resolveInsertionTarget(layout, selectedNodeId),
-      panel,
-    });
-
-    setSelectedNodeId(panel.id);
-  };
-
-  const splitSelection = async (direction: LayoutDirection) => {
-    const targetNodeId = selectedNodeId ?? layout.id;
-    const panelId = `panel-${nextPanelCountRef.current}`;
-    const panel = createPanel(panelId, nextPanelCountRef.current - 1);
-
-    await dispatch({
-      type: "SPLIT_NODE",
-      targetNodeId,
-      direction,
-      node: panel,
-      position: "after",
-    });
-
-    nextPanelCountRef.current += 1;
-    setSelectedNodeId(panel.id);
-  };
-
-  const undo = async () => {
-    const undone = await engine.commands.undo();
-
-    if (!undone) {
-      return;
-    }
-
-    setLastAction("Undo last change");
-    syncHistoryState();
-    console.log("[synthex-preview] undo", engine.getState());
-  };
-
-  const redo = async () => {
-    const redone = await engine.commands.redo();
-
-    if (!redone) {
-      return;
-    }
-
-    setLastAction("Redo last change");
-    syncHistoryState();
-    console.log("[synthex-preview] redo", engine.getState());
-  };
-
-  return {
-    addPanel,
-    dispatch,
-    lastAction,
-    layout,
-    redo,
-    redoDepth,
-    selectedNodeId,
-    setSelectedNodeId,
-    splitSelection,
-    undo,
-    undoDepth,
-    setLayout: async (name: string) => {
-      const preset = layoutPresets[name as keyof typeof layoutPresets];
-      if (preset) {
-        await dispatch({ type: "SET_LAYOUT", layout: preset as any });
-        setLastAction(`Applied ${name} layout`);
-      }
-    },
-  };
-}
-
-function resolveInsertionTarget(layout: LayoutNode, selectedNodeId: string | null): string {
-  if (selectedNodeId) {
-    const selected = findNodeById(layout, selectedNodeId);
-
-    if (selected && selected.type !== "split") {
-      return selected.id;
-    }
-  }
-
-  let targetNodeId = layout.id;
-
-  traverseLayout(layout, (node) => {
-    if (targetNodeId !== layout.id) {
-      return;
-    }
-
-    if (node.type === "tabs" || node.type === "panel") {
-      targetNodeId = node.id;
-    }
-  });
-
-  return targetNodeId;
-}
-
-const insertablePanels = [
-  { panelType: "notes", title: "Notes" },
-  { panelType: "preview", title: "Preview" },
-  { panelType: "activity", title: "Activity" },
-  { panelType: "inspector", title: "Inspector" },
-] as const;
-
-function createPanel(panelId: string, index: number): PanelNode {
-  const template =
-    insertablePanels[index % insertablePanels.length] ?? insertablePanels[0];
-
-  return {
-    id: panelId,
-    type: "panel",
-    panelType: template.panelType,
-    title: `${template.title} ${index + 1}`,
-  };
-}
-
-function toTitle(value: string): string {
-  return value
-    .split(/[-_/]+/)
-    .filter(Boolean)
-    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-    .join(" ");
-}
-
-function summarizeLayout(layout: LayoutNode): WorkbenchStats {
-  let panels = 0;
-  let tabs = 0;
-  let splits = 0;
-  let depth = 0;
-
-  const walk = (node: LayoutNode, currentDepth: number) => {
-    depth = Math.max(depth, currentDepth);
-
-    if (node.type === "panel") {
-      panels += 1;
-      return;
-    }
-
-    if (node.type === "tabs") {
-      tabs += 1;
-      node.children.forEach((child) => walk(child, currentDepth + 1));
-      return;
-    }
-
-    splits += 1;
-    node.children.forEach((child) => walk(child, currentDepth + 1));
-  };
-
-  walk(layout, 1);
-
-  return { depth, panels, splits, tabs };
-}
-
-function describeWorkbenchNode(node: LayoutNode): string {
-  if (node.type === "panel") {
-    return `${node.title ?? toTitle(node.panelType)} panel`;
-  }
-
-  if (node.type === "tabs") {
-    return `${node.children.length} tab ${node.children.length === 1 ? "panel" : "panels"} with ${node.activePanelId} active`;
-  }
-
-  return `${node.direction === "horizontal" ? "Left/right" : "Top/bottom"} split with ${node.children.length} regions`;
-}
-
-function describeLayoutAction(action: LayoutAction): string {
-  switch (action.type) {
-    case "ADD_PANEL":
-      return `Added ${action.panel.title ?? toTitle(action.panel.panelType)}`;
-    case "SPLIT_NODE":
-      return `Created ${action.direction === "horizontal" ? "left/right" : "top/bottom"} split`;
-    case "REMOVE_PANEL":
-      return `Removed panel ${action.panelId}`;
-    case "MOVE_NODE":
-      return `Moved ${action.nodeId}`;
-    case "RESIZE_SPLIT":
-      return `Resized split ${action.splitId}`;
-    default:
-      return action.type;
-  }
-}
-
-function createWorkbenchRendererTheme(theme: SynthexTheme) {
-  return {
-    canvasBackground: theme.colors.background,
-    surfaceBackground: theme.colors.surface,
-    surfaceMutedBackground: theme.colors.surfaceMuted,
-    surfaceRaisedBackground: theme.colors.surfaceRaised,
-    borderColor: theme.colors.border,
-    borderColorStrong: theme.colors.borderStrong,
-    selectedBorderColor: theme.colors.primary,
-    textColor: theme.colors.foreground,
-    mutedTextColor: theme.colors.foregroundMuted,
-    tabRailBackground: theme.colors.backgroundSubtle,
-    tabActiveBackground: theme.colors.surfaceRaised,
-    tabInactiveBackground: "transparent",
-    tabActiveTextColor: theme.colors.foreground,
-    tabInactiveTextColor: theme.colors.foregroundMuted,
-    resizeHandleBackground: theme.colors.backgroundSubtle,
-    resizeHandleColor: "rgba(148, 163, 184, 0.26)",
-    resizeHandleHoverColor: theme.colors.primary,
-  };
-}
-
-function createWorkbenchShellStyle(theme: SynthexTheme): CSSProperties {
-  const codeBackground = theme.mode === "dark" ? "#0a1120" : "#f4f7fc";
-  const codeForeground = theme.mode === "dark" ? "#dce7f8" : "#14233b";
-
-  return {
-    ["--workbench-shell-background" as string]: theme.colors.background,
-    ["--workbench-shell-background-muted" as string]: theme.colors.surfaceMuted,
-    ["--workbench-shell-background-raised" as string]: theme.colors.surfaceRaised,
-    ["--workbench-shell-border" as string]: theme.colors.border,
-    ["--workbench-shell-border-strong" as string]: theme.colors.borderStrong,
-    ["--workbench-shell-foreground" as string]: theme.colors.foreground,
-    ["--workbench-shell-foreground-muted" as string]: theme.colors.foregroundMuted,
-    ["--workbench-shell-accent" as string]: theme.colors.primary,
-    ["--workbench-shell-code-background" as string]: codeBackground,
-    ["--workbench-shell-code-foreground" as string]: codeForeground,
-    ["--workbench-shell-grid" as string]: "rgba(148, 163, 184, 0.1)",
-  };
 }
