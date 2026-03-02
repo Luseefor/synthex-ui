@@ -14,7 +14,7 @@ import {
 
 export interface BoxProps
   extends React.HTMLAttributes<HTMLElement>,
-    BoxStyleProps {
+  BoxStyleProps {
   readonly as?: React.ElementType;
 }
 
@@ -89,7 +89,7 @@ Box.displayName = "Box";
 
 export interface TextProps
   extends React.HTMLAttributes<HTMLElement>,
-    TextStyleProps {
+  TextStyleProps {
   readonly as?: React.ElementType;
 }
 
@@ -126,7 +126,7 @@ export const Text = React.forwardRef<HTMLElement, TextProps>(
 
 Text.displayName = "Text";
 
-export interface StackProps extends Omit<BoxProps, "as" | "direction"> {}
+export interface StackProps extends Omit<BoxProps, "as" | "direction"> { }
 
 export const Stack = React.forwardRef<HTMLDivElement, StackProps>((props, ref) => (
   <Box ref={ref} direction="column" {...props} />
@@ -134,7 +134,7 @@ export const Stack = React.forwardRef<HTMLDivElement, StackProps>((props, ref) =
 
 Stack.displayName = "Stack";
 
-export interface InlineProps extends Omit<BoxProps, "as" | "direction"> {}
+export interface InlineProps extends Omit<BoxProps, "as" | "direction"> { }
 
 export const Inline = React.forwardRef<HTMLDivElement, InlineProps>((props, ref) => (
   <Box ref={ref} direction="row" {...props} />
@@ -224,7 +224,7 @@ Grid.displayName = "Grid";
 
 export interface SurfaceProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    SurfaceStyleProps {}
+  SurfaceStyleProps { }
 
 export const Surface = React.forwardRef<HTMLDivElement, SurfaceProps>(
   (
@@ -294,7 +294,7 @@ Surface.displayName = "Surface";
 
 export interface PressablePrimitiveProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    BoxStyleProps {}
+  BoxStyleProps { }
 
 export const PressablePrimitive = React.forwardRef<
   HTMLButtonElement,
@@ -331,57 +331,57 @@ export const PressablePrimitive = React.forwardRef<
     },
     ref,
   ) => {
-  const theme = useTheme();
-  const pressableStyle = createBoxStyle(theme, {
-    align,
-    background,
-    basis,
-    border,
-    direction,
-    foreground,
-    gap,
-    grow,
-    height,
-    justify,
-    margin,
-    maxHeight,
-    maxWidth,
-    minHeight,
-    minWidth,
-    padding,
-    paddingX,
-    paddingY,
-    radius,
-    shadow,
-    shrink,
-    width,
-    wrap,
-  });
+    const theme = useTheme();
+    const pressableStyle = createBoxStyle(theme, {
+      align,
+      background,
+      basis,
+      border,
+      direction,
+      foreground,
+      gap,
+      grow,
+      height,
+      justify,
+      margin,
+      maxHeight,
+      maxWidth,
+      minHeight,
+      minWidth,
+      padding,
+      paddingX,
+      paddingY,
+      radius,
+      shadow,
+      shrink,
+      width,
+      wrap,
+    });
 
-  return (
-    <button
-      {...domProps}
-      ref={ref}
-      type={type}
-      style={{
-        ...pressableStyle,
-        cursor: domProps.disabled ? "not-allowed" : "pointer",
-        fontFamily: theme.typography.family.sans,
-        backgroundColor: pressableStyle.backgroundColor ?? "transparent",
-        color: pressableStyle.color ?? theme.colors.foreground,
-        transition: `transform var(--sx-motion-fast) var(--sx-easing-standard), box-shadow var(--sx-motion-fast) var(--sx-easing-standard)`,
-        ...style,
-      }}
-    />
-  );
-},
+    return (
+      <button
+        {...domProps}
+        ref={ref}
+        type={type}
+        style={{
+          ...pressableStyle,
+          cursor: domProps.disabled ? "not-allowed" : "pointer",
+          fontFamily: theme.typography.family.sans,
+          backgroundColor: pressableStyle.backgroundColor ?? "transparent",
+          color: pressableStyle.color ?? theme.colors.foreground,
+          transition: `transform var(--sx-motion-fast) var(--sx-easing-standard), box-shadow var(--sx-motion-fast) var(--sx-easing-standard)`,
+          ...style,
+        }}
+      />
+    );
+  },
 );
 
 PressablePrimitive.displayName = "PressablePrimitive";
 
 export interface ScrollAreaProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    Omit<BoxStyleProps, "direction" | "wrap"> {
+  Omit<BoxStyleProps, "direction" | "wrap"> {
   readonly scrollbar?: "visible" | "hidden";
   readonly viewportStyle?: React.CSSProperties;
   readonly contentStyle?: React.CSSProperties;

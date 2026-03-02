@@ -16,6 +16,10 @@ import {
   Search,
   Settings,
   Undo2,
+  LayoutTemplate,
+  Package,
+  Palette,
+  Terminal,
   X,
   type LucideIcon,
 } from "lucide-react-native";
@@ -40,6 +44,10 @@ export const iconMap: Record<IconName, LucideIcon> = {
   panelTop: PanelTop,
   panelBottom: PanelBottom,
   grid: LayoutGrid,
+  layoutTemplate: LayoutTemplate,
+  package: Package,
+  palette: Palette,
+  terminal: Terminal,
 };
 
 export function Icon({ color, name, size = 18, strokeWidth = 1.8 }: IconProps) {
@@ -117,4 +125,20 @@ export function ChevronRightIcon(props: Omit<IconProps, "name">) {
 
 export function ChevronDownIcon(props: Omit<IconProps, "name">) {
   return <Icon name="chevronDown" {...props} />;
+}
+
+export function LayoutTemplateIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="layoutTemplate" {...props} />;
+}
+
+export function PackageIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="package" {...props} />;
+}
+
+export function PaletteIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="palette" {...props} />;
+}
+
+export function TerminalIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="terminal" {...props} />;
 }

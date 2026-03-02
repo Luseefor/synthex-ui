@@ -55,7 +55,7 @@ export const Text = React.forwardRef<React.ElementRef<typeof NativeText>, TextPr
 
 Text.displayName = "Text";
 
-export interface StackProps extends Omit<BoxProps, "direction"> {}
+export interface StackProps extends Omit<BoxProps, "direction"> { }
 
 export const Stack = React.forwardRef<React.ElementRef<typeof View>, StackProps>((props, ref) => (
   <Box ref={ref} direction="column" {...props} />
@@ -63,7 +63,7 @@ export const Stack = React.forwardRef<React.ElementRef<typeof View>, StackProps>
 
 Stack.displayName = "Stack";
 
-export interface InlineProps extends Omit<BoxProps, "direction"> {}
+export interface InlineProps extends Omit<BoxProps, "direction"> { }
 
 export const Inline = React.forwardRef<React.ElementRef<typeof View>, InlineProps>((props, ref) => (
   <Box ref={ref} direction="row" {...props} />

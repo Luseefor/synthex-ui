@@ -16,6 +16,18 @@ import {
   Search,
   Settings,
   Undo2,
+  LayoutTemplate,
+  Moon,
+  Package,
+  Palette,
+  Sun,
+  Terminal,
+  Columns2,
+  Rows2,
+  Activity,
+  BookOpen,
+  Folder,
+  File,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -40,14 +52,28 @@ export const iconMap: Record<IconName, LucideIcon> = {
   panelTop: PanelTop,
   panelBottom: PanelBottom,
   grid: LayoutGrid,
+  layoutTemplate: LayoutTemplate,
+  package: Package,
+  palette: Palette,
+  terminal: Terminal,
+  moon: Moon,
+  sun: Sun,
+  columns: Columns2,
+  rows: Rows2,
+  layout: LayoutTemplate,
+  activity: Activity,
+  bookOpen: BookOpen,
+  folder: Folder,
+  file: File,
 };
 
-export function Icon({ color, name, size = 18, strokeWidth = 1.8 }: IconProps) {
+export function Icon({ className, color, name, size = 18, strokeWidth = 1.8 }: IconProps) {
   const theme = useTheme();
   const Component = iconMap[name];
 
   return (
     <Component
+      className={className}
       color={color ?? theme.colors.foreground}
       size={size}
       strokeWidth={strokeWidth}
@@ -117,4 +143,56 @@ export function ChevronRightIcon(props: Omit<IconProps, "name">) {
 
 export function ChevronDownIcon(props: Omit<IconProps, "name">) {
   return <Icon name="chevronDown" {...props} />;
+}
+
+export function LayoutTemplateIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="layoutTemplate" {...props} />;
+}
+
+export function PackageIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="package" {...props} />;
+}
+
+export function PaletteIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="palette" {...props} />;
+}
+
+export function TerminalIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="terminal" {...props} />;
+}
+
+export function MoonIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="moon" {...props} />;
+}
+
+export function SunIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="sun" {...props} />;
+}
+
+export function ColumnsIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="columns" {...props} />;
+}
+
+export function RowsIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="rows" {...props} />;
+}
+
+export function LayoutIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="layout" {...props} />;
+}
+
+export function ActivityIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="activity" {...props} />;
+}
+
+export function BookOpenIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="bookOpen" {...props} />;
+}
+
+export function FolderIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="folder" {...props} />;
+}
+
+export function FileIcon(props: Omit<IconProps, "name">) {
+  return <Icon name="file" {...props} />;
 }
