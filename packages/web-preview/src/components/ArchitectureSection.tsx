@@ -24,10 +24,6 @@ graph TD
     css --> |"Imports"| app1
     css --> |"Imports"| app2
 
-    classDef engine fill:var(--sx-color-primary-muted),stroke:var(--sx-color-primary),stroke-width:2px;
-    classDef output fill:var(--sx-color-surface-raised),stroke:var(--sx-color-border-strong),stroke-width:1px;
-    classDef app fill:var(--sx-color-secondary-muted),stroke:var(--sx-color-border),stroke-dasharray: 4 4;
-
     class core engine;
     class react engine;
     class css,tokens,components,hooks output;

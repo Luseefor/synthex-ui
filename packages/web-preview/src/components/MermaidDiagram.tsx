@@ -14,40 +14,36 @@ export function MermaidDiagram({ chart, className }: MermaidDiagramProps) {
     const [svg, setSvg] = useState("");
 
     useEffect(() => {
-        if (!mermaidInitialized) {
-            mermaid.initialize({
-                startOnLoad: false,
-                theme: "base",
-                themeVariables: {
-                    background: "var(--sx-color-surface)",
-                    primaryColor: "var(--sx-color-surface-raised)",
-                    primaryTextColor: "var(--sx-color-foreground)",
-                    primaryBorderColor: "var(--sx-color-border-strong)",
-                    secondaryColor: "var(--sx-color-background-subtle)",
-                    secondaryTextColor: "var(--sx-color-foreground)",
-                    secondaryBorderColor: "var(--sx-color-border)",
-                    tertiaryColor: "var(--sx-color-accent)",
-                    lineColor: "var(--sx-color-border-strong)",
-                    textColor: "var(--sx-color-foreground)",
-                    fontSize: "14px",
-                    fontFamily: "var(--sx-font-family-sans)",
-                },
-            });
-            mermaidInitialized = true;
-        }
-
         let cancelled = false;
 
-        mermaid
-            .render(`mermaid-${uniqueId}`, chart)
-            .then(({ svg: renderedSvg }) => {
+        const renderDiagram = async () => {
+            try {
+                if (!mermaidInitialized) {
+                    mermaid.initialize({
+                        startOnLoad: false,
+                        theme: "base",
+                        themeVariables: {
+                            background: "transparent",
+                            fontSize: "14px",
+                            fontFamily: "Inter, sans-serif",
+                        },
+                    });
+                    mermaidInitialized = true;
+                }
+
+                const { svg: renderedSvg } = await mermaid.render(`mermaid-${uniqueId}`, chart);
                 if (!cancelled) {
                     setSvg(renderedSvg);
                 }
-            })
-            .catch((error) => {
+            } catch (error) {
                 console.error("Mermaid render error:", error);
-            });
+                if (!cancelled) {
+                    setSvg(`<div class="p-4 text-sm text-[color:var(--sx-color-destructive)]">Failed to render diagram</div>`);
+                }
+            }
+        };
+
+        renderDiagram();
 
         return () => {
             cancelled = true;
