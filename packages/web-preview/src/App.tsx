@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Navigate, NavLink, Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import { ArchitectureSection } from "./components/ArchitectureSection";
 import {
   createLayoutEngine,
   findNodeById,
