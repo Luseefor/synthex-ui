@@ -634,7 +634,6 @@ export function App() {
                           <OverviewSection onNavigate={navigate} />
                           <PackageScopeSection />
                           <RoadmapSection />
-                          <ArchitectureSection />
                         </>
                       }
                     />
@@ -669,7 +668,6 @@ export function App() {
                     <OverviewSection onNavigate={navigate} />
                     <PackageScopeSection />
                     <RoadmapSection />
-                    <ArchitectureSection />
                   </>
                 }
               />
