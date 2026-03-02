@@ -10,31 +10,35 @@ const alertClassStyles = {
   slots: ["root", "title", "description"] as const,
   base: {
     root:
-      "relative w-full rounded-[calc(var(--sx-radius-lg)+2px)] border px-4 py-4 shadow-[0_10px_24px_rgba(15,23,42,0.05)]",
+      "relative w-full rounded-[var(--sx-radius-lg)] border p-4 [&>svg~*]:pl-8 [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-[color:var(--sx-color-foreground)]",
     title:
-      "text-sm font-semibold tracking-[-0.02em] text-[color:var(--sx-color-foreground)]",
+      "mb-1 text-sm font-semibold leading-none tracking-[-0.01em]",
     description:
-      "text-sm leading-6 text-[color:var(--sx-color-foreground-muted)]",
+      "text-sm leading-relaxed text-[color:var(--sx-color-foreground-muted)] [&_p]:leading-relaxed",
   },
   variants: {
     variant: {
       default: {
-        root: "border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)]",
+        root: "border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] text-[color:var(--sx-color-foreground)]",
+        title: "text-[color:var(--sx-color-foreground)]",
       },
       destructive: {
         root:
-          "border-[color:var(--sx-color-destructive)] bg-[color:var(--sx-color-destructive-muted)]",
+          "border-[color:var(--sx-color-destructive)]/50 bg-[color:var(--sx-color-destructive-muted)] text-[color:var(--sx-color-destructive)] [&>svg]:text-[color:var(--sx-color-destructive)]",
         title: "text-[color:var(--sx-color-destructive)]",
+        description: "text-[color:var(--sx-color-destructive)]/80",
       },
       success: {
         root:
-          "border-[color:var(--sx-color-accent)] bg-[color:var(--sx-color-accent-muted)]",
-        title: "text-[color:var(--sx-color-accent)]",
+          "border-emerald-500/50 bg-emerald-50 text-emerald-700 [&>svg]:text-emerald-600",
+        title: "text-emerald-800",
+        description: "text-emerald-700/80",
       },
       warning: {
         root:
-          "border-[color:#d97706] bg-[color:rgba(245,158,11,0.14)]",
-        title: "text-[color:#b45309]",
+          "border-amber-500/50 bg-amber-50 text-amber-700 [&>svg]:text-amber-600",
+        title: "text-amber-800",
+        description: "text-amber-700/80",
       },
     },
   },
@@ -46,7 +50,7 @@ const alertClassStyles = {
 
 export interface AlertProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    AlertSharedProps {}
+  AlertSharedProps { }
 
 export const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
   ({ className, variant, ...props }, ref) => {
