@@ -20,7 +20,7 @@ import {
 
 export interface TooltipProps
   extends Omit<ViewProps, "children" | "style">,
-    TooltipSharedProps {
+  TooltipSharedProps {
   readonly children: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
 }
@@ -47,33 +47,38 @@ export function Tooltip({
 export interface TooltipTriggerProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
+  readonly asChild?: boolean;
 }
 
 export const TooltipTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   TooltipTriggerProps
->(({ children, onHoverIn, onHoverOut, onPressIn, onPressOut, style, ...props }, ref) => {
+>(({ children, onHoverIn, onHoverOut, onPressIn, onPressOut, style, asChild, ...props }, ref) => {
   const context = useTooltipContext();
+
+  const handleHoverIn = React.useCallback((event: any) => { context.setOpen(true); onHoverIn?.(event); }, [context, onHoverIn]);
+  const handleHoverOut = React.useCallback((event: any) => { context.setOpen(false); onHoverOut?.(event); }, [context, onHoverOut]);
+  const handlePressIn = React.useCallback((event: any) => { context.setOpen(true); onPressIn?.(event); }, [context, onPressIn]);
+  const handlePressOut = React.useCallback((event: any) => { context.setOpen(false); onPressOut?.(event); }, [context, onPressOut]);
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<any>, {
+      ref,
+      ...props,
+      onHoverIn: (e: any) => { handleHoverIn(e); (children.props as any).onHoverIn?.(e); },
+      onHoverOut: (e: any) => { handleHoverOut(e); (children.props as any).onHoverOut?.(e); },
+      onPressIn: (e: any) => { handlePressIn(e); (children.props as any).onPressIn?.(e); },
+      onPressOut: (e: any) => { handlePressOut(e); (children.props as any).onPressOut?.(e); },
+    });
+  }
 
   return (
     <Pressable
       ref={ref}
-      onHoverIn={(event) => {
-        context.setOpen(true);
-        onHoverIn?.(event);
-      }}
-      onHoverOut={(event) => {
-        context.setOpen(false);
-        onHoverOut?.(event);
-      }}
-      onPressIn={(event) => {
-        context.setOpen(true);
-        onPressIn?.(event);
-      }}
-      onPressOut={(event) => {
-        context.setOpen(false);
-        onPressOut?.(event);
-      }}
+      onHoverIn={handleHoverIn}
+      onHoverOut={handleHoverOut}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
       style={style}
       {...props}
     >

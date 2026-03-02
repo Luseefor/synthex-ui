@@ -21,9 +21,28 @@ export function Dialog({ children, defaultOpen, onOpenChange, open }: DialogProp
 
 export const DialogTrigger = React.forwardRef<
   HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement>
->(({ children, onClick, type = "button", ...props }, ref) => {
+  React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }
+>(({ children, onClick, type = "button", asChild, ...props }, ref) => {
   const context = useDialogContext();
+
+  const handleClick = React.useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      context.setOpen(true);
+      onClick?.(event);
+    },
+    [context, onClick]
+  );
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<any>, {
+      ref,
+      ...props,
+      onClick: (e: any) => {
+        handleClick(e);
+        (children.props as any).onClick?.(e);
+      },
+    });
+  }
 
   return (
     <button
@@ -44,9 +63,28 @@ DialogTrigger.displayName = "DialogTrigger";
 
 export const DialogClose = React.forwardRef<
   HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement>
->(({ children, onClick, type = "button", ...props }, ref) => {
+  React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }
+>(({ children, onClick, type = "button", asChild, ...props }, ref) => {
   const context = useDialogContext();
+
+  const handleClick = React.useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      context.setOpen(false);
+      onClick?.(event);
+    },
+    [context, onClick]
+  );
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<any>, {
+      ref,
+      ...props,
+      onClick: (e: any) => {
+        handleClick(e);
+        (children.props as any).onClick?.(e);
+      },
+    });
+  }
 
   return (
     <button
@@ -85,9 +123,11 @@ export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps
       };
 
       document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
 
       return () => {
         document.removeEventListener("keydown", handleEscape);
+        document.body.style.overflow = "";
       };
     }, [context]);
 
@@ -96,18 +136,23 @@ export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps
     }
 
     return createPortal(
-      <div
-        className="fixed inset-0 z-[100] flex items-center justify-center bg-[rgba(15,23,42,0.42)] px-4 py-8 backdrop-blur-sm"
-        onClick={() => context.setOpen(false)}
-      >
+      <>
+        {/* Overlay */}
+        <div
+          className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-[6px]"
+          style={{ animation: "sx-overlay-in 200ms var(--sx-easing-standard)" }}
+          onClick={() => context.setOpen(false)}
+        />
+        {/* Content */}
         <div
           ref={ref}
           role="dialog"
           aria-modal="true"
           className={cn(
-            "relative w-full max-w-lg rounded-[calc(var(--sx-radius-xl)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-6 shadow-[0_24px_64px_rgba(15,23,42,0.24)]",
+            "fixed left-1/2 top-1/2 z-[101] w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-[var(--sx-radius-xl)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-6 shadow-[var(--sx-shadow-dialog)]",
             className,
           )}
+          style={{ animation: "sx-content-in 250ms var(--sx-easing-emphasized)" }}
           onClick={(event) => {
             event.stopPropagation();
             onClick?.(event);
@@ -118,15 +163,15 @@ export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps
             <button
               type="button"
               aria-label="Close dialog"
-              className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] text-[color:var(--sx-color-foreground-muted)] transition-colors duration-[var(--sx-motion-fast)] hover:text-[color:var(--sx-color-foreground)]"
+              className="absolute right-4 top-4 inline-flex h-7 w-7 items-center justify-center rounded-[var(--sx-radius-sm)] text-[color:var(--sx-color-foreground-muted)] opacity-70 transition-all duration-[var(--sx-motion-fast)] hover:opacity-100 hover:bg-[color:var(--sx-color-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)]"
               onClick={() => context.setOpen(false)}
             >
-              <CloseIcon size={16} />
+              <CloseIcon size={15} />
             </button>
           ) : null}
           {children}
         </div>
-      </div>,
+      </>,
       document.body,
     );
   },
@@ -138,7 +183,7 @@ export const DialogHeader = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("flex flex-col gap-2 text-left", className)} {...props} />
+  <div ref={ref} className={cn("flex flex-col gap-1.5 text-left", className)} {...props} />
 ));
 
 DialogHeader.displayName = "DialogHeader";
@@ -150,7 +195,7 @@ export const DialogTitle = React.forwardRef<
   <h2
     ref={ref}
     className={cn(
-      "text-xl font-semibold tracking-[-0.03em] text-[color:var(--sx-color-foreground)]",
+      "text-lg font-semibold leading-none tracking-[-0.02em] text-[color:var(--sx-color-foreground)]",
       className,
     )}
     {...props}
@@ -165,7 +210,7 @@ export const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm leading-6 text-[color:var(--sx-color-foreground-muted)]", className)}
+    className={cn("text-sm leading-relaxed text-[color:var(--sx-color-foreground-muted)]", className)}
     {...props}
   />
 ));
@@ -178,7 +223,7 @@ export const DialogFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("mt-6 flex flex-wrap items-center justify-end gap-3", className)}
+    className={cn("mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3", className)}
     {...props}
   />
 ));

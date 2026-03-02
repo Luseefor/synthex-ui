@@ -19,7 +19,7 @@ import {
 
 export interface DropdownMenuProps
   extends Omit<ViewProps, "children" | "style">,
-    DropdownMenuSharedProps {
+  DropdownMenuSharedProps {
   readonly children: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
 }
@@ -46,23 +46,42 @@ export function DropdownMenu({
 export interface DropdownMenuTriggerProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
+  readonly asChild?: boolean;
 }
 
 export const DropdownMenuTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DropdownMenuTriggerProps
->(({ children, onPress, style, ...props }, ref) => {
+>(({ children, onPress, style, asChild, ...props }, ref) => {
   const context = useDropdownMenuContext();
+
+  const handlePress = React.useCallback(
+    (event: any) => {
+      context.setOpen(!context.open);
+      onPress?.(event);
+    },
+    [context, onPress]
+  );
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<any>, {
+      ref,
+      ...props,
+      accessibilityRole: "button",
+      accessibilityState: { expanded: context.open },
+      onPress: (e: any) => {
+        handlePress(e);
+        (children.props as any).onPress?.(e);
+      },
+    });
+  }
 
   return (
     <Pressable
       ref={ref}
       accessibilityRole="button"
       accessibilityState={{ expanded: context.open }}
-      onPress={(event) => {
-        context.setOpen(!context.open);
-        onPress?.(event);
-      }}
+      onPress={handlePress}
       style={style}
       {...props}
     >

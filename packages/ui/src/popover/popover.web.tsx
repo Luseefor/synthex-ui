@@ -9,7 +9,7 @@ import {
 
 export interface PopoverProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "children">,
-    PopoverSharedProps {
+  PopoverSharedProps {
   readonly children: React.ReactNode;
 }
 
@@ -61,9 +61,29 @@ export function Popover({
 
 export const PopoverTrigger = React.forwardRef<
   HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement>
->(({ children, onClick, type = "button", ...props }, ref) => {
+  React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }
+>(({ children, onClick, type = "button", asChild, ...props }, ref) => {
   const context = usePopoverContext();
+
+  const handleClick = React.useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      context.setOpen(!context.open);
+      onClick?.(event);
+    },
+    [context, onClick]
+  );
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<any>, {
+      ref,
+      ...props,
+      "aria-expanded": context.open,
+      onClick: (e: any) => {
+        handleClick(e);
+        (children.props as any).onClick?.(e);
+      },
+    });
+  }
 
   return (
     <button

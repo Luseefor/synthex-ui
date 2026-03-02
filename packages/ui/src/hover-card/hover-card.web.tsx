@@ -47,9 +47,15 @@ export function HoverCard({ children, className, closeDelay, defaultOpen, onOpen
   );
 }
 
-export const HoverCardTrigger = React.forwardRef<HTMLSpanElement, React.HTMLAttributes<HTMLSpanElement>>(
-  ({ children, ...props }, ref) => <span ref={ref} {...props}>{children}</span>,
-);
+export const HoverCardTrigger = React.forwardRef<
+  HTMLSpanElement,
+  React.HTMLAttributes<HTMLSpanElement> & { asChild?: boolean }
+>(({ children, asChild, ...props }, ref) => {
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<any>, { ref, ...props });
+  }
+  return <span ref={ref} {...props}>{children}</span>;
+});
 HoverCardTrigger.displayName = "HoverCardTrigger";
 
 export const HoverCardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(

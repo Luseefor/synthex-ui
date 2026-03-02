@@ -9,7 +9,7 @@ import {
 
 export interface TooltipProps
   extends Omit<React.HTMLAttributes<HTMLSpanElement>, "children">,
-    TooltipSharedProps {
+  TooltipSharedProps {
   readonly children: React.ReactNode;
 }
 
@@ -34,30 +34,58 @@ export function Tooltip({
 
 export const TooltipTrigger = React.forwardRef<
   HTMLSpanElement,
-  React.HTMLAttributes<HTMLSpanElement>
->(({ children, onBlur, onFocus, onMouseEnter, onMouseLeave, ...props }, ref) => {
+  React.HTMLAttributes<HTMLSpanElement> & { asChild?: boolean }
+>(({ children, onBlur, onFocus, onMouseEnter, onMouseLeave, asChild, ...props }, ref) => {
   const context = useTooltipContext();
+
+  const handleFocus = (event: any) => {
+    context.setOpen(true);
+    onFocus?.(event);
+  };
+  const handleBlur = (event: any) => {
+    context.setOpen(false);
+    onBlur?.(event);
+  };
+  const handleMouseEnter = (event: any) => {
+    context.setOpen(true);
+    onMouseEnter?.(event);
+  };
+  const handleMouseLeave = (event: any) => {
+    context.setOpen(false);
+    onMouseLeave?.(event);
+  };
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<any>, {
+      ref,
+      ...props,
+      onFocus: (e: any) => {
+        handleFocus(e);
+        (children.props as any).onFocus?.(e);
+      },
+      onBlur: (e: any) => {
+        handleBlur(e);
+        (children.props as any).onBlur?.(e);
+      },
+      onMouseEnter: (e: any) => {
+        handleMouseEnter(e);
+        (children.props as any).onMouseEnter?.(e);
+      },
+      onMouseLeave: (e: any) => {
+        handleMouseLeave(e);
+        (children.props as any).onMouseLeave?.(e);
+      },
+    });
+  }
 
   return (
     <span
       ref={ref}
       tabIndex={0}
-      onFocus={(event) => {
-        context.setOpen(true);
-        onFocus?.(event);
-      }}
-      onBlur={(event) => {
-        context.setOpen(false);
-        onBlur?.(event);
-      }}
-      onMouseEnter={(event) => {
-        context.setOpen(true);
-        onMouseEnter?.(event);
-      }}
-      onMouseLeave={(event) => {
-        context.setOpen(false);
-        onMouseLeave?.(event);
-      }}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       {...props}
     >
       {children}

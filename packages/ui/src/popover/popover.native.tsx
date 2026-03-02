@@ -17,7 +17,7 @@ import {
 
 export interface PopoverProps
   extends Omit<ViewProps, "children" | "style">,
-    PopoverSharedProps {
+  PopoverSharedProps {
   readonly children: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
 }
@@ -44,21 +44,38 @@ export function Popover({
 export interface PopoverTriggerProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
+  readonly asChild?: boolean;
 }
 
 export const PopoverTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   PopoverTriggerProps
->(({ children, onPress, style, ...props }, ref) => {
+>(({ children, onPress, style, asChild, ...props }, ref) => {
   const context = usePopoverContext();
+
+  const handlePress = React.useCallback(
+    (event: any) => {
+      context.setOpen(!context.open);
+      onPress?.(event);
+    },
+    [context, onPress]
+  );
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<any>, {
+      ref,
+      ...props,
+      onPress: (e: any) => {
+        handlePress(e);
+        (children.props as any).onPress?.(e);
+      },
+    });
+  }
 
   return (
     <Pressable
       ref={ref}
-      onPress={(event) => {
-        context.setOpen(!context.open);
-        onPress?.(event);
-      }}
+      onPress={handlePress}
       style={style}
       {...props}
     >

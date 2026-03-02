@@ -9,7 +9,7 @@ import {
 
 export interface DropdownMenuProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "children">,
-    DropdownMenuSharedProps {
+  DropdownMenuSharedProps {
   readonly children: React.ReactNode;
 }
 
@@ -60,13 +60,33 @@ export function DropdownMenu({
 }
 
 export interface DropdownMenuTriggerProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  readonly asChild?: boolean;
+}
 
 export const DropdownMenuTrigger = React.forwardRef<
   HTMLButtonElement,
   DropdownMenuTriggerProps
->(({ children, onClick, type = "button", ...props }, ref) => {
+>(({ children, onClick, type = "button", asChild, ...props }, ref) => {
   const context = useDropdownMenuContext();
+
+  const handleClick = (event: any) => {
+    context.setOpen(!context.open);
+    onClick?.(event);
+  };
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<any>, {
+      ref,
+      ...props,
+      "aria-expanded": context.open,
+      "aria-haspopup": "menu",
+      onClick: (e: any) => {
+        handleClick(e);
+        (children.props as any).onClick?.(e);
+      },
+    });
+  }
 
   return (
     <button
@@ -74,10 +94,7 @@ export const DropdownMenuTrigger = React.forwardRef<
       type={type}
       aria-expanded={context.open}
       aria-haspopup="menu"
-      onClick={(event) => {
-        context.setOpen(!context.open);
-        onClick?.(event);
-      }}
+      onClick={handleClick}
       {...props}
     >
       {children}
@@ -87,7 +104,7 @@ export const DropdownMenuTrigger = React.forwardRef<
 
 DropdownMenuTrigger.displayName = "DropdownMenuTrigger";
 
-export interface DropdownMenuContentProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface DropdownMenuContentProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export const DropdownMenuContent = React.forwardRef<
   HTMLDivElement,
@@ -114,24 +131,24 @@ export const DropdownMenuContent = React.forwardRef<
 
 DropdownMenuContent.displayName = "DropdownMenuContent";
 
-export interface DropdownMenuLabelProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface DropdownMenuLabelProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export const DropdownMenuLabel = React.forwardRef<HTMLDivElement, DropdownMenuLabelProps>(
   ({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--sx-color-foreground-muted)]",
-      className,
-    )}
-    {...props}
-  />
+    <div
+      ref={ref}
+      className={cn(
+        "px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--sx-color-foreground-muted)]",
+        className,
+      )}
+      {...props}
+    />
   ),
 );
 
 DropdownMenuLabel.displayName = "DropdownMenuLabel";
 
-export interface DropdownMenuSeparatorProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface DropdownMenuSeparatorProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export const DropdownMenuSeparator = React.forwardRef<
   HTMLDivElement,
@@ -147,30 +164,30 @@ export const DropdownMenuSeparator = React.forwardRef<
 DropdownMenuSeparator.displayName = "DropdownMenuSeparator";
 
 export interface DropdownMenuItemProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> { }
 
 export const DropdownMenuItem = React.forwardRef<HTMLButtonElement, DropdownMenuItemProps>(
   ({ children, className, onClick, type = "button", ...props }, ref) => {
-  const context = useDropdownMenuContext();
+    const context = useDropdownMenuContext();
 
-  return (
-    <button
-      ref={ref}
-      type={type}
-      role="menuitem"
-      className={cn(
-        "flex w-full items-center gap-3 rounded-[var(--sx-radius-md)] px-3 py-2.5 text-left text-sm text-[color:var(--sx-color-foreground)] transition-[background-color,color] duration-[var(--sx-motion-fast)] hover:bg-[color:var(--sx-color-surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-surface)]",
-        className,
-      )}
-      onClick={(event) => {
-        onClick?.(event);
-        context.setOpen(false);
-      }}
-      {...props}
-    >
-      {children}
-    </button>
-  );
+    return (
+      <button
+        ref={ref}
+        type={type}
+        role="menuitem"
+        className={cn(
+          "flex w-full items-center gap-3 rounded-[var(--sx-radius-md)] px-3 py-2.5 text-left text-sm text-[color:var(--sx-color-foreground)] transition-[background-color,color] duration-[var(--sx-motion-fast)] hover:bg-[color:var(--sx-color-surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-surface)]",
+          className,
+        )}
+        onClick={(event) => {
+          onClick?.(event);
+          context.setOpen(false);
+        }}
+        {...props}
+      >
+        {children}
+      </button>
+    );
   },
 );
 

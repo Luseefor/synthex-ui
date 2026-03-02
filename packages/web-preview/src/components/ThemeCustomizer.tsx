@@ -39,7 +39,7 @@ export function ThemeCustomizer({
     return (
         <div className="flex items-center gap-2">
             <Popover>
-                <PopoverTrigger>
+                <PopoverTrigger asChild>
                     <Button variant="outline" size="sm" className={cn("h-8 gap-2", !open && "w-8 p-0 justify-center")}>
                         <PaletteIcon size={14} />
                         {open && <span className="text-[12px]">Customize</span>}

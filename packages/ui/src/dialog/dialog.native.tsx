@@ -34,21 +34,38 @@ export function Dialog({ children, defaultOpen, onOpenChange, open }: DialogProp
 export interface DialogTriggerProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
+  readonly asChild?: boolean;
 }
 
 export const DialogTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DialogTriggerProps
->(({ children, onPress, style, ...props }, ref) => {
+>(({ children, onPress, style, asChild, ...props }, ref) => {
   const context = useDialogContext();
+
+  const handlePress = React.useCallback(
+    (event: any) => {
+      context.setOpen(true);
+      onPress?.(event);
+    },
+    [context, onPress]
+  );
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<any>, {
+      ref,
+      ...props,
+      onPress: (e: any) => {
+        handlePress(e);
+        (children.props as any).onPress?.(e);
+      },
+    });
+  }
 
   return (
     <Pressable
       ref={ref}
-      onPress={(event) => {
-        context.setOpen(true);
-        onPress?.(event);
-      }}
+      onPress={handlePress}
       style={style}
       {...props}
     >
@@ -62,21 +79,38 @@ DialogTrigger.displayName = "DialogTrigger";
 export interface DialogCloseProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
+  readonly asChild?: boolean;
 }
 
 export const DialogClose = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DialogCloseProps
->(({ children, onPress, style, ...props }, ref) => {
+>(({ children, onPress, style, asChild, ...props }, ref) => {
   const context = useDialogContext();
+
+  const handlePress = React.useCallback(
+    (event: any) => {
+      context.setOpen(false);
+      onPress?.(event);
+    },
+    [context, onPress]
+  );
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<any>, {
+      ref,
+      ...props,
+      onPress: (e: any) => {
+        handlePress(e);
+        (children.props as any).onPress?.(e);
+      },
+    });
+  }
 
   return (
     <Pressable
       ref={ref}
-      onPress={(event) => {
-        context.setOpen(false);
-        onPress?.(event);
-      }}
+      onPress={handlePress}
       style={style}
       {...props}
     >

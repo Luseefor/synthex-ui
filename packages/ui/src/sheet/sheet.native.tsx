@@ -33,21 +33,38 @@ export function Sheet({ children, defaultOpen, onOpenChange, open }: SheetProps)
 export interface SheetTriggerProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
+  readonly asChild?: boolean;
 }
 
 export const SheetTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   SheetTriggerProps
->(({ children, onPress, style, ...props }, ref) => {
+>(({ children, onPress, style, asChild, ...props }, ref) => {
   const context = useSheetContext();
+
+  const handlePress = React.useCallback(
+    (event: any) => {
+      context.setOpen(true);
+      onPress?.(event);
+    },
+    [context, onPress]
+  );
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<any>, {
+      ref,
+      ...props,
+      onPress: (e: any) => {
+        handlePress(e);
+        (children.props as any).onPress?.(e);
+      },
+    });
+  }
 
   return (
     <Pressable
       ref={ref}
-      onPress={(event) => {
-        context.setOpen(true);
-        onPress?.(event);
-      }}
+      onPress={handlePress}
       style={style}
       {...props}
     >
@@ -61,16 +78,32 @@ SheetTrigger.displayName = "SheetTrigger";
 export const SheetClose = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   SheetTriggerProps
->(({ children, onPress, style, ...props }, ref) => {
+>(({ children, onPress, style, asChild, ...props }, ref) => {
   const context = useSheetContext();
+
+  const handlePress = React.useCallback(
+    (event: any) => {
+      context.setOpen(false);
+      onPress?.(event);
+    },
+    [context, onPress]
+  );
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<any>, {
+      ref,
+      ...props,
+      onPress: (e: any) => {
+        handlePress(e);
+        (children.props as any).onPress?.(e);
+      },
+    });
+  }
 
   return (
     <Pressable
       ref={ref}
-      onPress={(event) => {
-        context.setOpen(false);
-        onPress?.(event);
-      }}
+      onPress={handlePress}
       style={style}
       {...props}
     >
