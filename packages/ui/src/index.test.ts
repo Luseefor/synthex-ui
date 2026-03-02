@@ -28,6 +28,18 @@ vi.mock("lucide-react-native", () => ({
   Search: "Search",
   Settings: "Settings",
   Undo2: "Undo2",
+  LayoutTemplate: "LayoutTemplate",
+  Package: "Package",
+  Palette: "Palette",
+  Terminal: "Terminal",
+  Moon: "Moon",
+  Sun: "Sun",
+  Columns2: "Columns2",
+  Rows2: "Rows2",
+  Activity: "Activity",
+  BookOpen: "BookOpen",
+  Folder: "Folder",
+  File: "File",
   X: "X",
 }));
 

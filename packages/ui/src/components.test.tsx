@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi, beforeAll } from "vitest";
 import { ThemeProvider } from "./theme";
 import {
   Accordion,
@@ -184,6 +184,22 @@ import {
 import { Box, Surface } from "./primitives";
 
 describe("synthex-ui web components", () => {
+  beforeAll(() => {
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      value: vi.fn().mockImplementation((query) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(), // deprecated
+        removeListener: vi.fn(), // deprecated
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
+  });
+
   it("renders button and badge variants with accessible semantics", () => {
     render(
       <ThemeProvider>
@@ -476,7 +492,7 @@ describe("synthex-ui web components", () => {
           <div className="flex gap-4">
             <Sidebar>
               <SidebarHeader>
-                <SidebarTrigger>Toggle navigation</SidebarTrigger>
+                <SidebarTrigger />
               </SidebarHeader>
               <SidebarContent>
                 <SidebarGroup>
@@ -502,7 +518,7 @@ describe("synthex-ui web components", () => {
     const sidebar = screen.getByRole("complementary");
     expect(sidebar).toHaveAttribute("data-state", "open");
 
-    fireEvent.click(screen.getByRole("button", { name: "Toggle navigation" }));
+    fireEvent.click(screen.getByRole("button", { name: "Toggle Sidebar" }));
 
     expect(sidebar).toHaveAttribute("data-state", "closed");
   });
