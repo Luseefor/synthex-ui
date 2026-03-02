@@ -21,7 +21,9 @@ import type { DashboardViewProps } from "./dashboard.shared";
 export function DashboardView({
     metrics,
     updates,
+    chartData,
     onDocumentationClick,
+    onRepositoryClick,
 }: DashboardViewProps) {
     return (
         <Stack grow gap="xl" padding="xl" background="background">
@@ -101,11 +103,45 @@ export function DashboardView({
                 ))}
             </Stack>
 
+            {/* Usage Overview */}
+            <Surface tone="raised" padding="lg" radius="lg">
+                <Stack gap="lg">
+                    <Stack gap="xs">
+                        <Text weight="semibold" size="lg">Usage Overview</Text>
+                        <Text size="sm" tone="muted">Monthly NPM downloads</Text>
+                    </Stack>
+                    <Inline align="flex-end" justify="space-between" gap="xs" style={{ height: 120 }}>
+                        {chartData.map((data) => (
+                            <Stack key={data.month} grow gap="xs" align="center">
+                                <Surface
+                                    tone="accent"
+                                    radius="sm"
+                                    width="100%"
+                                    style={{
+                                        height: `${data.value}%`,
+                                        opacity: 0.2,
+                                        minHeight: 2,
+                                    }}
+                                />
+                                <Text style={{ fontSize: 8 }} tone="muted">
+                                    {data.month}
+                                </Text>
+                            </Stack>
+                        ))}
+                    </Inline>
+                </Stack>
+            </Surface>
+
             {/* Recent Updates */}
             <Surface tone="raised" padding={0} radius="lg" grow>
                 <Stack>
                     <Surface tone="transparent" padding="lg">
-                        <Text weight="semibold" size="lg">Recent Updates</Text>
+                        <Inline justify="space-between" align="center">
+                            <Text weight="semibold" size="lg">Recent Updates</Text>
+                            <Button variant="outline" size="sm" onPress={onRepositoryClick}>
+                                <Text size="xs">Repo</Text>
+                            </Button>
+                        </Inline>
                     </Surface>
                     <Table>
                         <TableBody>
