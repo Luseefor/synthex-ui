@@ -277,8 +277,7 @@ export const SidebarTrigger = React.forwardRef<HTMLButtonElement, SidebarTrigger
         ref={ref}
         aria-label={props["aria-label"] ?? (open ? stringChildren ?? undefined : "Expand sidebar")}
         className={cn(
-          "inline-flex min-h-10 items-center justify-center rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] text-sm font-medium text-[color:var(--sx-color-foreground)] transition-[padding,width] duration-200",
-          open ? "w-full px-3 py-2" : "w-full px-0 py-2",
+          "inline-flex h-8 w-8 items-center justify-center rounded-[var(--sx-radius-md)] bg-transparent text-sm font-medium text-[color:var(--sx-color-foreground-muted)] transition-colors hover:bg-[color:var(--sx-color-surface-muted)] hover:text-[color:var(--sx-color-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)]",
           className,
         )}
         onClick={(event) => {
@@ -291,7 +290,7 @@ export const SidebarTrigger = React.forwardRef<HTMLButtonElement, SidebarTrigger
         type="button"
         {...props}
       >
-        {open ? children : <span aria-hidden="true">{stringChildren ? stringChildren.charAt(0).toUpperCase() : "≡"}</span>}
+        {open ? children : <span aria-hidden="true" className="text-lg leading-none mt-[-2px]">≡</span>}
       </button>
     );
   },

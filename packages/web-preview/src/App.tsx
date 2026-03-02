@@ -620,7 +620,7 @@ export function App() {
               </Sidebar>
               <SidebarInset className="preview-mobile-inset">
                 <div className="preview-mobile-topbar">
-                  <SidebarTrigger>Menu</SidebarTrigger>
+                  <SidebarTrigger><GridIcon size={16} /></SidebarTrigger>
                   <span className="preview-mobile-breadcrumb">
                     {navItems.find((n) => n.to === location.pathname)?.label ?? "Overview"}
                   </span>

@@ -209,19 +209,23 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0 0 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--sx-color-surface);
   border-bottom: 1px solid var(--sx-color-border);
-  margin-bottom: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .preview-mobile-breadcrumb {
   font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--sx-color-foreground);
+  font-weight: 500;
+  color: var(--sx-color-foreground-muted);
 }
 
 .preview-mobile-inset {
-  padding: 1rem;
+  padding: 0;
+  background: var(--sx-color-background);
 }
 
 .preview-main {
@@ -239,6 +243,7 @@ body {
 
 .preview-main-mobile {
   display: flex;
+  padding: 1.5rem;
 }
 
 .preview-section,
