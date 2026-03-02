@@ -1,4 +1,6 @@
 import * as React from "react";
+import { Sheet, SheetClose } from "../sheet/sheet.web";
+import { useMobile } from "../hooks/useMobile.web";
 import { cn } from "../_shared/variants";
 import type {
   SidebarContextValue,
@@ -52,15 +54,34 @@ export function useSidebar() {
 
 export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
   ({ children, className, ...props }, ref) => {
-    const { open } = useSidebarContext();
+    const { open, setOpen } = useSidebarContext();
+    const isMobile = useMobile();
+
+    if (isMobile) {
+      return (
+        <Sheet open={open} onOpenChange={setOpen}>
+          <div
+            ref={ref}
+            className={cn(
+              "fixed inset-y-0 left-0 z-50 flex h-[100dvh] w-[18rem] flex-col border-r border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] shadow-lg transition-transform",
+              open ? "translate-x-0" : "-translate-x-full",
+              className
+            )}
+            {...props}
+          >
+            {children}
+          </div>
+        </Sheet>
+      );
+    }
 
     return (
       <aside
         ref={ref}
         className={cn(
-          "flex h-full shrink-0 flex-col overflow-hidden rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] transition-[width] duration-200",
-          open ? "w-72" : "w-20",
-          className,
+          "group/sidebar sticky top-0 z-10 flex h-svh flex-col border-r border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] transition-[width] duration-200 ease-linear",
+          open ? "w-[16rem]" : "w-[3rem]",
+          className
         )}
         data-state={open ? "open" : "closed"}
         {...props}
@@ -239,16 +260,16 @@ SidebarMenuButton.displayName = "SidebarMenuButton";
 
 export const SidebarInset = React.forwardRef<HTMLDivElement, SidebarInsetProps>(
   ({ children, className, ...props }, ref) => (
-    <div
+    <main
       ref={ref}
       className={cn(
-        "min-w-0 flex-1 rounded-[calc(var(--sx-radius-lg)+2px)] bg-[color:var(--sx-color-background-subtle)]",
+        "relative flex min-h-svh flex-1 flex-col bg-[color:var(--sx-color-background)]",
         className,
       )}
       {...props}
     >
       {children}
-    </div>
+    </main>
   ),
 );
 
@@ -268,32 +289,32 @@ export const SidebarRail = React.forwardRef<HTMLDivElement, React.HTMLAttributes
 SidebarRail.displayName = "SidebarRail";
 
 export const SidebarTrigger = React.forwardRef<HTMLButtonElement, SidebarTriggerProps>(
-  ({ children = "Toggle sidebar", className, ...props }, ref) => {
-    const { open, toggle } = useSidebarContext();
-    const stringChildren = typeof children === "string" ? children : null;
+  ({ className, onClick, ...props }, ref) => {
+    const { toggle } = useSidebarContext();
 
     return (
       <button
         ref={ref}
-        aria-label={props["aria-label"] ?? (open ? stringChildren ?? undefined : "Expand sidebar")}
+        aria-label="Toggle Sidebar"
+        data-sidebar="trigger"
         className={cn(
-          "inline-flex h-8 w-8 items-center justify-center rounded-[var(--sx-radius-md)] bg-transparent text-sm font-medium text-[color:var(--sx-color-foreground-muted)] transition-colors hover:bg-[color:var(--sx-color-surface-muted)] hover:text-[color:var(--sx-color-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)]",
-          className,
+          "inline-flex h-8 w-8 items-center justify-center rounded-[var(--sx-radius-md)] text-[color:var(--sx-color-foreground-muted)] transition-colors hover:bg-[color:var(--sx-color-accent)] hover:text-[color:var(--sx-color-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)]",
+          className
         )}
         onClick={(event) => {
-          props.onClick?.(event);
-
-          if (!event.defaultPrevented) {
-            toggle();
-          }
+          onClick?.(event);
+          if (!event.defaultPrevented) toggle();
         }}
         type="button"
         {...props}
       >
-        {open ? children : <span aria-hidden="true" className="text-lg leading-none mt-[-2px]">≡</span>}
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect width="18" height="18" x="3" y="3" rx="2" />
+          <path d="M9 3v18" />
+        </svg>
       </button>
     );
-  },
+  }
 );
 
 SidebarTrigger.displayName = "SidebarTrigger";
