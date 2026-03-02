@@ -64,6 +64,7 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
   DataTable,
+  DashboardView,
   Command,
   CommandEmpty,
   CommandGroup,
@@ -241,7 +242,7 @@ import {
   usePlatformValue,
   useReducedMotion,
 } from "synthex-ui/hooks";
-import { Builder } from "./components/Builder";
+import { Builder } from "./components";
 
 type SectionId =
   | "overview"
@@ -579,181 +580,36 @@ export function App() {
 }
 
 function Dashboard({ onNavigate }: { readonly onNavigate: (to: RoutePath) => void }) {
+  const metrics = [
+    { label: "Total Components", value: 51, icon: "🧩", description: "in the latest release", trend: { value: "+3", type: "positive" as const } },
+    { label: "Packages", value: 5, icon: "📦", description: "Managed by Bun workspaces" },
+    { label: "Core Hooks", value: 11, icon: "🪝", description: "Cross-platform abstractions" },
+    { label: "Total Commits", value: 85, icon: "🔥", description: "this week", trend: { value: "+12", type: "positive" as const } },
+  ];
+
+  const chartData = [
+    { month: "Jan", value: 40 }, { month: "Feb", value: 30 }, { month: "Mar", value: 80 },
+    { month: "Apr", value: 40 }, { month: "May", value: 60 }, { month: "Jun", value: 20 },
+    { month: "Jul", value: 50 }, { month: "Aug", value: 90 }, { month: "Sep", value: 60 },
+    { month: "Oct", value: 70 }, { month: "Nov", value: 85 }, { month: "Dec", value: 100 }
+  ];
+
+  const updates = [
+    { title: "feat: apply flagship premium UI, glassmorphism...", user: "Luseefor", time: "10 hours ago", initials: "LF" },
+    { title: "feat: introduce collapsible AppSidebar", user: "Luseefor", time: "10 hours ago", initials: "LF" },
+    { title: "feat: implement shared hooks, icons, and primiti...", user: "Luseefor", time: "10 hours ago", initials: "LF" },
+    { title: "feat: add UPDATE_PANEL action", user: "Luseefor", time: "10 hours ago", initials: "LF" },
+    { title: "style: redesign desktop sidebar", user: "Luseefor", time: "15 hours ago", initials: "LF" },
+  ];
+
   return (
-    <div className="flex flex-col w-full min-h-full">
-      {/* Top Navigation Bar */}
-      <header className="flex h-16 items-center px-6 border-b border-border/50 bg-surface/50 backdrop-blur-xl sticky top-0 z-50">
-        <div className="font-semibold text-lg tracking-tight mr-8 text-foreground">
-          Synthex UI
-        </div>
-        <div className="flex items-center space-x-4 flex-1">
-          <div className="relative w-96">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground-muted" />
-            <Input
-              placeholder="Search components, tokens, or hooks..."
-              className="pl-9 h-9 bg-surface/50 border-border/50 focus-visible:ring-1 focus-visible:ring-primary/50 transition-all rounded-full"
-            />
-          </div>
-        </div>
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" size="sm" className="hidden md:flex h-9 border-border/50 glass-premium">
-            <span className="mr-2">v1.0.4</span> Latest Release
-          </Button>
-          <Button variant="default" size="sm" className="h-9 shadow-sm shadow-primary/20">
-            View Documentation
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full bg-surface-muted/50 border border-border/50">
-                <div className="font-semibold text-xs">SU</div>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent style={{ width: 220, right: 0 }} className="mr-6 mt-2">
-              <DropdownMenuLabel>Developer Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>API Tokens</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive">Log out</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-1 p-8 pt-6 space-y-8">
-        <div className="flex items-center justify-between space-y-2">
-          <H2 className="text-3xl font-bold tracking-tight border-none m-0">Dashboard</H2>
-        </div>
-
-        {/* Metrics Grid */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="glass-premium border-border/50 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10" />
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-foreground-muted">Total Components</CardTitle>
-              <span className="text-foreground-muted">🧩</span>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">51</div>
-              <p className="text-xs text-foreground-muted mt-1">
-                <span className="text-emerald-500 font-medium">+3</span> in the latest release
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="glass-premium border-border/50 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10" />
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-foreground-muted">Packages</CardTitle>
-              <span className="text-foreground-muted">📦</span>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">5</div>
-              <p className="text-xs text-foreground-muted mt-1">
-                Managed by Bun workspaces
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="glass-premium border-border/50 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10" />
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-foreground-muted">Core Hooks</CardTitle>
-              <span className="text-foreground-muted">🪝</span>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">11</div>
-              <p className="text-xs text-foreground-muted mt-1">
-                Cross-platform abstractions
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="glass-premium border-border/50 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10" />
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-foreground-muted">Total Commits</CardTitle>
-              <span className="text-foreground-muted">🔥</span>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">85</div>
-              <p className="text-xs text-foreground-muted mt-1">
-                <span className="text-emerald-500 font-medium">+12</span> this week
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Charts and Tables */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-          <Card className="col-span-4 glass-premium border-border/50 shadow-sm">
-            <CardHeader>
-              <CardTitle>Usage Overview</CardTitle>
-              <CardDescription>Monthly NPM downloads over the current year.</CardDescription>
-            </CardHeader>
-            <CardContent className="pl-2">
-              <div className="h-[300px] w-full flex items-end justify-between px-4 pb-4 mt-4 gap-2">
-                {[
-                  { m: "Jan", v: 40 }, { m: "Feb", v: 30 }, { m: "Mar", v: 80 },
-                  { m: "Apr", v: 40 }, { m: "May", v: 60 }, { m: "Jun", v: 20 },
-                  { m: "Jul", v: 50 }, { m: "Aug", v: 90 }, { m: "Sep", v: 60 },
-                  { m: "Oct", v: 70 }, { m: "Nov", v: 85 }, { m: "Dec", v: 100 }
-                ].map((data) => (
-                  <div key={data.m} className="flex flex-col items-center justify-end w-full group">
-                    <div
-                      className="w-full bg-primary/20 rounded-t-sm transition-all duration-300 group-hover:bg-primary"
-                      style={{ height: `${data.v}%` }}
-                    />
-                    <span className="text-[10px] text-foreground-muted mt-2 font-medium">{data.m}</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="col-span-3 glass-premium border-border/50 shadow-sm overflow-hidden flex flex-col">
-            <CardHeader className="flex flex-row items-center">
-              <div className="grid gap-2">
-                <CardTitle>Recent Updates</CardTitle>
-                <CardDescription>
-                  Latest commits and merges to the main branch.
-                </CardDescription>
-              </div>
-              <Button size="sm" variant="outline" className="ml-auto gap-1 border-border/50 bg-surface/50 hidden lg:flex">
-                View Repository
-              </Button>
-            </CardHeader>
-            <CardContent className="flex-1 overflow-auto p-0 px-6">
-              <Table>
-                <TableBody>
-                  {[
-                    { title: "feat: apply flagship premium UI, glassmorphism...", user: "Luseefor", time: "10 hours ago", initials: "LF" },
-                    { title: "feat: introduce collapsible AppSidebar", user: "Luseefor", time: "10 hours ago", initials: "LF" },
-                    { title: "feat: implement shared hooks, icons, and primiti...", user: "Luseefor", time: "10 hours ago", initials: "LF" },
-                    { title: "feat: add UPDATE_PANEL action", user: "Luseefor", time: "10 hours ago", initials: "LF" },
-                    { title: "style: redesign desktop sidebar", user: "Luseefor", time: "15 hours ago", initials: "LF" },
-                  ].map((row, i) => (
-                    <TableRow key={i} className="border-border/30 hover:bg-surface-muted/50 transition-colors">
-                      <TableCell className="w-[50px] py-4">
-                        <div className="h-9 w-9 rounded-full bg-surface-muted flex items-center justify-center border border-border/50 text-xs font-semibold">
-                          {row.initials}
-                        </div>
-                      </TableCell>
-                      <TableCell className="py-4">
-                        <div className="font-medium">{row.title}</div>
-                        <div className="text-sm text-foreground-muted">by @{row.user}</div>
-                      </TableCell>
-                      <TableCell className="text-right text-sm text-foreground-muted py-4">
-                        {row.time}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
-    </div>
+    <DashboardView
+      metrics={metrics}
+      chartData={chartData}
+      updates={updates}
+      onDocumentationClick={() => onNavigate("/docs" as RoutePath)}
+      onRepositoryClick={() => window.open("https://github.com/Luseefor/synthex-ui", "_blank")}
+    />
   );
 }
 
