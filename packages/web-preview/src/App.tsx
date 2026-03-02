@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Navigate, NavLink, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { AppSidebar } from "./components/AppSidebar";
 import {
   createLayoutEngine,
   findNodeById,
@@ -307,6 +308,30 @@ const navItems: readonly NavItem[] = [
   { to: "/playground", label: "Playground", description: "Docking, reducer flow, and workbench state." },
 ] as const;
 
+const layoutPresets = {
+  default: previewLayout,
+  columns: {
+    id: "root",
+    type: "split",
+    direction: "horizontal",
+    sizes: [0.5, 0.5],
+    children: [
+      { id: "p1", type: "panel", panelType: "document", title: "Editor" },
+      { id: "p2", type: "panel", panelType: "preview", title: "Preview" },
+    ],
+  },
+  rows: {
+    id: "root",
+    type: "split",
+    direction: "vertical",
+    sizes: [0.6, 0.4],
+    children: [
+      { id: "p1", type: "panel", panelType: "document", title: "Editor" },
+      { id: "p2", type: "panel", panelType: "console", title: "Console" },
+    ],
+  },
+} as const;
+
 const supportRows: readonly SupportRow[] = [
   {
     area: "synthex-ui root",
@@ -371,7 +396,7 @@ const exportItems: readonly ExportItem[] = [
   },
   {
     path: "synthex-ui/layout",
-    description: "Generic app-shell helpers that stay separate from the engineering docking system.",
+    description: "Generic app-shell helpers that stay separate from the advanced docking system.",
     examples: ["AppShell", "Pane", "PanelFrame", "Section"],
   },
   {
@@ -445,7 +470,7 @@ const roadmapItems = [
     summary: "The live workbench is in place and usable, but it still has room to become more expressive and more plugin-driven.",
     bullets: [
       "The preview validates split, tab, resize, undo, redo, selection, and serialization behavior against the real engine.",
-      "The next refinement is deeper panel-plugin examples and broader engineering-oriented scenarios.",
+      "The next refinement is deeper panel-plugin examples and broader professional-oriented scenarios.",
     ],
   },
   {
@@ -480,14 +505,16 @@ export function App() {
     return window.localStorage.getItem("synthex-preview-mode") === "dark" ? "dark" : "light";
   });
   const [accentPreset, setAccentPreset] = useState<AccentPresetName>(() => {
-    if (typeof window === "undefined") {
-      return defaultAccentPreset;
-    }
-
+    if (typeof window === "undefined") return defaultAccentPreset;
     const storedValue = window.localStorage.getItem("synthex-preview-accent");
     return storedValue && storedValue in accentPresets
       ? (storedValue as AccentPresetName)
       : defaultAccentPreset;
+  });
+  const [radius, setRadius] = useState<number>(() => {
+    if (typeof window === "undefined") return 1.0;
+    const stored = window.localStorage.getItem("synthex-preview-radius");
+    return stored ? parseFloat(stored) : 1.0;
   });
   const [navQuery, setNavQuery] = useControllableState({
     defaultValue: "",
@@ -514,6 +541,20 @@ export function App() {
   }, [accentPreset]);
 
   useEffect(() => {
+    window.localStorage.setItem("synthex-preview-radius", radius.toString());
+  }, [radius]);
+
+  const themeOverrides = useMemo(() => ({
+    radius: {
+      sm: Math.round(6 * radius),
+      md: Math.round(8 * radius),
+      lg: Math.round(12 * radius),
+      xl: Math.round(16 * radius),
+      pill: 999,
+    }
+  }), [radius]);
+
+  useEffect(() => {
     window.scrollTo({
       top: 0,
       behavior: "auto",
@@ -521,173 +562,58 @@ export function App() {
   }, [location.pathname]);
 
   return (
-    <ThemeProvider mode={mode} accentPreset={accentPreset}>
-      <div className="preview-site">
-        <header className="preview-header">
-          <div className="preview-header-inner">
-            <div className="preview-brand">
-              <Badge>Synthex UI</Badge>
-              <Badge variant="outline">Pre-release</Badge>
-              <div>
-                <div className="preview-brand-title">Synthex UI</div>
-                <Small>Cross-platform React UI for engineering-grade products.</Small>
-              </div>
-            </div>
-            <div className="preview-header-actions">
-              <div className="preview-accent-switcher" role="group" aria-label="Accent color">
-                {Object.entries(accentPresets).map(([id, preset]) => (
-                  <button
-                    key={id}
-                    type="button"
-                    className="preview-accent-button"
-                    aria-label={`Use ${preset.label} accent`}
-                    aria-pressed={accentPreset === id}
-                    onClick={() => setAccentPreset(id as AccentPresetName)}
-                  >
-                    <span
-                      className="preview-accent-swatch"
-                      style={{ backgroundColor: preset.swatch }}
-                    />
-                  </button>
-                ))}
-              </div>
-              <Button variant="outline" onClick={() => navigate("/installation")}>
-                Getting Started
-              </Button>
-              <Button variant="outline" onClick={() => navigate("/playground")}>
-                <GridIcon size={16} />
-                Playground
-              </Button>
-              <Button variant="ghost" onClick={() => setMode(mode === "light" ? "dark" : "light")}>
-                {mode === "light" ? "Dark mode" : "Light mode"}
-              </Button>
-            </div>
-          </div>
-        </header>
+    <ThemeProvider mode={mode} accentPreset={accentPreset} theme={themeOverrides}>
+      <div className="preview-site flex min-h-screen w-full">
+        <SidebarProvider defaultOpen={true}>
+          <AppSidebar
+            mode={mode}
+            setMode={setMode}
+            accentPreset={accentPreset}
+            setAccentPreset={setAccentPreset}
+            radius={radius}
+            setRadius={setRadius}
+          />
 
-        <div className="preview-shell">
-          {/* ── Desktop sidebar ── */}
-          <aside className="preview-sidebar">
-            <div className="preview-sidebar-section-label">Documentation</div>
-            <nav className="preview-nav">
-              {filteredNavItems.map((item) => (
-                <NavLink
-                  key={item.to}
-                  className={({ isActive }) =>
-                    isActive ? "preview-nav-link preview-nav-link-active" : "preview-nav-link"
+          <SidebarInset className="preview-mobile-inset flex flex-col min-h-screen">
+            {/* Topbar visible strictly on mobile */}
+            <div className="preview-mobile-topbar md:hidden flex-none">
+              <SidebarTrigger />
+              <span className="preview-mobile-breadcrumb ml-2">
+                {navItems.find((n) => n.to === location.pathname)?.label ?? "Overview"}
+              </span>
+            </div>
+
+            <main className={`preview-main relative flex flex-1 w-full flex-col ${location.pathname === "/playground" ? "p-0 overflow-hidden" : "p-6 md:p-8"}`}>
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <>
+                      <OverviewSection onNavigate={navigate} />
+                      <PackageScopeSection />
+                      <RoadmapSection />
+                    </>
                   }
-                  to={item.to}
-                >
-                  {item.label}
-                </NavLink>
-              ))}
-            </nav>
-            <Separator />
-            <div className="preview-sidebar-meta">
-              <Badge variant="secondary">Bun-first workspace</Badge>
-              <Badge variant="secondary">Strict TypeScript</Badge>
-              <Badge variant="secondary">Engine-ready</Badge>
-            </div>
-          </aside>
-
-          {/* ── Mobile sidebar shell (visible ≤ 1320px) ── */}
-          <div className="preview-mobile-shell">
-            <SidebarProvider defaultOpen={false}>
-              <Sidebar className="preview-mobile-sidebar">
-                <SidebarHeader>
-                  <Small>Navigation</Small>
-                </SidebarHeader>
-                <SidebarContent>
-                  <SidebarGroup>
-                    <SidebarGroupLabel>Pages</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                      <SidebarMenu>
-                        {navItems.map((item) => (
-                          <SidebarMenuItem key={item.to}>
-                            <SidebarMenuButton
-                              active={location.pathname === item.to || (item.to === "/" && location.pathname === "/")}
-                              onClick={() => navigate(item.to)}
-                            >
-                              {item.label}
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-                        ))}
-                      </SidebarMenu>
-                    </SidebarGroupContent>
-                  </SidebarGroup>
-                </SidebarContent>
-              </Sidebar>
-              <SidebarInset className="preview-mobile-inset">
-                <div className="preview-mobile-topbar">
-                  <SidebarTrigger><GridIcon size={16} /></SidebarTrigger>
-                  <span className="preview-mobile-breadcrumb">
-                    {navItems.find((n) => n.to === location.pathname)?.label ?? "Overview"}
-                  </span>
-                </div>
-                <main className="preview-main preview-main-mobile">
-                  <Routes>
-                    <Route
-                      path="/"
-                      element={
-                        <>
-                          <OverviewSection onNavigate={navigate} />
-                          <PackageScopeSection />
-                          <RoadmapSection />
-                        </>
-                      }
-                    />
-                    <Route path="/installation" element={<GettingStartedSection />} />
-                    <Route path="/components" element={<ComponentGallerySection />} />
-                    <Route path="/theme" element={<ThemeSection />} />
-                    <Route
-                      path="/engine"
-                      element={
-                        <>
-                          <SupportMatrixSection />
-                          <ExportsSection />
-                          <PackageScopeSection />
-                        </>
-                      }
-                    />
-                    <Route path="/playground" element={<WorkbenchSection workbench={workbench} />} />
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                  </Routes>
-                </main>
-              </SidebarInset>
-            </SidebarProvider>
-          </div>
-
-          {/* ── Desktop main content ── */}
-          <main className="preview-main preview-main-desktop">
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <>
-                    <OverviewSection onNavigate={navigate} />
-                    <PackageScopeSection />
-                    <RoadmapSection />
-                  </>
-                }
-              />
-              <Route path="/installation" element={<GettingStartedSection />} />
-              <Route path="/components" element={<ComponentGallerySection />} />
-              <Route path="/theme" element={<ThemeSection />} />
-              <Route
-                path="/engine"
-                element={
-                  <>
-                    <SupportMatrixSection />
-                    <ExportsSection />
-                    <PackageScopeSection />
-                  </>
-                }
-              />
-              <Route path="/playground" element={<WorkbenchSection workbench={workbench} />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </main>
-        </div>
+                />
+                <Route path="/installation" element={<GettingStartedSection />} />
+                <Route path="/components" element={<ComponentGallerySection />} />
+                <Route path="/theme" element={<ThemeSection />} />
+                <Route
+                  path="/engine"
+                  element={
+                    <>
+                      <SupportMatrixSection />
+                      <ExportsSection />
+                      <PackageScopeSection />
+                    </>
+                  }
+                />
+                <Route path="/playground" element={<WorkbenchSection workbench={workbench} />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </main>
+          </SidebarInset>
+        </SidebarProvider>
       </div>
     </ThemeProvider>
   );
@@ -699,57 +625,61 @@ function OverviewSection({
   readonly onNavigate: (to: RoutePath) => void;
 }) {
   return (
-    <section id="overview" className="preview-hero">
+    <section id="overview" className="preview-hero relative">
+      <div className="bg-glow-hero" />
       <div className="preview-hero-copy">
-        <Small>Synthex UI</Small>
+        <Small className="text-primary font-bold tracking-widest uppercase">Synthex UI</Small>
         <div className="preview-chip-row">
-          <Badge>Cross-platform</Badge>
-          <Badge variant="outline">Design system + layout engine</Badge>
-          <Badge variant="secondary">Bun monorepo</Badge>
+          <Badge className="bg-primary/20 text-primary border-primary/30">Cross-platform</Badge>
+          <Badge variant="outline" className="border-border-strong glass-premium">Design system + layout engine</Badge>
+          <Badge variant="secondary" className="glass-premium">Bun monorepo</Badge>
         </div>
-        <H1>Design systems and dockable workspaces for serious product software.</H1>
-        <Lead>
+        <H1 className="text-fh-xl mt-4 mb-6 bg-gradient-to-br from-foreground to-muted-foreground/50 bg-clip-text text-transparent border-none">
+          Design systems and dockable workspaces for serious product software.
+        </H1>
+        <Lead className="text-[1.1rem] text-muted-foreground/80 leading-relaxed mb-8 max-w-[95%]">
           Synthex UI combines a cross-platform component library with a deterministic layout engine so teams can build structured web and native applications without stitching the foundations together by hand.
         </Lead>
-        <div className="preview-action-row">
-          <Button onClick={() => onNavigate("/installation")}>Install and build</Button>
-          <Button variant="outline" onClick={() => onNavigate("/playground")}>
+        <div className="preview-action-row mb-12">
+          <Button size="lg" className="hover-premium shadow-lg shadow-primary/25" onClick={() => onNavigate("/installation")}>Install and build</Button>
+          <Button size="lg" variant="outline" className="hover-premium bg-surface/50 backdrop-blur-md border-border-strong" onClick={() => onNavigate("/playground")}>
             Open live playground
           </Button>
-          <Button variant="ghost" onClick={() => onNavigate("/components")}>
+          <Button size="lg" variant="ghost" className="hover-premium" onClick={() => onNavigate("/components")}>
             Browse components
           </Button>
         </div>
-        <div className="preview-inline-note">
-          <Muted>
+        <div className="preview-inline-note glass-premium rounded-xl p-5 border border-border/50">
+          <Muted className="text-sm">
             The library stays generic at the UI layer while the workbench stack stays explicit, reducer-driven, and ready for more complex application shells.
           </Muted>
         </div>
       </div>
 
-      <Card className="preview-hero-panel" variant="elevated">
-        <CardHeader>
-          <CardTitle>Library snapshot</CardTitle>
-          <CardDescription>
+      <Card className="preview-hero-panel glass-premium border-border-strong shadow-2xl relative overflow-hidden" variant="elevated">
+        <div className="bg-glow-radial absolute inset-0 opacity-40 z-0 pointer-events-none" />
+        <CardHeader className="relative z-10">
+          <CardTitle className="text-fh-lg">Library snapshot</CardTitle>
+          <CardDescription className="text-base text-muted-foreground/90">
             Clean package boundaries, stronger type artifacts, and a docs surface that validates the real public API.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative z-10">
           <div className="preview-metric-grid">
             <MetricCard label="Primary package" value="synthex-ui" />
             <MetricCard label="Engine package" value="@synthex/core" />
             <MetricCard label="Web adapter" value="@synthex/react-web" />
             <MetricCard label="Preview app" value="@synthex/web-preview" />
           </div>
-          <Separator />
+          <Separator className="my-6 opacity-50" />
           <div className="preview-stack-sm">
-            <Muted>
+            <Muted className="leading-relaxed">
               Similar in clarity to compact package sites like CUI, but centered on a deeper architecture: shared UI, explicit adapters, and a real tiling layout kernel.
             </Muted>
-            <div className="preview-chip-row">
-              <Badge variant="outline">Generated declarations</Badge>
-              <Badge variant="outline">Subpath exports</Badge>
-              <Badge variant="outline">Reducer-backed layout</Badge>
+            <div className="preview-chip-row mt-4">
+              <Badge variant="outline" className="glass-premium">Generated declarations</Badge>
+              <Badge variant="outline" className="glass-premium">Subpath exports</Badge>
+              <Badge variant="outline" className="glass-premium">Reducer-backed layout</Badge>
             </div>
           </div>
         </CardContent>
@@ -766,39 +696,40 @@ function MetricCard({
   readonly value: string;
 }) {
   return (
-    <div className="preview-metric-card">
-      <Small>{label}</Small>
-      <strong>{value}</strong>
+    <div className="preview-metric-card glass-premium rounded-xl p-4 border border-border/40 hover-premium">
+      <Small className="text-muted-foreground uppercase tracking-widest text-[10px] font-bold mb-1 block">{label}</Small>
+      <strong className="text-foreground tracking-tight">{value}</strong>
     </div>
   );
 }
 
 function PackageScopeSection() {
   return (
-    <section id="packages" className="preview-section">
-      <div className="preview-section-heading">
-        <H2>Package model</H2>
-        <Muted>
+    <section id="packages" className="preview-section relative">
+      <div className="preview-section-heading lg:text-center lg:items-center max-w-2xl mx-auto mb-16">
+        <H2 className="text-fh-lg mb-4 border-none">Package model</H2>
+        <Muted className="text-lg">
           The repo is organized around explicit package responsibilities instead of mixing generic UI, adapters, and engine internals together.
         </Muted>
       </div>
 
       <div className="preview-card-grid preview-card-grid-2">
         {packageCards.map((item) => (
-          <Card key={item.title} variant="interactive" className="preview-package-card">
+          <Card key={item.title} variant="interactive" className="preview-package-card hover-premium glass-premium border-border-strong group">
             <CardHeader>
-              <CardTitle>{item.title}</CardTitle>
-              <CardDescription>{item.description}</CardDescription>
+              <CardTitle className="text-xl group-hover:text-primary transition-colors">{item.title}</CardTitle>
+              <CardDescription className="text-base text-muted-foreground/80 mt-2">{item.description}</CardDescription>
             </CardHeader>
           </Card>
         ))}
       </div>
 
-      <Card variant="muted">
-        <CardContent className="preview-stack-sm">
-          <Small>Why this structure matters</Small>
-          <Muted>
-            `synthex-ui` stays generic and reusable. `@synthex/react-web` owns the dockable renderer. `@synthex/core` stays framework-agnostic. That split is what keeps the repo scalable instead of collapsing into a flat UI kit.
+      <Card variant="muted" className="mt-12 glass-premium border-border/50 max-w-4xl mx-auto overflow-hidden relative">
+        <div className="bg-glow-radial absolute -inset-1/2 opacity-20 pointer-events-none" />
+        <CardContent className="preview-stack-sm text-center py-8 relative z-10 flex flex-col items-center">
+          <Small className="uppercase tracking-widest text-primary font-bold">Why this structure matters</Small>
+          <Muted className="text-base leading-relaxed mt-2 max-w-2xl">
+            <code className="text-foreground/80 font-bold bg-muted/50 px-1 py-0.5 rounded">synthex-ui</code> stays generic and reusable. <code className="text-foreground/80 font-bold bg-muted/50 px-1 py-0.5 rounded">@synthex/react-web</code> owns the dockable renderer. <code className="text-foreground/80 font-bold bg-muted/50 px-1 py-0.5 rounded">@synthex/core</code> stays framework-agnostic. That split is what keeps the repo scalable instead of collapsing into a flat UI kit.
           </Muted>
         </CardContent>
       </Card>
@@ -1387,9 +1318,9 @@ function ComponentGallerySection() {
                 </div>
               </ResizablePanel>
             </ResizablePanelGroup>
-            <Muted>
-              Drag the center handle to resize the panes. This is separate from the engineering workbench renderer and belongs to the shared UI layer.
-            </Muted>
+            <Small className="text-[color:var(--sx-color-foreground-muted)]">
+              Drag the center handle to resize the panes. This is separate from the specialized workbench renderer and belongs to the shared UI layer.
+            </Small>
           </CardContent>
         </Card>
 
@@ -1626,39 +1557,6 @@ function ComponentGallerySection() {
                 </ItemDescription>
               </Item>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card variant="default">
-          <CardHeader>
-            <CardTitle>Sidebar shell</CardTitle>
-            <CardDescription>
-              Sidebar primitives provide a reusable shell for docs chrome, tool navigation, and split application layouts without binding that structure to one product vertical.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="preview-stack-md">
-            <SidebarPreview />
-          </CardContent>
-        </Card>
-
-        <Card variant="default">
-          <CardHeader>
-            <CardTitle>Direction provider</CardTitle>
-            <CardDescription>
-              Direction lets component trees flip between left-to-right and right-to-left layouts without rewriting the rest of the application shell.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="preview-stack-md">
-            <DirectionProvider dir="rtl">
-              <Card variant="muted">
-                <CardHeader>
-                  <CardTitle>RTL surface</CardTitle>
-                  <CardDescription>
-                    Use the shared direction wrapper to validate mirrored layouts and internationalized product surfaces.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </DirectionProvider>
           </CardContent>
         </Card>
 
@@ -2328,13 +2226,7 @@ function WorkbenchSection({
   readonly workbench: WorkbenchController;
 }) {
   return (
-    <section id="playground" className="preview-section">
-      <div className="preview-section-heading">
-        <H2>Live workbench</H2>
-        <Muted>
-          This route validates the actual layout engine inside the same visual system used across the rest of the docs site.
-        </Muted>
-      </div>
+    <section id="playground" className="flex flex-1 w-full h-full flex-col overflow-hidden m-0 p-0 absolute inset-0">
       <WorkbenchSurface workbench={workbench} />
     </section>
   );
@@ -2347,65 +2239,30 @@ function WorkbenchSurface({
 }) {
   const theme = useTheme();
   const rendererTheme = useMemo(() => createWorkbenchRendererTheme(theme), [theme]);
-  const shellStyle = useMemo(() => createWorkbenchShellStyle(theme), [theme]);
   const selectedNode = useMemo(
     () => (workbench.selectedNodeId ? findNodeById(workbench.layout, workbench.selectedNodeId) : null),
     [workbench.layout, workbench.selectedNodeId],
   );
-  const stats = useMemo(() => summarizeLayout(workbench.layout), [workbench.layout]);
 
   return (
-    <div className="workbench-page" style={shellStyle}>
-      <div className="workbench-page-header">
-        <div className="workbench-page-copy">
-          <div className="workbench-page-title-row">
-            <Small>Workspace shell</Small>
-            <div className="preview-chip-row">
-              <Badge variant="outline">Resizable splits</Badge>
-              <Badge variant="outline">Tab stacks</Badge>
-              <Badge variant="outline">Serializable state</Badge>
-            </div>
-          </div>
-          <H3>General-purpose tiling workspace</H3>
-          <Muted>
-            Built to validate real split, tab, resize, undo, and serialization behavior without drifting away from the surrounding documentation UI.
-          </Muted>
-        </div>
-
-        <div className="workbench-summary-grid">
-          <div className="workbench-summary-card">
-            <Small>Panels</Small>
-            <strong>{stats.panels}</strong>
-          </div>
-          <div className="workbench-summary-card">
-            <Small>Tab hosts</Small>
-            <strong>{stats.tabs}</strong>
-          </div>
-          <div className="workbench-summary-card">
-            <Small>Splits</Small>
-            <strong>{stats.splits}</strong>
-          </div>
-          <div className="workbench-summary-card">
-            <Small>Depth</Small>
-            <strong>{stats.depth}</strong>
-          </div>
-        </div>
+    <div className="flex flex-1 flex-col overflow-hidden bg-background">
+      <div className="border-b bg-surface/40 px-4 py-2 backdrop-blur-xl">
+        <Toolbar
+          canRedo={workbench.redoDepth > 0}
+          canUndo={workbench.undoDepth > 0}
+          lastAction={workbench.lastAction}
+          selectedLabel={selectedNode ? describeWorkbenchNode(selectedNode) : "Ready"}
+          onAddPanel={() => void workbench.addPanel()}
+          onSplitColumns={() => void workbench.splitSelection("horizontal")}
+          onSplitRows={() => void workbench.splitSelection("vertical")}
+          onUndo={() => void workbench.undo()}
+          onRedo={() => void workbench.redo()}
+          onSetLayout={workbench.setLayout}
+        />
       </div>
 
-      <Toolbar
-        canRedo={workbench.redoDepth > 0}
-        canUndo={workbench.undoDepth > 0}
-        lastAction={workbench.lastAction}
-        selectedLabel={selectedNode ? describeWorkbenchNode(selectedNode) : "Nothing selected"}
-        onAddPanel={() => void workbench.addPanel()}
-        onSplitColumns={() => void workbench.splitSelection("horizontal")}
-        onSplitRows={() => void workbench.splitSelection("vertical")}
-        onUndo={() => void workbench.undo()}
-        onRedo={() => void workbench.redo()}
-      />
-
-      <div className="workbench-body">
-        <div className="workbench-frame">
+      <div className="relative flex-1 bg-[color:var(--sx-color-background-subtle)]/30">
+        <div className="absolute inset-0 p-1">
           <LayoutRenderer
             layout={workbench.layout}
             theme={rendererTheme}
@@ -2415,7 +2272,9 @@ function WorkbenchSurface({
               void workbench.dispatch(action);
             }}
             renderTabLabel={(panel) => (
-              <span className="workbench-tab-label">{panel.title ?? panel.panelType}</span>
+              <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.06em] opacity-80 group-data-[active=true]:opacity-100 transition-opacity">
+                {panel.title ?? panel.panelType}
+              </span>
             )}
             renderPanel={(panel) => (
               <PreviewPanel
@@ -2425,85 +2284,6 @@ function WorkbenchSurface({
             )}
           />
         </div>
-
-        <aside className="workbench-sidebar">
-          <div className="workbench-sidebar-pane">
-            <div className="workbench-pane-title-row">
-              <H3>Workspace state</H3>
-              <Badge variant="secondary">{workbench.lastAction}</Badge>
-            </div>
-            <div className="workbench-chip-strip">
-              <Badge variant="outline">Undo {workbench.undoDepth}</Badge>
-              <Badge variant="outline">Redo {workbench.redoDepth}</Badge>
-            </div>
-          </div>
-
-          <div className="workbench-sidebar-pane">
-            <div className="workbench-pane-title-row">
-              <H3>Selection</H3>
-              <Small>{selectedNode ? selectedNode.id : "none"}</Small>
-            </div>
-            <Muted>
-              {selectedNode
-                ? describeWorkbenchNode(selectedNode)
-                : "Select a panel, tab host, or split frame to inspect it here."}
-            </Muted>
-            {selectedNode ? (
-              <dl className="workbench-definition-list">
-                <div>
-                  <dt>Node type</dt>
-                  <dd>{selectedNode.type}</dd>
-                </div>
-                {selectedNode.type === "panel" ? (
-                  <>
-                    <div>
-                      <dt>Panel type</dt>
-                      <dd>{selectedNode.panelType}</dd>
-                    </div>
-                    <div>
-                      <dt>Title</dt>
-                      <dd>{selectedNode.title ?? "Untitled"}</dd>
-                    </div>
-                  </>
-                ) : null}
-                {selectedNode.type === "tabs" ? (
-                  <>
-                    <div>
-                      <dt>Active panel</dt>
-                      <dd>{selectedNode.activePanelId}</dd>
-                    </div>
-                    <div>
-                      <dt>Children</dt>
-                      <dd>{selectedNode.children.length}</dd>
-                    </div>
-                  </>
-                ) : null}
-                {selectedNode.type === "split" ? (
-                  <>
-                    <div>
-                      <dt>Direction</dt>
-                      <dd>{selectedNode.direction}</dd>
-                    </div>
-                    <div>
-                      <dt>Ratios</dt>
-                      <dd>{selectedNode.sizes.map((size) => size.toFixed(2)).join(" / ")}</dd>
-                    </div>
-                  </>
-                ) : null}
-              </dl>
-            ) : null}
-          </div>
-
-          <div className="workbench-sidebar-pane workbench-sidebar-pane-code">
-            <div className="workbench-pane-title-row">
-              <H3>Serialized layout</H3>
-              <Small>Current snapshot</Small>
-            </div>
-            <pre className="workbench-code">
-              <code>{serializeLayout(workbench.layout)}</code>
-            </pre>
-          </div>
-        </aside>
       </div>
     </div>
   );
@@ -2576,6 +2356,7 @@ interface WorkbenchController {
   readonly splitSelection: (direction: LayoutDirection) => Promise<void>;
   readonly undo: () => Promise<void>;
   readonly undoDepth: number;
+  readonly setLayout: (name: string) => Promise<void>;
 }
 
 interface WorkbenchStats {
@@ -2717,6 +2498,13 @@ function useWorkbench(): WorkbenchController {
     splitSelection,
     undo,
     undoDepth,
+    setLayout: async (name: string) => {
+      const preset = layoutPresets[name as keyof typeof layoutPresets];
+      if (preset) {
+        await dispatch({ type: "SET_LAYOUT", layout: preset as any });
+        setLastAction(`Applied ${name} layout`);
+      }
+    },
   };
 }
 
