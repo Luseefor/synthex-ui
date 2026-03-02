@@ -6,12 +6,6 @@ import {
     CardDescription,
     CardHeader,
     CardTitle,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
     Input,
     Table,
     TableBody,
@@ -19,7 +13,6 @@ import {
     TableRow,
 } from "../components/index.web";
 import { SearchIcon } from "../icons/index.web";
-import { Inline, Stack, Surface, Text } from "../primitives/index.web";
 import { H2 } from "../typography/typography.web";
 import type { DashboardViewProps } from "./dashboard.shared";
 
@@ -27,6 +20,8 @@ export function DashboardView({
     metrics,
     updates,
     chartData,
+    searchValue,
+    onSearchChange,
     onDocumentationClick,
     onRepositoryClick,
 }: DashboardViewProps) {
@@ -43,6 +38,8 @@ export function DashboardView({
                         <Input
                             placeholder="Search components, tokens, or hooks..."
                             className="pl-9 h-9 bg-surface/50 border-border/50 focus-visible:ring-1 focus-visible:ring-primary/50 transition-all rounded-full"
+                            value={searchValue}
+                            onChange={(e) => onSearchChange(e.target.value)}
                         />
                     </div>
                 </div>
@@ -53,22 +50,6 @@ export function DashboardView({
                     <Button variant="default" size="sm" className="h-9 shadow-sm shadow-primary/20" onClick={onDocumentationClick}>
                         View Documentation
                     </Button>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full bg-surface-muted/50 border border-border/50">
-                                <div className="font-semibold text-xs">SU</div>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent style={{ width: 220, right: 0 }} className="mr-6 mt-2">
-                            <DropdownMenuLabel>Developer Account</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>Profile</DropdownMenuItem>
-                            <DropdownMenuItem>Settings</DropdownMenuItem>
-                            <DropdownMenuItem>API Tokens</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">Log out</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
                 </div>
             </header>
 

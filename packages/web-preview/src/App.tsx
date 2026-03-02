@@ -221,6 +221,7 @@ import {
 } from "synthex-ui/components";
 import {
   AddIcon,
+  FileIcon,
   GridIcon,
   Icon,
   iconNames,
@@ -261,6 +262,7 @@ type RoutePath =
   | "/components"
   | "/theme"
   | "/engine"
+  | "/docs"
   | "/playground";
 
 interface NavItem {
@@ -293,6 +295,7 @@ const navItems: readonly NavItem[] = [
   { to: "/components", label: "Components", description: "Live previews for controls and interaction patterns." },
   { to: "/theme", label: "Theme", description: "Semantic tokens, accents, and dark mode behavior." },
   { to: "/engine", label: "Engine", description: "Package boundaries, support matrix, and public exports." },
+  { to: "/docs", label: "Documentation", description: "Architecture diagrams, styling guides, and theming docs." },
   { to: "/playground", label: "Playground", description: "Docking, reducer flow, and workbench state." },
 ] as const;
 
@@ -569,6 +572,7 @@ export function App() {
                   }
                 />
                 <Route path="/playground" element={<Builder />} />
+                <Route path="/docs" element={<DocumentationSection />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>
@@ -580,6 +584,8 @@ export function App() {
 }
 
 function Dashboard({ onNavigate }: { readonly onNavigate: (to: RoutePath) => void }) {
+  const [searchValue, setSearchValue] = useState("");
+
   const metrics = [
     { label: "Total Components", value: 51, icon: "🧩", description: "in the latest release", trend: { value: "+3", type: "positive" as const } },
     { label: "Packages", value: 5, icon: "📦", description: "Managed by Bun workspaces" },
@@ -594,7 +600,7 @@ function Dashboard({ onNavigate }: { readonly onNavigate: (to: RoutePath) => voi
     { month: "Oct", value: 70 }, { month: "Nov", value: 85 }, { month: "Dec", value: 100 }
   ];
 
-  const updates = [
+  const allUpdates = [
     { title: "feat: apply flagship premium UI, glassmorphism...", user: "Luseefor", time: "10 hours ago", initials: "LF" },
     { title: "feat: introduce collapsible AppSidebar", user: "Luseefor", time: "10 hours ago", initials: "LF" },
     { title: "feat: implement shared hooks, icons, and primiti...", user: "Luseefor", time: "10 hours ago", initials: "LF" },
@@ -602,14 +608,97 @@ function Dashboard({ onNavigate }: { readonly onNavigate: (to: RoutePath) => voi
     { title: "style: redesign desktop sidebar", user: "Luseefor", time: "15 hours ago", initials: "LF" },
   ];
 
+  const filteredUpdates = useMemo(() => {
+    if (!searchValue) return allUpdates;
+    const term = searchValue.toLowerCase();
+    return allUpdates.filter(u =>
+      u.title.toLowerCase().includes(term) ||
+      u.user.toLowerCase().includes(term)
+    );
+  }, [searchValue, allUpdates]);
+
+  const filteredMetrics = useMemo(() => {
+    if (!searchValue) return metrics;
+    const term = searchValue.toLowerCase();
+    return metrics.filter(m => m.label.toLowerCase().includes(term));
+  }, [searchValue, metrics]);
+
   return (
     <DashboardView
-      metrics={metrics}
+      metrics={filteredMetrics}
       chartData={chartData}
-      updates={updates}
+      updates={filteredUpdates}
+      searchValue={searchValue}
+      onSearchChange={setSearchValue}
       onDocumentationClick={() => onNavigate("/docs" as RoutePath)}
       onRepositoryClick={() => window.open("https://github.com/Luseefor/synthex-ui", "_blank")}
     />
+  );
+}
+
+function DocumentationSection() {
+  const docFiles = [
+    { name: "getting-started.md", title: "Getting Started" },
+    { name: "mermaid-architecture.md", title: "Mermaid Architecture" },
+    { name: "styling.md", title: "Styling Guide" },
+    { name: "theming.md", title: "Theming System" },
+    { name: "workbench.md", title: "Workbench Internals" },
+  ];
+
+  return (
+    <section className="preview-section relative">
+      <div className="preview-section-heading mb-12">
+        <H2 className="text-3xl font-bold tracking-tight mb-2 border-none">Documentation</H2>
+        <Muted className="text-lg">
+          Detailed guides and architectural diagrams for the Synthex UI ecosystem.
+        </Muted>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {docFiles.map((file) => (
+          <Card key={file.name} className="glass-premium border-border/50 hover-premium group">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileIcon className="h-5 w-5 text-primary opacity-70" />
+                {file.title}
+              </CardTitle>
+              <CardDescription>{file.name}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" size="sm" className="w-full border-border/50 group-hover:border-primary/50 transition-colors">
+                View Source
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="mt-12">
+        <Card className="glass-premium border-border/50 overflow-hidden">
+          <CardHeader className="bg-surface-muted/30 border-b border-border/30">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Icon name="search" size={16} /> Preview: mermaid-architecture.md
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-8">
+            <div className="prose prose-invert max-w-none">
+              <pre className="p-4 bg-black/20 rounded-lg border border-border/30 overflow-x-auto">
+                {`graph TD
+  A[App Consumer] --> B[synthex-ui]
+  B --> C[@synthex/core]
+  B --> D[@synthex/react-web]
+  C --> E[Command Palette]
+  C --> F[Layout Engine]
+  D --> G[Docking Layer]`}
+              </pre>
+              <p className="mt-4 text-foreground-muted">
+                This diagram represents the core package relationships and data flow within the Synthex UI architecture.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </section>
   );
 }
 

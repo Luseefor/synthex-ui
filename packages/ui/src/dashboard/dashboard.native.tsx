@@ -1,12 +1,6 @@
 import * as React from "react";
 import {
     Button,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
     Input,
     Table,
     TableBody,
@@ -22,6 +16,8 @@ export function DashboardView({
     metrics,
     updates,
     chartData,
+    searchValue,
+    onSearchChange,
     onDocumentationClick,
     onRepositoryClick,
 }: DashboardViewProps) {
@@ -37,27 +33,11 @@ export function DashboardView({
                                 <Input
                                     placeholder="Search..."
                                     style={{ height: 32, padding: 0, flex: 1 }}
+                                    value={searchValue}
+                                    onChangeText={onSearchChange}
                                 />
                             </Inline>
                         </Surface>
-                    </Inline>
-                    <Inline align="center" gap="md">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" style={{ height: 36, width: 36, borderRadius: 999 }}>
-                                    <Text weight="semibold" size="xs">SU</Text>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuLabel>Developer Account</DropdownMenuLabel>
-                                <DropdownMenuItem>Profile</DropdownMenuItem>
-                                <DropdownMenuItem>Settings</DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem>
-                                    <Text style={{ color: "red" }}>Log out</Text>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
                     </Inline>
                 </Inline>
             </Surface>
