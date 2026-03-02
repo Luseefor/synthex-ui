@@ -142,12 +142,12 @@ body {
 }
 
 .preview-sidebar-section-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
   color: var(--sx-color-foreground-muted);
-  padding: 0 0.75rem;
+  padding: 0 0.6rem;
 }
 
 .preview-nav {
@@ -165,11 +165,11 @@ body {
   background: transparent;
   color: var(--sx-color-foreground-muted);
   cursor: pointer;
-  padding: 0.45rem 0.75rem;
+  padding: 0.35rem 0.6rem;
   text-align: left;
   text-decoration: none;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 400;
   transition:
     color var(--sx-motion-fast) var(--sx-easing-standard),
     background-color var(--sx-motion-fast) var(--sx-easing-standard);
@@ -177,13 +177,13 @@ body {
 
 .preview-nav-link:hover {
   color: var(--sx-color-foreground);
-  background: var(--sx-color-surface-raised);
+  background: var(--sx-color-accent);
 }
 
 .preview-nav-link-active {
   color: var(--sx-color-foreground);
-  background: var(--sx-color-surface-raised);
-  font-weight: 600;
+  background: var(--sx-color-accent);
+  font-weight: 500;
 }
 
 .preview-sidebar-meta {

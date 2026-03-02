@@ -16,15 +16,15 @@ const cardClassStyles = {
     variant: {
       default: {
         root:
-          "border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] shadow-[0_12px_32px_rgba(15,23,42,0.06)]",
+          "border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] shadow-[var(--sx-shadow-sm)]",
       },
       elevated: {
         root:
-          "border-transparent bg-[color:var(--sx-color-surface-raised)] shadow-[0_18px_44px_rgba(15,23,42,0.12)]",
+          "border-transparent bg-[color:var(--sx-color-surface-raised)] shadow-[var(--sx-shadow-md)]",
       },
       interactive: {
         root:
-          "border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] shadow-[0_10px_28px_rgba(15,23,42,0.06)] hover:-translate-y-px hover:border-[color:var(--sx-color-border-strong)] hover:shadow-[0_16px_36px_rgba(15,23,42,0.1)]",
+          "border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] shadow-[var(--sx-shadow-sm)] hover:-translate-y-px hover:border-[color:var(--sx-color-border-strong)] hover:shadow-[var(--sx-shadow-md)]",
       },
       muted: {
         root:
@@ -32,7 +32,7 @@ const cardClassStyles = {
       },
       accent: {
         root:
-          "border-[color:var(--sx-color-accent)] bg-[color:var(--sx-color-accent-muted)] shadow-[0_14px_34px_rgba(15,118,110,0.12)]",
+          "border-[color:var(--sx-color-accent)] bg-[color:var(--sx-color-accent-muted)] shadow-[var(--sx-shadow-sm)]",
       },
     },
   },
@@ -40,7 +40,7 @@ const cardClassStyles = {
 
 export interface CardProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    CardVariantProps {}
+  CardVariantProps { }
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant, ...props }, ref) => {

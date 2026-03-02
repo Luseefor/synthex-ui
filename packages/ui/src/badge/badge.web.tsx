@@ -10,21 +10,21 @@ const badgeClassStyles = {
   slots: ["root"] as const,
   base: {
     root:
-      "inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em]",
+      "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[color:var(--sx-color-ring)] focus:ring-offset-2",
   },
   variants: {
     variant: {
       default: {
         root:
-          "border-transparent bg-[color:var(--sx-color-primary-muted)] text-[color:var(--sx-color-primary)]",
+          "border-transparent bg-[color:var(--sx-color-primary)] text-[color:var(--sx-color-foreground-on-brand)] hover:bg-[color:var(--sx-color-primary)]/80",
       },
       secondary: {
         root:
-          "border-transparent bg-[color:var(--sx-color-secondary-muted)] text-[color:var(--sx-color-foreground)]",
+          "border-transparent bg-[color:var(--sx-color-secondary)] text-[color:var(--sx-color-foreground)] hover:bg-[color:var(--sx-color-secondary)]/80",
       },
       destructive: {
         root:
-          "border-transparent bg-[color:var(--sx-color-destructive-muted)] text-[color:var(--sx-color-destructive)]",
+          "border-transparent bg-[color:var(--sx-color-destructive)] text-[color:var(--sx-color-foreground-on-brand)] hover:bg-[color:var(--sx-color-destructive)]/80",
       },
       outline: {
         root:
@@ -36,7 +36,7 @@ const badgeClassStyles = {
 
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    BadgeSharedProps {}
+  BadgeSharedProps { }
 
 export function Badge({ className, variant, ...props }: BadgeProps) {
   const slots = resolveVariantStyles(badgeVariants, badgeClassStyles, { variant });

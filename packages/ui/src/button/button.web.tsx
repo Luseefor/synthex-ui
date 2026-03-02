@@ -10,48 +10,48 @@ const buttonClassStyles = {
   slots: ["root"] as const,
   base: {
     root:
-      "inline-flex items-center justify-center gap-2 whitespace-nowrap select-none rounded-[var(--sx-radius-md)] border border-transparent font-medium tracking-[-0.01em] transition-[background-color,border-color,color,box-shadow,transform] duration-[var(--sx-motion-fast)] ease-[var(--sx-easing-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-45 active:scale-[0.98]",
+      "inline-flex items-center justify-center gap-2 whitespace-nowrap select-none rounded-[var(--sx-radius-md)] border border-transparent text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-50",
   },
   variants: {
     variant: {
       default:
       {
         root:
-          "bg-[color:var(--sx-color-primary)] text-[color:var(--sx-color-foreground-on-brand)] shadow-[0_1px_2px_rgba(15,23,42,0.18)] hover:bg-[color:var(--sx-color-primary-hover)]",
+          "bg-[color:var(--sx-color-primary)] text-[color:var(--sx-color-foreground-on-brand)] shadow-[var(--sx-shadow-sm)] hover:bg-[color:var(--sx-color-primary)]/90",
       },
       secondary: {
         root:
-          "bg-[color:var(--sx-color-secondary-muted)] text-[color:var(--sx-color-foreground)] shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] hover:bg-[color:var(--sx-color-secondary)]",
+          "bg-[color:var(--sx-color-secondary)] text-[color:var(--sx-color-foreground)] shadow-[var(--sx-shadow-sm)] hover:bg-[color:var(--sx-color-secondary)]/80",
       },
       destructive: {
         root:
-          "bg-[color:var(--sx-color-destructive)] text-[color:var(--sx-color-foreground-on-brand)] shadow-[0_1px_2px_rgba(127,29,29,0.18)] hover:bg-[color:var(--sx-color-destructive-hover)]",
+          "bg-[color:var(--sx-color-destructive)] text-[color:var(--sx-color-foreground-on-brand)] shadow-[var(--sx-shadow-sm)] hover:bg-[color:var(--sx-color-destructive)]/90",
       },
       ghost: {
         root:
-          "text-[color:var(--sx-color-foreground)] hover:bg-[color:var(--sx-color-background-subtle)] hover:text-[color:var(--sx-color-foreground)]",
+          "text-[color:var(--sx-color-foreground)] hover:bg-[color:var(--sx-color-accent)] hover:text-[color:var(--sx-color-foreground)]",
       },
       outline: {
         root:
-          "border-[color:var(--sx-color-border-strong)] bg-[color:var(--sx-color-surface)] text-[color:var(--sx-color-foreground)] shadow-[0_1px_2px_rgba(15,23,42,0.06)] hover:bg-[color:var(--sx-color-surface-muted)]",
+          "border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] shadow-[var(--sx-shadow-sm)] hover:bg-[color:var(--sx-color-accent)] hover:text-[color:var(--sx-color-foreground)]",
       },
       link: {
         root:
-          "h-auto rounded-none px-0 py-0 text-[color:var(--sx-color-primary)] shadow-none hover:text-[color:var(--sx-color-primary-hover)] hover:underline",
+          "h-auto rounded-none px-0 py-0 text-[color:var(--sx-color-primary)] shadow-none hover:text-[color:var(--sx-color-primary)]/90 hover:underline",
       },
     },
     size: {
       sm: {
-        root: "h-9 px-3.5 text-[13px]",
+        root: "h-8 px-3 text-xs",
       },
       md: {
-        root: "h-10 px-4 text-sm",
+        root: "h-9 px-4 py-2",
       },
       lg: {
-        root: "h-11 px-5 text-[15px]",
+        root: "h-10 px-8",
       },
       icon: {
-        root: "h-10 w-10 p-0 text-sm",
+        root: "h-9 w-9 p-0",
       },
     },
   },

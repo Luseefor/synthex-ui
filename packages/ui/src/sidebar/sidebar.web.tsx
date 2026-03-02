@@ -121,8 +121,8 @@ export const SidebarContent = React.forwardRef<HTMLDivElement, React.HTMLAttribu
       <div
         ref={ref}
         className={cn(
-          "flex-1 overflow-x-hidden overflow-y-auto py-4 transition-[padding] duration-200",
-          open ? "px-3" : "px-2",
+          "flex-1 overflow-x-hidden overflow-y-auto py-2 transition-[padding] duration-200",
+          open ? "px-2" : "px-2",
           className,
         )}
         {...props}
@@ -151,8 +151,8 @@ export const SidebarGroupLabel = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--sx-color-foreground-muted)] transition-[opacity,height,padding] duration-200",
-        open ? "h-auto px-3 opacity-100" : "h-0 overflow-hidden px-0 opacity-0",
+        "text-[0.7rem] font-medium uppercase tracking-tight text-[color:var(--sx-color-foreground-muted)] transition-[opacity,height,padding] duration-200",
+        open ? "h-auto px-2 opacity-100" : "h-0 overflow-hidden px-0 opacity-0",
         className,
       )}
       {...props}
@@ -196,11 +196,11 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
         ref={ref}
         aria-label={props["aria-label"] ?? (!open ? stringChildren ?? undefined : undefined)}
         className={cn(
-          "flex min-h-10 w-full items-center gap-3 overflow-hidden rounded-[var(--sx-radius-md)] py-2.5 text-left text-sm font-medium transition-[background-color,color,padding] duration-200",
+          "flex min-h-8 w-full items-center gap-2 overflow-hidden rounded-[var(--sx-radius-md)] py-1.5 text-left text-sm transition-[background-color,color,padding] duration-200",
           active
-            ? "bg-[color:var(--sx-color-accent)] text-[color:var(--sx-color-foreground)] font-semibold"
-            : "text-[color:var(--sx-color-foreground-muted)] hover:bg-[color:var(--sx-color-accent)] hover:text-[color:var(--sx-color-foreground)]",
-          open ? "px-3" : "justify-center px-0",
+            ? "bg-[color:var(--sx-color-accent)] text-[color:var(--sx-color-foreground)] font-medium"
+            : "text-[color:var(--sx-color-foreground-muted)] font-normal hover:bg-[color:var(--sx-color-accent)] hover:text-[color:var(--sx-color-foreground)]",
+          open ? "px-2" : "justify-center px-0",
           className,
         )}
         title={props.title ?? (!open ? stringChildren ?? undefined : undefined)}

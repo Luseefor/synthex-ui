@@ -10,11 +10,12 @@
   },
   "dependencies": {
     "@synthex/core": "workspace:*",
-    "synthex-ui": "workspace:*",
     "@synthex/react-web": "workspace:*",
+    "mermaid": "^11.12.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.9.3"
+    "react-router-dom": "^7.9.3",
+    "synthex-ui": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.12",
