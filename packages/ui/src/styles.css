@@ -91,11 +91,137 @@
   --sx-font-weight-bold: 700;
 
   /* ── Motion ─────────────────────────────────────────────── */
-  --sx-motion-fast: 120ms;
-  --sx-motion-normal: 180ms;
-  --sx-motion-slow: 280ms;
-  --sx-easing-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --sx-easing-standard: cubic-bezier(0.2, 0.2, 0, 1);
+  --sx-motion-fast: 150ms;
+  --sx-motion-normal: 200ms;
+  --sx-motion-slow: 300ms;
+  --sx-easing-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --sx-easing-standard: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  /* ── Overlay / Elevation ───────────────────────────────── */
+  --sx-shadow-toast: 0 16px 48px -12px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --sx-shadow-dropdown: 0 12px 36px -8px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --sx-shadow-dialog: 0 24px 64px -16px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+/* ── Keyframe Animations ───────────────────────────────── */
+@keyframes sx-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sx-fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes sx-slide-in-from-bottom {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes sx-slide-in-from-top {
+  from {
+    transform: translateY(-8px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes sx-scale-in {
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes sx-toast-enter {
+  from {
+    transform: translateX(calc(100% + 1rem));
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes sx-toast-exit {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+    max-height: 200px;
+    margin-bottom: 12px;
+  }
+
+  to {
+    transform: translateX(calc(100% + 1rem));
+    opacity: 0;
+    max-height: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+@keyframes sx-overlay-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sx-content-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes sx-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* ── Dark Theme ─────────────────────────────────────────── */
