@@ -5,45 +5,18 @@ import {
     SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
+    SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarTrigger,
-    DropdownMenu,
-    DropdownMenuTrigger,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
     useSidebar,
-    Box,
-    Inline,
-    Small,
-    Badge,
     cn,
 } from "synthex-ui";
-import {
-    PackageIcon,
-    PaletteIcon,
-    SettingsIcon,
-    TerminalIcon,
-    LayoutTemplateIcon,
-} from "synthex-ui/icons";
-
-import { useTheme } from "synthex-ui/hooks";
 import type { AccentPresetName } from "synthex-ui/theme";
-import { accentPresets } from "synthex-ui/theme";
-import { ThemeCustomizer } from "./ThemeCustomizer";
-
-const navItems = [
-    { label: "Overview", to: "/", icon: PackageIcon },
-    { label: "Installation", to: "/installation", icon: TerminalIcon },
-    { label: "Components", to: "/components", icon: LayoutTemplateIcon },
-    { label: "Theme", to: "/theme", icon: PaletteIcon },
-    { label: "Engine", to: "/engine", icon: SettingsIcon },
-    { label: "Playground", to: "/playground", icon: LayoutTemplateIcon }, // Using LayoutTemplateIcon as fallback for GridIcon
-] as const;
+import { NAV_ITEMS } from "../app/nav";
+import { SidebarBrand } from "./sidebar/SidebarBrand";
+import { SidebarThemeControl } from "./sidebar/SidebarThemeControl";
 
 interface AppSidebarProps {
     readonly mode: "light" | "dark";
@@ -67,65 +40,48 @@ export function AppSidebar({
     const { open, setOpen } = useSidebar();
 
     return (
-        <Sidebar>
-            <SidebarHeader className="p-0 border-none">
-                <div className={cn(
-                    "flex flex-col transition-all duration-300 ease-in-out",
-                    open ? "p-4 gap-4" : "p-2"
-                )}>
-                    <div className="flex items-center justify-between gap-2 overflow-hidden">
-                        {open ? (
-                            <div className="flex items-center gap-3 overflow-hidden">
-                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[color:var(--sx-color-primary)] text-[color:var(--sx-color-foreground-on-brand)] shadow-sm">
-                                    <TerminalIcon size={18} />
-                                </div>
-                                <div className="flex flex-col animate-in fade-in slide-in-from-left-2 duration-300">
-                                    <span className="text-sm font-bold tracking-tight text-[color:var(--sx-color-foreground)]">Synthex UI</span>
-                                    <span className="text-[10px] font-semibold text-[color:var(--sx-color-foreground-muted)] uppercase tracking-widest mt-0.5">v1.0 Release</span>
-                                </div>
-                            </div>
-                        ) : (
-                            <button
-                                aria-label="Expand Sidebar"
-                                onClick={() => setOpen(true)}
-                                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[color:var(--sx-color-primary)] text-[color:var(--sx-color-foreground-on-brand)] shadow-sm transition-all hover:scale-110 active:scale-95 mx-auto mt-1"
-                            >
-                                <TerminalIcon size={18} />
-                            </button>
-                        )}
-                        {open && (
-                            <SidebarTrigger className="shrink-0 hover:bg-[color:var(--sx-color-surface-muted)] transition-colors" />
-                        )}
-                    </div>
-                </div>
-                <div className="h-px w-full bg-[color:var(--sx-color-border)] opacity-50" />
+        <Sidebar className="data-[state=open]:w-[16rem] data-[state=closed]:w-[4.5rem]">
+            <SidebarHeader className="border-none p-0">
+                <SidebarBrand />
+                <div className="h-px w-full bg-[color:var(--sx-color-border)]/70" />
             </SidebarHeader>
 
-            <SidebarContent>
-                <SidebarGroup>
+            <SidebarContent className={cn(open ? "px-3 py-4" : "px-2 py-4")}>
+                <SidebarGroup className="gap-3">
+                    {open && (
+                        <SidebarGroupLabel className="px-2 text-[10px] font-medium uppercase tracking-[0.18em] text-[color:var(--sx-color-foreground-muted)]">
+                            Navigation
+                        </SidebarGroupLabel>
+                    )}
                     <SidebarGroupContent>
-                        <SidebarMenu>
-                            {navItems.map((item) => {
+                        <SidebarMenu className={cn("gap-1.5", !open && "items-center")}>
+                            {NAV_ITEMS.map((item) => {
                                 const isActive = pathname === item.to || (item.to !== "/" && pathname.startsWith(item.to));
                                 const Icon = item.icon;
 
                                 return (
-                                    <SidebarMenuItem key={item.to}>
+                                    <SidebarMenuItem key={item.to} className={cn(!open && "w-full flex justify-center")}>
                                         <SidebarMenuButton
                                             active={isActive}
+                                            className={cn(
+                                                "min-h-11 rounded-[18px] border border-transparent px-3 text-[15px] font-medium transition-all duration-200",
+                                                isActive
+                                                    ? "border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-accent)] text-[color:var(--sx-color-foreground)] shadow-sm"
+                                                    : "text-[color:var(--sx-color-foreground-muted)] hover:border-[color:var(--sx-color-border)] hover:bg-[color:var(--sx-color-surface-muted)]/45 hover:text-[color:var(--sx-color-foreground)]",
+                                                !open && "mx-auto h-11 w-11 min-h-11 justify-center rounded-[16px] px-0"
+                                            )}
                                             onClick={() => {
                                                 navigate(item.to);
-                                                // Close sidebar on mobile navigation
                                                 if (window.innerWidth < 768) {
                                                     setOpen(false);
                                                 }
                                             }}
                                         >
-                                            <Icon size={16} />
+                                            <Icon size={17} />
                                             <span
                                                 className={cn(
                                                     "truncate transition-[width,opacity] duration-200",
-                                                    open ? "w-auto opacity-100" : "w-0 opacity-0",
+                                                    open ? "w-auto opacity-100" : "w-0 opacity-0"
                                                 )}
                                             >
                                                 {item.label}
@@ -138,22 +94,16 @@ export function AppSidebar({
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
-            <SidebarFooter className="p-2 border-t border-[color:var(--sx-color-border)]">
-                <div className={cn("flex flex-1 items-center gap-2", !open && "justify-center")}>
-                    <ThemeCustomizer
-                        mode={mode}
-                        setMode={setMode}
-                        accentPreset={accentPreset}
-                        setAccentPreset={setAccentPreset}
-                        radius={radius}
-                        setRadius={setRadius}
-                    />
-                    {open && (
-                        <span className="text-xs font-medium text-[color:var(--sx-color-foreground-muted)] animate-in fade-in duration-200">
-                            Theme Settings
-                        </span>
-                    )}
-                </div>
+
+            <SidebarFooter className="border-t border-[color:var(--sx-color-border)]/70 p-0">
+                <SidebarThemeControl
+                    mode={mode}
+                    setMode={setMode}
+                    accentPreset={accentPreset}
+                    setAccentPreset={setAccentPreset}
+                    radius={radius}
+                    setRadius={setRadius}
+                />
             </SidebarFooter>
         </Sidebar>
     );

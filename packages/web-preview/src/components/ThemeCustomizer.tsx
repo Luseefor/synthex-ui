@@ -1,10 +1,5 @@
 import * as React from "react";
-import {
-    CheckIcon,
-    MoonIcon,
-    SunIcon,
-    PaletteIcon,
-} from "synthex-ui/icons";
+import { CheckIcon, MoonIcon, SunIcon, PaletteIcon } from "synthex-ui/icons";
 import {
     Button,
     Label,
@@ -35,6 +30,7 @@ export function ThemeCustomizer({
     setRadius,
 }: ThemeCustomizerProps) {
     const { open } = useSidebar();
+    const activeOptionClass = "border-2 border-[color:var(--sx-color-primary)] bg-[color:var(--sx-color-primary)]/10 !text-[color:var(--sx-color-primary)] [&_svg]:!text-[color:var(--sx-color-primary)]";
 
     return (
         <div className="flex items-center gap-2">
@@ -74,7 +70,7 @@ export function ThemeCustomizer({
                                             size="sm"
                                             className={cn(
                                                 "justify-start gap-2 px-2 h-8 text-[12px]",
-                                                isActive && "border-2 border-[color:var(--sx-color-primary)] bg-[color:var(--sx-color-primary-muted)]"
+                                                isActive && activeOptionClass
                                             )}
                                             onClick={() => setAccentPreset(id as AccentPresetName)}
                                         >
@@ -102,7 +98,7 @@ export function ThemeCustomizer({
                                             size="sm"
                                             className={cn(
                                                 "h-8 px-0 text-[12px]",
-                                                isActive && "border-2 border-[color:var(--sx-color-primary)] bg-[color:var(--sx-color-primary-muted)]"
+                                                isActive && activeOptionClass
                                             )}
                                             onClick={() => setRadius(value)}
                                         >
@@ -121,7 +117,7 @@ export function ThemeCustomizer({
                                     size="sm"
                                     className={cn(
                                         "justify-start gap-2 h-8 text-[12px]",
-                                        mode === "light" && "border-2 border-[color:var(--sx-color-primary)] bg-[color:var(--sx-color-primary-muted)]"
+                                        mode === "light" && activeOptionClass
                                     )}
                                     onClick={() => setMode("light")}
                                 >
@@ -133,7 +129,7 @@ export function ThemeCustomizer({
                                     size="sm"
                                     className={cn(
                                         "justify-start gap-2 h-8 text-[12px]",
-                                        mode === "dark" && "border-2 border-[color:var(--sx-color-primary)] bg-[color:var(--sx-color-primary-muted)]"
+                                        mode === "dark" && activeOptionClass
                                     )}
                                     onClick={() => setMode("dark")}
                                 >

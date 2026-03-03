@@ -1,16 +1,12 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "declaration": true,
     "emitDeclarationOnly": false,
     "declarationMap": false,
     "outDir": "./dist",
     "noEmit": false,
-    "paths": {
-      "@synthex/core": ["../core/dist/index.d.ts"],
-      "@synthex/core/*": ["../core/dist/*"]
-    },
+    "paths": {},
     "rootDir": "./src",
     "types": ["node"]
   },
