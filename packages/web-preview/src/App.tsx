@@ -869,8 +869,25 @@ function DocumentationSection() {
           <Card className="glass-premium border-primary/20 bg-primary/5">
             <CardContent className="p-4 space-y-3">
               <p className="text-xs font-medium text-primary">Need help?</p>
-              <p className="text-[10px] text-foreground-muted/80 leading-relaxed">Join our discord community for live support or check our GitHub discussions.</p>
-              <Button variant="outline" size="sm" className="w-full h-8 text-[10px] bg-background/50 border-primary/20 hover:bg-primary/10">Community Discord</Button>
+              <p className="text-[10px] text-foreground-muted/80 leading-relaxed">
+                Join our discord community for live support or check our{" "}
+                <a
+                  href="https://github.com/Luseefor/synthex-ui/discussions"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline font-medium"
+                >
+                  GitHub discussions
+                </a>.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full h-8 text-[10px] bg-background/50 border-primary/20 hover:bg-primary/10"
+                onClick={() => window.open("https://github.com/Luseefor/synthex-ui", "_blank")}
+              >
+                View Repository
+              </Button>
             </CardContent>
           </Card>
         </div>

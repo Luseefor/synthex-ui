@@ -1,11 +1,11 @@
-# @synthex/react-web
+# synthex-react-web
 
 React DOM adapter for rendering the Synthex layout engine on the web.
 
 ## Install
 
 ```sh
-npm install @synthex/core @synthex/react-web
+npm install synthex-core synthex-react-web
 ```
 
 ## Includes
