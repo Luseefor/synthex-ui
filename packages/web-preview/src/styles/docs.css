@@ -1,6 +1,7 @@
 .preview-docs-grid {
   display: grid;
   gap: 1.5rem;
+  align-items: start;
 }
 
 .preview-doc-nav {
@@ -11,7 +12,7 @@
   padding: 0.85rem 1rem;
   border: 1px solid transparent;
   border-radius: var(--sx-radius-lg);
-  background: transparent;
+  background: color-mix(in srgb, var(--sx-color-surface) 92%, transparent);
   color: var(--sx-color-foreground-muted);
   text-align: left;
   transition: background-color 120ms, border-color 120ms, color 120ms;
@@ -29,9 +30,9 @@
   min-width: 0;
   flex-direction: column;
   gap: 1rem;
-  padding: 1.25rem;
+  padding: 1.5rem;
   border: 1px solid color-mix(in srgb, var(--sx-color-border) 84%, transparent);
-  border-radius: 1.5rem;
+  border-radius: calc(var(--sx-radius-xl) + 2px);
   background: color-mix(in srgb, var(--sx-color-surface) 96%, transparent);
 }
 

@@ -179,7 +179,8 @@ export const SelectItem = React.forwardRef<HTMLButtonElement, SelectItemProps>(
         aria-selected={active}
         className={cn(
           "flex w-full items-center justify-between gap-3 rounded-[var(--sx-radius-md)] px-3 py-2.5 text-left text-sm text-[color:var(--sx-color-foreground)] transition-colors duration-[var(--sx-motion-fast)] hover:bg-[color:var(--sx-color-surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[color:var(--sx-color-surface)]",
-          active && "bg-[color:var(--sx-color-primary-muted)] text-[color:var(--sx-color-primary)]",
+          active &&
+            "border border-[color:var(--sx-color-primary)]/40 bg-[color:color-mix(in_srgb,var(--sx-color-primary)_14%,var(--sx-color-surface))] text-[color:var(--sx-color-foreground)]",
           className,
         )}
         onClick={(event) => {

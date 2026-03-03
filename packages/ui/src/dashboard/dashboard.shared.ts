@@ -25,9 +25,13 @@ export interface DashboardViewProps {
     readonly metrics: readonly DashboardMetric[];
     readonly updates: readonly DashboardUpdate[];
     readonly chartData: readonly DashboardChartData[];
+    readonly chartTitle?: string;
+    readonly chartDescription?: string;
+    readonly latestReleaseLabel?: string;
     readonly searchValue: string;
     readonly onSearchChange: (value: string) => void;
     readonly componentResults?: readonly { name: string; description: string }[];
+    readonly showBranding?: boolean;
     readonly onDocumentationClick?: () => void;
     readonly onRepositoryClick?: () => void;
     readonly onUpdateClick?: (update: DashboardUpdate) => void;

@@ -30,7 +30,7 @@ export function Kbd({ className, ...props }: KbdProps) {
   return (
     <kbd
       className={cn(
-        "inline-flex min-h-6 items-center rounded-[calc(var(--sx-radius-sm)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-muted)] px-2 font-mono text-[0.75rem] font-semibold text-[color:var(--sx-color-foreground-muted)]",
+        "inline-flex min-h-6 items-center justify-center whitespace-nowrap rounded-[calc(var(--sx-radius-sm)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-muted)] px-2 font-mono text-[0.75rem] font-semibold leading-none text-[color:var(--sx-color-foreground-muted)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]",
         className,
       )}
       {...props}

@@ -20,9 +20,13 @@ export function DashboardView({
     metrics,
     updates,
     chartData,
+    chartTitle = "Repository Activity",
+    chartDescription = "Recent repository activity from GitHub.",
+    latestReleaseLabel = "GitHub",
     searchValue,
     onSearchChange,
     componentResults = [],
+    showBranding = true,
     onDocumentationClick,
     onRepositoryClick,
 }: DashboardViewProps) {
@@ -32,9 +36,11 @@ export function DashboardView({
         <div className="flex flex-col w-full min-h-full bg-background">
             {/* Top Navigation Bar */}
             <header className="flex h-16 items-center px-6 border-b border-border/50 bg-surface/50 backdrop-blur-xl sticky top-0 z-50">
-                <div className="font-semibold text-lg tracking-tight mr-8 text-foreground">
-                    Synthex UI
-                </div>
+                {showBranding ? (
+                    <div className="font-semibold text-lg tracking-tight mr-8 text-foreground">
+                        Synthex UI
+                    </div>
+                ) : null}
                 <div className="flex items-center space-x-4 flex-1">
                     <div className="relative w-96">
                         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground-muted" />
@@ -48,7 +54,7 @@ export function DashboardView({
                 </div>
                 <div className="flex items-center space-x-4">
                     <Button variant="outline" size="sm" className="hidden md:flex h-9 border-border/50 glass-premium">
-                        <span className="mr-2 opacity-50">v1.0.4</span> Latest Release
+                        <span className="mr-2 opacity-50">{latestReleaseLabel}</span> Live Data
                     </Button>
                     <Button variant="default" size="sm" className="h-9 shadow-sm shadow-primary/20" onClick={onDocumentationClick}>
                         View Documentation
@@ -116,8 +122,8 @@ export function DashboardView({
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                         <Card className="col-span-4 glass-premium border-border/50 shadow-sm">
                             <CardHeader>
-                                <CardTitle>Usage Overview</CardTitle>
-                                <CardDescription>Monthly NPM downloads over the current year.</CardDescription>
+                                <CardTitle>{chartTitle}</CardTitle>
+                                <CardDescription>{chartDescription}</CardDescription>
                             </CardHeader>
                             <CardContent className="pl-2">
                                 <div className="h-[300px] w-full flex items-end justify-between px-4 pb-4 mt-4 gap-2">

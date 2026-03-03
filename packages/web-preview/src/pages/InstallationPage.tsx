@@ -18,7 +18,7 @@ export function InstallationPage() {
         <H2>Installation</H2>
         <Muted>Install the shared design system first, then opt into the dockable web workbench only where it is needed.</Muted>
       </div>
-      <div className="preview-grid-2">
+      <div className="preview-install-grid">
         <Card>
           <CardHeader>
             <CardTitle>Packages</CardTitle>
