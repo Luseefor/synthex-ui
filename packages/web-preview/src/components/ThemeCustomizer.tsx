@@ -42,7 +42,7 @@ export function ThemeCustomizer({
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className={cn(
-                    "w-[340px] p-0 mb-2 overflow-hidden shadow-2xl border-[color:var(--sx-color-border-strong)] bottom-[calc(100%+0.5rem)] top-auto",
+                    "w-[min(340px,calc(100vw-1.5rem))] max-h-[min(80dvh,42rem)] overflow-auto p-0 mb-2 shadow-2xl border-[color:var(--sx-color-border-strong)] bottom-[calc(100%+0.5rem)] top-auto",
                     open ? "ml-2" : "ml-0 left-[-4px]"
                 )}>
                     <div className="p-4 pt-6">

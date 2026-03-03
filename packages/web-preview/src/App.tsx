@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { SidebarInset, SidebarProvider } from "synthex-ui/components";
+import { useMobile } from "synthex-ui/hooks";
 import { ThemeProvider } from "synthex-ui/theme";
 import { MobileTopbar } from "./app/MobileTopbar";
 import { usePreviewTheme } from "./app/usePreviewTheme";
@@ -22,6 +23,7 @@ export function App() {
   const location = useLocation();
   const navigate = useNavigate();
   const theme = usePreviewTheme();
+  const isMobile = useMobile();
 
   if (location.pathname === "/playground") {
     return <ThemeProvider mode={theme.mode} accentPreset={theme.accentPreset} theme={theme.themeOverrides}><div className="preview-site"><Suspense fallback={<PreviewFallback />}><Builder /></Suspense></div></ThemeProvider>;
@@ -30,7 +32,7 @@ export function App() {
   return (
     <ThemeProvider mode={theme.mode} accentPreset={theme.accentPreset} theme={theme.themeOverrides}>
       <div className="preview-site">
-        <SidebarProvider defaultOpen>
+        <SidebarProvider defaultOpen={!isMobile}>
           <AppSidebar {...theme} />
           <SidebarInset className="preview-inset">
             <MobileTopbar />

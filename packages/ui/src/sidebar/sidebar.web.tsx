@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Sheet, SheetClose } from "../sheet/sheet.web";
 import { useMobile } from "../hooks/useMobile.web";
 import { cn } from "../_shared/variants";
 import type {
@@ -59,19 +58,28 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
 
     if (isMobile) {
       return (
-        <Sheet open={open} onOpenChange={setOpen}>
+        <>
+          <div
+            aria-hidden={!open}
+            className={cn(
+              "fixed inset-0 z-40 bg-[rgba(15,23,42,0.42)] backdrop-blur-sm transition-opacity duration-200",
+              open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
+            )}
+            onClick={() => setOpen(false)}
+          />
           <div
             ref={ref}
             className={cn(
-              "fixed inset-y-0 left-0 z-50 flex h-[100dvh] w-[18rem] flex-col border-r border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] shadow-lg transition-transform",
+              "fixed inset-y-0 left-0 z-50 flex h-[100dvh] w-[min(18rem,calc(100vw-1.5rem))] flex-col border-r border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] shadow-[0_20px_48px_rgba(15,23,42,0.28)] transition-transform duration-200",
               open ? "translate-x-0" : "-translate-x-full",
               className
             )}
+            data-state={open ? "open" : "closed"}
             {...props}
           >
             {children}
           </div>
-        </Sheet>
+        </>
       );
     }
 

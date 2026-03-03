@@ -5,9 +5,10 @@ interface ComponentSidebarProps {
   readonly collapsed: Record<string, boolean>;
   readonly onSearch: (value: string) => void;
   readonly onToggle: (category: string) => void;
+  readonly onInsert?: (type: string) => void;
 }
 
-export function ComponentSidebar({ search, collapsed, onSearch, onToggle }: ComponentSidebarProps) {
+export function ComponentSidebar({ search, collapsed, onSearch, onToggle, onInsert }: ComponentSidebarProps) {
   const filtered = COMPONENTS.filter((component) => !search.trim() || `${component.label} ${component.category}`.toLowerCase().includes(search.toLowerCase()));
 
   return (
@@ -19,7 +20,7 @@ export function ComponentSidebar({ search, collapsed, onSearch, onToggle }: Comp
           const items = filtered.filter((component) => component.category === category);
           if (!items.length) return null;
           const isCollapsed = Boolean(collapsed[category]);
-          return <div key={category} className="bld-cg"><button className="bld-ch" onClick={() => onToggle(category)}><span className="bld-ca">{isCollapsed ? "▸" : "▾"}</span>{category}<span className="bld-cc">{items.length}</span></button>{!isCollapsed && <div className="bld-cl">{items.map((component) => <div key={component.type} draggable className="bld-di" onDragStart={(e) => { e.dataTransfer.setData("sx/type", component.type); e.dataTransfer.effectAllowed = "copy"; }}><span className="bld-dic">{component.icon}</span><span>{component.label}</span></div>)}</div>}</div>;
+          return <div key={category} className="bld-cg"><button className="bld-ch" onClick={() => onToggle(category)}><span className="bld-ca">{isCollapsed ? "▸" : "▾"}</span>{category}<span className="bld-cc">{items.length}</span></button>{!isCollapsed && <div className="bld-cl">{items.map((component) => <button key={component.type} type="button" draggable className="bld-di" onClick={() => onInsert?.(component.type)} onDragStart={(e) => { e.dataTransfer.setData("sx/type", component.type); e.dataTransfer.effectAllowed = "copy"; }}><span className="bld-dic">{component.icon}</span><span>{component.label}</span></button>)}</div>}</div>;
         })}
       </div>
     </aside>
