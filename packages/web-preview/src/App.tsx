@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import mermaid from "mermaid";
 import { Navigate, NavLink, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { AppSidebar } from "./components/AppSidebar";
 
@@ -221,13 +222,17 @@ import {
 } from "synthex-ui/components";
 import {
   AddIcon,
+  ActivityIcon,
+  BookOpenIcon,
   FileIcon,
   GridIcon,
   Icon,
   iconNames,
+  PaletteIcon,
   RedoIcon,
   SearchIcon,
   SettingsIcon,
+  TerminalIcon,
   UndoIcon,
 } from "synthex-ui/icons";
 import {
@@ -244,6 +249,175 @@ import {
   useReducedMotion,
 } from "synthex-ui/hooks";
 import { Builder } from "./components";
+import { GALLERY_COMPONENTS, DOCS_METADATA, type DocMetadata } from "./data";
+
+// --- Custom Documentation Components ---
+
+function Mermaid({ chart }: { chart: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [id] = useState(() => `mermaid-${Math.random().toString(36).substr(2, 9)}`);
+
+  useEffect(() => {
+    const render = async () => {
+      if (ref.current && chart) {
+        try {
+          mermaid.initialize({
+            startOnLoad: false,
+            theme: "dark",
+            securityLevel: "loose",
+            fontFamily: "Inter, system-ui, sans-serif",
+          });
+          const { svg } = await mermaid.render(id, chart.trim());
+          if (ref.current) {
+            ref.current.innerHTML = svg;
+          }
+        } catch (e) {
+          console.error("Mermaid render error:", e);
+          if (ref.current) {
+            ref.current.innerHTML = `<div class="p-4 bg-red-900/10 border border-red-500/20 rounded-xl text-red-200/70 text-[10px] font-mono flex items-center gap-3">
+              <div class="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+              Mermaid Syntax Error: Check diagram definition
+            </div>`;
+          }
+        }
+      }
+    };
+    render();
+  }, [chart, id]);
+
+  return (
+    <div className="mermaid-container bg-black/10 rounded-2xl border border-border/20 p-8 my-8 overflow-x-auto shadow-inner flex justify-center min-h-[120px]">
+      <div ref={ref} />
+    </div>
+  );
+}
+
+function MarkdownRenderer({ content }: { content: string }) {
+  const lines = content.split("\n");
+  const renderedElements: React.ReactNode[] = [];
+  let inCodeBlock = false;
+  let codeBuffer: string[] = [];
+  let codeLang = "";
+
+  let inTable = false;
+  let tableRows: string[] = [];
+
+  const parseInline = (text: string) => {
+    return text.split('`').map((part, i) => {
+      if (i % 2 === 1) return <code key={i} className="bg-primary/10 px-1.5 py-0.5 rounded text-primary font-mono text-xs border border-primary/20">{part}</code>;
+
+      const boldParts = part.split('**');
+      if (boldParts.length > 1) {
+        return boldParts.map((boldPart, j) => (
+          j % 2 === 1 ? <strong key={j} className="text-foreground font-bold">{boldPart}</strong> : boldPart
+        ));
+      }
+      return part;
+    });
+  };
+
+  const flushTable = (key: string | number) => {
+    if (tableRows.length >= 2) {
+      const headerLine = tableRows[0]!;
+      const dataRows = tableRows.slice(2);
+      const parseCells = (row: string) => row.split("|").filter((_, i, arr) => i > 0 && i < arr.length - 1).map(c => c.trim());
+      const headers = parseCells(headerLine);
+
+      renderedElements.push(
+        <div key={`table-${key}`} className="my-8 overflow-x-auto rounded-2xl border border-border/20 bg-black/10 shadow-2xl shadow-black/20">
+          <table className="w-full text-sm text-left border-collapse">
+            <thead>
+              <tr className="bg-primary/5 border-b border-border/10">
+                {headers.map((h, i) => (
+                  <th key={i} className="px-6 py-4 font-bold text-primary tracking-wider uppercase text-[10px] whitespace-nowrap">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/5">
+              {dataRows.map((row, i) => {
+                const cells = parseCells(row);
+                return (
+                  <tr key={i} className="hover:bg-primary/5 transition-colors">
+                    {cells.map((cell, j) => (
+                      <td key={j} className="px-6 py-4 text-foreground-muted whitespace-nowrap">
+                        {parseInline(cell)}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+    tableRows = [];
+    inTable = false;
+  };
+
+  lines.forEach((line, index) => {
+    if (line.trim().startsWith("```")) {
+      if (inTable) flushTable(index);
+      if (inCodeBlock) {
+        const code = codeBuffer.join("\n").trim();
+        if (codeLang === "mermaid") {
+          renderedElements.push(<Mermaid key={`mermaid-${index}`} chart={code} />);
+        } else {
+          renderedElements.push(
+            <pre key={`code-${index}`} className="p-6 bg-black/60 rounded-xl border border-border/30 overflow-x-auto shadow-inner my-6 font-mono text-sm leading-relaxed text-primary-muted group relative">
+              <code className="block">{code}</code>
+            </pre>
+          );
+        }
+        codeBuffer = [];
+        inCodeBlock = false;
+      } else {
+        inCodeBlock = true;
+        codeLang = line.trim().slice(3).trim();
+      }
+      return;
+    }
+
+    if (inCodeBlock) {
+      codeBuffer.push(line);
+      return;
+    }
+
+    if (line.trim().startsWith("|")) {
+      inTable = true;
+      tableRows.push(line.trim());
+      return;
+    } else if (inTable && line.trim().length === 0) {
+      flushTable(index);
+    }
+
+    if (line.startsWith("# ")) {
+      renderedElements.push(<H1 key={index} className="text-4xl font-extrabold mt-12 mb-6 border-none text-foreground">{line.slice(2)}</H1>);
+    } else if (line.startsWith("## ")) {
+      renderedElements.push(<H2 key={index} className="text-2xl font-bold mt-10 mb-4 border-none border-b border-border/10 pb-2 text-foreground/90">{line.slice(3)}</H2>);
+    } else if (line.startsWith("### ")) {
+      renderedElements.push(<H3 key={index} className="text-xl font-semibold mt-8 mb-3 text-foreground/80">{line.slice(4)}</H3>);
+    } else if (line.trim().startsWith("- ") || line.trim().startsWith("* ")) {
+      renderedElements.push(
+        <div key={index} className="flex items-start gap-3 my-3 pl-4 animate-in fade-in slide-in-from-left-2 duration-500">
+          <div className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0 opacity-60" />
+          <div className="text-foreground-muted leading-relaxed flex-1">{parseInline(line.trim().slice(2))}</div>
+        </div>
+      );
+    } else if (line.startsWith("> ")) {
+      renderedElements.push(
+        <div key={index} className="border-l-4 border-primary/30 bg-primary/5 p-6 rounded-r-xl my-8 italic text-foreground-muted/90 shadow-sm">
+          {parseInline(line.slice(2))}
+        </div>
+      );
+    } else if (line.trim().length > 0) {
+      renderedElements.push(<p key={index} className="text-foreground-muted leading-relaxed my-6 text-base">{parseInline(line)}</p>);
+    }
+  });
+
+  if (inTable) flushTable('final');
+  return <div className="space-y-2">{renderedElements}</div>;
+}
 
 type SectionId =
   | "overview"
@@ -623,6 +797,15 @@ function Dashboard({ onNavigate }: { readonly onNavigate: (to: RoutePath) => voi
     return metrics.filter(m => m.label.toLowerCase().includes(term));
   }, [searchValue, metrics]);
 
+  const filteredComponents = useMemo(() => {
+    if (!searchValue) return [];
+    const term = searchValue.toLowerCase();
+    return GALLERY_COMPONENTS.filter(c =>
+      c.name.toLowerCase().includes(term) ||
+      c.description.toLowerCase().includes(term)
+    );
+  }, [searchValue]);
+
   return (
     <DashboardView
       metrics={filteredMetrics}
@@ -630,6 +813,7 @@ function Dashboard({ onNavigate }: { readonly onNavigate: (to: RoutePath) => voi
       updates={filteredUpdates}
       searchValue={searchValue}
       onSearchChange={setSearchValue}
+      componentResults={filteredComponents}
       onDocumentationClick={() => onNavigate("/docs" as RoutePath)}
       onRepositoryClick={() => window.open("https://github.com/Luseefor/synthex-ui", "_blank")}
     />
@@ -637,68 +821,92 @@ function Dashboard({ onNavigate }: { readonly onNavigate: (to: RoutePath) => voi
 }
 
 function DocumentationSection() {
-  const docFiles = [
-    { name: "getting-started.md", title: "Getting Started" },
-    { name: "mermaid-architecture.md", title: "Mermaid Architecture" },
-    { name: "styling.md", title: "Styling Guide" },
-    { name: "theming.md", title: "Theming System" },
-    { name: "workbench.md", title: "Workbench Internals" },
-  ];
+  const [selectedDocId, setSelectedDocId] = useState<string>(DOCS_METADATA[0]?.id || "");
+
+  const selectedDoc = useMemo(() =>
+    DOCS_METADATA.find(d => d.id === selectedDocId) || DOCS_METADATA[0],
+    [selectedDocId]
+  );
+
+  if (!selectedDoc) return null;
 
   return (
-    <section className="preview-section relative">
-      <div className="preview-section-heading mb-12">
-        <H2 className="text-3xl font-bold tracking-tight mb-2 border-none">Documentation</H2>
-        <Muted className="text-lg">
-          Detailed guides and architectural diagrams for the Synthex UI ecosystem.
-        </Muted>
-      </div>
+    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-8rem)] gap-8 relative">
+      {/* Sidebar Navigation */}
+      <aside className="w-full lg:w-72 shrink-0">
+        <div className="sticky top-24 space-y-8">
+          <div className="space-y-4">
+            <H2 className="text-3xl font-extrabold tracking-tight border-none p-0 m-0">Documentation</H2>
+            <Muted className="text-sm">Comprehensive guides and architectural system specs.</Muted>
+          </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {docFiles.map((file) => (
-          <Card key={file.name} className="glass-premium border-border/50 hover-premium group">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileIcon className="h-5 w-5 text-primary opacity-70" />
-                {file.title}
-              </CardTitle>
-              <CardDescription>{file.name}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button variant="outline" size="sm" className="w-full border-border/50 group-hover:border-primary/50 transition-colors">
-                View Source
-              </Button>
+          <nav className="space-y-1">
+            {DOCS_METADATA.map((doc) => (
+              <button
+                key={doc.id}
+                onClick={() => setSelectedDocId(doc.id)}
+                className={`flex items-center gap-3 w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 ${selectedDocId === doc.id
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]"
+                  : "text-foreground-muted hover:bg-surface-muted/50 hover:text-foreground translate-x-0 hover:translate-x-1"
+                  }`}
+              >
+                <span className="shrink-0 opacity-70">
+                  {doc.icon === "bookOpen" && <BookOpenIcon className="h-4 w-4" />}
+                  {doc.icon === "activity" && <ActivityIcon className="h-4 w-4" />}
+                  {doc.icon === "layout" && <GridIcon className="h-4 w-4" />}
+                  {doc.icon === "file" && <FileIcon className="h-4 w-4" />}
+                  {doc.icon === "palette" && <PaletteIcon className="h-4 w-4" />}
+                  {doc.icon === "terminal" && <TerminalIcon className="h-4 w-4" />}
+                </span>
+                <span className="truncate">{doc.title}</span>
+                {selectedDocId === doc.id && (
+                  <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-foreground/40 animate-pulse" />
+                )}
+              </button>
+            ))}
+          </nav>
+
+          <Card className="glass-premium border-primary/20 bg-primary/5">
+            <CardContent className="p-4 space-y-3">
+              <p className="text-xs font-medium text-primary">Need help?</p>
+              <p className="text-[10px] text-foreground-muted/80 leading-relaxed">Join our discord community for live support or check our GitHub discussions.</p>
+              <Button variant="outline" size="sm" className="w-full h-8 text-[10px] bg-background/50 border-primary/20 hover:bg-primary/10">Community Discord</Button>
             </CardContent>
           </Card>
-        ))}
-      </div>
+        </div>
+      </aside>
 
-      <div className="mt-12">
-        <Card className="glass-premium border-border/50 overflow-hidden">
-          <CardHeader className="bg-surface-muted/30 border-b border-border/30">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Icon name="search" size={16} /> Preview: mermaid-architecture.md
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-8">
-            <div className="prose prose-invert max-w-none">
-              <pre className="p-4 bg-black/20 rounded-lg border border-border/30 overflow-x-auto">
-                {`graph TD
-  A[App Consumer] --> B[synthex-ui]
-  B --> C[@synthex/core]
-  B --> D[@synthex/react-web]
-  C --> E[Command Palette]
-  C --> F[Layout Engine]
-  D --> G[Docking Layer]`}
-              </pre>
-              <p className="mt-4 text-foreground-muted">
-                This diagram represents the core package relationships and data flow within the Synthex UI architecture.
-              </p>
+      {/* Content Area */}
+      <main className="flex-1 min-w-0">
+        <ScrollArea className="h-full pr-4">
+          <article className="animate-in fade-in slide-in-from-bottom-6 duration-700">
+            <div className="flex items-center gap-2 text-primary font-mono text-[10px] uppercase tracking-[0.2em] mb-4 opacity-70">
+              <span className="inline-block w-4 h-[1px] bg-primary/40 mr-1" />
+              Synthex UI / Docs / {selectedDoc.id}.md
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    </section>
+
+            <div className="glass-premium border-border/40 rounded-3xl p-8 lg:p-12 shadow-2xl shadow-black/20">
+              <MarkdownRenderer content={selectedDoc.content} />
+
+              <div className="mt-16 pt-8 border-t border-border/20 flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs text-foreground-muted">Last updated: Mar 2026</p>
+                  <p className="text-[10px] text-foreground-muted/60 lowercase">commit: 54ec80d</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-surface-muted/30 border-border/40 hover:bg-primary/5 hover:border-primary/30"
+                  onClick={() => window.open(`https://github.com/Luseefor/synthex-ui/edit/main/docs/${selectedDoc.id}.md`, "_blank")}
+                >
+                  Edit on GitHub
+                </Button>
+              </div>
+            </div>
+          </article>
+        </ScrollArea>
+      </main>
+    </div>
   );
 }
 

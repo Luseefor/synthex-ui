@@ -1,5 +1,5 @@
 {
-  "name": "@synthex/web-preview",
+  "name": "synthex-web-preview",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -9,13 +9,13 @@
     "typecheck": "bunx tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@synthex/core": "workspace:*",
-    "@synthex/react-web": "workspace:*",
+    "synthex-core": "^1.0.0",
+    "synthex-react-web": "^1.0.0",
     "mermaid": "^11.12.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.3",
-    "synthex-ui": "workspace:*"
+    "synthex-ui": "^1.0.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.12",

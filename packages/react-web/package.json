@@ -1,5 +1,5 @@
 {
-  "name": "@synthex/react-web",
+  "name": "synthex-react-web",
   "version": "1.0.0",
   "type": "module",
   "description": "React DOM adapter for rendering Synthex layout engine workspaces.",
@@ -24,7 +24,7 @@
     "react-dom": "^19.2.0"
   },
   "dependencies": {
-    "@synthex/core": "workspace:*"
+    "synthex-core": "^1.0.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.8.0",
@@ -60,7 +60,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "rm -rf ./dist && bun build ./src/index.ts ./src/index.web.ts --outdir ./dist --target browser --format esm --external react --external react-dom --external react/jsx-runtime --sourcemap && bunx tsc -p tsconfig.build.json",
+    "build": "rm -rf ./dist && npx tsc -p tsconfig.build.json",
     "test": "vitest run",
     "typecheck": "bunx tsc -p tsconfig.json --noEmit"
   },

@@ -1,5 +1,5 @@
 {
-  "name": "@synthex/core",
+  "name": "synthex-core",
   "version": "1.0.0",
   "type": "module",
   "description": "Framework-agnostic layout and command engine for Synthex UI.",
@@ -38,7 +38,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "rm -rf ./dist && bun build ./src/index.ts --outdir ./dist --target bun --format esm --sourcemap && bunx tsc -p tsconfig.build.json",
+    "build": "rm -rf ./dist && npx tsc -p tsconfig.build.json",
     "dev": "bun --watch run ./src/index.ts",
     "typecheck": "bunx tsc -p tsconfig.json --noEmit"
   },

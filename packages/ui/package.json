@@ -127,7 +127,7 @@
     "vitest": "^3.2.4"
   },
   "scripts": {
-    "build": "rm -rf ./dist && cd ./src && bun build ./index.ts ./index.web.ts ./index.native.ts ./components/index.web.ts ./components/index.native.ts ./primitives/index.web.tsx ./primitives/index.native.tsx ./layout/index.web.tsx ./layout/index.native.tsx ./hooks/index.web.ts ./hooks/index.native.ts ./icons/index.web.tsx ./icons/index.native.tsx ./theme/index.web.ts ./theme/index.native.ts --outdir ../dist --target browser --format esm --external react --external react-dom --external react-native --external react/jsx-runtime --external lucide-react --external lucide-react-native --external react-native-svg --sourcemap && cd .. && bunx tsc -p tsconfig.build.json && cp ./src/styles.css ./dist/styles.css",
+    "build": "rm -rf ./dist && npx tsc -p tsconfig.build.json && cp ./src/styles.css ./dist/styles.css",
     "typecheck": "bunx tsc -p tsconfig.json --noEmit",
     "test": "vitest run"
   },
