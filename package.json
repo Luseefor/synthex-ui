@@ -8,14 +8,14 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "bun run check-types && bun run test && bun run --filter '@synthex/core' build && bun run --filter 'synthex-ui' build && bun run --filter '@synthex/react-web' build && bun run --filter '@synthex/cli' build && bun run --filter '@synthex/web-preview' build",
+    "build": "bun run check-types && bun run test && bun run --filter '@luseefor/synthex-core' build && bun run --filter 'synthex-ui' build && bun run --filter '@luseefor/synthex-react-web' build && bun run --filter '@luseefor/synthex-cli' build && bun run --filter '@luseefor/web-preview' build",
     "check": "bun run check-types",
-    "check-types": "bun run --filter '@synthex/core' typecheck && bun run --filter 'synthex-ui' typecheck && bun run --filter '@synthex/react-web' typecheck && bun run --filter '@synthex/cli' typecheck && bun run --filter '@synthex/web-preview' typecheck",
-    "dev": "bun run --filter '@synthex/web-preview' dev",
+    "check-types": "bun run --filter '@luseefor/synthex-core' typecheck && bun run --filter 'synthex-ui' typecheck && bun run --filter '@luseefor/synthex-react-web' typecheck && bun run --filter '@luseefor/synthex-cli' typecheck && bun run --filter '@luseefor/web-preview' typecheck",
+    "dev": "bun run --filter '@luseefor/web-preview' dev",
     "pack:check": "bun run ./scripts/pack-check.mjs",
     "publish:public": "bun run ./scripts/publish-packages.mjs",
     "release:check": "bun run ./scripts/release-check.mjs",
-    "test": "bun run --filter 'synthex-ui' test && bun run --filter '@synthex/react-web' test"
+    "test": "bun run --filter 'synthex-ui' test && bun run --filter '@luseefor/synthex-react-web' test"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

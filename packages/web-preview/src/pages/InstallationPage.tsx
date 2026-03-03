@@ -2,7 +2,7 @@ import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitl
 
 const commands = [
   "npm install synthex-ui",
-  "npm install @synthex/core @synthex/react-web",
+  "npm install @luseefor/synthex-core @luseefor/synthex-react-web",
   'import "synthex-ui/styles.css";',
 ];
 
@@ -36,7 +36,7 @@ export function InstallationPage() {
           <CardContent className="preview-list-card">
             <div>1. Install `synthex-ui` and import the base stylesheet.</div>
             <div>2. Build product screens with the shared components and theme provider.</div>
-            <div>3. Add `@synthex/core` and `@synthex/react-web` only when the app needs dockable panels.</div>
+            <div>3. Add `@luseefor/synthex-core` and `@luseefor/synthex-react-web` only when the app needs dockable panels.</div>
             <Button onClick={() => window.open("https://github.com/Luseefor/synthex-ui", "_blank")}>View Repository</Button>
           </CardContent>
         </Card>

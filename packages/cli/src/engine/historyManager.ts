@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { cloneLayout, serializeLayout, type LayoutAction, type LayoutNode } from "@synthex/core";
+import { cloneLayout, serializeLayout, type LayoutAction, type LayoutNode } from "@luseefor/synthex-core";
 import type { HistoryEntry, HistoryManager, HistorySnapshot, LayoutEngineDispatchOptions } from "../types";
 
 export function createHistoryManager(initialSnapshot?: HistorySnapshot): HistoryManager {

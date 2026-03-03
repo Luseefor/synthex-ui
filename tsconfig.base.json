@@ -2,10 +2,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@synthex/core": [
+      "@luseefor/synthex-core": [
         "./packages/core/src/index.ts"
       ],
-      "@synthex/core/*": [
+      "@luseefor/synthex-core/*": [
         "./packages/core/src/*"
       ],
       "synthex-ui": [
@@ -14,10 +14,10 @@
       "synthex-ui/*": [
         "./packages/ui/src/*"
       ],
-      "@synthex/react-web": [
+      "@luseefor/synthex-react-web": [
         "./packages/react-web/src/index.ts"
       ],
-      "@synthex/react-web/*": [
+      "@luseefor/synthex-react-web/*": [
         "./packages/react-web/src/*"
       ]
     },

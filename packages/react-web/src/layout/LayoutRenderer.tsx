@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import type { LayoutAction, LayoutNode, PanelNode } from "@synthex/core";
+import type { LayoutAction, LayoutNode, PanelNode } from "@luseefor/synthex-core";
 import { SplitView } from "./SplitView";
 import { TabView } from "./TabView";
 import {

@@ -1,11 +1,11 @@
-# @synthex/core
+# @luseefor/synthex-core
 
 Framework-agnostic layout and command engine used by Synthex UI.
 
 ## Install
 
 ```sh
-npm install @synthex/core
+npm install @luseefor/synthex-core
 ```
 
 ## Includes

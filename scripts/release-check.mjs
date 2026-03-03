@@ -7,7 +7,7 @@ const rootDir = process.cwd();
 
 const publicPackages = [
   {
-    name: "@synthex/core",
+    name: "@luseefor/synthex-core",
     dir: path.join(rootDir, "packages/core"),
     forbidNative: false,
   },
@@ -17,7 +17,7 @@ const publicPackages = [
     forbidNative: false,
   },
   {
-    name: "@synthex/react-web",
+    name: "@luseefor/synthex-react-web",
     dir: path.join(rootDir, "packages/react-web"),
     forbidNative: true,
   },
@@ -25,7 +25,7 @@ const publicPackages = [
 
 const internalPackages = [
   {
-    name: "@synthex/cli",
+    name: "@luseefor/synthex-cli",
     dir: path.join(rootDir, "packages/cli"),
     forbidNative: false,
   },

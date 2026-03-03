@@ -6,11 +6,11 @@ This document captures the repo structure, package boundaries, runtime flows, an
 
 ```mermaid
 flowchart LR
-  Root["synthex-ui-workspace"] --> Core["@synthex/core"]
+  Root["synthex-ui-workspace"] --> Core["@luseefor/synthex-core"]
   Root --> UI["synthex-ui"]
-  Root --> ReactWeb["@synthex/react-web"]
-  Root --> Preview["@synthex/web-preview"]
-  Root --> CLI["@synthex/cli"]
+  Root --> ReactWeb["@luseefor/synthex-react-web"]
+  Root --> Preview["@luseefor/web-preview"]
+  Root --> CLI["@luseefor/synthex-cli"]
 
   ReactWeb --> Core
   Preview --> UI
@@ -31,12 +31,12 @@ flowchart TD
   UI --> UITheme["theme"]
   UI --> UICSS["styles.css"]
 
-  Core["@synthex/core"] --> Layout["layout tree + reducer"]
+  Core["@luseefor/synthex-core"] --> Layout["layout tree + reducer"]
   Core --> Commands["command registry + history"]
   Core --> Store["store + events"]
   Core --> Serialize["serialization + validation"]
 
-  ReactWeb["@synthex/react-web"] --> Renderer["LayoutRenderer"]
+  ReactWeb["@luseefor/synthex-react-web"] --> Renderer["LayoutRenderer"]
   ReactWeb --> Split["SplitView"]
   ReactWeb --> Tabs["TabView"]
   ReactWeb --> Hook["useSynthex"]
@@ -111,8 +111,8 @@ flowchart TD
 sequenceDiagram
   participant User
   participant Preview as web-preview
-  participant Renderer as @synthex/react-web
-  participant Engine as @synthex/core engine
+  participant Renderer as @luseefor/synthex-react-web
+  participant Engine as @luseefor/synthex-core engine
   participant Registry as command registry
 
   User->>Preview: click split / add / undo / redo
@@ -150,7 +150,7 @@ flowchart LR
   Test --> Build["bun run build"]
   Build --> ReleaseCheck["bun run release:check"]
   ReleaseCheck --> PackCheck["bun run pack:check"]
-  PackCheck --> Publish["@synthex/core -> synthex-ui -> @synthex/react-web"]
+  PackCheck --> Publish["@luseefor/synthex-core -> synthex-ui -> @luseefor/synthex-react-web"]
 ```
 
 ## CI Flow
@@ -171,8 +171,8 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-  Core["@synthex/core"] --> UI["synthex-ui"]
-  UI --> ReactWeb["@synthex/react-web"]
+  Core["@luseefor/synthex-core"] --> UI["synthex-ui"]
+  UI --> ReactWeb["@luseefor/synthex-react-web"]
 ```
 
 ## Consumer Install Matrix
@@ -180,7 +180,7 @@ flowchart LR
 ```mermaid
 flowchart TD
   Consumer["application"] --> UIOnly["npm install synthex-ui"]
-  Consumer --> Workbench["npm install synthex-ui @synthex/core @synthex/react-web"]
+  Consumer --> Workbench["npm install synthex-ui @luseefor/synthex-core @luseefor/synthex-react-web"]
 
   UIOnly --> WebUI["web or native design system usage"]
   Workbench --> EngineUI["dockable web workbench usage"]

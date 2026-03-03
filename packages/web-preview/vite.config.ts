@@ -28,8 +28,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@synthex/core": fileURLToPath(new URL("../core/src", import.meta.url)),
-      "@synthex/react-web": fileURLToPath(new URL("../react-web/src", import.meta.url)),
+      "@luseefor/synthex-core": fileURLToPath(new URL("../core/src", import.meta.url)),
+      "@luseefor/synthex-react-web": fileURLToPath(new URL("../react-web/src", import.meta.url)),
       "synthex-ui": fileURLToPath(new URL("../ui/src", import.meta.url)),
     },
   },

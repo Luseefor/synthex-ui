@@ -7,7 +7,7 @@ import { spawnSync } from "node:child_process";
 const rootDir = process.cwd();
 const packages = [
   {
-    name: "@synthex/core",
+    name: "@luseefor/synthex-core",
     dir: path.join(rootDir, "packages/core"),
     requiredFiles: ["dist/index.js", "dist/index.d.ts", "README.md", "LICENSE"],
   },
@@ -17,9 +17,14 @@ const packages = [
     requiredFiles: ["dist/index.web.js", "dist/index.d.ts", "dist/styles.css", "README.md", "LICENSE"],
   },
   {
-    name: "@synthex/react-web",
+    name: "@luseefor/synthex-react-web",
     dir: path.join(rootDir, "packages/react-web"),
     requiredFiles: ["dist/index.js", "dist/index.d.ts", "README.md", "LICENSE"],
+  },
+  {
+    name: "@luseefor/synthex-cli",
+    dir: path.join(rootDir, "packages/cli"),
+    requiredFiles: ["dist/index.js", "dist/index.d.ts"],
   },
 ];
 

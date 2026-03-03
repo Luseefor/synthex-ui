@@ -3,16 +3,16 @@ import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle, H2, M
 const supportRows = [
   ["synthex-ui", "Supported", "Supported", "Shared component surface and theme contract."],
   ["synthex-ui/components", "Supported", "Supported", "Web and native implementations behind one API."],
-  ["@synthex/react-web", "Supported", "Not applicable", "Workbench renderer for the browser only."],
-  ["@synthex/core", "Supported", "Supported", "Framework-agnostic reducers, validation, and serialization."],
-  ["@synthex/cli", "Not applicable", "Not applicable", "Operational tooling for release and workspace scripts."],
+  ["@luseefor/synthex-react-web", "Supported", "Not applicable", "Workbench renderer for the browser only."],
+  ["@luseefor/synthex-core", "Supported", "Supported", "Framework-agnostic reducers, validation, and serialization."],
+  ["@luseefor/synthex-cli", "Not applicable", "Not applicable", "Operational tooling for release and workspace scripts."],
 ] as const;
 
 const exports = [
   ["synthex-ui/components", "Core controls, overlays, tables, charts, and navigation."],
   ["synthex-ui/theme", "Theme provider, accent presets, and typed contracts."],
   ["synthex-ui/icons", "Named icon contract for product chrome."],
-  ["@synthex/react-web", "Dockable layout renderer and related hooks."],
+  ["@luseefor/synthex-react-web", "Dockable layout renderer and related hooks."],
 ] as const;
 
 export function EnginePage() {

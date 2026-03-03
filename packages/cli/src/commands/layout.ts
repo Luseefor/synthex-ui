@@ -1,4 +1,4 @@
-import type { LayoutDirection } from "@synthex/core";
+import type { LayoutDirection } from "@luseefor/synthex-core";
 import type { Command } from "commander";
 import { createCliLayoutEngine } from "../engine/layoutEngine";
 import { CliError } from "../utils/errors";

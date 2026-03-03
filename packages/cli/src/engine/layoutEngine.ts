@@ -10,7 +10,7 @@ import {
   type LayoutDirection,
   type LayoutNode,
   type PanelNode,
-} from "@synthex/core";
+} from "@luseefor/synthex-core";
 import type {
   CliLayoutEngineOptions,
   FileManager,

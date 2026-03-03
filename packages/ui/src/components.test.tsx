@@ -562,8 +562,8 @@ describe("synthex-ui web components", () => {
           ]}
           data={[
             { package: "synthex-ui", status: "Stable", downloads: 8200 },
-            { package: "@synthex/core", status: "Stable", downloads: 6400 },
-            { package: "@synthex/react-web", status: "Preview", downloads: 2300 },
+            { package: "@luseefor/synthex-core", status: "Stable", downloads: 6400 },
+            { package: "@luseefor/synthex-react-web", status: "Preview", downloads: 2300 },
           ]}
           searchKey="package"
         />
@@ -574,7 +574,7 @@ describe("synthex-ui web components", () => {
       target: { value: "core" },
     });
 
-    expect(screen.getByText("@synthex/core")).toBeInTheDocument();
+    expect(screen.getByText("@luseefor/synthex-core")).toBeInTheDocument();
     expect(screen.queryByText("synthex-ui")).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Filter table rows"), {
@@ -583,7 +583,7 @@ describe("synthex-ui web components", () => {
     fireEvent.click(screen.getByRole("button", { name: /Downloads/ }));
 
     const rows = screen.getAllByRole("row");
-    expect(rows.at(1)).toHaveTextContent("@synthex/react-web");
+    expect(rows.at(1)).toHaveTextContent("@luseefor/synthex-react-web");
   });
 
   it("switches tabs in uncontrolled mode", () => {

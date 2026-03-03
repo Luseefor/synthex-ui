@@ -11,25 +11,25 @@
       },
     },
     "packages/cli": {
-      "name": "@synthex/cli",
+      "name": "@luseefor/synthex-cli",
       "version": "1.0.0",
       "bin": {
         "synthex": "./dist/index.js",
       },
       "dependencies": {
-        "@synthex/core": "workspace:*",
+        "@luseefor/synthex-core": "workspace:*",
         "commander": "^14.0.3",
       },
     },
     "packages/core": {
-      "name": "@synthex/core",
+      "name": "@luseefor/synthex-core",
       "version": "1.0.0",
     },
     "packages/react-web": {
-      "name": "@synthex/react-web",
+      "name": "@luseefor/synthex-react-web",
       "version": "1.0.0",
       "dependencies": {
-        "@synthex/core": "workspace:*",
+        "@luseefor/synthex-core": "workspace:*",
       },
       "devDependencies": {
         "@testing-library/jest-dom": "^6.8.0",
@@ -83,11 +83,11 @@
       ],
     },
     "packages/web-preview": {
-      "name": "@synthex/web-preview",
+      "name": "@luseefor/web-preview",
       "version": "1.0.0",
       "dependencies": {
-        "@synthex/core": "workspace:*",
-        "@synthex/react-web": "workspace:*",
+        "@luseefor/synthex-core": "workspace:*",
+        "@luseefor/synthex-react-web": "workspace:*",
         "mermaid": "^11.12.3",
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
@@ -367,13 +367,13 @@
 
     "@sinonjs/fake-timers": ["@sinonjs/fake-timers@10.3.0", "", { "dependencies": { "@sinonjs/commons": "^3.0.0" } }, "sha512-V4BG07kuYSUkTCSBHG8G8TNhM+F19jXFWnQtzj+we8DrkpSBCee9Z3Ms8yiGer/dlmhe35/Xdgyo3/0rQKg7YA=="],
 
-    "@synthex/cli": ["@synthex/cli@workspace:packages/cli"],
+    "@luseefor/synthex-cli": ["@luseefor/synthex-cli@workspace:packages/cli"],
 
-    "@synthex/core": ["@synthex/core@workspace:packages/core"],
+    "@luseefor/synthex-core": ["@luseefor/synthex-core@workspace:packages/core"],
 
-    "@synthex/react-web": ["@synthex/react-web@workspace:packages/react-web"],
+    "@luseefor/synthex-react-web": ["@luseefor/synthex-react-web@workspace:packages/react-web"],
 
-    "@synthex/web-preview": ["@synthex/web-preview@workspace:packages/web-preview"],
+    "@luseefor/web-preview": ["@luseefor/web-preview@workspace:packages/web-preview"],
 
     "@tailwindcss/node": ["@tailwindcss/node@4.2.1", "", { "dependencies": { "@jridgewell/remapping": "^2.3.5", "enhanced-resolve": "^5.19.0", "jiti": "^2.6.1", "lightningcss": "1.31.1", "magic-string": "^0.30.21", "source-map-js": "^1.2.1", "tailwindcss": "4.2.1" } }, "sha512-jlx6sLk4EOwO6hHe1oCGm1Q4AN/s0rSrTTPBGPM0/RQ6Uylwq17FuU8IeJJKEjtc6K6O07zsvP+gDO6MMWo7pg=="],
 

@@ -1,10 +1,10 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { createLayoutEngine, type PanelNode } from "@synthex/core";
+import { createLayoutEngine, type PanelNode } from "@luseefor/synthex-core";
 import { LayoutRenderer } from "./LayoutRenderer";
 import { useSynthex } from "./useSynthex";
 
-describe("@synthex/react-web", () => {
+describe("@luseefor/synthex-react-web", () => {
   it("dispatches tab activation actions through the renderer", () => {
     const onAction = vi.fn();
     const renderTabLabel = vi.fn((panel: PanelNode) => `Panel: ${panel.title ?? panel.panelType}`);

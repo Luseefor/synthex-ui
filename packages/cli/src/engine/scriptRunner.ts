@@ -1,6 +1,6 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import type { LayoutAction } from "@synthex/core";
+import type { LayoutAction } from "@luseefor/synthex-core";
 import type {
   LayoutEngineService,
   ScriptActionInput,

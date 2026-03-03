@@ -1,7 +1,7 @@
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { constants } from "node:fs";
-import { deserializeLayout, serializeLayout, type LayoutNode } from "@synthex/core";
+import { deserializeLayout, serializeLayout, type LayoutNode } from "@luseefor/synthex-core";
 import type {
   FileManager,
   HistoryEntry,

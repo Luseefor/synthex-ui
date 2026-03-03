@@ -6,7 +6,10 @@
     "emitDeclarationOnly": false,
     "noEmit": false,
     "outDir": "./dist",
-    "paths": {},
+    "paths": {
+      "@luseefor/synthex-core": ["packages/core/dist/index.d.ts"],
+      "@luseefor/synthex-core/*": ["packages/core/dist/*"]
+    },
     "rootDir": "./src",
     "types": ["node", "react", "react-dom"]
   },

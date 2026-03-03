@@ -3,7 +3,7 @@ import type {
   LayoutDirection,
   LayoutNode,
   LayoutValidationResult,
-} from "@synthex/core";
+} from "@luseefor/synthex-core";
 
 export interface SynthexConfig {
   readonly name: string;

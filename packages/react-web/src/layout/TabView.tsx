@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import type { PanelNode, TabsNode } from "@synthex/core";
+import type { PanelNode, TabsNode } from "@luseefor/synthex-core";
 import { resolveWorkbenchSurface, resolveWorkbenchTheme, type LayoutRendererThemeProps } from "./theme";
 
 export interface TabViewProps extends LayoutRendererThemeProps {

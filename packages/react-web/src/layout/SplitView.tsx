@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
-import type { SplitNode } from "@synthex/core";
+import type { SplitNode } from "@luseefor/synthex-core";
 import { resolveWorkbenchSurface, resolveWorkbenchTheme, type LayoutRendererThemeProps } from "./theme";
 
 export interface SplitViewProps extends LayoutRendererThemeProps {

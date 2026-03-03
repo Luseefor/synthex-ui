@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import type { LayoutAction, LayoutEngine, LayoutNode } from "@synthex/core";
+import type { LayoutAction, LayoutEngine, LayoutNode } from "@luseefor/synthex-core";
 
 export interface SynthexController {
   readonly getState: () => LayoutNode;

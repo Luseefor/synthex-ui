@@ -1,4 +1,4 @@
-import { serializeLayout, type LayoutAction, type LayoutNode } from "@synthex/core";
+import { serializeLayout, type LayoutAction, type LayoutNode } from "@luseefor/synthex-core";
 import type { HistoryManager, LayoutEngineDispatchOptions, Middleware } from "../types";
 import { logger } from "../utils/logger";
 

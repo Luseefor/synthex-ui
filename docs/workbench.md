@@ -1,16 +1,16 @@
 # Workbench Integration
 
-`@synthex/react-web` provides a dockable workbench layout system on top of the `@synthex/core` layout engine.
+`@luseefor/synthex-react-web` provides a dockable workbench layout system on top of the `@luseefor/synthex-core` layout engine.
 
 ## Setup
 
 ```bash
-npm install synthex-ui @synthex/core @synthex/react-web
+npm install synthex-ui @luseefor/synthex-core @luseefor/synthex-react-web
 ```
 
 ```tsx
 import { ThemeProvider } from "synthex-ui/theme";
-import { LayoutRenderer, useSynthex } from "@synthex/react-web";
+import { LayoutRenderer, useSynthex } from "@luseefor/synthex-react-web";
 import "synthex-ui/styles.css";
 
 function Workbench() {
@@ -35,7 +35,7 @@ Recursively renders a layout tree of split panes and tab groups.
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `layout` | `LayoutNode` | Root layout node from `@synthex/core` |
+| `layout` | `LayoutNode` | Root layout node from `@luseefor/synthex-core` |
 | `renderPanel` | `(panel: PanelNode) => ReactNode` | Render each panel's content |
 | `selectedNodeId` | `string \| null` | Currently selected node for highlighting |
 | `onSelectNode` | `(id: string) => void` | Selection callback |

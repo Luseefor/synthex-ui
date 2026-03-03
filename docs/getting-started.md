@@ -9,7 +9,7 @@ npm install synthex-ui
 For the layout engine (workbench-style split/tab views):
 
 ```bash
-npm install synthex-ui @synthex/core @synthex/react-web
+npm install synthex-ui @luseefor/synthex-core @luseefor/synthex-react-web
 ```
 
 ## CSS Import
