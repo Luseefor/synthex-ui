@@ -1,5 +1,5 @@
 {
-  "name": "synthex-react-web",
+  "name": "@synthex/react-web",
   "version": "1.0.0",
   "type": "module",
   "description": "React DOM adapter for rendering Synthex layout engine workspaces.",
@@ -24,7 +24,7 @@
     "react-dom": "^19.2.0"
   },
   "dependencies": {
-    "synthex-core": "^1.0.0"
+    "@synthex/core": "^1.0.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.8.0",

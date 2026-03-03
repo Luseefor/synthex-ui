@@ -704,6 +704,16 @@ export function App() {
     });
   }, [location.pathname]);
 
+  if (location.pathname === "/playground") {
+    return (
+      <ThemeProvider mode={mode} accentPreset={accentPreset} theme={themeOverrides}>
+        <div className="preview-site flex min-h-screen w-full overflow-hidden">
+          <Builder />
+        </div>
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider mode={mode} accentPreset={accentPreset} theme={themeOverrides}>
       <div className="preview-site flex min-h-screen w-full">
@@ -726,7 +736,7 @@ export function App() {
               </span>
             </div>
 
-            <main className={`preview-main relative flex flex-1 w-full flex-col ${location.pathname === "/playground" ? "p-0 overflow-hidden" : "p-6 md:p-8"}`}>
+            <main className="preview-main relative flex min-h-0 flex-1 w-full flex-col overflow-x-hidden p-6 md:p-8">
               <Routes>
                 <Route
                   path="/"
@@ -831,10 +841,10 @@ function DocumentationSection() {
   if (!selectedDoc) return null;
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-8rem)] gap-8 relative">
+    <div className="flex w-full min-w-0 flex-col gap-6 lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:items-start lg:gap-8">
       {/* Sidebar Navigation */}
-      <aside className="w-full lg:w-72 shrink-0">
-        <div className="sticky top-24 space-y-8">
+      <aside className="w-full min-w-0">
+        <div className="space-y-6 lg:sticky lg:top-24 lg:space-y-8">
           <div className="space-y-4">
             <H2 className="text-3xl font-extrabold tracking-tight border-none p-0 m-0">Documentation</H2>
             <Muted className="text-sm">Comprehensive guides and architectural system specs.</Muted>
@@ -894,34 +904,32 @@ function DocumentationSection() {
       </aside>
 
       {/* Content Area */}
-      <main className="flex-1 min-w-0">
-        <ScrollArea className="h-full pr-4">
-          <article className="animate-in fade-in slide-in-from-bottom-6 duration-700">
-            <div className="flex items-center gap-2 text-primary font-mono text-[10px] uppercase tracking-[0.2em] mb-4 opacity-70">
-              <span className="inline-block w-4 h-[1px] bg-primary/40 mr-1" />
-              Synthex UI / Docs / {selectedDoc.id}.md
-            </div>
+      <main className="min-w-0">
+        <article className="min-w-0 animate-in fade-in slide-in-from-bottom-6 duration-700">
+          <div className="mb-4 flex min-w-0 items-center gap-2 overflow-x-auto text-primary font-mono text-[10px] uppercase tracking-[0.2em] opacity-70">
+            <span className="inline-block h-[1px] w-4 shrink-0 bg-primary/40" />
+            <span className="truncate">Synthex UI / Docs / {selectedDoc.id}.md</span>
+          </div>
 
-            <div className="glass-premium border-border/40 rounded-3xl p-8 lg:p-12 shadow-2xl shadow-black/20">
-              <MarkdownRenderer content={selectedDoc.content} />
+          <div className="glass-premium min-w-0 overflow-x-hidden rounded-3xl border-border/40 p-5 shadow-2xl shadow-black/20 sm:p-6 lg:p-10 xl:p-12">
+            <MarkdownRenderer content={selectedDoc.content} />
 
-              <div className="mt-16 pt-8 border-t border-border/20 flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-xs text-foreground-muted">Last updated: Mar 2026</p>
-                  <p className="text-[10px] text-foreground-muted/60 lowercase">commit: 54ec80d</p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-surface-muted/30 border-border/40 hover:bg-primary/5 hover:border-primary/30"
-                  onClick={() => window.open(`https://github.com/Luseefor/synthex-ui/edit/main/docs/${selectedDoc.id}.md`, "_blank")}
-                >
-                  Edit on GitHub
-                </Button>
+            <div className="mt-16 flex flex-col gap-4 border-t border-border/20 pt-8 sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-1">
+                <p className="text-xs text-foreground-muted">Last updated: Mar 2026</p>
+                <p className="text-[10px] text-foreground-muted/60 lowercase">commit: 54ec80d</p>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-surface-muted/30 border-border/40 hover:bg-primary/5 hover:border-primary/30"
+                onClick={() => window.open(`https://github.com/Luseefor/synthex-ui/edit/main/docs/${selectedDoc.id}.md`, "_blank")}
+              >
+                Edit on GitHub
+              </Button>
             </div>
-          </article>
-        </ScrollArea>
+          </div>
+        </article>
       </main>
     </div>
   );

@@ -4,10 +4,13 @@
     "baseUrl": ".",
     "declaration": true,
     "declarationMap": true,
-    "emitDeclarationOnly": true,
+    "emitDeclarationOnly": false,
     "noEmit": false,
     "outDir": "./dist",
-    "paths": {},
+    "paths": {
+      "@synthex/core": ["../core/dist/index.d.ts"],
+      "@synthex/core/*": ["../core/dist/*"]
+    },
     "rootDir": "./src",
     "types": ["node", "react", "react-dom"]
   },

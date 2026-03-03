@@ -15,10 +15,12 @@ html {
 
 body {
   background: transparent;
+  overflow-x: hidden;
 }
 
 .preview-site {
   min-height: 100vh;
+  overflow-x: clip;
   color: var(--sx-color-foreground);
   background:
     linear-gradient(180deg,

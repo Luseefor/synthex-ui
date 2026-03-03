@@ -3,8 +3,8 @@
 Synthex UI is a publish-ready monorepo built around three public packages:
 
 - `synthex-ui`: cross-platform component library and theme system
-- `synthex-core`: framework-agnostic layout and command engine
-- `synthex-react-web`: React DOM adapter for dockable workbench rendering
+- `@synthex/core`: framework-agnostic layout and command engine
+- `@synthex/react-web`: React DOM adapter for dockable workbench rendering
 
 The design-system package is installable like a normal consumer library:
 
@@ -15,7 +15,7 @@ npm install synthex-ui
 For workbench-style engineering surfaces, install the engine packages too:
 
 ```sh
-npm install synthex-ui synthex-core synthex-react-web
+npm install synthex-ui @synthex/core @synthex/react-web
 ```
 
 ## Packages
@@ -37,7 +37,7 @@ Exports:
 - `synthex-ui/web`
 - `synthex-ui/native`
 
-### `synthex-core`
+### `@synthex/core`
 
 Pure TypeScript engine package for:
 
@@ -46,7 +46,7 @@ Pure TypeScript engine package for:
 - deterministic store primitives
 - command execution and history
 
-### `synthex-react-web`
+### `@synthex/react-web`
 
 Web-only adapter for rendering the core layout engine with:
 
@@ -94,8 +94,8 @@ export function Example() {
 Workbench integration:
 
 ```tsx
-import { createLayoutEngine } from "synthex-core";
-import { LayoutRenderer, useSynthex } from "synthex-react-web";
+import { createLayoutEngine } from "@synthex/core";
+import { LayoutRenderer, useSynthex } from "@synthex/react-web";
 
 const engine = createLayoutEngine({
   id: "editor",

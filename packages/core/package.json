@@ -1,5 +1,5 @@
 {
-  "name": "synthex-core",
+  "name": "@synthex/core",
   "version": "1.0.0",
   "type": "module",
   "description": "Framework-agnostic layout and command engine for Synthex UI.",

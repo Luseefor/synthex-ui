@@ -3,11 +3,14 @@
   "compilerOptions": {
     "baseUrl": ".",
     "declaration": true,
-    "emitDeclarationOnly": true,
+    "emitDeclarationOnly": false,
     "declarationMap": false,
     "outDir": "./dist",
     "noEmit": false,
-    "paths": {},
+    "paths": {
+      "@synthex/core": ["../core/dist/index.d.ts"],
+      "@synthex/core/*": ["../core/dist/*"]
+    },
     "rootDir": "./src",
     "types": ["node"]
   },
