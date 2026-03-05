@@ -35,6 +35,7 @@ import {
   TabsTrigger,
   useSidebar,
 } from "synthex-ui/components";
+import { useMobile } from "synthex-ui/hooks";
 import { ShowcaseSection } from "./ShowcaseSection";
 
 function SidebarShellDemo() {
@@ -70,6 +71,8 @@ function SidebarShellDemo() {
 }
 
 export function WorkbenchShowcase() {
+  const isMobile = useMobile();
+
   return (
     <ShowcaseSection
       title="Workbench surfaces"
@@ -111,7 +114,7 @@ export function WorkbenchShowcase() {
               </TableBody>
             </Table>
           </div>
-          <SidebarProvider defaultOpen>
+          <SidebarProvider defaultOpen={!isMobile}>
             <SidebarShellDemo />
           </SidebarProvider>
         </div>
