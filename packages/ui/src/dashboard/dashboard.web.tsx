@@ -34,7 +34,7 @@ export function DashboardView({
 
     return (
         <div className="flex min-h-full w-full flex-col bg-background">
-            <header className="sticky top-0 z-50 flex min-h-16 flex-col gap-3 border-b border-border/50 bg-surface/50 px-4 py-3 backdrop-blur-xl md:flex-row md:items-center md:px-6">
+            <header className="relative z-10 flex min-h-16 flex-col gap-3 border-b border-border/50 bg-surface/50 px-4 py-3 backdrop-blur-xl md:flex-row md:items-center md:px-6">
                 {showBranding ? (
                     <div className="text-lg font-semibold tracking-tight text-foreground md:mr-8">
                         Synthex UI

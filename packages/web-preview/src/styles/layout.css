@@ -28,7 +28,7 @@
 }
 
 .preview-mobile-topbar {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 0.75rem;
   padding: calc(env(safe-area-inset-top, 0px) + 0.9rem) 1rem 0.9rem;
@@ -67,6 +67,10 @@
 }
 
 @media (max-width: 767px) {
+  .preview-mobile-topbar {
+    display: flex;
+  }
+
   .preview-main {
     padding: 1rem;
   }
