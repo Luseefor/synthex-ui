@@ -1,9 +1,9 @@
 import type { MotionScale } from "../types";
 
 export const motion: MotionScale = {
-  fast: 120,
-  normal: 180,
-  slow: 280,
-  easingEmphasized: "cubic-bezier(0.2, 0.8, 0.2, 1)",
-  easingStandard: "cubic-bezier(0.2, 0.2, 0, 1)",
+  fast: 140,
+  normal: 220,
+  slow: 340,
+  easingEmphasized: "cubic-bezier(0.16, 1, 0.3, 1)",
+  easingStandard: "cubic-bezier(0.2, 0, 0, 1)",
 };

@@ -91,11 +91,11 @@
   --sx-font-weight-bold: 700;
 
   /* ── Motion ─────────────────────────────────────────────── */
-  --sx-motion-fast: 150ms;
-  --sx-motion-normal: 200ms;
-  --sx-motion-slow: 300ms;
+  --sx-motion-fast: 140ms;
+  --sx-motion-normal: 220ms;
+  --sx-motion-slow: 340ms;
   --sx-easing-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
-  --sx-easing-standard: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --sx-easing-standard: cubic-bezier(0.2, 0, 0, 1);
 
   /* ── Overlay / Elevation ───────────────────────────────── */
   --sx-shadow-toast: 0 16px 48px -12px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.04);
@@ -231,6 +231,157 @@
 
   to {
     transform: translateX(-50%);
+  }
+}
+
+@keyframes synthex-marquee-reverse {
+  from {
+    transform: translateX(-50%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes synthex-marquee-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes synthex-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes synthex-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes synthex-pulse-ring {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes synthex-sheen {
+  from {
+    transform: translateX(-120%);
+  }
+
+  to {
+    transform: translateX(220%);
+  }
+}
+
+@keyframes synthex-bar-rise {
+  from {
+    opacity: 0;
+    transform: scaleY(0.1);
+  }
+
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes synthex-scan-sweep {
+  from {
+    transform: translateX(-8%);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.9;
+  }
+
+  65% {
+    opacity: 0.9;
+  }
+
+  to {
+    transform: translateX(220%);
+    opacity: 0;
+  }
+}
+
+@keyframes synthex-launcher-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.95);
+  }
+
+  50% {
+    opacity: 0.58;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes synthex-launcher-orbit {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes synthex-badge-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes synthex-timeline-ping {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.85;
+  }
+
+  70% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
   }
 }
 
