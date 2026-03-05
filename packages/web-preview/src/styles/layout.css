@@ -66,6 +66,15 @@
   color: var(--sx-color-foreground-muted);
 }
 
+.preview-mobile-branding {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
 @media (max-width: 767px) {
   .preview-mobile-topbar {
     display: flex;

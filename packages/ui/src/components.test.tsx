@@ -109,7 +109,9 @@ import {
   Item,
   ItemDescription,
   ItemTitle,
+  KPIStatGrid,
   Kbd,
+  Marquee,
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
@@ -151,6 +153,13 @@ import {
   SheetTrigger,
   Sidebar,
   SidebarContent,
+  AssistantChatPanel,
+  CadenceBarChart,
+  ContactSplitForm,
+  DungeonHUDShell,
+  ExperienceTimeline,
+  FloatingAssistantLauncher,
+  ProjectCaseRow,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -250,6 +259,82 @@ describe("synthex-ui web components", () => {
     expect(screen.getByLabelText("Loading")).toBeInTheDocument();
     expect(screen.getByText("No saved layouts")).toBeInTheDocument();
     expect(screen.getByText("Command palette")).toBeInTheDocument();
+  });
+
+  it("renders the migrated Synthex editorial and assistant patterns", () => {
+    render(
+      <ThemeProvider>
+        <KPIStatGrid
+          columns={2}
+          stats={[
+            { id: "mrr", label: "MRR", value: "$48k", change: "+12%" },
+            { id: "users", label: "Active users", value: "18.2k", detail: "14-day" },
+          ]}
+        />
+        <CadenceBarChart
+          title="14-day cadence"
+          data={[
+            { label: "D1", value: 3 },
+            { label: "D2", value: 5 },
+            { label: "D3", value: 2 },
+          ]}
+        />
+        <Marquee
+          items={[
+            { id: "one", label: "Research ops", meta: "workflow" },
+            { id: "two", label: "Prompt systems", meta: "skill" },
+          ]}
+        />
+        <AssistantChatPanel
+          title="Copilot"
+          messages={[
+            { id: "a1", role: "assistant", content: "Drafting an onboarding summary." },
+            { id: "u1", role: "user", content: "Include migration status." },
+          ]}
+        />
+        <FloatingAssistantLauncher title="Quick assistant">Launcher content</FloatingAssistantLauncher>
+        <ExperienceTimeline
+          entries={[
+            {
+              id: "t1",
+              date: "2025",
+              title: "Lead engineer",
+              organization: "Synthex",
+              summary: "Built the design system migration surface.",
+            },
+          ]}
+        />
+        <ProjectCaseRow
+          index={1}
+          title="Migration platform"
+          summary="Editorial row with KPI blocks."
+          metrics={[{ label: "Lift", value: "34%" }]}
+        />
+        <ContactSplitForm
+          channels={[{ id: "email", label: "Email", value: "team@synthex.dev" }]}
+        />
+        <DungeonHUDShell
+          title="Ops chamber"
+          mission="Track mission-critical actions."
+          metrics={[
+            { id: "hp", label: "HP", value: "92" },
+            { id: "mana", label: "Mana", value: "64" },
+          ]}
+          sidebar="Inventory"
+        >
+          Combat map
+        </DungeonHUDShell>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByText("MRR")).toBeInTheDocument();
+    expect(screen.getByText("14-day cadence")).toBeInTheDocument();
+    expect(screen.getAllByText("Research ops").length).toBeGreaterThan(0);
+    expect(screen.getByText("Copilot")).toBeInTheDocument();
+    expect(screen.getByText("Lead engineer")).toBeInTheDocument();
+    expect(screen.getByText("Migration platform")).toBeInTheDocument();
+    expect(screen.getByText("team@synthex.dev")).toBeInTheDocument();
+    expect(screen.getByText("Ops chamber")).toBeInTheDocument();
   });
 
   it("renders field composition helpers with consistent helper text", () => {

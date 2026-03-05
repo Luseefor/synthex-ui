@@ -70,6 +70,27 @@ function SidebarShellDemo() {
   );
 }
 
+function SidebarShellMobileFallback() {
+  return (
+    <div className="preview-pane preview-section-stack">
+      <div className="preview-inline-row">
+        <span className="preview-demo-icon">◫</span>
+        <strong>Sidebar preview</strong>
+      </div>
+      <div className="preview-list-card">
+        <div className="text-[color:var(--sx-color-foreground-muted)]">
+          Sidebar interactions are shown in the main app shell on mobile.
+        </div>
+        <div className="preview-chip-row">
+          <span className="preview-trigger">Overview</span>
+          <span className="preview-trigger">Releases</span>
+          <span className="preview-trigger">Settings</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function WorkbenchShowcase() {
   const isMobile = useMobile();
 
@@ -114,9 +135,7 @@ export function WorkbenchShowcase() {
               </TableBody>
             </Table>
           </div>
-          <SidebarProvider defaultOpen={!isMobile}>
-            <SidebarShellDemo />
-          </SidebarProvider>
+          {isMobile ? <SidebarShellMobileFallback /> : <SidebarProvider defaultOpen><SidebarShellDemo /></SidebarProvider>}
         </div>
         <div className="preview-pane">
           <Table>

@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
-    "typecheck": "bunx tsc -p tsconfig.json --noEmit"
+    "typecheck": "npx tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@luseefor/synthex-core": "^1.0.0",

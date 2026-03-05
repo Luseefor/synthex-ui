@@ -62,7 +62,7 @@
   "scripts": {
     "build": "rm -rf ./dist && npx tsc -p tsconfig.build.json",
     "test": "vitest run",
-    "typecheck": "bunx tsc -p tsconfig.json --noEmit"
+    "typecheck": "npx tsc -p tsconfig.json --noEmit"
   },
   "sideEffects": false
 }

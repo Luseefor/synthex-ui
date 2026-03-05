@@ -433,4 +433,37 @@ export type {
   DataTableColumn,
   DataTableSharedProps,
 } from "../data-table/data-table.shared";
+export {
+  AssistantChatPanel,
+  CadenceBarChart,
+  ContactSplitForm,
+  DungeonHUDShell,
+  ExperienceTimeline,
+  FloatingAssistantLauncher,
+  KPIStatGrid,
+  Marquee,
+  ProjectCaseRow,
+  TimelineRow,
+} from "../synthex/synthex.web";
+export type {
+  AssistantChatMessage,
+  AssistantChatPanelSharedProps,
+  AssistantChatRole,
+  CadenceBarChartSharedProps,
+  CadenceDatum,
+  ContactChannel,
+  ContactSplitFormSharedProps,
+  DungeonHUDMetric,
+  DungeonHUDShellSharedProps,
+  ExperienceTimelineSharedProps,
+  FloatingAssistantLauncherSharedProps,
+  KPIStatGridSharedProps,
+  KPIStatItem,
+  MarqueeItem,
+  MarqueeSharedProps,
+  ProjectCaseMetric,
+  ProjectCaseRowSharedProps,
+  TimelineEntry,
+  TimelineRowSharedProps,
+} from "../synthex/synthex.shared";
 export { H1, H2, H3, Lead, Muted, Small } from "../typography/typography.web";

@@ -1,4 +1,5 @@
 import { SidebarTrigger, useSidebar } from "synthex-ui/components";
+import { ReleaseNotesTrigger } from "./ReleaseNotesTrigger";
 
 export function SidebarBrand() {
   const { open, setOpen } = useSidebar();
@@ -22,7 +23,12 @@ export function SidebarBrand() {
       <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-[18px] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)]">
         <img src="/logo.png" alt="Synthex UI" className="h-full w-full object-cover" />
       </div>
-      <div className="min-w-0 flex-1 truncate text-lg font-semibold text-[color:var(--sx-color-foreground)]">Synthex UI</div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-lg font-semibold text-[color:var(--sx-color-foreground)]">
+          Synthex UI
+        </div>
+        <ReleaseNotesTrigger className="mt-1" />
+      </div>
       <SidebarTrigger className="rounded-xl border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)]/70 hover:bg-[color:var(--sx-color-accent)]" />
     </div>
   );

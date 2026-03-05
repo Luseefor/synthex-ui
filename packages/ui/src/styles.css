@@ -224,6 +224,16 @@
   }
 }
 
+@keyframes synthex-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 /* ── Dark Theme ─────────────────────────────────────────── */
 [data-theme="dark"] {
   color-scheme: dark;
