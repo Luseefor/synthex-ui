@@ -1,6 +1,6 @@
 {
   "name": "synthex-ui",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "description": "Cross-platform React UI framework for consistent web and native product surfaces.",
   "license": "MIT",
