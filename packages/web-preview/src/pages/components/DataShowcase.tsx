@@ -24,7 +24,9 @@ export function DataShowcase() {
           <ChartContainer><BarChart ariaLabel="Downloads" height={180} series={[{ key: "downloads", label: "Downloads", data: [{ label: "Jan", value: 9 }, { label: "Feb", value: 14 }, { label: "Mar", value: 18 }] }]} /></ChartContainer>
         </div>
         <ChartContainer><LineChart ariaLabel="Adoption" height={180} series={[{ key: "adoption", label: "Adoption", data: [{ label: "Week 1", value: 12 }, { label: "Week 2", value: 19 }, { label: "Week 3", value: 28 }] }]} /></ChartContainer>
-        <DataTable columns={[{ id: "package", header: "Package", accessor: "package" }, { id: "surface", header: "Surface", accessor: "surface" }, { id: "status", header: "Status", accessor: "status", align: "right" }]} data={[{ package: "synthex-ui", surface: "Design system", status: "Stable" }, { package: "@luseefor/synthex-core", surface: "Engine", status: "Stable" }, { package: "@luseefor/synthex-react-web", surface: "Workbench", status: "Ready" }]} pageSize={3} searchKey="package" searchPlaceholder="Filter packages" />
+        <div className="preview-table-wrap">
+          <DataTable columns={[{ id: "package", header: "Package", accessor: "package" }, { id: "surface", header: "Surface", accessor: "surface" }, { id: "status", header: "Status", accessor: "status", align: "right" }]} data={[{ package: "synthex-ui", surface: "Design system", status: "Stable" }, { package: "@luseefor/synthex-core", surface: "Engine", status: "Stable" }, { package: "@luseefor/synthex-react-web", surface: "Workbench", status: "Ready" }]} pageSize={3} searchKey="package" searchPlaceholder="Filter packages" />
+        </div>
         <Calendar defaultValue={new Date(2026, 2, 12)} />
       </div>
     </ShowcaseSection>

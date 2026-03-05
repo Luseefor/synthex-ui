@@ -103,10 +103,12 @@ export function WorkbenchShowcase() {
       <div className="preview-section-stack">
         <div className="preview-grid-2">
           <Tabs defaultValue="overview">
-            <TabsList>
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="api">API</TabsTrigger>
-            </TabsList>
+            <div className="preview-x-scroll">
+              <TabsList>
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="api">API</TabsTrigger>
+              </TabsList>
+            </div>
             <TabsContent value="overview" className="preview-pane">Overview panel content</TabsContent>
             <TabsContent value="api" className="preview-pane">API panel content</TabsContent>
           </Tabs>

@@ -6,6 +6,7 @@ import { FormShowcase } from "./components/FormShowcase";
 import { LayoutShowcase } from "./components/LayoutShowcase";
 import { NavigationShowcase } from "./components/NavigationShowcase";
 import { OverlayShowcase } from "./components/OverlayShowcase";
+import { SynthexShowcase } from "./components/SynthexShowcase";
 import { UtilityShowcase } from "./components/UtilityShowcase";
 import { WorkbenchShowcase } from "./components/WorkbenchShowcase";
 
@@ -25,6 +26,7 @@ export function ComponentsPage() {
       <LayoutShowcase />
       <FeedbackShowcase />
       <DataShowcase />
+      <SynthexShowcase />
       {isMobile ? <Card><CardContent className="preview-list-card"><Muted>Overlay demos are simplified on mobile to avoid stacked viewport backdrops. Open this page on desktop to inspect dialog, drawer, sheet, and menu overlays in full detail.</Muted></CardContent></Card> : <OverlayShowcase />}
       <WorkbenchShowcase />
     </section>
