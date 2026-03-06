@@ -79,6 +79,12 @@
   overflow: hidden;
 }
 
+.preview-mobile-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
 @media (max-width: 767px) {
   .preview-mobile-topbar {
     display: flex;

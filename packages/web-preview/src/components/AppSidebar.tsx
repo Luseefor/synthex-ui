@@ -13,7 +13,7 @@ import {
     useSidebar,
     cn,
 } from "synthex-ui";
-import type { AccentPresetName } from "synthex-ui/theme";
+import type { PreviewAccentName } from "../app/previewAccents";
 import { NAV_ITEMS } from "../app/nav";
 import { SidebarBrand } from "./sidebar/SidebarBrand";
 import { SidebarThemeControl } from "./sidebar/SidebarThemeControl";
@@ -21,10 +21,8 @@ import { SidebarThemeControl } from "./sidebar/SidebarThemeControl";
 interface AppSidebarProps {
     readonly mode: "light" | "dark";
     readonly setMode: (mode: "light" | "dark") => void;
-    readonly accentPreset: AccentPresetName;
-    readonly setAccentPreset: (preset: AccentPresetName) => void;
-    readonly radius: number;
-    readonly setRadius: (radius: number) => void;
+    readonly accentPreset: PreviewAccentName;
+    readonly setAccentPreset: (preset: PreviewAccentName) => void;
 }
 
 export function AppSidebar({
@@ -32,8 +30,6 @@ export function AppSidebar({
     setMode,
     accentPreset,
     setAccentPreset,
-    radius,
-    setRadius,
 }: AppSidebarProps) {
     const { pathname } = useLocation();
     const navigate = useNavigate();
@@ -101,8 +97,6 @@ export function AppSidebar({
                     setMode={setMode}
                     accentPreset={accentPreset}
                     setAccentPreset={setAccentPreset}
-                    radius={radius}
-                    setRadius={setRadius}
                 />
             </SidebarFooter>
         </Sidebar>

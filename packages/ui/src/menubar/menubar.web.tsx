@@ -23,7 +23,7 @@ export const Menubar = React.forwardRef<HTMLDivElement, MenubarProps>(
       ref={ref}
       role="menubar"
       className={cn(
-        "inline-flex items-center gap-1 rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-background-subtle)] p-1",
+        "inline-flex max-w-full flex-wrap items-center gap-1 rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-background-subtle)] p-1",
         className,
       )}
       {...props}

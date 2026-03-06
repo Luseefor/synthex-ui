@@ -26,16 +26,21 @@ export function App() {
   const isMobile = useMobile();
 
   if (location.pathname === "/playground") {
-    return <ThemeProvider mode={theme.mode} accentPreset={theme.accentPreset} theme={theme.themeOverrides}><div className="preview-site"><Suspense fallback={<PreviewFallback />}><Builder /></Suspense></div></ThemeProvider>;
+    return <ThemeProvider mode={theme.mode} theme={theme.themeOverrides}><div className="preview-site"><Suspense fallback={<PreviewFallback />}><Builder /></Suspense></div></ThemeProvider>;
   }
 
   return (
-    <ThemeProvider mode={theme.mode} accentPreset={theme.accentPreset} theme={theme.themeOverrides}>
+    <ThemeProvider mode={theme.mode} theme={theme.themeOverrides}>
       <div className="preview-site">
         <SidebarProvider defaultOpen={!isMobile}>
           <AppSidebar {...theme} />
           <SidebarInset className="preview-inset">
-            <MobileTopbar />
+            <MobileTopbar
+              mode={theme.mode}
+              setMode={theme.setMode}
+              accentPreset={theme.accentPreset}
+              setAccentPreset={theme.setAccentPreset}
+            />
             <main className="preview-main">
               <Suspense fallback={<PreviewFallback />}>
                 <Routes>

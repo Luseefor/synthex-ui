@@ -63,9 +63,9 @@ export function FormShowcase() {
           <div className="preview-field"><Label>Assignee</Label><Combobox defaultValue="rijan" placeholder="Select owner"><ComboboxTrigger><ComboboxValue /></ComboboxTrigger><ComboboxContent><ComboboxInput /><ComboboxList><ComboboxItem value="rijan">Rijan</ComboboxItem><ComboboxItem value="luseefor">Luseefor</ComboboxItem><ComboboxItem value="release-bot">Release bot</ComboboxItem><ComboboxEmpty>No matching owner.</ComboboxEmpty></ComboboxList></ComboboxContent></Combobox></div>
           <label className="preview-field preview-grid-span-2"><Label>Description</Label><Textarea placeholder="Describe the current workspace" /></label>
           <label className="preview-field"><Label>Release date</Label><DatePicker placeholder="Select date" /></label>
-          <div className="preview-field"><Label>Verification</Label><InputOTP defaultValue="10"><InputOTPGroup><InputOTPSlot index={0} /><InputOTPSlot index={1} /><InputOTPSeparator /><InputOTPSlot index={2} /><InputOTPSlot index={3} /></InputOTPGroup></InputOTP></div>
+          <div className="preview-field"><Label>Verification</Label><div className="preview-x-scroll preview-x-scroll-inline"><InputOTP defaultValue="10"><InputOTPGroup><InputOTPSlot index={0} /><InputOTPSlot index={1} /><InputOTPSeparator /><InputOTPSlot index={2} /><InputOTPSlot index={3} /></InputOTPGroup></InputOTP></div></div>
           <div className="preview-field"><Label>Framework</Label><NativeSelect defaultValue="react"><option value="react">React</option><option value="native">React Native</option></NativeSelect></div>
-          <div className="preview-field"><Label>Density</Label><ToggleGroup type="single" defaultValue="comfortable"><ToggleGroupItem value="compact">Compact</ToggleGroupItem><ToggleGroupItem value="comfortable">Comfortable</ToggleGroupItem></ToggleGroup></div>
+          <div className="preview-field"><Label>Density</Label><div className="preview-x-scroll preview-x-scroll-inline"><ToggleGroup type="single" defaultValue="comfortable"><ToggleGroupItem value="compact">Compact</ToggleGroupItem><ToggleGroupItem value="comfortable">Comfortable</ToggleGroupItem></ToggleGroup></div></div>
         </div>
         <div className="preview-inline-row">
           <label className="preview-inline-control"><Checkbox defaultChecked /><span>Autosave</span></label>
@@ -74,7 +74,7 @@ export function FormShowcase() {
         </div>
         <FieldSet>
           <FieldLegend>Runtime mode</FieldLegend>
-          <FieldContent><RadioGroup defaultValue="workspace" className="preview-inline-row preview-wrap"><label className="preview-inline-control"><RadioGroupItem value="workspace" /><span>Workspace</span></label><label className="preview-inline-control"><RadioGroupItem value="docs" /><span>Docs</span></label></RadioGroup></FieldContent>
+          <FieldContent><div className="preview-x-scroll preview-x-scroll-inline"><RadioGroup defaultValue="workspace" className="preview-inline-row preview-wrap"><label className="preview-inline-control"><RadioGroupItem value="workspace" /><span>Workspace</span></label><label className="preview-inline-control"><RadioGroupItem value="docs" /><span>Docs</span></label></RadioGroup></div></FieldContent>
           <FieldDescription>Use field wrappers when labels and help text need consistent spacing.</FieldDescription>
           <FieldError>Choose at least one mode.</FieldError>
         </FieldSet>

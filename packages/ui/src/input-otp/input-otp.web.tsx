@@ -19,7 +19,7 @@ export function InputOTP({ children, defaultValue, length, onValueChange, value,
 
 export const InputOTPGroup = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("flex items-center gap-2", className)} {...props} />
+    <div ref={ref} className={cn("flex max-w-full flex-wrap items-center gap-2", className)} {...props} />
   ),
 );
 InputOTPGroup.displayName = "InputOTPGroup";
