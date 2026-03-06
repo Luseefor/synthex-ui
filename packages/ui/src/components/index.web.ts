@@ -443,6 +443,7 @@ export {
   KPIStatGrid,
   Marquee,
   ProjectCaseRow,
+  ThemeAccentSwitcher,
   TimelineRow,
 } from "../synthex/synthex.web";
 export type {
@@ -463,7 +464,15 @@ export type {
   MarqueeSharedProps,
   ProjectCaseMetric,
   ProjectCaseRowSharedProps,
+  ThemeAccentName,
+  ThemeAccentPreset,
+  ThemeAccentSwitcherSharedProps,
   TimelineEntry,
   TimelineRowSharedProps,
+} from "../synthex/synthex.shared";
+export {
+  defaultThemeAccent,
+  resolveThemeAccentTheme,
+  themeAccentPresets,
 } from "../synthex/synthex.shared";
 export { H1, H2, H3, Lead, Muted, Small } from "../typography/typography.web";

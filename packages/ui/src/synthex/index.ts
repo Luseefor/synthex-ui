@@ -1,4 +1,9 @@
 export * from "./synthex.web";
+export {
+  defaultThemeAccent,
+  resolveThemeAccentTheme,
+  themeAccentPresets,
+} from "./synthex.shared";
 export type {
   AssistantChatMessage,
   AssistantChatPanelSharedProps,
@@ -17,6 +22,9 @@ export type {
   MarqueeSharedProps,
   ProjectCaseMetric,
   ProjectCaseRowSharedProps,
+  ThemeAccentName,
+  ThemeAccentPreset,
+  ThemeAccentSwitcherSharedProps,
   TimelineEntry,
   TimelineRowSharedProps,
 } from "./synthex.shared";
