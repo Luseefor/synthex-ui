@@ -1,7 +1,15 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { type ThemeAccentName, themeAccentPresets } from "synthex-ui/components";
 import { PaletteIcon } from "synthex-ui/icons";
+
+type ThemeAccentName = "steel" | "stone" | "bronze" | "mulberry";
+
+const THEME_ACCENTS: Record<ThemeAccentName, { label: string; swatch: string }> = {
+  steel: { label: "Steel", swatch: "#93a8bf" },
+  stone: { label: "Stone", swatch: "#adb9a3" },
+  bronze: { label: "Bronze", swatch: "#bc9972" },
+  mulberry: { label: "Mulberry", swatch: "#ab91b4" },
+};
 
 interface ThemeCustomizerProps {
   readonly mode: "light" | "dark";
@@ -25,8 +33,8 @@ export function ThemeCustomizer({
   const popoverRef = React.useRef<HTMLDivElement | null>(null);
   const [position, setPosition] = React.useState({ left: 12, top: 12, maxHeight: 360 });
 
-  const accents = React.useMemo(() => Object.keys(themeAccentPresets) as ThemeAccentName[], []);
-  const selected = themeAccentPresets[accentPreset] ?? themeAccentPresets.steel;
+  const accents = React.useMemo(() => Object.keys(THEME_ACCENTS) as ThemeAccentName[], []);
+  const selected = THEME_ACCENTS[accentPreset] ?? THEME_ACCENTS.steel;
 
   const updatePosition = React.useCallback(() => {
     const trigger = triggerRef.current;
@@ -160,7 +168,7 @@ export function ThemeCustomizer({
                   <span className="preview-theme-label">Accent</span>
                   <div className="preview-theme-accent-row">
                     {accents.map((accent) => {
-                      const preset = themeAccentPresets[accent];
+                      const preset = THEME_ACCENTS[accent];
                       const isActive = accent === accentPreset;
 
                       return (
