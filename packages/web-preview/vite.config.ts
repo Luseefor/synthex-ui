@@ -15,6 +15,7 @@ function resolvePort(value?: string) {
 
 export default defineConfig(({ command }) => {
   const useWorkspaceSourceAliases = command === "serve";
+  const uiBase = useWorkspaceSourceAliases ? "../ui/src" : "../ui/dist";
 
   return {
     plugins: [react(), tailwindcss()],
@@ -40,16 +41,60 @@ export default defineConfig(({ command }) => {
       },
     },
     resolve: {
-      alias: {
-        "synthex-ui/styles.css": fileURLToPath(new URL("../ui/src/styles.css", import.meta.url)),
-        ...(useWorkspaceSourceAliases
-          ? {
-              "@luseefor/synthex-core": fileURLToPath(new URL("../core/src", import.meta.url)),
-              "@luseefor/synthex-react-web": fileURLToPath(new URL("../react-web/src", import.meta.url)),
-              "synthex-ui": fileURLToPath(new URL("../ui/src", import.meta.url)),
-            }
-          : {}),
-      },
+      alias: [
+        {
+          find: "synthex-ui/styles.css",
+          replacement: fileURLToPath(new URL("../ui/src/styles.css", import.meta.url)),
+        },
+        {
+          find: /^synthex-ui$/,
+          replacement: fileURLToPath(
+            new URL(`${uiBase}/${useWorkspaceSourceAliases ? "index.web.ts" : "index.web.js"}`, import.meta.url),
+          ),
+        },
+        {
+          find: /^synthex-ui\/components$/,
+          replacement: fileURLToPath(
+            new URL(
+              `${uiBase}/components/${useWorkspaceSourceAliases ? "index.web.ts" : "index.web.js"}`,
+              import.meta.url,
+            ),
+          ),
+        },
+        {
+          find: /^synthex-ui\/hooks$/,
+          replacement: fileURLToPath(
+            new URL(`${uiBase}/hooks/${useWorkspaceSourceAliases ? "index.web.ts" : "index.web.js"}`, import.meta.url),
+          ),
+        },
+        {
+          find: /^synthex-ui\/icons$/,
+          replacement: fileURLToPath(
+            new URL(`${uiBase}/icons/${useWorkspaceSourceAliases ? "index.web.ts" : "index.web.js"}`, import.meta.url),
+          ),
+        },
+        {
+          find: /^synthex-ui\/theme$/,
+          replacement: fileURLToPath(
+            new URL(`${uiBase}/theme/${useWorkspaceSourceAliases ? "index.web.ts" : "index.web.js"}`, import.meta.url),
+          ),
+        },
+        {
+          find: /^synthex-ui\/layout$/,
+          replacement: fileURLToPath(
+            new URL(`${uiBase}/layout/${useWorkspaceSourceAliases ? "index.web.ts" : "index.web.js"}`, import.meta.url),
+          ),
+        },
+        {
+          find: /^synthex-ui\/primitives$/,
+          replacement: fileURLToPath(
+            new URL(
+              `${uiBase}/primitives/${useWorkspaceSourceAliases ? "index.web.tsx" : "index.web.js"}`,
+              import.meta.url,
+            ),
+          ),
+        },
+      ],
     },
     server: {
       host: process.env.HOST ?? "0.0.0.0",
