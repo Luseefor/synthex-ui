@@ -223,18 +223,14 @@ export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentS
                     <span className="text-xs uppercase tracking-[0.14em] text-[color:var(--sx-color-foreground-muted)]">
                       Appearance
                     </span>
-                    <div className="relative inline-flex h-11 w-[8.75rem] items-center rounded-full border border-[color:color-mix(in_srgb,var(--sx-color-border)_78%,transparent)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--sx-color-surface-muted)_85%,transparent),color-mix(in_srgb,var(--sx-color-surface)_92%,transparent))] px-1.5">
-                      <span
-                        className={cn(
-                          "absolute top-1/2 h-9 w-9 -translate-y-1/2 rounded-full bg-[color:var(--sx-color-surface-raised)] shadow-[0_4px_12px_rgba(2,6,23,0.38)] transition-[left] duration-[var(--sx-motion-fast)]",
-                          currentMode === "dark" ? "left-[calc(100%-2.625rem)]" : "left-1",
-                        )}
-                      />
+                    <div className="inline-flex h-11 w-[8.75rem] items-center rounded-full border border-[color:color-mix(in_srgb,var(--sx-color-border)_74%,transparent)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--sx-color-surface-muted)_85%,transparent),color-mix(in_srgb,var(--sx-color-surface)_92%,transparent))] p-1">
                       <button
                         type="button"
                         className={cn(
-                          "relative z-10 inline-flex h-9 w-1/2 items-center justify-center rounded-full transition-colors duration-[var(--sx-motion-fast)]",
-                          currentMode === "light" ? "text-[color:var(--sx-color-foreground)]" : "text-[color:var(--sx-color-foreground-muted)]",
+                          "inline-flex h-9 w-1/2 items-center justify-center rounded-full transition-[background-color,color,box-shadow] duration-[var(--sx-motion-fast)]",
+                          currentMode === "light"
+                            ? "bg-[color:color-mix(in_srgb,var(--sx-color-surface-raised)_92%,white_8%)] text-[color:var(--sx-color-foreground)] shadow-[0_5px_14px_rgba(2,6,23,0.34)]"
+                            : "text-[color:var(--sx-color-foreground-muted)] hover:text-[color:var(--sx-color-foreground)]",
                         )}
                         onClick={() => setCurrentMode("light")}
                       >
@@ -243,8 +239,10 @@ export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentS
                       <button
                         type="button"
                         className={cn(
-                          "relative z-10 inline-flex h-9 w-1/2 items-center justify-center rounded-full transition-colors duration-[var(--sx-motion-fast)]",
-                          currentMode === "dark" ? "text-[color:var(--sx-color-foreground)]" : "text-[color:var(--sx-color-foreground-muted)]",
+                          "inline-flex h-9 w-1/2 items-center justify-center rounded-full transition-[background-color,color,box-shadow] duration-[var(--sx-motion-fast)]",
+                          currentMode === "dark"
+                            ? "bg-[color:color-mix(in_srgb,var(--sx-color-surface-raised)_92%,white_8%)] text-[color:var(--sx-color-foreground)] shadow-[0_5px_14px_rgba(2,6,23,0.34)]"
+                            : "text-[color:var(--sx-color-foreground-muted)] hover:text-[color:var(--sx-color-foreground)]",
                         )}
                         onClick={() => setCurrentMode("dark")}
                       >
@@ -256,7 +254,7 @@ export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentS
                     <span className="text-xs uppercase tracking-[0.14em] text-[color:var(--sx-color-foreground-muted)]">
                       Accent
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2.5">
                       {THEME_ACCENT_ORDER.map((accentId, index) => {
                         const preset = themeAccentPresets[accentId];
                         const isActive = currentAccent === accentId;
@@ -266,10 +264,10 @@ export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentS
                             key={accentId}
                             type="button"
                             className={cn(
-                              "inline-flex h-12 w-12 items-center justify-center rounded-[calc(var(--sx-radius-md)+6px)] border transition-[transform,border-color,box-shadow] duration-[var(--sx-motion-fast)] hover:-translate-y-px",
+                              "inline-flex h-12 w-12 items-center justify-center rounded-[calc(var(--sx-radius-md)+6px)] border transition-[transform,border-color,background-color,box-shadow] duration-[var(--sx-motion-fast)] hover:-translate-y-px",
                               isActive
                                 ? "border-[color:color-mix(in_srgb,var(--sx-color-primary)_84%,transparent)] bg-[color:color-mix(in_srgb,var(--sx-color-surface-muted)_68%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--sx-color-primary)_54%,transparent)]"
-                                : "border-[color:color-mix(in_srgb,var(--sx-color-border)_84%,transparent)] bg-[color:color-mix(in_srgb,var(--sx-color-surface)_88%,transparent)]",
+                                : "border-[color:color-mix(in_srgb,var(--sx-color-border)_56%,transparent)] bg-transparent hover:border-[color:color-mix(in_srgb,var(--sx-color-border-strong)_68%,transparent)]",
                             )}
                             style={getStaggerStyle(index, 20)}
                             onClick={() => setCurrentAccent(accentId)}

@@ -276,27 +276,24 @@ export const ThemeAccentSwitcher = React.forwardRef<
                       width: 140,
                       height: 44,
                       padding: 4,
+                      gap: 4,
                     }}
                   >
-                    <View
-                      style={{
-                        position: "absolute",
-                        top: 4,
-                        left: currentMode === "dark" ? 92 : 4,
-                        width: 36,
-                        height: 36,
-                        borderRadius: 999,
-                        backgroundColor: theme.colors.surfaceRaised,
-                      }}
-                    />
                     <Pressable
                       onPress={() => setCurrentMode("light")}
                       style={({ pressed }) => ({
                         height: 36,
-                        width: 66,
+                        width: 64,
                         borderRadius: 999,
                         alignItems: "center",
                         justifyContent: "center",
+                        backgroundColor:
+                          currentMode === "light" ? theme.colors.surfaceRaised : "transparent",
+                        shadowColor: currentMode === "light" ? "#020617" : "transparent",
+                        shadowOpacity: currentMode === "light" ? 0.28 : 0,
+                        shadowRadius: currentMode === "light" ? 10 : 0,
+                        shadowOffset: { width: 0, height: 4 },
+                        elevation: currentMode === "light" ? 4 : 0,
                         opacity: pressed ? 0.9 : 1,
                       })}
                     >
@@ -309,10 +306,17 @@ export const ThemeAccentSwitcher = React.forwardRef<
                       onPress={() => setCurrentMode("dark")}
                       style={({ pressed }) => ({
                         height: 36,
-                        width: 66,
+                        width: 64,
                         borderRadius: 999,
                         alignItems: "center",
                         justifyContent: "center",
+                        backgroundColor:
+                          currentMode === "dark" ? theme.colors.surfaceRaised : "transparent",
+                        shadowColor: currentMode === "dark" ? "#020617" : "transparent",
+                        shadowOpacity: currentMode === "dark" ? 0.28 : 0,
+                        shadowRadius: currentMode === "dark" ? 10 : 0,
+                        shadowOffset: { width: 0, height: 4 },
+                        elevation: currentMode === "dark" ? 4 : 0,
                         opacity: pressed ? 0.9 : 1,
                       })}
                     >
@@ -334,7 +338,7 @@ export const ThemeAccentSwitcher = React.forwardRef<
                   >
                     Accent
                   </Text>
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
                     {THEME_ACCENT_ORDER.map((accentId, index) => {
                       const preset = themeAccentPresets[accentId];
                       const isActive = currentAccent === accentId;
@@ -351,7 +355,11 @@ export const ThemeAccentSwitcher = React.forwardRef<
                               borderRadius: theme.radius.md + 6,
                               borderWidth: 1,
                               borderColor: isActive ? theme.colors.primary : theme.colors.border,
-                              backgroundColor: isActive ? theme.colors.surfaceMuted : theme.colors.surface,
+                              backgroundColor: isActive ? theme.colors.surfaceMuted : "transparent",
+                              shadowColor: isActive ? theme.colors.primary : "transparent",
+                              shadowOpacity: isActive ? 0.3 : 0,
+                              shadowRadius: isActive ? 4 : 0,
+                              shadowOffset: { width: 0, height: 0 },
                               alignItems: "center",
                               justifyContent: "center",
                               opacity: pressed ? 0.88 : 1,

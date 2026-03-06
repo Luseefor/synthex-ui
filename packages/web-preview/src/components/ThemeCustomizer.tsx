@@ -150,13 +150,10 @@ export function ThemeCustomizer({
                 <div className="preview-theme-section">
                   <span className="preview-theme-label">Appearance</span>
                   <div className="preview-theme-appearance preview-theme-appearance-pill">
-                    <span
-                      className={`preview-theme-appearance-knob${mode === "dark" ? " is-dark" : ""}`}
-                      aria-hidden="true"
-                    />
                     <button
                       type="button"
                       className={`preview-theme-mode${mode === "light" ? " is-active" : ""}`}
+                      aria-pressed={mode === "light"}
                       onClick={() => setMode("light")}
                     >
                       <SunIcon size={13} />
@@ -164,6 +161,7 @@ export function ThemeCustomizer({
                     <button
                       type="button"
                       className={`preview-theme-mode${mode === "dark" ? " is-active" : ""}`}
+                      aria-pressed={mode === "dark"}
                       onClick={() => setMode("dark")}
                     >
                       <MoonIcon size={13} />
