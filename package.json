@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "build": "npm run check-types && npm run test && npm run build --workspace @luseefor/synthex-core && npm run build --workspace synthex-ui && npm run build --workspace @luseefor/synthex-react-web && npm run build --workspace @luseefor/synthex-cli && npm run build --workspace @luseefor/web-preview",
+    "build:web-preview:ci": "npm run build --workspace @luseefor/synthex-core && npm run build --workspace synthex-ui && npm run build --workspace @luseefor/synthex-react-web && npm run build --workspace @luseefor/web-preview",
     "check": "npm run check-types",
     "check-types": "npm run typecheck --workspace @luseefor/synthex-core && npm run typecheck --workspace synthex-ui && npm run typecheck --workspace @luseefor/synthex-react-web && npm run typecheck --workspace @luseefor/synthex-cli && npm run typecheck --workspace @luseefor/web-preview",
     "dev": "npm run dev --workspace @luseefor/web-preview",
