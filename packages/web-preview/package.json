@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build",
+    "build": "npm run build --prefix ../core && npm run build --prefix ../ui && npm run build --prefix ../react-web && vite build",
     "typecheck": "npx tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
