@@ -134,8 +134,10 @@ export function ThemeCustomizer({
         onClick={() => setOpen((value) => !value)}
       >
         <span className="preview-theme-swatch" style={{ backgroundColor: selected.swatch }} />
-        <span className="preview-theme-trigger-text">{selected.label}</span>
-        <PaletteIcon size={14} />
+        {!compact ? <span className="preview-theme-trigger-text">{selected.label}</span> : null}
+        <span className="preview-theme-trigger-icon">
+          <PaletteIcon size={compact ? 13 : 14} />
+        </span>
       </button>
       {open && typeof document !== "undefined"
         ? createPortal(
