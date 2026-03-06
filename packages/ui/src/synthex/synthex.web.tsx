@@ -115,8 +115,10 @@ export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentS
       const spaceAbove = triggerRect.top - spacing;
       const triggerCenterX = triggerRect.left + triggerRect.width / 2;
       const shouldOpenCenteredVertically = spaceAbove < 180 && spaceBelow < 180;
+      const shouldPreferAbove = compact && spaceAbove > 120;
       const shouldOpenAbove =
-        !shouldOpenCenteredVertically && (spaceBelow < panelHeight || spaceAbove > spaceBelow);
+        !shouldOpenCenteredVertically &&
+        (shouldPreferAbove || spaceBelow < panelHeight || spaceAbove > spaceBelow);
       const topCandidate = shouldOpenCenteredVertically
         ? triggerRect.top + triggerRect.height / 2 - panelHeight / 2
         : shouldOpenAbove
