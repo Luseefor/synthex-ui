@@ -94,6 +94,7 @@ export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentS
       maxHeight: 360,
       top: 0,
     });
+    const [isPositioned, setIsPositioned] = React.useState(false);
 
     const selected = themeAccentPresets[currentAccent] ?? themeAccentPresets[FALLBACK_THEME_ACCENT];
 
@@ -119,7 +120,9 @@ export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentS
       const shouldOpenAbove =
         !shouldOpenCenteredVertically && (spaceBelow < panelHeight || spaceAbove > spaceBelow);
       const topCandidate = shouldOpenCenteredVertically
-        ? triggerRect.top + triggerRect.height / 2 - panelHeight / 2
+        ? spaceAbove > spaceBelow
+          ? triggerRect.top - panelHeight - spacing
+          : triggerRect.bottom + spacing
         : shouldOpenAbove
           ? triggerRect.top - panelHeight - spacing
           : triggerRect.bottom + spacing;
@@ -139,13 +142,15 @@ export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentS
         : Math.max(180, shouldOpenAbove ? spaceAbove : spaceBelow);
 
       setPosition({ left, maxHeight, top });
+      setIsPositioned(true);
     }, []);
 
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
       if (!isOpen || typeof window === "undefined") {
         return;
       }
 
+      setIsPositioned(false);
       updatePosition();
       const raf = window.requestAnimationFrame(updatePosition);
 
@@ -215,7 +220,10 @@ export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentS
                 style={{
                   left: position.left,
                   maxHeight: position.maxHeight,
+                  opacity: isPositioned ? 1 : 0,
                   top: position.top,
+                  transform: isPositioned ? "translateY(0)" : "translateY(4px)",
+                  visibility: isPositioned ? "visible" : "hidden",
                 }}
               >
                 <div className="space-y-5">

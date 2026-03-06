@@ -32,6 +32,7 @@ export function ThemeCustomizer({
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
   const popoverRef = React.useRef<HTMLDivElement | null>(null);
   const [position, setPosition] = React.useState({ left: 12, top: 12, maxHeight: 360 });
+  const [isPositioned, setIsPositioned] = React.useState(false);
 
   const accents = React.useMemo(() => Object.keys(THEME_ACCENTS) as ThemeAccentName[], []);
   const selected = THEME_ACCENTS[accentPreset] ?? THEME_ACCENTS.steel;
@@ -75,8 +76,11 @@ export function ThemeCustomizer({
       top = triggerRect.top - panelHeight - spacing;
       maxHeight = Math.max(180, spaceAbove);
     } else {
-      top = viewportHeight / 2 - panelHeight / 2;
-      maxHeight = Math.max(180, viewportHeight - spacing * 2);
+      const preferAbove = spaceAbove > spaceBelow;
+      top = preferAbove
+        ? triggerRect.top - panelHeight - spacing
+        : triggerRect.bottom + spacing;
+      maxHeight = Math.max(180, preferAbove ? spaceAbove : spaceBelow);
     }
 
     const triggerCenterX = triggerRect.left + triggerRect.width / 2;
@@ -85,13 +89,15 @@ export function ThemeCustomizer({
     top = clamp(top, spacing, viewportHeight - panelHeight - spacing);
 
     setPosition({ left, top, maxHeight });
+    setIsPositioned(true);
   }, []);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     if (!open || typeof window === "undefined") {
       return;
     }
 
+    setIsPositioned(false);
     updatePosition();
     const raf = window.requestAnimationFrame(updatePosition);
 
@@ -144,7 +150,14 @@ export function ThemeCustomizer({
             <div
               ref={popoverRef}
               className="preview-theme-popover preview-theme-popover-floating"
-              style={{ left: position.left, maxHeight: position.maxHeight, top: position.top }}
+              style={{
+                left: position.left,
+                maxHeight: position.maxHeight,
+                opacity: isPositioned ? 1 : 0,
+                top: position.top,
+                transform: isPositioned ? "translateY(0)" : "translateY(4px)",
+                visibility: isPositioned ? "visible" : "hidden",
+              }}
             >
               <div className="preview-theme-card">
                 <div className="preview-theme-section">

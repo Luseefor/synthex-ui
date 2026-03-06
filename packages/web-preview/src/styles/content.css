@@ -259,7 +259,7 @@
   -webkit-overflow-scrolling: touch;
   border: 1px solid color-mix(in srgb, var(--sx-color-border) 82%, transparent);
   border-radius: calc(var(--sx-radius-xl) + 2px);
-  background: color-mix(in srgb, var(--sx-color-surface) 96%, transparent);
+  background: color-mix(in srgb, var(--sx-color-surface) 92%, transparent);
 }
 
 .preview-release-list {
@@ -273,9 +273,13 @@
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
-  border: 1px solid color-mix(in srgb, var(--sx-color-border) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sx-color-border-strong) 76%, transparent);
   border-radius: calc(var(--sx-radius-lg) + 2px);
-  background: color-mix(in srgb, var(--sx-color-surface-muted) 92%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--sx-color-surface-muted) 84%, transparent),
+    color-mix(in srgb, var(--sx-color-surface) 94%, transparent)
+  );
   padding: 1rem;
 }
 
@@ -288,21 +292,21 @@
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--sx-color-foreground-muted);
+  color: color-mix(in srgb, var(--sx-color-foreground) 68%, var(--sx-color-foreground-muted) 32%);
 }
 
 .preview-release-card-title {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.02rem;
+  font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--sx-color-foreground);
 }
 
 .preview-release-card-body {
   margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.65;
-  color: var(--sx-color-foreground-muted);
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--sx-color-foreground) 86%, var(--sx-color-foreground-muted) 14%);
 }
 
 .preview-theme-trigger {

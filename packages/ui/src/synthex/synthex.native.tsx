@@ -6,6 +6,7 @@ import {
   Pressable,
   ScrollView,
   Text,
+  useWindowDimensions,
   View,
   type StyleProp,
   type ViewProps,
@@ -139,6 +140,7 @@ export const ThemeAccentSwitcher = React.forwardRef<
 
     const theme = useTheme();
     const reducedMotion = useReducedMotion();
+    const viewport = useWindowDimensions();
     const [currentAccent, setCurrentAccent] = useControllableState<ThemeAccentName>({
       defaultValue: defaultAccent,
       onChange: onAccentChange,
@@ -154,13 +156,60 @@ export const ThemeAccentSwitcher = React.forwardRef<
       onChange: onOpenChange,
       value: open,
     });
+    const triggerRef = React.useRef<View | null>(null);
+    const [panelHeight, setPanelHeight] = React.useState(300);
+    const [panelPlacement, setPanelPlacement] = React.useState<"above" | "below">("above");
+    const [isPositioned, setIsPositioned] = React.useState(false);
     const selected = themeAccentPresets[currentAccent] ?? themeAccentPresets[FALLBACK_THEME_ACCENT];
 
     const triggerHeight = compact ? 36 : 38;
 
+    const updatePlacement = React.useCallback(() => {
+      if (!triggerRef.current) {
+        return;
+      }
+
+      triggerRef.current.measureInWindow((_x, y, _width, height) => {
+        const spacing = 10;
+        const spaceBelow = viewport.height - (y + height) - spacing;
+        const spaceAbove = y - spacing;
+        const panelTargetHeight = Math.min(panelHeight || 300, viewport.height - spacing * 2);
+        const canOpenBelow = spaceBelow >= Math.min(220, panelTargetHeight);
+        const canOpenAbove = spaceAbove >= Math.min(220, panelTargetHeight);
+        const nextPlacement =
+          compact && canOpenAbove
+            ? "above"
+            : canOpenBelow
+              ? "below"
+              : canOpenAbove
+                ? "above"
+                : spaceAbove > spaceBelow
+                  ? "above"
+                  : "below";
+
+        setPanelPlacement(nextPlacement);
+        setIsPositioned(true);
+      });
+    }, [compact, panelHeight, viewport.height]);
+
+    React.useEffect(() => {
+      if (!isOpen) {
+        return;
+      }
+
+      setIsPositioned(false);
+      updatePlacement();
+      const frame = requestAnimationFrame(updatePlacement);
+
+      return () => {
+        cancelAnimationFrame(frame);
+      };
+    }, [isOpen, updatePlacement]);
+
     return (
       <View ref={ref} style={[{ position: "relative", alignItems: "flex-end" }, style]} {...props}>
         <Pressable
+          ref={triggerRef}
           accessibilityRole="button"
           accessibilityLabel="Theme switcher"
           accessibilityState={{ expanded: isOpen }}
@@ -231,12 +280,22 @@ export const ThemeAccentSwitcher = React.forwardRef<
             style={{
               position: "absolute",
               right: 0,
-              bottom: triggerHeight + 10,
+              ...(panelPlacement === "above" ? { bottom: triggerHeight + 10 } : { top: triggerHeight + 10 }),
               zIndex: 30,
+              opacity: isPositioned ? 1 : 0,
             }}
           >
             <Reveal reducedMotion={reducedMotion} duration={260}>
               <View
+                onLayout={(event) => {
+                  const nextHeight = event.nativeEvent.layout.height;
+                  if (nextHeight > 0 && Math.abs(nextHeight - panelHeight) > 0.5) {
+                    setPanelHeight(nextHeight);
+                    if (isOpen) {
+                      setIsPositioned(false);
+                    }
+                  }
+                }}
                 style={{
                   width: 312,
                   maxWidth: 312,
