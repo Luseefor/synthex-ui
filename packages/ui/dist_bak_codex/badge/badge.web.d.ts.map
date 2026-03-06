@@ -1,0 +1,1 @@
+{"version":3,"file":"badge.web.d.ts","sourceRoot":"","sources":["../../src/badge/badge.web.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAK,KAAK,MAAM,OAAO,CAAC;AAM/B,OAAO,EAAiB,KAAK,gBAAgB,EAAE,MAAM,gBAAgB,CAAC;AA8BtE,MAAM,WAAW,UACf,SAAQ,KAAK,CAAC,cAAc,CAAC,cAAc,CAAC,EAC5C,gBAAgB;CAAI;AAEtB,wBAAgB,KAAK,CAAC,EAAE,SAAS,EAAE,OAAO,EAAE,GAAG,KAAK,EAAE,EAAE,UAAU,2CAIjE"}

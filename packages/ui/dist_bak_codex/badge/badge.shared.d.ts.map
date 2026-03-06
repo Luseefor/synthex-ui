@@ -1,0 +1,1 @@
+{"version":3,"file":"badge.shared.d.ts","sourceRoot":"","sources":["../../src/badge/badge.shared.ts"],"names":[],"mappings":"AAAA,OAAO,EAAmC,KAAK,YAAY,EAAE,MAAM,qBAAqB,CAAC;AAEzF,eAAO,MAAM,aAAa;;EAOxB,CAAC;AAEH,MAAM,MAAM,iBAAiB,GAAG,YAAY,CAAC,OAAO,aAAa,CAAC,CAAC;AAEnE,MAAM,WAAW,gBAAiB,SAAQ,iBAAiB;CAAG;AAE9D,wBAAgB,oBAAoB,CAAC,KAAK,CAAC,EAAE,iBAAiB;;IAE7D"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"skeleton.shared.d.ts","sourceRoot":"","sources":["../../src/skeleton/skeleton.shared.ts"],"names":[],"mappings":"AAAA,OAAO,EAAmC,KAAK,YAAY,EAAE,MAAM,qBAAqB,CAAC;AAEzF,eAAO,MAAM,gBAAgB;;EAO3B,CAAC;AAEH,MAAM,MAAM,oBAAoB,GAAG,YAAY,CAAC,OAAO,gBAAgB,CAAC,CAAC;AAEzE,MAAM,WAAW,mBAAoB,SAAQ,oBAAoB;CAAG;AAEpE,wBAAgB,uBAAuB,CAAC,KAAK,CAAC,EAAE,mBAAmB;;IAElE"}

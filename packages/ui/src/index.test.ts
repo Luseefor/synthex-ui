@@ -94,6 +94,9 @@ describe("package exports", () => {
     expect(web.ProjectCaseRow).toBeDefined();
     expect(web.ContactSplitForm).toBeDefined();
     expect(web.DungeonHUDShell).toBeDefined();
+    expect(web.ThemeAccentSwitcher).toBeDefined();
+    expect(web.themeAccentPresets).toBeDefined();
+    expect(web.resolveThemeAccentTheme).toBeTypeOf("function");
     expect(web.Box).toBeDefined();
     expect(web.Stack).toBeDefined();
     expect(web.Icon).toBeDefined();
@@ -143,6 +146,9 @@ describe("package exports", () => {
     expect(native.ProjectCaseRow).toBeDefined();
     expect(native.ContactSplitForm).toBeDefined();
     expect(native.DungeonHUDShell).toBeDefined();
+    expect(native.ThemeAccentSwitcher).toBeDefined();
+    expect(native.themeAccentPresets).toBeDefined();
+    expect(native.resolveThemeAccentTheme).toBeTypeOf("function");
     expect(native.Box).toBeDefined();
     expect(native.Icon).toBeDefined();
     expect(native.usePlatformValue).toBeTypeOf("function");

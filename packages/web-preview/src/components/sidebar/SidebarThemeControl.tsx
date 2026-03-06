@@ -1,12 +1,12 @@
 import { useSidebar } from "synthex-ui/components";
-import type { PreviewAccentName } from "../../app/previewAccents";
+import type { ThemeAccentName } from "synthex-ui/components";
 import { ThemeCustomizer } from "../ThemeCustomizer";
 
 interface SidebarThemeControlProps {
   readonly mode: "light" | "dark";
   readonly setMode: (mode: "light" | "dark") => void;
-  readonly accentPreset: PreviewAccentName;
-  readonly setAccentPreset: (preset: PreviewAccentName) => void;
+  readonly accentPreset: ThemeAccentName;
+  readonly setAccentPreset: (preset: ThemeAccentName) => void;
 }
 
 export function SidebarThemeControl(props: SidebarThemeControlProps) {

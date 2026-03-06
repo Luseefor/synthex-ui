@@ -1,0 +1,116 @@
+import type { ColorScale, RadiusScale, ShadowScale, SpaceScale, SynthexTheme, TypographyScale } from "../_shared/types";
+export type SpaceValue = keyof SpaceScale | number;
+export type RadiusValue = keyof RadiusScale | number;
+export type ShadowValue = keyof ShadowScale | string;
+export type ColorValue = keyof ColorScale | string;
+export type SizeValue = keyof TypographyScale["size"];
+export type WeightValue = keyof TypographyScale["weight"];
+export type DimensionValue = number | string;
+export interface BoxStyleProps {
+    readonly align?: "stretch" | "center" | "flex-start" | "flex-end" | "baseline";
+    readonly background?: ColorValue;
+    readonly basis?: DimensionValue;
+    readonly border?: boolean;
+    readonly foreground?: ColorValue;
+    readonly direction?: "row" | "column";
+    readonly gap?: SpaceValue;
+    readonly grow?: boolean | number;
+    readonly height?: DimensionValue;
+    readonly justify?: "flex-start" | "center" | "flex-end" | "space-between" | "space-around";
+    readonly margin?: SpaceValue;
+    readonly maxHeight?: DimensionValue;
+    readonly maxWidth?: DimensionValue;
+    readonly minHeight?: DimensionValue;
+    readonly minWidth?: DimensionValue;
+    readonly padding?: SpaceValue;
+    readonly paddingX?: SpaceValue;
+    readonly paddingY?: SpaceValue;
+    readonly radius?: RadiusValue;
+    readonly shadow?: ShadowValue;
+    readonly shrink?: boolean | number;
+    readonly width?: DimensionValue;
+    readonly wrap?: boolean;
+}
+export interface SurfaceStyleProps extends BoxStyleProps {
+    readonly tone?: "default" | "muted" | "raised" | "accent" | "transparent";
+}
+export interface TextStyleProps {
+    readonly align?: "left" | "center" | "right";
+    readonly mono?: boolean;
+    readonly size?: SizeValue;
+    readonly tone?: "default" | "muted" | "accent" | "brand" | "inverse";
+    readonly weight?: WeightValue;
+}
+export declare function resolveSpace(theme: SynthexTheme, value?: SpaceValue): number | undefined;
+export declare function resolveRadius(theme: SynthexTheme, value?: RadiusValue): number | undefined;
+export declare function resolveColor(theme: SynthexTheme, value?: ColorValue): string | undefined;
+export declare function resolveShadow(theme: SynthexTheme, value?: ShadowValue): string | undefined;
+export declare function createBoxStyle(theme: SynthexTheme, props: BoxStyleProps): {
+    readonly backgroundColor: string | undefined;
+    readonly borderColor: string | undefined;
+    readonly borderRadius: number | undefined;
+    readonly borderStyle: "solid" | undefined;
+    readonly borderWidth: 1 | undefined;
+    readonly boxShadow: string | undefined;
+    readonly color: string | undefined;
+    readonly display: "flex" | undefined;
+    readonly flexBasis: DimensionValue | undefined;
+    readonly flexDirection: "row" | "column" | undefined;
+    readonly flexGrow: number | undefined;
+    readonly flexShrink: number | undefined;
+    readonly flexWrap: "wrap" | undefined;
+    readonly gap: number | undefined;
+    readonly height: DimensionValue | undefined;
+    readonly justifyContent: "center" | "flex-start" | "flex-end" | "space-between" | "space-around" | undefined;
+    readonly margin: number | undefined;
+    readonly maxHeight: DimensionValue | undefined;
+    readonly maxWidth: DimensionValue | undefined;
+    readonly minHeight: DimensionValue | undefined;
+    readonly minWidth: DimensionValue | undefined;
+    readonly padding: number | undefined;
+    readonly paddingBottom: number | undefined;
+    readonly paddingLeft: number | undefined;
+    readonly paddingRight: number | undefined;
+    readonly paddingTop: number | undefined;
+    readonly width: DimensionValue | undefined;
+    readonly alignItems: "center" | "flex-start" | "flex-end" | "stretch" | "baseline" | undefined;
+};
+export declare function createSurfaceStyle(theme: SynthexTheme, props: SurfaceStyleProps): {
+    readonly borderColor: string;
+    readonly backgroundColor: string | undefined;
+    readonly borderRadius: number | undefined;
+    readonly borderStyle: "solid" | undefined;
+    readonly borderWidth: 1 | undefined;
+    readonly boxShadow: string | undefined;
+    readonly color: string | undefined;
+    readonly display: "flex" | undefined;
+    readonly flexBasis: DimensionValue | undefined;
+    readonly flexDirection: "row" | "column" | undefined;
+    readonly flexGrow: number | undefined;
+    readonly flexShrink: number | undefined;
+    readonly flexWrap: "wrap" | undefined;
+    readonly gap: number | undefined;
+    readonly height: DimensionValue | undefined;
+    readonly justifyContent: "center" | "flex-start" | "flex-end" | "space-between" | "space-around" | undefined;
+    readonly margin: number | undefined;
+    readonly maxHeight: DimensionValue | undefined;
+    readonly maxWidth: DimensionValue | undefined;
+    readonly minHeight: DimensionValue | undefined;
+    readonly minWidth: DimensionValue | undefined;
+    readonly padding: number | undefined;
+    readonly paddingBottom: number | undefined;
+    readonly paddingLeft: number | undefined;
+    readonly paddingRight: number | undefined;
+    readonly paddingTop: number | undefined;
+    readonly width: DimensionValue | undefined;
+    readonly alignItems: "center" | "flex-start" | "flex-end" | "stretch" | "baseline" | undefined;
+};
+export declare function createTextStyle(theme: SynthexTheme, props: TextStyleProps): {
+    readonly color: string;
+    readonly fontFamily: string;
+    readonly fontSize: number;
+    readonly fontWeight: "500" | "600" | "700";
+    readonly lineHeight: number;
+    readonly textAlign: "center" | "left" | "right" | undefined;
+};
+//# sourceMappingURL=shared.d.ts.map

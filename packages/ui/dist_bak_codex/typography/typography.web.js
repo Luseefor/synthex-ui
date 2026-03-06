@@ -1,0 +1,15 @@
+import { jsx as _jsx } from "react/jsx-runtime";
+import * as React from "react";
+import { cn } from "../_shared/variants";
+export const H1 = React.forwardRef(({ className, ...props }, ref) => (_jsx("h1", { ref: ref, className: cn("text-4xl font-semibold tracking-[-0.04em] text-[color:var(--sx-color-foreground)] md:text-5xl", className), ...props })));
+H1.displayName = "H1";
+export const H2 = React.forwardRef(({ className, ...props }, ref) => (_jsx("h2", { ref: ref, className: cn("text-3xl font-semibold tracking-[-0.03em] text-[color:var(--sx-color-foreground)]", className), ...props })));
+H2.displayName = "H2";
+export const H3 = React.forwardRef(({ className, ...props }, ref) => (_jsx("h3", { ref: ref, className: cn("text-2xl font-semibold tracking-[-0.025em] text-[color:var(--sx-color-foreground)]", className), ...props })));
+H3.displayName = "H3";
+export const Lead = React.forwardRef(({ className, ...props }, ref) => (_jsx("p", { ref: ref, className: cn("text-lg leading-8 text-[color:var(--sx-color-foreground-muted)]", className), ...props })));
+Lead.displayName = "Lead";
+export const Muted = React.forwardRef(({ className, ...props }, ref) => (_jsx("p", { ref: ref, className: cn("text-sm leading-6 text-[color:var(--sx-color-foreground-muted)]", className), ...props })));
+Muted.displayName = "Muted";
+export const Small = React.forwardRef(({ className, ...props }, ref) => (_jsx("small", { ref: ref, className: cn("text-xs font-medium leading-none text-[color:var(--sx-color-foreground-muted)]", className), ...props })));
+Small.displayName = "Small";

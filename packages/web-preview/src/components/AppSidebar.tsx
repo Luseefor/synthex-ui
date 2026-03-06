@@ -13,7 +13,7 @@ import {
     useSidebar,
     cn,
 } from "synthex-ui";
-import type { PreviewAccentName } from "../app/previewAccents";
+import type { ThemeAccentName } from "synthex-ui/components";
 import { NAV_ITEMS } from "../app/nav";
 import { SidebarBrand } from "./sidebar/SidebarBrand";
 import { SidebarThemeControl } from "./sidebar/SidebarThemeControl";
@@ -21,8 +21,8 @@ import { SidebarThemeControl } from "./sidebar/SidebarThemeControl";
 interface AppSidebarProps {
     readonly mode: "light" | "dark";
     readonly setMode: (mode: "light" | "dark") => void;
-    readonly accentPreset: PreviewAccentName;
-    readonly setAccentPreset: (preset: PreviewAccentName) => void;
+    readonly accentPreset: ThemeAccentName;
+    readonly setAccentPreset: (preset: ThemeAccentName) => void;
 }
 
 export function AppSidebar({

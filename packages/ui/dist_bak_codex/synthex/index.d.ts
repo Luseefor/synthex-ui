@@ -1,0 +1,4 @@
+export * from "./synthex.web";
+export { defaultThemeAccent, resolveThemeAccentTheme, themeAccentPresets, } from "./synthex.shared";
+export type { AssistantChatMessage, AssistantChatPanelSharedProps, AssistantChatRole, CadenceBarChartSharedProps, CadenceDatum, ContactChannel, ContactSplitFormSharedProps, DungeonHUDMetric, DungeonHUDShellSharedProps, ExperienceTimelineSharedProps, FloatingAssistantLauncherSharedProps, KPIStatGridSharedProps, KPIStatItem, MarqueeItem, MarqueeSharedProps, ProjectCaseMetric, ProjectCaseRowSharedProps, ThemeAccentName, ThemeAccentPreset, ThemeAccentSwitcherSharedProps, TimelineEntry, TimelineRowSharedProps, } from "./synthex.shared";
+//# sourceMappingURL=index.d.ts.map

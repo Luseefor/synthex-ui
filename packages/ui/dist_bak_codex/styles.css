@@ -1,0 +1,534 @@
+/* ============================================================
+   Synthex UI — Design Token Surface
+   ============================================================
+   Zinc-neutral palette inspired by shadcn/ui.
+   All CSS custom properties are overridable by ThemeProvider
+   or by setting [data-theme="dark"] on any ancestor element.
+   ============================================================ */
+
+:root {
+  /* ── Colors ─────────────────────────────────────────────── */
+
+  /* Surfaces */
+  --sx-color-background: #ffffff;
+  --sx-color-background-subtle: #f4f4f5;
+  --sx-color-surface: #ffffff;
+  --sx-color-surface-muted: #fafafa;
+  --sx-color-surface-raised: #f4f4f5;
+
+  /* Text */
+  --sx-color-foreground: #09090b;
+  --sx-color-foreground-muted: #71717a;
+  --sx-color-foreground-on-brand: #fafafa;
+
+  /* Borders */
+  --sx-color-border: #e4e4e7;
+  --sx-color-border-strong: #d4d4d8;
+
+  /* Primary */
+  --sx-color-primary: #2563eb;
+  --sx-color-primary-hover: #1d4ed8;
+  --sx-color-primary-muted: #dbeafe;
+
+  /* Secondary */
+  --sx-color-secondary: #f4f4f5;
+  --sx-color-secondary-hover: #e4e4e7;
+  --sx-color-secondary-muted: #fafafa;
+
+  /* Destructive */
+  --sx-color-destructive: #ef4444;
+  --sx-color-destructive-hover: #dc2626;
+  --sx-color-destructive-muted: #fef2f2;
+
+  /* Accent */
+  --sx-color-accent: #f4f4f5;
+  --sx-color-accent-muted: #fafafa;
+
+  /* Focus */
+  --sx-color-ring: #2563eb;
+
+  /* ── Shadows / Elevation ────────────────────────────────── */
+  --sx-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --sx-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --sx-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --sx-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --sx-shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+
+  /* ── Radius ─────────────────────────────────────────────── */
+  --sx-radius-sm: 4px;
+  --sx-radius-md: 6px;
+  --sx-radius-lg: 8px;
+  --sx-radius-xl: 12px;
+  --sx-radius-pill: 999px;
+
+  /* ── Space ──────────────────────────────────────────────── */
+  --sx-space-xs: 4px;
+  --sx-space-sm: 8px;
+  --sx-space-md: 12px;
+  --sx-space-lg: 16px;
+  --sx-space-xl: 24px;
+  --sx-space-2xl: 32px;
+
+  /* ── Typography ─────────────────────────────────────────── */
+  --sx-font-family-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --sx-font-family-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --sx-font-size-xs: 0.75rem;
+  --sx-font-size-sm: 0.875rem;
+  --sx-font-size-md: 1rem;
+  --sx-font-size-lg: 1.125rem;
+  --sx-font-size-xl: 1.25rem;
+  --sx-font-size-2xl: 1.5rem;
+  --sx-font-size-3xl: 1.875rem;
+  --sx-font-size-4xl: 2.25rem;
+
+  --sx-line-height-tight: 1.15;
+  --sx-line-height-normal: 1.5;
+  --sx-line-height-relaxed: 1.65;
+
+  --sx-font-weight-medium: 500;
+  --sx-font-weight-semibold: 600;
+  --sx-font-weight-bold: 700;
+
+  /* ── Motion ─────────────────────────────────────────────── */
+  --sx-motion-fast: 140ms;
+  --sx-motion-normal: 220ms;
+  --sx-motion-slow: 340ms;
+  --sx-easing-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --sx-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ── Overlay / Elevation ───────────────────────────────── */
+  --sx-shadow-toast: 0 16px 48px -12px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --sx-shadow-dropdown: 0 12px 36px -8px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --sx-shadow-dialog: 0 24px 64px -16px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+/* ── Keyframe Animations ───────────────────────────────── */
+@keyframes sx-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sx-fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes sx-slide-in-from-bottom {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes sx-slide-in-from-top {
+  from {
+    transform: translateY(-8px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes sx-scale-in {
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes sx-toast-enter {
+  from {
+    transform: translateX(calc(100% + 1rem));
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes sx-toast-exit {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+    max-height: 200px;
+    margin-bottom: 12px;
+  }
+
+  to {
+    transform: translateX(calc(100% + 1rem));
+    opacity: 0;
+    max-height: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+@keyframes sx-overlay-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sx-content-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes sx-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes synthex-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes synthex-marquee-reverse {
+  from {
+    transform: translateX(-50%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes synthex-marquee-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes synthex-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes synthex-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes synthex-pulse-ring {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes synthex-sheen {
+  from {
+    transform: translateX(-120%);
+  }
+
+  to {
+    transform: translateX(220%);
+  }
+}
+
+@keyframes synthex-bar-rise {
+  from {
+    opacity: 0;
+    transform: scaleY(0.1);
+  }
+
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes synthex-scan-sweep {
+  from {
+    transform: translateX(-8%);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.9;
+  }
+
+  65% {
+    opacity: 0.9;
+  }
+
+  to {
+    transform: translateX(220%);
+    opacity: 0;
+  }
+}
+
+@keyframes synthex-launcher-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.95);
+  }
+
+  50% {
+    opacity: 0.58;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes synthex-launcher-orbit {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes synthex-badge-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes synthex-timeline-ping {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.85;
+  }
+
+  70% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+/* ── Dark Theme ─────────────────────────────────────────── */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --sx-color-background: #09090b;
+  --sx-color-background-subtle: #18181b;
+  --sx-color-surface: #18181b;
+  --sx-color-surface-muted: #09090b;
+  --sx-color-surface-raised: #27272a;
+
+  /* Text */
+  --sx-color-foreground: #fafafa;
+  --sx-color-foreground-muted: #a1a1aa;
+  --sx-color-foreground-on-brand: #fafafa;
+
+  /* Borders */
+  --sx-color-border: #27272a;
+  --sx-color-border-strong: #3f3f46;
+
+  /* Primary */
+  --sx-color-primary: #3b82f6;
+  --sx-color-primary-hover: #60a5fa;
+  --sx-color-primary-muted: rgba(59, 130, 246, 0.15);
+
+  /* Secondary */
+  --sx-color-secondary: #27272a;
+  --sx-color-secondary-hover: #3f3f46;
+  --sx-color-secondary-muted: #18181b;
+
+  /* Destructive */
+  --sx-color-destructive: #ef4444;
+  --sx-color-destructive-hover: #f87171;
+  --sx-color-destructive-muted: rgba(239, 68, 68, 0.15);
+
+  /* Accent */
+  --sx-color-accent: #27272a;
+  --sx-color-accent-muted: #18181b;
+
+  /* Focus */
+  --sx-color-ring: #3b82f6;
+
+  /* Shadows */
+  --sx-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --sx-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --sx-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --sx-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+  --sx-shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Auto dark mode (no ThemeProvider needed) ────────────── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+
+    --sx-color-background: #09090b;
+    --sx-color-background-subtle: #18181b;
+    --sx-color-surface: #18181b;
+    --sx-color-surface-muted: #09090b;
+    --sx-color-surface-raised: #27272a;
+    --sx-color-foreground: #fafafa;
+    --sx-color-foreground-muted: #a1a1aa;
+    --sx-color-foreground-on-brand: #fafafa;
+    --sx-color-border: #27272a;
+    --sx-color-border-strong: #3f3f46;
+    --sx-color-primary: #3b82f6;
+    --sx-color-primary-hover: #60a5fa;
+    --sx-color-primary-muted: rgba(59, 130, 246, 0.15);
+    --sx-color-secondary: #27272a;
+    --sx-color-secondary-hover: #3f3f46;
+    --sx-color-secondary-muted: #18181b;
+    --sx-color-destructive: #ef4444;
+    --sx-color-destructive-hover: #f87171;
+    --sx-color-destructive-muted: rgba(239, 68, 68, 0.15);
+    --sx-color-accent: #27272a;
+    --sx-color-accent-muted: #18181b;
+    --sx-color-ring: #3b82f6;
+    --sx-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --sx-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.24);
+    --sx-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.3);
+    --sx-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4), 0 4px 6px rgba(0, 0, 0, 0.3);
+    --sx-shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* ── Reduced Motion ─────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Reset ──────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  width: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--sx-color-background);
+  color: var(--sx-color-foreground);
+  font-family: var(--sx-font-family-sans);
+  font-size: var(--sx-font-size-sm);
+  line-height: var(--sx-line-height-normal);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+code,
+pre {
+  font-family: var(--sx-font-family-mono);
+}
+
+[data-synthex-theme="web"] {
+  min-width: 0;
+  min-height: 0;
+}

@@ -1,0 +1,17 @@
+import { jsx as _jsx } from "react/jsx-runtime";
+import * as React from "react";
+import { cn } from "../_shared/variants";
+export const Breadcrumb = React.forwardRef(({ className, ...props }, ref) => (_jsx("nav", { ref: ref, className: cn("w-full", className), ...props, "aria-label": props["aria-label"] ?? "Breadcrumb" })));
+Breadcrumb.displayName = "Breadcrumb";
+export const BreadcrumbList = React.forwardRef(({ className, ...props }, ref) => (_jsx("ol", { ref: ref, className: cn("flex flex-wrap items-center gap-2 text-sm text-[color:var(--sx-color-foreground-muted)]", className), ...props })));
+BreadcrumbList.displayName = "BreadcrumbList";
+export const BreadcrumbItem = React.forwardRef(({ className, ...props }, ref) => (_jsx("li", { ref: ref, className: cn("inline-flex items-center gap-2", className), ...props })));
+BreadcrumbItem.displayName = "BreadcrumbItem";
+export const BreadcrumbLink = React.forwardRef(({ className, current = false, ...props }, ref) => (_jsx("a", { ref: ref, "aria-current": current ? "page" : undefined, className: cn("transition-colors duration-[var(--sx-motion-fast)] hover:text-[color:var(--sx-color-foreground)]", current && "font-medium text-[color:var(--sx-color-foreground)]", className), ...props })));
+BreadcrumbLink.displayName = "BreadcrumbLink";
+export const BreadcrumbPage = React.forwardRef(({ className, ...props }, ref) => (_jsx("span", { ref: ref, "aria-current": "page", className: cn("font-medium text-[color:var(--sx-color-foreground)]", className), ...props })));
+BreadcrumbPage.displayName = "BreadcrumbPage";
+export const BreadcrumbSeparator = React.forwardRef(({ children = "›", className, ...props }, ref) => (_jsx("span", { ref: ref, "aria-hidden": "true", className: cn("text-[color:var(--sx-color-foreground-muted)]", className), ...props, children: children })));
+BreadcrumbSeparator.displayName = "BreadcrumbSeparator";
+export const BreadcrumbEllipsis = React.forwardRef(({ className, ...props }, ref) => (_jsx("span", { ref: ref, "aria-hidden": "true", className: cn("font-medium text-[color:var(--sx-color-foreground-muted)]", className), ...props, children: "\u2026" })));
+BreadcrumbEllipsis.displayName = "BreadcrumbEllipsis";

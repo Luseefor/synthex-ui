@@ -1,5 +1,5 @@
 import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, H2, Muted, Progress } from "synthex-ui/components";
-import { previewAccentPresets } from "../app/previewAccents";
+import { themeAccentPresets } from "synthex-ui/components";
 
 export function ThemePage() {
   return (
@@ -10,7 +10,7 @@ export function ThemePage() {
         <Muted>The preview shell persists accent, mode, and radius so every route validates the same token contract under different settings.</Muted>
       </div>
       <div className="preview-grid-2">
-        <Card><CardHeader><CardTitle>Accent presets</CardTitle><CardDescription>Steel, Stone, Bronze, and Mulberry are applied across the full web preview.</CardDescription></CardHeader><CardContent className="preview-inline-row preview-wrap">{Object.entries(previewAccentPresets).map(([name, preset]) => <div key={name} className="preview-accent-pill"><span className="preview-accent-dot" style={{ backgroundColor: preset.swatch }} /><span>{preset.label}</span></div>)}</CardContent></Card>
+        <Card><CardHeader><CardTitle>Accent presets</CardTitle><CardDescription>Steel, Stone, Bronze, and Mulberry are applied across the full web preview.</CardDescription></CardHeader><CardContent className="preview-inline-row preview-wrap">{Object.entries(themeAccentPresets).map(([name, preset]) => <div key={name} className="preview-accent-pill"><span className="preview-accent-dot" style={{ backgroundColor: preset.swatch }} /><span>{preset.label}</span></div>)}</CardContent></Card>
         <Card><CardHeader><CardTitle>Surface behavior</CardTitle><CardDescription>Semantic surfaces should remain readable in both light and dark mode.</CardDescription></CardHeader><CardContent className="preview-section-stack"><Alert><AlertTitle>Theme-safe alert</AlertTitle><AlertDescription>Accent, border, and muted surfaces stay token-driven.</AlertDescription></Alert><Progress value={68} /><div className="preview-inline-row"><Button>Primary action</Button><Button variant="outline">Secondary</Button></div></CardContent></Card>
       </div>
     </section>

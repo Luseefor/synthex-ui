@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { SidebarTrigger } from "synthex-ui/components";
 import { PanelLeftIcon } from "synthex-ui/icons";
-import type { PreviewAccentName } from "./previewAccents";
+import type { ThemeAccentName } from "synthex-ui/components";
 import { ThemeCustomizer } from "../components/ThemeCustomizer";
 import { ReleaseNotesTrigger } from "../components/sidebar/ReleaseNotesTrigger";
 import { NAV_ITEMS } from "./nav";
@@ -9,8 +9,8 @@ import { NAV_ITEMS } from "./nav";
 interface MobileTopbarProps {
   readonly mode: "light" | "dark";
   readonly setMode: (mode: "light" | "dark") => void;
-  readonly accentPreset: PreviewAccentName;
-  readonly setAccentPreset: (preset: PreviewAccentName) => void;
+  readonly accentPreset: ThemeAccentName;
+  readonly setAccentPreset: (preset: ThemeAccentName) => void;
 }
 
 export function MobileTopbar({ mode, setMode, accentPreset, setAccentPreset }: MobileTopbarProps) {

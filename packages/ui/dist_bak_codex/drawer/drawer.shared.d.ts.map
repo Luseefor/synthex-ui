@@ -1,0 +1,1 @@
+{"version":3,"file":"drawer.shared.d.ts","sourceRoot":"","sources":["../../src/drawer/drawer.shared.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,iBAAiB;IAChC,QAAQ,CAAC,WAAW,CAAC,EAAE,OAAO,CAAC;IAC/B,QAAQ,CAAC,YAAY,CAAC,EAAE,CAAC,IAAI,EAAE,OAAO,KAAK,IAAI,CAAC;IAChD,QAAQ,CAAC,IAAI,CAAC,EAAE,OAAO,CAAC;CACzB"}

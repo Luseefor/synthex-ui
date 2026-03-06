@@ -160,6 +160,7 @@ import {
   ExperienceTimeline,
   FloatingAssistantLauncher,
   ProjectCaseRow,
+  ThemeAccentSwitcher,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -293,6 +294,7 @@ describe("synthex-ui web components", () => {
           ]}
         />
         <FloatingAssistantLauncher title="Quick assistant">Launcher content</FloatingAssistantLauncher>
+        <ThemeAccentSwitcher defaultOpen />
         <ExperienceTimeline
           entries={[
             {
@@ -331,6 +333,7 @@ describe("synthex-ui web components", () => {
     expect(screen.getByText("14-day cadence")).toBeInTheDocument();
     expect(screen.getAllByText("Research ops").length).toBeGreaterThan(0);
     expect(screen.getByText("Copilot")).toBeInTheDocument();
+    expect(screen.getByText("Appearance")).toBeInTheDocument();
     expect(screen.getByText("Lead engineer")).toBeInTheDocument();
     expect(screen.getByText("Migration platform")).toBeInTheDocument();
     expect(screen.getByText("team@synthex.dev")).toBeInTheDocument();
