@@ -16,6 +16,7 @@ import { Button } from "../button/button.native";
 import { Card, CardContent, CardHeader, CardTitle } from "../card/card.native";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../form/form.native";
 import { useControllableState } from "../hooks/useControllableState";
+import { PaletteIcon } from "../icons/index.native";
 import { useReducedMotion } from "../hooks/useReducedMotion.native";
 import { Input } from "../input/input.native";
 import { Textarea } from "../textarea/textarea.native";
@@ -168,9 +169,9 @@ export const ThemeAccentSwitcher = React.forwardRef<
             minHeight: compact ? 36 : 38,
             borderRadius: 999,
             borderWidth: 1,
-            borderColor: theme.colors.border,
-            backgroundColor: theme.colors.surface,
-            paddingHorizontal: compact ? 10 : 12,
+            borderColor: "#2d67ae",
+            backgroundColor: "#0c1423",
+            paddingHorizontal: compact ? 11 : 13,
             paddingVertical: 6,
             flexDirection: "row",
             alignItems: "center",
@@ -185,12 +186,14 @@ export const ThemeAccentSwitcher = React.forwardRef<
               height: 10,
               borderRadius: 999,
               backgroundColor: selected.swatch,
+              borderWidth: 1,
+              borderColor: "rgba(255,255,255,0.34)",
             }}
           />
           {!compact ? (
             <Text
               style={{
-                color: theme.colors.foregroundMuted,
+                color: "#dce8fb",
                 fontSize: theme.typography.size.xs,
                 fontWeight: theme.typography.weight.semibold,
                 textTransform: "uppercase",
@@ -206,22 +209,14 @@ export const ThemeAccentSwitcher = React.forwardRef<
               minWidth: 18,
               borderRadius: 999,
               borderWidth: 1,
-              borderColor: theme.colors.border,
-              backgroundColor: theme.colors.surfaceMuted,
+              borderColor: "#3d5576",
+              backgroundColor: "#111a2b",
               alignItems: "center",
               justifyContent: "center",
-              paddingHorizontal: 4,
+              paddingHorizontal: 3,
             }}
           >
-            <Text
-              style={{
-                color: theme.colors.foregroundMuted,
-                fontSize: 9,
-                fontWeight: theme.typography.weight.semibold,
-              }}
-            >
-              FX
-            </Text>
+            <PaletteIcon size={10} color="#b9cbe4" />
           </View>
         </Pressable>
         {isOpen ? (

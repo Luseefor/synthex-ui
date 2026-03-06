@@ -5,6 +5,7 @@ import { Button } from "../button/button.web";
 import { Card, CardContent, CardHeader, CardTitle } from "../card/card.web";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../form/form.web";
 import { useControllableState } from "../hooks/useControllableState";
+import { PaletteIcon } from "../icons/index.web";
 import { Input } from "../input/input.web";
 import { Textarea } from "../textarea/textarea.web";
 import type {
@@ -192,20 +193,20 @@ export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentS
           aria-expanded={isOpen}
           aria-label="Theme switcher"
           className={cn(
-            "inline-flex items-center gap-2 rounded-full border border-[color:color-mix(in_srgb,var(--sx-color-border)_88%,transparent)] bg-[color:color-mix(in_srgb,var(--sx-color-surface)_92%,transparent)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--sx-color-foreground-muted)] shadow-[var(--sx-shadow-xs)] transition-[transform,border-color,color,background-color] duration-[var(--sx-motion-fast)] hover:-translate-y-px hover:border-[color:var(--sx-color-border-strong)] hover:text-[color:var(--sx-color-foreground)]",
-            compact && "px-2.5 py-1.5",
+            "inline-flex items-center gap-2 rounded-full border border-[#2d67ae] bg-[radial-gradient(circle_at_top,#15233a_0%,#0c1423_64%)] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#d9e4f5] shadow-[0_10px_24px_-16px_rgba(2,6,23,0.95),inset_0_1px_0_rgba(148,163,184,0.2)] transition-[transform,border-color,filter,box-shadow] duration-[var(--sx-motion-fast)] hover:-translate-y-px hover:border-[#4a86cf] hover:brightness-110",
+            compact && "px-3 py-1.5",
           )}
           onClick={() => {
             setIsOpen(!isOpen);
           }}
         >
           <span
-            className="h-2.5 w-2.5 rounded-full border border-white/30"
+            className="h-2.5 w-2.5 rounded-full border border-white/35 shadow-[0_0_0_2px_rgba(10,15,26,0.75)]"
             style={{ backgroundColor: selected.swatch }}
           />
-          {!compact ? <span className="whitespace-nowrap">{selected.label}</span> : null}
-          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] text-[10px]">
-            FX
+          {!compact ? <span className="whitespace-nowrap text-[#dce8fb]">{selected.label}</span> : null}
+          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[#3d5576] bg-[#111a2b] text-[#b9cbe4]">
+            <PaletteIcon size={11} />
           </span>
         </button>
         {isOpen && typeof document !== "undefined"
