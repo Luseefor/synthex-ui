@@ -6,25 +6,24 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  ScrollArea,
 } from "synthex-ui/components";
 import uiPackage from "../../../../ui/package.json";
 
 const RELEASE_NOTES = [
   {
-    title: "Synthex migration patterns",
+    title: "Theme popover stability",
     body:
-      "Added AssistantChatPanel, FloatingAssistantLauncher, CadenceBarChart, Marquee, KPIStatGrid, TimelineRow, ExperienceTimeline, ProjectCaseRow, ContactSplitForm, and DungeonHUDShell to the public synthex-ui surface.",
+      "Reworked switcher placement logic for web and native so the theme panel opens with deterministic anchoring and no initial jump. The panel now measures before reveal and picks above or below based on available viewport space.",
   },
   {
-    title: "Cross-platform parity",
+    title: "Cleaner theme customization UI",
     body:
-      "The new patterns ship with shared contracts plus dedicated web and native implementations, so design-system consumers can use the same API across preview and app shells.",
+      "Updated appearance and accent controls with clearer active states and reduced visual clutter while preserving the existing trigger style. This keeps the control readable in compact sidebar and full panel layouts.",
   },
   {
-    title: "Package validation",
+    title: "Workspace release alignment",
     body:
-      "Release coverage now includes export checks, render tests for the new patterns, build emit verification, and npm pack/publish dry-run validation for synthex-ui@1.0.1.",
+      "All publishable packages are now aligned to v1.1.0 with synchronized internal dependency ranges across core, UI, React web adapter, CLI, and web preview surfaces.",
   },
 ] as const;
 
@@ -65,7 +64,7 @@ export function ReleaseNotesTrigger({
             Latest updates for the Synthex UI package exposed in this web preview.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="preview-release-scroll">
+        <div className="preview-release-scroll">
           <div className="preview-release-list">
             {RELEASE_NOTES.map((item, index) => (
               <article key={item.title} className="preview-release-card">
@@ -78,7 +77,7 @@ export function ReleaseNotesTrigger({
               </article>
             ))}
           </div>
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );
