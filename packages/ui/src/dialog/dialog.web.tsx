@@ -145,31 +145,35 @@ export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps
         />
         {/* Content */}
         <div
-          ref={ref}
+          className="fixed left-1/2 top-1/2 z-[101] w-full max-w-lg -translate-x-1/2 -translate-y-1/2"
           role="dialog"
           aria-modal="true"
-          className={cn(
-            "fixed left-1/2 top-1/2 z-[101] w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-[var(--sx-radius-xl)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-6 shadow-[var(--sx-shadow-dialog)]",
-            className,
-          )}
-          style={{ animation: "sx-content-in 250ms var(--sx-easing-emphasized)" }}
-          onClick={(event) => {
-            event.stopPropagation();
-            onClick?.(event);
-          }}
-          {...props}
         >
-          {!hideClose ? (
-            <button
-              type="button"
-              aria-label="Close dialog"
-              className="absolute right-4 top-4 inline-flex h-7 w-7 items-center justify-center rounded-[var(--sx-radius-sm)] text-[color:var(--sx-color-foreground-muted)] opacity-70 transition-all duration-[var(--sx-motion-fast)] hover:opacity-100 hover:bg-[color:var(--sx-color-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)]"
-              onClick={() => context.setOpen(false)}
-            >
-              <CloseIcon size={15} />
-            </button>
-          ) : null}
-          {children}
+          <div
+            ref={ref}
+            className={cn(
+              "relative w-full rounded-[var(--sx-radius-xl)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-6 shadow-[var(--sx-shadow-dialog)]",
+              className,
+            )}
+            style={{ animation: "sx-content-in 250ms var(--sx-easing-emphasized)" }}
+            onClick={(event) => {
+              event.stopPropagation();
+              onClick?.(event);
+            }}
+            {...props}
+          >
+            {!hideClose ? (
+              <button
+                type="button"
+                aria-label="Close dialog"
+                className="absolute right-4 top-4 inline-flex h-7 w-7 items-center justify-center rounded-[var(--sx-radius-sm)] text-[color:var(--sx-color-foreground-muted)] opacity-70 transition-all duration-[var(--sx-motion-fast)] hover:opacity-100 hover:bg-[color:var(--sx-color-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)]"
+                onClick={() => context.setOpen(false)}
+              >
+                <CloseIcon size={15} />
+              </button>
+            ) : null}
+            {children}
+          </div>
         </div>
       </>,
       document.body,
