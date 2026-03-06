@@ -21,7 +21,7 @@ import type {
   ThemeAccentSwitcherSharedProps,
   TimelineRowSharedProps,
 } from "./synthex.shared";
-import { defaultThemeAccent, getCadenceMax, themeAccentPresets } from "./synthex.shared";
+import { getCadenceMax, themeAccentPresets } from "./synthex.shared";
 
 function getStaggerStyle(index: number, baseDelay = 0): React.CSSProperties {
   return {
@@ -38,6 +38,7 @@ function clampToViewport(value: number, min: number, max: number) {
 }
 
 const THEME_ACCENT_ORDER: ThemeAccentName[] = ["steel", "stone", "bronze", "mulberry"];
+const FALLBACK_THEME_ACCENT: ThemeAccentName = "steel";
 
 interface ThemeSwitcherPosition {
   readonly left: number;
@@ -68,7 +69,7 @@ export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentS
     },
     ref,
   ) => {
-    const defaultAccent = defaultAccentProp ?? defaultThemeAccent;
+    const defaultAccent = defaultAccentProp ?? FALLBACK_THEME_ACCENT;
 
     const [currentAccent, setCurrentAccent] = useControllableState<ThemeAccentName>({
       defaultValue: defaultAccent,
@@ -93,7 +94,7 @@ export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentS
       top: 0,
     });
 
-    const selected = themeAccentPresets[currentAccent] ?? themeAccentPresets[defaultThemeAccent];
+    const selected = themeAccentPresets[currentAccent] ?? themeAccentPresets[FALLBACK_THEME_ACCENT];
 
     const updatePosition = React.useCallback(() => {
       const trigger = triggerRef.current;

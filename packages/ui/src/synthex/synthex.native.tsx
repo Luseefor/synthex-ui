@@ -33,7 +33,7 @@ import type {
   ThemeAccentSwitcherSharedProps,
   TimelineRowSharedProps,
 } from "./synthex.shared";
-import { defaultThemeAccent, getCadenceMax, themeAccentPresets } from "./synthex.shared";
+import { getCadenceMax, themeAccentPresets } from "./synthex.shared";
 
 interface RevealProps {
   readonly children: React.ReactNode;
@@ -104,6 +104,7 @@ function toDelay(index: number, baseDelay = 0) {
 }
 
 const THEME_ACCENT_ORDER: ThemeAccentName[] = ["steel", "stone", "bronze", "mulberry"];
+const FALLBACK_THEME_ACCENT: ThemeAccentName = "steel";
 
 export interface ThemeAccentSwitcherProps
   extends Omit<ViewProps, keyof ThemeAccentSwitcherSharedProps>,
@@ -133,7 +134,7 @@ export const ThemeAccentSwitcher = React.forwardRef<
     },
     ref,
   ) => {
-    const defaultAccent = defaultAccentProp ?? defaultThemeAccent;
+    const defaultAccent = defaultAccentProp ?? FALLBACK_THEME_ACCENT;
 
     const theme = useTheme();
     const reducedMotion = useReducedMotion();
@@ -152,7 +153,7 @@ export const ThemeAccentSwitcher = React.forwardRef<
       onChange: onOpenChange,
       value: open,
     });
-    const selected = themeAccentPresets[currentAccent] ?? themeAccentPresets[defaultThemeAccent];
+    const selected = themeAccentPresets[currentAccent] ?? themeAccentPresets[FALLBACK_THEME_ACCENT];
 
     const triggerHeight = compact ? 36 : 38;
 
