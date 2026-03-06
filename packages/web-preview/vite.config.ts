@@ -40,13 +40,16 @@ export default defineConfig(({ command }) => {
       },
     },
     resolve: {
-      alias: useWorkspaceSourceAliases
-        ? {
-            "@luseefor/synthex-core": fileURLToPath(new URL("../core/src", import.meta.url)),
-            "@luseefor/synthex-react-web": fileURLToPath(new URL("../react-web/src", import.meta.url)),
-            "synthex-ui": fileURLToPath(new URL("../ui/src", import.meta.url)),
-          }
-        : undefined,
+      alias: {
+        "synthex-ui/styles.css": fileURLToPath(new URL("../ui/src/styles.css", import.meta.url)),
+        ...(useWorkspaceSourceAliases
+          ? {
+              "@luseefor/synthex-core": fileURLToPath(new URL("../core/src", import.meta.url)),
+              "@luseefor/synthex-react-web": fileURLToPath(new URL("../react-web/src", import.meta.url)),
+              "synthex-ui": fileURLToPath(new URL("../ui/src", import.meta.url)),
+            }
+          : {}),
+      },
     },
     server: {
       host: process.env.HOST ?? "0.0.0.0",
