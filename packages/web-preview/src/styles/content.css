@@ -236,7 +236,12 @@
 }
 
 .preview-release-dialog {
+  width: min(38rem, calc(100vw - 1.5rem));
   max-width: 38rem;
+  max-height: min(86vh, 42rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .preview-release-heading {
@@ -247,7 +252,11 @@
 
 .preview-release-scroll {
   margin-top: 1rem;
-  max-height: min(65vh, 32rem);
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid color-mix(in srgb, var(--sx-color-border) 82%, transparent);
   border-radius: calc(var(--sx-radius-xl) + 2px);
   background: color-mix(in srgb, var(--sx-color-surface) 96%, transparent);
@@ -342,6 +351,12 @@
   background: color-mix(in srgb, var(--sx-color-background-subtle) 94%, transparent);
   padding: 0;
   box-shadow: 0 20px 44px rgba(3, 7, 18, 0.42);
+}
+
+.preview-theme-popover-floating {
+  position: fixed;
+  z-index: 420;
+  overflow: auto;
 }
 
 .preview-theme-card {

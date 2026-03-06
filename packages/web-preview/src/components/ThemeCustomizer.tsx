@@ -49,38 +49,40 @@ export function ThemeCustomizer({
     const triggerRect = trigger.getBoundingClientRect();
     const popRect = popover.getBoundingClientRect();
     const panelWidth = Math.min(popRect.width || 320, viewportWidth - spacing * 2);
-    const panelHeight = Math.min(popRect.height || 260, viewportHeight - spacing * 2);
+    const panelHeight = Math.min(popRect.height || 300, viewportHeight - spacing * 2);
     const spaceBelow = viewportHeight - triggerRect.bottom - spacing;
     const spaceAbove = triggerRect.top - spacing;
-    const openCentered = spaceAbove < 180 && spaceBelow < 180;
-    const preferAbove = compact && spaceAbove > 120;
-    const openAbove =
-      !openCentered && (preferAbove || spaceBelow < panelHeight || spaceAbove > spaceBelow);
 
-    const topCandidate = openCentered
-      ? triggerRect.top + triggerRect.height / 2 - panelHeight / 2
-      : openAbove
-        ? triggerRect.top - panelHeight - spacing
-        : triggerRect.bottom + spacing;
-    const top = Math.min(
-      Math.max(topCandidate, spacing),
-      Math.max(spacing, viewportHeight - panelHeight - spacing),
-    );
+    const clamp = (value: number, min: number, max: number) => {
+      if (max <= min) {
+        return min;
+      }
+      return Math.min(Math.max(value, min), max);
+    };
+
+    let top: number;
+    let maxHeight: number;
+    const canOpenBelow = spaceBelow >= Math.min(220, panelHeight);
+    const canOpenAbove = spaceAbove >= Math.min(220, panelHeight);
+
+    if (compact && canOpenAbove) {
+      top = triggerRect.top - panelHeight - spacing;
+      maxHeight = Math.max(180, spaceAbove);
+    } else if (canOpenBelow) {
+      top = triggerRect.bottom + spacing;
+      maxHeight = Math.max(180, spaceBelow);
+    } else if (canOpenAbove) {
+      top = triggerRect.top - panelHeight - spacing;
+      maxHeight = Math.max(180, spaceAbove);
+    } else {
+      top = viewportHeight / 2 - panelHeight / 2;
+      maxHeight = Math.max(180, viewportHeight - spacing * 2);
+    }
 
     const triggerCenterX = triggerRect.left + triggerRect.width / 2;
-    const edgePinned = triggerRect.left < spacing || triggerRect.right > viewportWidth - spacing;
-    const leftCandidate = edgePinned
-      ? triggerCenterX - panelWidth / 2
-      : triggerCenterX < viewportWidth / 2
-        ? triggerRect.left
-        : triggerRect.right - panelWidth;
-    const left = Math.min(
-      Math.max(leftCandidate, spacing),
-      Math.max(spacing, viewportWidth - panelWidth - spacing),
-    );
-    const maxHeight = openCentered
-      ? Math.max(180, viewportHeight - spacing * 2)
-      : Math.max(180, openAbove ? spaceAbove : spaceBelow);
+    const leftCandidate = triggerCenterX - panelWidth / 2;
+    const left = clamp(leftCandidate, spacing, viewportWidth - panelWidth - spacing);
+    top = clamp(top, spacing, viewportHeight - panelHeight - spacing);
 
     setPosition({ left, top, maxHeight });
   }, []);
