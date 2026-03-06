@@ -1,6 +1,6 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { PaletteIcon } from "synthex-ui/icons";
+import { MoonIcon, PaletteIcon, SunIcon } from "synthex-ui/icons";
 
 type ThemeAccentName = "steel" | "stone" | "bronze" | "mulberry";
 
@@ -148,25 +148,25 @@ export function ThemeCustomizer({
             >
               <div className="preview-theme-card">
                 <div className="preview-theme-section">
-                  <span className="preview-theme-label">Theme</span>
-                  <span className="preview-theme-label">{selected.label}</span>
-                </div>
-                <div className="preview-theme-section">
                   <span className="preview-theme-label">Appearance</span>
-                  <div className="preview-theme-appearance">
+                  <div className="preview-theme-appearance preview-theme-appearance-pill">
+                    <span
+                      className={`preview-theme-appearance-knob${mode === "dark" ? " is-dark" : ""}`}
+                      aria-hidden="true"
+                    />
                     <button
                       type="button"
                       className={`preview-theme-mode${mode === "light" ? " is-active" : ""}`}
                       onClick={() => setMode("light")}
                     >
-                      L
+                      <SunIcon size={13} />
                     </button>
                     <button
                       type="button"
                       className={`preview-theme-mode${mode === "dark" ? " is-active" : ""}`}
                       onClick={() => setMode("dark")}
                     >
-                      D
+                      <MoonIcon size={13} />
                     </button>
                   </div>
                 </div>

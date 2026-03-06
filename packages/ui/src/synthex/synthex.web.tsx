@@ -5,6 +5,7 @@ import { Button } from "../button/button.web";
 import { Card, CardContent, CardHeader, CardTitle } from "../card/card.web";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../form/form.web";
 import { useControllableState } from "../hooks/useControllableState";
+import { MoonIcon, SunIcon } from "../icons/index.web";
 import { Input } from "../input/input.web";
 import { Textarea } from "../textarea/textarea.web";
 import type {
@@ -217,43 +218,37 @@ export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentS
                   top: position.top,
                 }}
               >
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--sx-color-foreground-muted)]">
-                      {title}
-                    </span>
-                    <span className="text-[10px] uppercase tracking-[0.14em] text-[color:var(--sx-color-foreground-muted)]">
-                      {selected.label}
-                    </span>
-                  </div>
+                <div className="space-y-5">
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-xs uppercase tracking-[0.14em] text-[color:var(--sx-color-foreground-muted)]">
                       Appearance
                     </span>
-                    <div className="inline-flex items-center gap-1 rounded-full border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-1">
+                    <div className="relative inline-flex h-11 w-[8.75rem] items-center rounded-full border border-[color:color-mix(in_srgb,var(--sx-color-border)_78%,transparent)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--sx-color-surface-muted)_85%,transparent),color-mix(in_srgb,var(--sx-color-surface)_92%,transparent))] px-1.5">
+                      <span
+                        className={cn(
+                          "absolute top-1/2 h-9 w-9 -translate-y-1/2 rounded-full bg-[color:var(--sx-color-surface-raised)] shadow-[0_4px_12px_rgba(2,6,23,0.38)] transition-[left] duration-[var(--sx-motion-fast)]",
+                          currentMode === "dark" ? "left-[calc(100%-2.625rem)]" : "left-1",
+                        )}
+                      />
                       <button
                         type="button"
                         className={cn(
-                          "inline-flex h-7 min-w-14 items-center justify-center rounded-full px-2 text-xs font-medium transition-[transform,background-color,color] duration-[var(--sx-motion-fast)] hover:-translate-y-px",
-                          currentMode === "light"
-                            ? "bg-[color:var(--sx-color-primary-muted)] text-[color:var(--sx-color-foreground)]"
-                            : "text-[color:var(--sx-color-foreground-muted)]",
+                          "relative z-10 inline-flex h-9 w-1/2 items-center justify-center rounded-full transition-colors duration-[var(--sx-motion-fast)]",
+                          currentMode === "light" ? "text-[color:var(--sx-color-foreground)]" : "text-[color:var(--sx-color-foreground-muted)]",
                         )}
                         onClick={() => setCurrentMode("light")}
                       >
-                        Light
+                        <SunIcon size={14} />
                       </button>
                       <button
                         type="button"
                         className={cn(
-                          "inline-flex h-7 min-w-14 items-center justify-center rounded-full px-2 text-xs font-medium transition-[transform,background-color,color] duration-[var(--sx-motion-fast)] hover:-translate-y-px",
-                          currentMode === "dark"
-                            ? "bg-[color:var(--sx-color-primary-muted)] text-[color:var(--sx-color-foreground)]"
-                            : "text-[color:var(--sx-color-foreground-muted)]",
+                          "relative z-10 inline-flex h-9 w-1/2 items-center justify-center rounded-full transition-colors duration-[var(--sx-motion-fast)]",
+                          currentMode === "dark" ? "text-[color:var(--sx-color-foreground)]" : "text-[color:var(--sx-color-foreground-muted)]",
                         )}
                         onClick={() => setCurrentMode("dark")}
                       >
-                        Dark
+                        <MoonIcon size={14} />
                       </button>
                     </div>
                   </div>
@@ -271,17 +266,17 @@ export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentS
                             key={accentId}
                             type="button"
                             className={cn(
-                              "inline-flex h-9 w-9 items-center justify-center rounded-[calc(var(--sx-radius-md)+2px)] border transition-[transform,border-color,box-shadow] duration-[var(--sx-motion-fast)] hover:-translate-y-px",
+                              "inline-flex h-12 w-12 items-center justify-center rounded-[calc(var(--sx-radius-md)+6px)] border transition-[transform,border-color,box-shadow] duration-[var(--sx-motion-fast)] hover:-translate-y-px",
                               isActive
-                                ? "border-[color:color-mix(in_srgb,var(--sx-color-primary)_84%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--sx-color-primary)_54%,transparent)]"
-                                : "border-[color:color-mix(in_srgb,var(--sx-color-border)_84%,transparent)]",
+                                ? "border-[color:color-mix(in_srgb,var(--sx-color-primary)_84%,transparent)] bg-[color:color-mix(in_srgb,var(--sx-color-surface-muted)_68%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--sx-color-primary)_54%,transparent)]"
+                                : "border-[color:color-mix(in_srgb,var(--sx-color-border)_84%,transparent)] bg-[color:color-mix(in_srgb,var(--sx-color-surface)_88%,transparent)]",
                             )}
                             style={getStaggerStyle(index, 20)}
                             onClick={() => setCurrentAccent(accentId)}
                           >
                             <span
                               className={cn(
-                                "h-4 w-4 rounded-full border border-white/30",
+                                "h-7 w-7 rounded-full border border-white/30",
                                 isActive &&
                                   "[animation:synthex-pulse-ring_2.4s_ease-in-out_infinite] motion-reduce:animate-none",
                               )}

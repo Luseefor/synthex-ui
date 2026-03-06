@@ -16,6 +16,7 @@ import { Button } from "../button/button.native";
 import { Card, CardContent, CardHeader, CardTitle } from "../card/card.native";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../form/form.native";
 import { useControllableState } from "../hooks/useControllableState";
+import { MoonIcon, SunIcon } from "../icons/index.native";
 import { useReducedMotion } from "../hooks/useReducedMotion.native";
 import { Input } from "../input/input.native";
 import { Textarea } from "../textarea/textarea.native";
@@ -253,29 +254,6 @@ export const ThemeAccentSwitcher = React.forwardRef<
                   elevation: 7,
                 }}
               >
-                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-                  <Text
-                    style={{
-                      color: theme.colors.foregroundMuted,
-                      fontSize: theme.typography.size.xs,
-                      fontWeight: theme.typography.weight.semibold,
-                      textTransform: "uppercase",
-                      letterSpacing: 0.8,
-                    }}
-                  >
-                    {title}
-                  </Text>
-                  <Text
-                    style={{
-                      color: theme.colors.foregroundMuted,
-                      fontSize: theme.typography.size.xs,
-                      textTransform: "uppercase",
-                      letterSpacing: 0.6,
-                    }}
-                  >
-                    {selected.label}
-                  </Text>
-                </View>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
                   <Text
                     style={{
@@ -291,62 +269,57 @@ export const ThemeAccentSwitcher = React.forwardRef<
                     style={{
                       flexDirection: "row",
                       alignItems: "center",
-                      gap: 4,
                       borderRadius: 999,
                       borderWidth: 1,
                       borderColor: theme.colors.border,
                       backgroundColor: theme.colors.surface,
+                      width: 140,
+                      height: 44,
                       padding: 4,
                     }}
                   >
+                    <View
+                      style={{
+                        position: "absolute",
+                        top: 4,
+                        left: currentMode === "dark" ? 92 : 4,
+                        width: 36,
+                        height: 36,
+                        borderRadius: 999,
+                        backgroundColor: theme.colors.surfaceRaised,
+                      }}
+                    />
                     <Pressable
                       onPress={() => setCurrentMode("light")}
                       style={({ pressed }) => ({
-                        minHeight: 28,
-                        minWidth: 56,
+                        height: 36,
+                        width: 66,
                         borderRadius: 999,
-                        paddingHorizontal: 8,
                         alignItems: "center",
                         justifyContent: "center",
-                        backgroundColor:
-                          currentMode === "light" ? theme.colors.primaryMuted : "transparent",
                         opacity: pressed ? 0.9 : 1,
                       })}
                     >
-                      <Text
-                        style={{
-                          color:
-                            currentMode === "light" ? theme.colors.foreground : theme.colors.foregroundMuted,
-                          fontSize: theme.typography.size.xs,
-                          fontWeight: theme.typography.weight.medium,
-                        }}
-                      >
-                        Light
-                      </Text>
+                      <SunIcon
+                        size={14}
+                        color={currentMode === "light" ? theme.colors.foreground : theme.colors.foregroundMuted}
+                      />
                     </Pressable>
                     <Pressable
                       onPress={() => setCurrentMode("dark")}
                       style={({ pressed }) => ({
-                        minHeight: 28,
-                        minWidth: 56,
+                        height: 36,
+                        width: 66,
                         borderRadius: 999,
-                        paddingHorizontal: 8,
                         alignItems: "center",
                         justifyContent: "center",
-                        backgroundColor: currentMode === "dark" ? theme.colors.primaryMuted : "transparent",
                         opacity: pressed ? 0.9 : 1,
                       })}
                     >
-                      <Text
-                        style={{
-                          color:
-                            currentMode === "dark" ? theme.colors.foreground : theme.colors.foregroundMuted,
-                          fontSize: theme.typography.size.xs,
-                          fontWeight: theme.typography.weight.medium,
-                        }}
-                      >
-                        Dark
-                      </Text>
+                      <MoonIcon
+                        size={14}
+                        color={currentMode === "dark" ? theme.colors.foreground : theme.colors.foregroundMuted}
+                      />
                     </Pressable>
                   </View>
                 </View>
@@ -373,12 +346,12 @@ export const ThemeAccentSwitcher = React.forwardRef<
                             accessibilityLabel={preset.label}
                             onPress={() => setCurrentAccent(accentId)}
                             style={({ pressed }) => ({
-                              width: 36,
-                              height: 36,
-                              borderRadius: theme.radius.md + 2,
+                              width: 48,
+                              height: 48,
+                              borderRadius: theme.radius.md + 6,
                               borderWidth: 1,
                               borderColor: isActive ? theme.colors.primary : theme.colors.border,
-                              backgroundColor: theme.colors.surface,
+                              backgroundColor: isActive ? theme.colors.surfaceMuted : theme.colors.surface,
                               alignItems: "center",
                               justifyContent: "center",
                               opacity: pressed ? 0.88 : 1,
@@ -387,8 +360,8 @@ export const ThemeAccentSwitcher = React.forwardRef<
                           >
                             <View
                               style={{
-                                width: 16,
-                                height: 16,
+                                width: 28,
+                                height: 28,
                                 borderRadius: 999,
                                 backgroundColor: preset.swatch,
                               }}
