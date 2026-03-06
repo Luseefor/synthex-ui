@@ -1,4 +1,5 @@
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { cn } from "../_shared/variants";
 import { Button } from "../button/button.web";
 import { Card, CardContent, CardHeader, CardTitle } from "../card/card.web";
@@ -16,15 +17,289 @@ import type {
   KPIStatGridSharedProps,
   MarqueeSharedProps,
   ProjectCaseRowSharedProps,
+  ThemeAccentName,
+  ThemeAccentSwitcherSharedProps,
   TimelineRowSharedProps,
 } from "./synthex.shared";
-import { getCadenceMax } from "./synthex.shared";
+import { defaultThemeAccent, getCadenceMax, themeAccentPresets } from "./synthex.shared";
 
 function getStaggerStyle(index: number, baseDelay = 0): React.CSSProperties {
   return {
     animationDelay: `${baseDelay + index * 70}ms`,
   };
 }
+
+function clampToViewport(value: number, min: number, max: number) {
+  if (max <= min) {
+    return min;
+  }
+
+  return Math.min(Math.max(value, min), max);
+}
+
+const THEME_ACCENT_ORDER: ThemeAccentName[] = ["steel", "stone", "bronze", "mulberry"];
+
+interface ThemeSwitcherPosition {
+  readonly left: number;
+  readonly maxHeight: number;
+  readonly top: number;
+}
+
+export interface ThemeAccentSwitcherProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, keyof ThemeAccentSwitcherSharedProps>,
+    ThemeAccentSwitcherSharedProps {}
+
+export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentSwitcherProps>(
+  (
+    {
+      accent,
+      className,
+      compact = false,
+      defaultAccent = defaultThemeAccent,
+      defaultMode = "dark",
+      defaultOpen = false,
+      mode,
+      onAccentChange,
+      onModeChange,
+      onOpenChange,
+      open,
+      title = "Theme",
+      ...props
+    },
+    ref,
+  ) => {
+    const [currentAccent, setCurrentAccent] = useControllableState<ThemeAccentName>({
+      defaultValue: defaultAccent,
+      onChange: onAccentChange,
+      value: accent,
+    });
+    const [currentMode, setCurrentMode] = useControllableState<"light" | "dark">({
+      defaultValue: defaultMode,
+      onChange: onModeChange,
+      value: mode,
+    });
+    const [isOpen, setIsOpen] = useControllableState({
+      defaultValue: defaultOpen,
+      onChange: onOpenChange,
+      value: open,
+    });
+    const triggerRef = React.useRef<HTMLButtonElement | null>(null);
+    const panelRef = React.useRef<HTMLDivElement | null>(null);
+    const [position, setPosition] = React.useState<ThemeSwitcherPosition>({
+      left: 0,
+      maxHeight: 360,
+      top: 0,
+    });
+
+    const selected = themeAccentPresets[currentAccent] ?? themeAccentPresets[defaultThemeAccent];
+
+    const updatePosition = React.useCallback(() => {
+      const trigger = triggerRef.current;
+      const panel = panelRef.current;
+
+      if (!trigger || !panel || typeof window === "undefined") {
+        return;
+      }
+
+      const spacing = 10;
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const triggerRect = trigger.getBoundingClientRect();
+      const panelRect = panel.getBoundingClientRect();
+      const panelWidth = Math.min(panelRect.width || 320, viewportWidth - spacing * 2);
+      const panelHeight = Math.min(panelRect.height || 240, viewportHeight - spacing * 2);
+      const spaceBelow = viewportHeight - triggerRect.bottom - spacing;
+      const spaceAbove = triggerRect.top - spacing;
+      const triggerCenterX = triggerRect.left + triggerRect.width / 2;
+      const shouldOpenCenteredVertically = spaceAbove < 180 && spaceBelow < 180;
+      const shouldOpenAbove =
+        !shouldOpenCenteredVertically && (spaceBelow < panelHeight || spaceAbove > spaceBelow);
+      const topCandidate = shouldOpenCenteredVertically
+        ? triggerRect.top + triggerRect.height / 2 - panelHeight / 2
+        : shouldOpenAbove
+          ? triggerRect.top - panelHeight - spacing
+          : triggerRect.bottom + spacing;
+      const top = clampToViewport(topCandidate, spacing, viewportHeight - panelHeight - spacing);
+
+      const shouldOpenTowardCenter = triggerRect.left < spacing || triggerRect.right > viewportWidth - spacing;
+      const shouldAnchorLeft = triggerCenterX < viewportWidth / 2;
+      const leftCandidate = shouldOpenTowardCenter
+        ? triggerCenterX - panelWidth / 2
+        : shouldAnchorLeft
+          ? triggerRect.left
+          : triggerRect.right - panelWidth;
+      const left = clampToViewport(leftCandidate, spacing, viewportWidth - panelWidth - spacing);
+
+      const maxHeight = shouldOpenCenteredVertically
+        ? Math.max(180, viewportHeight - spacing * 2)
+        : Math.max(180, shouldOpenAbove ? spaceAbove : spaceBelow);
+
+      setPosition({ left, maxHeight, top });
+    }, []);
+
+    React.useEffect(() => {
+      if (!isOpen || typeof window === "undefined") {
+        return;
+      }
+
+      updatePosition();
+      const raf = window.requestAnimationFrame(updatePosition);
+
+      const handleResizeOrScroll = () => {
+        updatePosition();
+      };
+
+      const handlePointerDown = (event: MouseEvent) => {
+        const target = event.target as Node;
+
+        if (panelRef.current?.contains(target) || triggerRef.current?.contains(target)) {
+          return;
+        }
+
+        setIsOpen(false);
+      };
+
+      const handleEscape = (event: KeyboardEvent) => {
+        if (event.key === "Escape") {
+          setIsOpen(false);
+        }
+      };
+
+      window.addEventListener("resize", handleResizeOrScroll);
+      window.addEventListener("scroll", handleResizeOrScroll, true);
+      document.addEventListener("mousedown", handlePointerDown);
+      document.addEventListener("keydown", handleEscape);
+
+      return () => {
+        window.cancelAnimationFrame(raf);
+        window.removeEventListener("resize", handleResizeOrScroll);
+        window.removeEventListener("scroll", handleResizeOrScroll, true);
+        document.removeEventListener("mousedown", handlePointerDown);
+        document.removeEventListener("keydown", handleEscape);
+      };
+    }, [isOpen, setIsOpen, updatePosition]);
+
+    return (
+      <div ref={ref} className={cn("inline-flex", className)} {...props}>
+        <button
+          ref={triggerRef}
+          type="button"
+          aria-expanded={isOpen}
+          aria-label="Theme switcher"
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full border border-[color:color-mix(in_srgb,var(--sx-color-border)_88%,transparent)] bg-[color:color-mix(in_srgb,var(--sx-color-surface)_92%,transparent)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--sx-color-foreground-muted)] shadow-[var(--sx-shadow-xs)] transition-[transform,border-color,color,background-color] duration-[var(--sx-motion-fast)] hover:-translate-y-px hover:border-[color:var(--sx-color-border-strong)] hover:text-[color:var(--sx-color-foreground)]",
+            compact && "px-2.5 py-1.5",
+          )}
+          onClick={() => {
+            setIsOpen(!isOpen);
+          }}
+        >
+          <span
+            className="h-2.5 w-2.5 rounded-full border border-white/30"
+            style={{ backgroundColor: selected.swatch }}
+          />
+          {!compact ? <span className="whitespace-nowrap">{selected.label}</span> : null}
+          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] text-[10px]">
+            FX
+          </span>
+        </button>
+        {isOpen && typeof document !== "undefined"
+          ? createPortal(
+              <div
+                ref={panelRef}
+                className="fixed z-[140] w-[min(20rem,calc(100vw-1.5rem))] overflow-auto rounded-[calc(var(--sx-radius-xl)+4px)] border border-[color:color-mix(in_srgb,var(--sx-color-border-strong)_82%,transparent)] bg-[color:color-mix(in_srgb,var(--sx-color-background-subtle)_94%,transparent)] p-4 shadow-[0_20px_44px_rgba(3,7,18,0.42)] [animation:synthex-pop-in_280ms_var(--sx-easing-emphasized)_both] motion-reduce:animate-none"
+                style={{
+                  left: position.left,
+                  maxHeight: position.maxHeight,
+                  top: position.top,
+                }}
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--sx-color-foreground-muted)]">
+                      {title}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-[0.14em] text-[color:var(--sx-color-foreground-muted)]">
+                      {selected.label}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs uppercase tracking-[0.14em] text-[color:var(--sx-color-foreground-muted)]">
+                      Appearance
+                    </span>
+                    <div className="inline-flex items-center gap-1 rounded-full border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-1">
+                      <button
+                        type="button"
+                        className={cn(
+                          "inline-flex h-7 min-w-14 items-center justify-center rounded-full px-2 text-xs font-medium transition-[transform,background-color,color] duration-[var(--sx-motion-fast)] hover:-translate-y-px",
+                          currentMode === "light"
+                            ? "bg-[color:var(--sx-color-primary-muted)] text-[color:var(--sx-color-foreground)]"
+                            : "text-[color:var(--sx-color-foreground-muted)]",
+                        )}
+                        onClick={() => setCurrentMode("light")}
+                      >
+                        Light
+                      </button>
+                      <button
+                        type="button"
+                        className={cn(
+                          "inline-flex h-7 min-w-14 items-center justify-center rounded-full px-2 text-xs font-medium transition-[transform,background-color,color] duration-[var(--sx-motion-fast)] hover:-translate-y-px",
+                          currentMode === "dark"
+                            ? "bg-[color:var(--sx-color-primary-muted)] text-[color:var(--sx-color-foreground)]"
+                            : "text-[color:var(--sx-color-foreground-muted)]",
+                        )}
+                        onClick={() => setCurrentMode("dark")}
+                      >
+                        Dark
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <span className="text-xs uppercase tracking-[0.14em] text-[color:var(--sx-color-foreground-muted)]">
+                      Accent
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {THEME_ACCENT_ORDER.map((accentId, index) => {
+                        const preset = themeAccentPresets[accentId];
+                        const isActive = currentAccent === accentId;
+
+                        return (
+                          <button
+                            key={accentId}
+                            type="button"
+                            className={cn(
+                              "inline-flex h-9 w-9 items-center justify-center rounded-[calc(var(--sx-radius-md)+2px)] border transition-[transform,border-color,box-shadow] duration-[var(--sx-motion-fast)] hover:-translate-y-px",
+                              isActive
+                                ? "border-[color:color-mix(in_srgb,var(--sx-color-primary)_84%,transparent)] shadow-[0_0_0_1px_color-mix(in_srgb,var(--sx-color-primary)_54%,transparent)]"
+                                : "border-[color:color-mix(in_srgb,var(--sx-color-border)_84%,transparent)]",
+                            )}
+                            style={getStaggerStyle(index, 20)}
+                            onClick={() => setCurrentAccent(accentId)}
+                          >
+                            <span
+                              className={cn(
+                                "h-4 w-4 rounded-full border border-white/30",
+                                isActive &&
+                                  "[animation:synthex-pulse-ring_2.4s_ease-in-out_infinite] motion-reduce:animate-none",
+                              )}
+                              style={{ backgroundColor: preset.swatch }}
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>,
+              document.body,
+            )
+          : null}
+      </div>
+    );
+  },
+);
+
+ThemeAccentSwitcher.displayName = "ThemeAccentSwitcher";
 
 export interface AssistantChatPanelProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, keyof AssistantChatPanelSharedProps>,

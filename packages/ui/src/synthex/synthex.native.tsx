@@ -29,9 +29,11 @@ import type {
   KPIStatGridSharedProps,
   MarqueeSharedProps,
   ProjectCaseRowSharedProps,
+  ThemeAccentName,
+  ThemeAccentSwitcherSharedProps,
   TimelineRowSharedProps,
 } from "./synthex.shared";
-import { getCadenceMax } from "./synthex.shared";
+import { defaultThemeAccent, getCadenceMax, themeAccentPresets } from "./synthex.shared";
 
 interface RevealProps {
   readonly children: React.ReactNode;
@@ -100,6 +102,310 @@ function Reveal({
 function toDelay(index: number, baseDelay = 0) {
   return baseDelay + index * 70;
 }
+
+const THEME_ACCENT_ORDER: ThemeAccentName[] = ["steel", "stone", "bronze", "mulberry"];
+
+export interface ThemeAccentSwitcherProps
+  extends Omit<ViewProps, keyof ThemeAccentSwitcherSharedProps>,
+    ThemeAccentSwitcherSharedProps {
+  readonly style?: StyleProp<ViewStyle>;
+}
+
+export const ThemeAccentSwitcher = React.forwardRef<
+  React.ElementRef<typeof View>,
+  ThemeAccentSwitcherProps
+>(
+  (
+    {
+      accent,
+      compact = false,
+      defaultAccent = defaultThemeAccent,
+      defaultMode = "dark",
+      defaultOpen = false,
+      mode,
+      onAccentChange,
+      onModeChange,
+      onOpenChange,
+      open,
+      style,
+      title = "Theme",
+      ...props
+    },
+    ref,
+  ) => {
+    const theme = useTheme();
+    const reducedMotion = useReducedMotion();
+    const [currentAccent, setCurrentAccent] = useControllableState<ThemeAccentName>({
+      defaultValue: defaultAccent,
+      onChange: onAccentChange,
+      value: accent,
+    });
+    const [currentMode, setCurrentMode] = useControllableState<"light" | "dark">({
+      defaultValue: defaultMode,
+      onChange: onModeChange,
+      value: mode,
+    });
+    const [isOpen, setIsOpen] = useControllableState({
+      defaultValue: defaultOpen,
+      onChange: onOpenChange,
+      value: open,
+    });
+    const selected = themeAccentPresets[currentAccent] ?? themeAccentPresets[defaultThemeAccent];
+
+    const triggerHeight = compact ? 36 : 38;
+
+    return (
+      <View ref={ref} style={[{ position: "relative", alignItems: "flex-end" }, style]} {...props}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Theme switcher"
+          accessibilityState={{ expanded: isOpen }}
+          onPress={() => setIsOpen(!isOpen)}
+          style={({ pressed }) => ({
+            minHeight: compact ? 36 : 38,
+            borderRadius: 999,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            backgroundColor: theme.colors.surface,
+            paddingHorizontal: compact ? 10 : 12,
+            paddingVertical: 6,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            opacity: pressed ? 0.9 : 1,
+            transform: [{ scale: pressed ? 0.98 : 1 }],
+          })}
+        >
+          <View
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: 999,
+              backgroundColor: selected.swatch,
+            }}
+          />
+          {!compact ? (
+            <Text
+              style={{
+                color: theme.colors.foregroundMuted,
+                fontSize: theme.typography.size.xs,
+                fontWeight: theme.typography.weight.semibold,
+                textTransform: "uppercase",
+                letterSpacing: 0.8,
+              }}
+            >
+              {selected.label}
+            </Text>
+          ) : null}
+          <View
+            style={{
+              height: 18,
+              minWidth: 18,
+              borderRadius: 999,
+              borderWidth: 1,
+              borderColor: theme.colors.border,
+              backgroundColor: theme.colors.surfaceMuted,
+              alignItems: "center",
+              justifyContent: "center",
+              paddingHorizontal: 4,
+            }}
+          >
+            <Text
+              style={{
+                color: theme.colors.foregroundMuted,
+                fontSize: 9,
+                fontWeight: theme.typography.weight.semibold,
+              }}
+            >
+              FX
+            </Text>
+          </View>
+        </Pressable>
+        {isOpen ? (
+          <View
+            pointerEvents="box-none"
+            style={{
+              position: "absolute",
+              right: 0,
+              bottom: triggerHeight + 10,
+              zIndex: 30,
+            }}
+          >
+            <Reveal reducedMotion={reducedMotion} duration={260}>
+              <View
+                style={{
+                  width: 312,
+                  maxWidth: 312,
+                  maxHeight: 360,
+                  borderRadius: theme.radius.xl + 4,
+                  borderWidth: 1,
+                  borderColor: theme.colors.borderStrong,
+                  backgroundColor: theme.colors.backgroundSubtle,
+                  padding: 14,
+                  gap: 14,
+                  shadowColor: "#020617",
+                  shadowOpacity: 0.3,
+                  shadowRadius: 18,
+                  shadowOffset: { width: 0, height: 8 },
+                  elevation: 7,
+                }}
+              >
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                  <Text
+                    style={{
+                      color: theme.colors.foregroundMuted,
+                      fontSize: theme.typography.size.xs,
+                      fontWeight: theme.typography.weight.semibold,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.8,
+                    }}
+                  >
+                    {title}
+                  </Text>
+                  <Text
+                    style={{
+                      color: theme.colors.foregroundMuted,
+                      fontSize: theme.typography.size.xs,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.6,
+                    }}
+                  >
+                    {selected.label}
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+                  <Text
+                    style={{
+                      color: theme.colors.foregroundMuted,
+                      fontSize: theme.typography.size.xs,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.7,
+                    }}
+                  >
+                    Appearance
+                  </Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 4,
+                      borderRadius: 999,
+                      borderWidth: 1,
+                      borderColor: theme.colors.border,
+                      backgroundColor: theme.colors.surface,
+                      padding: 4,
+                    }}
+                  >
+                    <Pressable
+                      onPress={() => setCurrentMode("light")}
+                      style={({ pressed }) => ({
+                        minHeight: 28,
+                        minWidth: 56,
+                        borderRadius: 999,
+                        paddingHorizontal: 8,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor:
+                          currentMode === "light" ? theme.colors.primaryMuted : "transparent",
+                        opacity: pressed ? 0.9 : 1,
+                      })}
+                    >
+                      <Text
+                        style={{
+                          color:
+                            currentMode === "light" ? theme.colors.foreground : theme.colors.foregroundMuted,
+                          fontSize: theme.typography.size.xs,
+                          fontWeight: theme.typography.weight.medium,
+                        }}
+                      >
+                        Light
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => setCurrentMode("dark")}
+                      style={({ pressed }) => ({
+                        minHeight: 28,
+                        minWidth: 56,
+                        borderRadius: 999,
+                        paddingHorizontal: 8,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: currentMode === "dark" ? theme.colors.primaryMuted : "transparent",
+                        opacity: pressed ? 0.9 : 1,
+                      })}
+                    >
+                      <Text
+                        style={{
+                          color:
+                            currentMode === "dark" ? theme.colors.foreground : theme.colors.foregroundMuted,
+                          fontSize: theme.typography.size.xs,
+                          fontWeight: theme.typography.weight.medium,
+                        }}
+                      >
+                        Dark
+                      </Text>
+                    </Pressable>
+                  </View>
+                </View>
+                <View style={{ gap: 8 }}>
+                  <Text
+                    style={{
+                      color: theme.colors.foregroundMuted,
+                      fontSize: theme.typography.size.xs,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.7,
+                    }}
+                  >
+                    Accent
+                  </Text>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                    {THEME_ACCENT_ORDER.map((accentId, index) => {
+                      const preset = themeAccentPresets[accentId];
+                      const isActive = currentAccent === accentId;
+
+                      return (
+                        <Reveal key={accentId} reducedMotion={reducedMotion} delay={toDelay(index, 30)} duration={220}>
+                          <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={preset.label}
+                            onPress={() => setCurrentAccent(accentId)}
+                            style={({ pressed }) => ({
+                              width: 36,
+                              height: 36,
+                              borderRadius: theme.radius.md + 2,
+                              borderWidth: 1,
+                              borderColor: isActive ? theme.colors.primary : theme.colors.border,
+                              backgroundColor: theme.colors.surface,
+                              alignItems: "center",
+                              justifyContent: "center",
+                              opacity: pressed ? 0.88 : 1,
+                              transform: [{ scale: pressed ? 0.96 : 1 }],
+                            })}
+                          >
+                            <View
+                              style={{
+                                width: 16,
+                                height: 16,
+                                borderRadius: 999,
+                                backgroundColor: preset.swatch,
+                              }}
+                            />
+                          </Pressable>
+                        </Reveal>
+                      );
+                    })}
+                  </View>
+                </View>
+              </View>
+            </Reveal>
+          </View>
+        ) : null}
+      </View>
+    );
+  },
+);
+
+ThemeAccentSwitcher.displayName = "ThemeAccentSwitcher";
 
 export interface AssistantChatPanelProps
   extends Omit<ViewProps, keyof AssistantChatPanelSharedProps>,
