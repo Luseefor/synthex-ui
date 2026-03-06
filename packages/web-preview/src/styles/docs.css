@@ -67,6 +67,44 @@
   color: var(--sx-color-primary);
 }
 
+.preview-doc-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid color-mix(in srgb, var(--sx-color-border) 84%, transparent);
+  border-radius: var(--sx-radius-lg);
+  background: color-mix(in srgb, var(--sx-color-surface) 94%, transparent);
+}
+
+.preview-doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 30rem;
+}
+
+.preview-doc-table th,
+.preview-doc-table td {
+  border-bottom: 1px solid color-mix(in srgb, var(--sx-color-border) 78%, transparent);
+  padding: 0.7rem 0.8rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.preview-doc-table th {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sx-color-foreground-muted);
+  background: color-mix(in srgb, var(--sx-color-surface-muted) 80%, transparent);
+}
+
+.preview-doc-table td {
+  color: var(--sx-color-foreground);
+}
+
+.preview-doc-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
 .preview-mermaid {
   overflow-x: auto;
 }
