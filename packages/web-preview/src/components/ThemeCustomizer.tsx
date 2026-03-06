@@ -53,7 +53,9 @@ export function ThemeCustomizer({
     const spaceBelow = viewportHeight - triggerRect.bottom - spacing;
     const spaceAbove = triggerRect.top - spacing;
     const openCentered = spaceAbove < 180 && spaceBelow < 180;
-    const openAbove = !openCentered && (spaceBelow < panelHeight || spaceAbove > spaceBelow);
+    const preferAbove = compact && spaceAbove > 120;
+    const openAbove =
+      !openCentered && (preferAbove || spaceBelow < panelHeight || spaceAbove > spaceBelow);
 
     const topCandidate = openCentered
       ? triggerRect.top + triggerRect.height / 2 - panelHeight / 2
