@@ -119,7 +119,7 @@ export const ThemeAccentSwitcher = React.forwardRef<
     {
       accent,
       compact = false,
-      defaultAccent = defaultThemeAccent,
+      defaultAccent: defaultAccentProp,
       defaultMode = "dark",
       defaultOpen = false,
       mode,
@@ -133,6 +133,8 @@ export const ThemeAccentSwitcher = React.forwardRef<
     },
     ref,
   ) => {
+    const defaultAccent = defaultAccentProp ?? defaultThemeAccent;
+
     const theme = useTheme();
     const reducedMotion = useReducedMotion();
     const [currentAccent, setCurrentAccent] = useControllableState<ThemeAccentName>({

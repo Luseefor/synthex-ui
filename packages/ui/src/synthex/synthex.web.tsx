@@ -55,7 +55,7 @@ export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentS
       accent,
       className,
       compact = false,
-      defaultAccent = defaultThemeAccent,
+      defaultAccent: defaultAccentProp,
       defaultMode = "dark",
       defaultOpen = false,
       mode,
@@ -68,6 +68,8 @@ export const ThemeAccentSwitcher = React.forwardRef<HTMLDivElement, ThemeAccentS
     },
     ref,
   ) => {
+    const defaultAccent = defaultAccentProp ?? defaultThemeAccent;
+
     const [currentAccent, setCurrentAccent] = useControllableState<ThemeAccentName>({
       defaultValue: defaultAccent,
       onChange: onAccentChange,
