@@ -1,5 +1,7 @@
 # Synthex UI
 
+**[Live preview & docs](https://synthex-ui.rijan.sh)**
+
 Synthex UI is a publish-ready monorepo built around three public packages:
 
 - `synthex-ui`: cross-platform component library and theme system
@@ -71,9 +73,13 @@ Run the docs and preview app:
 bun run dev
 ```
 
-Architecture diagrams:
+## Documentation
 
-- [Mermaid documentation](/Users/lucifer/Programming/synthex-ui/docs/mermaid-architecture.md)
+- [Getting started](docs/getting-started.md)
+- [Theming](docs/theming.md)
+- [Styling](docs/styling.md)
+- [Workbench](docs/workbench.md)
+- [Architecture diagrams](docs/mermaid-architecture.md)
 
 ## Minimal Usage
 
@@ -121,3 +127,7 @@ export function Workbench() {
 ## Repository
 
 [https://github.com/Luseefor/synthex-ui](https://github.com/Luseefor/synthex-ui)
+
+## License
+
+MIT. See [LICENSE](LICENSE).
