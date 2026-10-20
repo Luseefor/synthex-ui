@@ -19,6 +19,10 @@ interface ComboboxContextValue {
   readonly triggerId: string;
   readonly listId: string;
   readonly inputId: string;
+  readonly shouldFilter: boolean;
+  readonly filter?: (value: string, search: string, keywords?: string[]) => number;
+  readonly label?: string;
+  readonly loop?: boolean;
 }
 
 const ComboboxContext = React.createContext<ComboboxContextValue | null>(null);
@@ -34,6 +38,10 @@ export interface ComboboxSharedProps {
   readonly placeholder?: string;
   readonly query?: string;
   readonly value?: string;
+  readonly shouldFilter?: boolean;
+  readonly label?: string;
+  readonly filter?: (value: string, search: string, keywords?: string[]) => number;
+  readonly loop?: boolean;
 }
 
 export interface ComboboxItemSharedProps {
@@ -61,6 +69,10 @@ export function useComboboxController({
   placeholder,
   query,
   value,
+  shouldFilter = true,
+  filter,
+  label,
+  loop,
 }: ComboboxSharedProps) {
   const [internalValue, setInternalValue] = React.useState(defaultValue);
   const [internalOpen, setInternalOpen] = React.useState(defaultOpen);
@@ -150,6 +162,10 @@ export function useComboboxController({
       triggerId,
       listId,
       inputId,
+      shouldFilter,
+      filter,
+      label,
+      loop,
     }),
     [
       currentOpen,
@@ -169,6 +185,10 @@ export function useComboboxController({
       triggerId,
       listId,
       inputId,
+      shouldFilter,
+      filter,
+      label,
+      loop,
     ],
   );
 }

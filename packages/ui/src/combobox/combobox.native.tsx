@@ -27,6 +27,7 @@ export interface ComboboxProps
   extends Omit<ViewProps, "style">,
     ComboboxSharedProps {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export function Combobox({
@@ -34,13 +35,18 @@ export function Combobox({
   defaultOpen,
   defaultQuery,
   defaultValue,
+  filter,
+  label,
+  loop,
   onOpenChange,
   onQueryChange,
   onValueChange,
   open,
   placeholder,
   query,
+  shouldFilter,
   style,
+  testID,
   value,
   ...props
 }: ComboboxProps) {
@@ -48,18 +54,23 @@ export function Combobox({
     defaultOpen,
     defaultQuery,
     defaultValue,
+    filter,
+    label,
+    loop,
     onOpenChange,
     onQueryChange,
     onValueChange,
     open,
     placeholder,
     query,
+    shouldFilter,
     value,
   });
 
+  // testID mirrors web data-slot="combobox" for parity.
   return (
     <ComboboxProvider value={controller}>
-      <View style={style} {...props}>
+      <View testID={testID ?? "combobox"} style={style} {...props}>
         {children}
       </View>
     </ComboboxProvider>
@@ -69,18 +80,20 @@ export function Combobox({
 export interface ComboboxTriggerProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export const ComboboxTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   ComboboxTriggerProps
->(({ children, onPress, style, ...props }, ref) => {
+>(({ children, onPress, style, testID, ...props }, ref) => {
   const context = useComboboxContext();
   const theme = useTheme();
 
   return (
     <Pressable
       ref={ref}
+      testID={testID ?? "combobox-trigger"}
       accessibilityRole="button"
       accessibilityState={{ expanded: context.open }}
       onPress={(event) => {
@@ -118,10 +131,11 @@ ComboboxTrigger.displayName = "ComboboxTrigger";
 export interface ComboboxValueProps {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<TextStyle>;
+  readonly testID?: string;
 }
 
 export const ComboboxValue = React.forwardRef<React.ElementRef<typeof Text>, ComboboxValueProps>(
-  ({ children, style }, ref) => {
+  ({ children, style, testID }, ref) => {
     const context = useComboboxContext();
     const theme = useTheme();
     const selectedLabel = context.getLabel(context.value);
@@ -130,6 +144,7 @@ export const ComboboxValue = React.forwardRef<React.ElementRef<typeof Text>, Com
     return (
       <Text
         ref={ref}
+        testID={testID ?? "combobox-value"}
         numberOfLines={1}
         style={[
           {
@@ -155,12 +170,13 @@ ComboboxValue.displayName = "ComboboxValue";
 
 export interface ComboboxContentProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export const ComboboxContent = React.forwardRef<
   React.ElementRef<typeof View>,
   ComboboxContentProps
->(({ style, ...props }, ref) => {
+>(({ style, testID, ...props }, ref) => {
   const context = useComboboxContext();
   const theme = useTheme();
 
@@ -171,6 +187,7 @@ export const ComboboxContent = React.forwardRef<
   return (
     <View
       ref={ref}
+      testID={testID ?? "combobox-content"}
       style={[
         {
           marginTop: 8,
@@ -190,12 +207,13 @@ ComboboxContent.displayName = "ComboboxContent";
 
 export interface ComboboxInputProps extends Omit<TextInputProps, "defaultValue" | "onChange" | "value"> {
   readonly style?: StyleProp<TextStyle>;
+  readonly testID?: string;
 }
 
 export const ComboboxInput = React.forwardRef<
   React.ElementRef<typeof TextInput>,
   ComboboxInputProps
->(({ onChangeText, placeholder = "Search options", style, ...props }, ref) => {
+>(({ onChangeText, placeholder = "Search options", style, testID, ...props }, ref) => {
   const context = useComboboxContext();
   const theme = useTheme();
 
@@ -214,6 +232,7 @@ export const ComboboxInput = React.forwardRef<
       <SearchIcon size={15} color={theme.colors.foregroundMuted} />
       <TextInput
         ref={ref}
+        testID={testID ?? "combobox-input"}
         value={context.query}
         placeholder={placeholder}
         placeholderTextColor={theme.colors.foregroundMuted}
@@ -240,12 +259,14 @@ ComboboxInput.displayName = "ComboboxInput";
 
 export interface ComboboxListProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export const ComboboxList = React.forwardRef<React.ElementRef<typeof ScrollView>, ComboboxListProps>(
-  ({ children, style, ...props }, ref) => (
+  ({ children, style, testID, ...props }, ref) => (
     <ScrollView
       ref={ref}
+      testID={testID ?? "combobox-list"}
       style={[{ maxHeight: 256 }, style]}
       contentContainerStyle={{ padding: 8 }}
       {...props}
@@ -260,10 +281,11 @@ ComboboxList.displayName = "ComboboxList";
 export interface ComboboxEmptyProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
   readonly textStyle?: StyleProp<TextStyle>;
+  readonly testID?: string;
 }
 
 export const ComboboxEmpty = React.forwardRef<React.ElementRef<typeof View>, ComboboxEmptyProps>(
-  ({ children = "No results found.", style, textStyle, ...props }, ref) => {
+  ({ children = "No results found.", style, textStyle, testID, ...props }, ref) => {
     const context = useComboboxContext();
     const theme = useTheme();
 
@@ -272,7 +294,7 @@ export const ComboboxEmpty = React.forwardRef<React.ElementRef<typeof View>, Com
     }
 
     return (
-      <View ref={ref} style={[{ paddingHorizontal: 12, paddingVertical: 32 }, style]} {...props}>
+      <View ref={ref} testID={testID ?? "combobox-empty"} style={[{ paddingHorizontal: 12, paddingVertical: 32 }, style]} {...props}>
         <Text
           style={[
             {
@@ -299,10 +321,11 @@ export interface ComboboxItemProps
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
   readonly textStyle?: StyleProp<TextStyle>;
+  readonly testID?: string;
 }
 
 export const ComboboxItem = React.forwardRef<React.ElementRef<typeof Pressable>, ComboboxItemProps>(
-  ({ children, keywords, onPress, style, textStyle, textValue, value, ...props }, ref) => {
+  ({ children, keywords, onPress, style, textStyle, textValue, testID, value, ...props }, ref) => {
     const context = useComboboxContext();
     const theme = useTheme();
     const itemId = React.useId();
@@ -328,6 +351,7 @@ export const ComboboxItem = React.forwardRef<React.ElementRef<typeof Pressable>,
     return (
       <Pressable
         ref={ref}
+        testID={testID ?? "combobox-item"}
         accessibilityRole="button"
         accessibilityState={{ selected: active }}
         onPress={(event) => {
