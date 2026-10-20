@@ -8,6 +8,7 @@ import { usePreviewTheme } from "./app/usePreviewTheme";
 import { AppSidebar } from "./components/AppSidebar";
 
 const Builder = lazy(() => import("./components").then((module) => ({ default: module.Builder })));
+const BlocksPage = lazy(() => import("./pages/BlocksPage").then((module) => ({ default: module.BlocksPage })));
 const ComponentsPage = lazy(() => import("./pages/ComponentsPage").then((module) => ({ default: module.ComponentsPage })));
 const DashboardPage = lazy(() => import("./pages/DashboardPage").then((module) => ({ default: module.DashboardPage })));
 const DocsPage = lazy(() => import("./pages/DocsPage").then((module) => ({ default: module.DocsPage })));
@@ -47,6 +48,7 @@ export function App() {
                   <Route path="/" element={<DashboardPage onNavigate={navigate} />} />
                   <Route path="/installation" element={<InstallationPage />} />
                   <Route path="/components" element={<ComponentsPage />} />
+                  <Route path="/blocks" element={<BlocksPage />} />
                   <Route path="/theme" element={<ThemePage />} />
                   <Route path="/engine" element={<EnginePage />} />
                   <Route path="/docs" element={<DocsPage />} />
