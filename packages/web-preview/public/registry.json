@@ -1,0 +1,1212 @@
+{
+  "name": "synthex",
+  "version": "1.1.0",
+  "description": "Synthex UI component registry (generated from packages/ui/src).",
+  "components": [
+    {
+      "name": "_shared",
+      "dir": "packages/ui/src/_shared",
+      "internal": true,
+      "files": [
+        "a11y.web.tsx",
+        "field-control.native.ts",
+        "field-control.web.ts",
+        "positioning.ts",
+        "positioning.web.ts",
+        "theme/context.tsx",
+        "theme/createTheme.test.ts",
+        "theme/createTheme.ts",
+        "theme/index.ts",
+        "theme/ThemeProvider.native.tsx",
+        "theme/ThemeProvider.web.tsx",
+        "tokens/colors.ts",
+        "tokens/motion.ts",
+        "tokens/radius.ts",
+        "tokens/shadows.ts",
+        "tokens/space.ts",
+        "tokens/typography.ts",
+        "types.ts",
+        "variants.test.ts",
+        "variants.ts"
+      ],
+      "deps": [
+        "clsx",
+        "react",
+        "react-native",
+        "tailwind-merge"
+      ],
+      "registryDependencies": []
+    },
+    {
+      "name": "accordion",
+      "dir": "packages/ui/src/accordion",
+      "internal": false,
+      "files": [
+        "accordion.native.tsx",
+        "accordion.shared.tsx",
+        "accordion.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "icons"
+      ]
+    },
+    {
+      "name": "alert",
+      "dir": "packages/ui/src/alert",
+      "internal": false,
+      "files": [
+        "alert.native.tsx",
+        "alert.shared.ts",
+        "alert.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "alert-dialog",
+      "dir": "packages/ui/src/alert-dialog",
+      "internal": false,
+      "files": [
+        "alert-dialog.native.tsx",
+        "alert-dialog.shared.ts",
+        "alert-dialog.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "button",
+        "dialog"
+      ]
+    },
+    {
+      "name": "aspect-ratio",
+      "dir": "packages/ui/src/aspect-ratio",
+      "internal": false,
+      "files": [
+        "aspect-ratio.native.tsx",
+        "aspect-ratio.shared.ts",
+        "aspect-ratio.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "avatar",
+      "dir": "packages/ui/src/avatar",
+      "internal": false,
+      "files": [
+        "avatar.native.tsx",
+        "avatar.shared.tsx",
+        "avatar.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "badge",
+      "dir": "packages/ui/src/badge",
+      "internal": false,
+      "files": [
+        "badge.native.tsx",
+        "badge.shared.ts",
+        "badge.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "breadcrumb",
+      "dir": "packages/ui/src/breadcrumb",
+      "internal": false,
+      "files": [
+        "breadcrumb.native.tsx",
+        "breadcrumb.shared.ts",
+        "breadcrumb.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "button",
+      "dir": "packages/ui/src/button",
+      "internal": false,
+      "files": [
+        "button.native.test.tsx",
+        "button.native.tsx",
+        "button.shared.ts",
+        "button.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "calendar",
+      "dir": "packages/ui/src/calendar",
+      "internal": false,
+      "files": [
+        "calendar.native.tsx",
+        "calendar.shared.ts",
+        "calendar.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "hooks",
+        "icons"
+      ]
+    },
+    {
+      "name": "card",
+      "dir": "packages/ui/src/card",
+      "internal": false,
+      "files": [
+        "card.native.test.tsx",
+        "card.native.tsx",
+        "card.shared.ts",
+        "card.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "carousel",
+      "dir": "packages/ui/src/carousel",
+      "internal": false,
+      "files": [
+        "carousel.native.tsx",
+        "carousel.shared.tsx",
+        "carousel.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "button",
+        "icons"
+      ]
+    },
+    {
+      "name": "chart",
+      "dir": "packages/ui/src/chart",
+      "internal": false,
+      "files": [
+        "chart-compat.test.tsx",
+        "chart.native.tsx",
+        "chart.shared.ts",
+        "chart.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native",
+        "react-native-svg"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "checkbox",
+      "dir": "packages/ui/src/checkbox",
+      "internal": false,
+      "files": [
+        "checkbox.native.tsx",
+        "checkbox.shared.ts",
+        "checkbox.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "hooks",
+        "icons"
+      ]
+    },
+    {
+      "name": "collapsible",
+      "dir": "packages/ui/src/collapsible",
+      "internal": false,
+      "files": [
+        "collapsible.native.tsx",
+        "collapsible.shared.tsx",
+        "collapsible.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "hooks"
+      ]
+    },
+    {
+      "name": "combobox",
+      "dir": "packages/ui/src/combobox",
+      "internal": false,
+      "files": [
+        "combobox.native.tsx",
+        "combobox.shared.tsx",
+        "combobox.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "command",
+        "icons"
+      ]
+    },
+    {
+      "name": "command",
+      "dir": "packages/ui/src/command",
+      "internal": false,
+      "files": [
+        "command.native.tsx",
+        "command.shared.tsx",
+        "command.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "icons"
+      ]
+    },
+    {
+      "name": "components",
+      "dir": "packages/ui/src/components",
+      "internal": true,
+      "files": [
+        "index.native.ts",
+        "index.ts",
+        "index.web.ts"
+      ],
+      "deps": [],
+      "registryDependencies": [
+        "accordion",
+        "alert",
+        "alert-dialog",
+        "aspect-ratio",
+        "avatar",
+        "badge",
+        "breadcrumb",
+        "button",
+        "calendar",
+        "card",
+        "carousel",
+        "chart",
+        "checkbox",
+        "collapsible",
+        "combobox",
+        "command",
+        "context-menu",
+        "dashboard",
+        "data-table",
+        "date-picker",
+        "dialog",
+        "direction",
+        "drawer",
+        "dropdown-menu",
+        "form",
+        "hover-card",
+        "input",
+        "input-otp",
+        "label",
+        "menubar",
+        "navigation-menu",
+        "pagination",
+        "popover",
+        "primitives",
+        "progress",
+        "radio-group",
+        "resizable",
+        "select",
+        "separator",
+        "sheet",
+        "sidebar",
+        "skeleton",
+        "slider",
+        "switch",
+        "synthex",
+        "table",
+        "tabs",
+        "textarea",
+        "toast",
+        "toggle",
+        "toggle-group",
+        "tooltip",
+        "typography",
+        "utilities"
+      ]
+    },
+    {
+      "name": "context-menu",
+      "dir": "packages/ui/src/context-menu",
+      "internal": false,
+      "files": [
+        "context-menu.native.tsx",
+        "context-menu.shared.tsx",
+        "context-menu.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "dropdown-menu"
+      ]
+    },
+    {
+      "name": "dashboard",
+      "dir": "packages/ui/src/dashboard",
+      "internal": true,
+      "files": [
+        "dashboard.native.tsx",
+        "dashboard.shared.ts",
+        "dashboard.web.tsx",
+        "index.native.ts",
+        "index.ts"
+      ],
+      "deps": [
+        "react"
+      ],
+      "registryDependencies": [
+        "components",
+        "icons",
+        "primitives",
+        "typography"
+      ]
+    },
+    {
+      "name": "data-table",
+      "dir": "packages/ui/src/data-table",
+      "internal": false,
+      "files": [
+        "data-table.native.tsx",
+        "data-table.shared.ts",
+        "data-table.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "button",
+        "input",
+        "table"
+      ]
+    },
+    {
+      "name": "date-picker",
+      "dir": "packages/ui/src/date-picker",
+      "internal": false,
+      "files": [
+        "date-picker.native.tsx",
+        "date-picker.shared.ts",
+        "date-picker.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "calendar",
+        "hooks",
+        "icons",
+        "popover"
+      ]
+    },
+    {
+      "name": "dialog",
+      "dir": "packages/ui/src/dialog",
+      "internal": false,
+      "files": [
+        "dialog-a11y.test.tsx",
+        "dialog.native.tsx",
+        "dialog.shared.tsx",
+        "dialog.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-dom",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "icons"
+      ]
+    },
+    {
+      "name": "direction",
+      "dir": "packages/ui/src/direction",
+      "internal": false,
+      "files": [
+        "direction.native.tsx",
+        "direction.shared.ts",
+        "direction.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "hooks"
+      ]
+    },
+    {
+      "name": "drawer",
+      "dir": "packages/ui/src/drawer",
+      "internal": false,
+      "files": [
+        "drawer.native.tsx",
+        "drawer.shared.ts",
+        "drawer.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-dom"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "dialog",
+        "icons",
+        "sheet"
+      ]
+    },
+    {
+      "name": "dropdown-menu",
+      "dir": "packages/ui/src/dropdown-menu",
+      "internal": false,
+      "files": [
+        "dropdown-menu-extras.test.tsx",
+        "dropdown-menu.native.tsx",
+        "dropdown-menu.shared.tsx",
+        "dropdown-menu.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "hooks",
+        "icons"
+      ]
+    },
+    {
+      "name": "form",
+      "dir": "packages/ui/src/form",
+      "internal": false,
+      "files": [
+        "form.native.tsx",
+        "form.shared.tsx",
+        "form.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "label"
+      ]
+    },
+    {
+      "name": "hooks",
+      "dir": "packages/ui/src/hooks",
+      "internal": false,
+      "files": [
+        "index.native.ts",
+        "index.ts",
+        "index.web.ts",
+        "useControllableState.ts",
+        "useDisclosure.ts",
+        "useMobile.native.ts",
+        "useMobile.web.ts",
+        "usePlatformValue.native.ts",
+        "usePlatformValue.web.ts",
+        "useReducedMotion.native.ts",
+        "useReducedMotion.web.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "hover-card",
+      "dir": "packages/ui/src/hover-card",
+      "internal": false,
+      "files": [
+        "hover-card.native.tsx",
+        "hover-card.shared.tsx",
+        "hover-card.web.tsx",
+        "index.ts"
+      ],
+      "deps": [
+        "react"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "hooks",
+        "popover"
+      ]
+    },
+    {
+      "name": "icons",
+      "dir": "packages/ui/src/icons",
+      "internal": false,
+      "files": [
+        "index.native.tsx",
+        "index.ts",
+        "index.web.tsx",
+        "shared.ts"
+      ],
+      "deps": [
+        "lucide-react",
+        "lucide-react-native",
+        "react"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "input",
+      "dir": "packages/ui/src/input",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "input.native.tsx",
+        "input.shared.ts",
+        "input.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "input-otp",
+      "dir": "packages/ui/src/input-otp",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "input-otp.native.tsx",
+        "input-otp.shared.tsx",
+        "input-otp.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "hooks"
+      ]
+    },
+    {
+      "name": "label",
+      "dir": "packages/ui/src/label",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "label.native.tsx",
+        "label.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "layout",
+      "dir": "packages/ui/src/layout",
+      "internal": false,
+      "files": [
+        "index.native.tsx",
+        "index.ts",
+        "index.web.tsx"
+      ],
+      "deps": [
+        "react"
+      ],
+      "registryDependencies": [
+        "primitives",
+        "typography"
+      ]
+    },
+    {
+      "name": "menubar",
+      "dir": "packages/ui/src/menubar",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "menubar.native.tsx",
+        "menubar.shared.ts",
+        "menubar.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "dropdown-menu"
+      ]
+    },
+    {
+      "name": "navigation-menu",
+      "dir": "packages/ui/src/navigation-menu",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "navigation-menu.native.tsx",
+        "navigation-menu.shared.tsx",
+        "navigation-menu.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "pagination",
+      "dir": "packages/ui/src/pagination",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "pagination.native.tsx",
+        "pagination.shared.ts",
+        "pagination.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "icons"
+      ]
+    },
+    {
+      "name": "popover",
+      "dir": "packages/ui/src/popover",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "popover.native.tsx",
+        "popover.shared.tsx",
+        "popover.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "primitives",
+      "dir": "packages/ui/src/primitives",
+      "internal": false,
+      "files": [
+        "index.native.tsx",
+        "index.ts",
+        "index.web.tsx",
+        "shared.ts"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "progress",
+      "dir": "packages/ui/src/progress",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "progress.native.tsx",
+        "progress.shared.ts",
+        "progress.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "radio-group",
+      "dir": "packages/ui/src/radio-group",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "radio-group.native.tsx",
+        "radio-group.shared.tsx",
+        "radio-group.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "resizable",
+      "dir": "packages/ui/src/resizable",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "resizable.native.tsx",
+        "resizable.shared.ts",
+        "resizable.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "select",
+      "dir": "packages/ui/src/select",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "select-extras.test.tsx",
+        "select.native.tsx",
+        "select.shared.tsx",
+        "select.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "icons"
+      ]
+    },
+    {
+      "name": "separator",
+      "dir": "packages/ui/src/separator",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "separator.native.tsx",
+        "separator.shared.ts",
+        "separator.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "sheet",
+      "dir": "packages/ui/src/sheet",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "sheet.native.tsx",
+        "sheet.shared.ts",
+        "sheet.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-dom",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "dialog",
+        "icons"
+      ]
+    },
+    {
+      "name": "sidebar",
+      "dir": "packages/ui/src/sidebar",
+      "internal": false,
+      "files": [
+        "sidebar.native.tsx",
+        "sidebar.shared.ts",
+        "sidebar.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "hooks"
+      ]
+    },
+    {
+      "name": "skeleton",
+      "dir": "packages/ui/src/skeleton",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "skeleton.native.tsx",
+        "skeleton.shared.ts",
+        "skeleton.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "slider",
+      "dir": "packages/ui/src/slider",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "slider.native.tsx",
+        "slider.shared.ts",
+        "slider.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "hooks"
+      ]
+    },
+    {
+      "name": "switch",
+      "dir": "packages/ui/src/switch",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "switch.native.tsx",
+        "switch.shared.ts",
+        "switch.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "hooks"
+      ]
+    },
+    {
+      "name": "synthex",
+      "dir": "packages/ui/src/synthex",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "synthex.native.tsx",
+        "synthex.shared.ts",
+        "synthex.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-dom",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "button",
+        "card",
+        "form",
+        "hooks",
+        "icons",
+        "input",
+        "textarea"
+      ]
+    },
+    {
+      "name": "table",
+      "dir": "packages/ui/src/table",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "table.native.tsx",
+        "table.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "tabs",
+      "dir": "packages/ui/src/tabs",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "tabs.native.tsx",
+        "tabs.shared.ts",
+        "tabs.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "textarea",
+      "dir": "packages/ui/src/textarea",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "textarea.native.tsx",
+        "textarea.shared.ts",
+        "textarea.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "theme",
+      "dir": "packages/ui/src/theme",
+      "internal": false,
+      "files": [
+        "index.native.ts",
+        "index.ts",
+        "index.web.ts"
+      ],
+      "deps": [],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "toast",
+      "dir": "packages/ui/src/toast",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "toast.native.tsx",
+        "toast.shared.tsx",
+        "toast.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "button",
+        "icons"
+      ]
+    },
+    {
+      "name": "toggle",
+      "dir": "packages/ui/src/toggle",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "toggle.native.tsx",
+        "toggle.shared.ts",
+        "toggle.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "hooks"
+      ]
+    },
+    {
+      "name": "toggle-group",
+      "dir": "packages/ui/src/toggle-group",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "toggle-group.native.tsx",
+        "toggle-group.shared.tsx",
+        "toggle-group.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "hooks",
+        "toggle"
+      ]
+    },
+    {
+      "name": "tooltip",
+      "dir": "packages/ui/src/tooltip",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "tooltip.native.tsx",
+        "tooltip.shared.tsx",
+        "tooltip.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "typography",
+      "dir": "packages/ui/src/typography",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "typography.native.tsx",
+        "typography.shared.ts",
+        "typography.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared"
+      ]
+    },
+    {
+      "name": "utilities",
+      "dir": "packages/ui/src/utilities",
+      "internal": false,
+      "files": [
+        "index.ts",
+        "utilities.native.tsx",
+        "utilities.web.tsx"
+      ],
+      "deps": [
+        "react",
+        "react-native"
+      ],
+      "registryDependencies": [
+        "_shared",
+        "label"
+      ]
+    }
+  ]
+}
