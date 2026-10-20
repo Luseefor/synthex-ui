@@ -9,6 +9,8 @@ interface SelectContextValue {
   readonly setValue: (value: string) => void;
   readonly value: string;
   readonly getLabel: (value: string) => string | undefined;
+  readonly contentId: string;
+  readonly triggerId: string;
 }
 
 const SelectContext = React.createContext<SelectContextValue | null>(null);
@@ -43,6 +45,10 @@ export function useSelectController({
   const labelsRef = React.useRef<Map<string, string>>(new Map());
   const currentValue = value ?? internalValue;
   const currentOpen = open ?? internalOpen;
+  const rawContentId = React.useId();
+  const rawTriggerId = React.useId();
+  const contentId = React.useMemo(() => `sx-select-${rawContentId.replace(/:/g, "")}`, [rawContentId]);
+  const triggerId = React.useMemo(() => `sx-select-trigger-${rawTriggerId.replace(/:/g, "")}`, [rawTriggerId]);
 
   return React.useMemo<SelectContextValue>(
     () => ({
@@ -75,8 +81,10 @@ export function useSelectController({
       },
       value: currentValue,
       getLabel: (itemValue) => labelsRef.current.get(itemValue),
+      contentId,
+      triggerId,
     }),
-    [currentOpen, currentValue, labelVersion, onOpenChange, onValueChange, open, placeholder, value],
+    [currentOpen, currentValue, labelVersion, onOpenChange, onValueChange, open, placeholder, value, contentId, triggerId],
   );
 }
 

@@ -221,8 +221,14 @@ export {
 export type { PaginationLinkSharedProps } from "../pagination/pagination.shared";
 export {
   Select,
+  SelectArrow,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectScrollDownButton,
+  SelectScrollUpButton,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "../select/select.web";
@@ -258,34 +264,108 @@ export type {
 } from "../combobox/combobox.shared";
 export {
   DropdownMenu,
+  DropdownMenuArrow,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "../dropdown-menu/dropdown-menu.web";
-export type { DropdownMenuSharedProps } from "../dropdown-menu/dropdown-menu.shared";
+export type {
+  DropdownMenuArrowProps,
+  DropdownMenuCheckboxItemProps,
+  DropdownMenuContentProps,
+  DropdownMenuItemProps,
+  DropdownMenuLabelProps,
+  DropdownMenuRadioGroupProps,
+  DropdownMenuRadioItemProps,
+  DropdownMenuSeparatorProps,
+  DropdownMenuShortcutProps,
+  DropdownMenuSubContentProps,
+  DropdownMenuSubProps,
+  DropdownMenuSubTriggerProps,
+} from "../dropdown-menu/dropdown-menu.web";
+export type {
+  DropdownMenuCheckboxItemSharedProps,
+  DropdownMenuRadioGroupSharedProps,
+  DropdownMenuRadioItemSharedProps,
+  DropdownMenuSharedProps,
+  DropdownMenuSubSharedProps,
+} from "../dropdown-menu/dropdown-menu.shared";
 export {
   ContextMenu,
+  ContextMenuArrow,
+  ContextMenuCheckboxItem,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuLabel,
+  ContextMenuRadioGroup,
+  ContextMenuRadioItem,
   ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "../context-menu/context-menu.web";
-export type { ContextMenuSharedProps } from "../context-menu/context-menu.shared";
+export type {
+  ContextMenuArrowProps,
+  ContextMenuCheckboxItemProps,
+  ContextMenuRadioGroupProps,
+  ContextMenuRadioItemProps,
+  ContextMenuShortcutProps,
+  ContextMenuSubContentProps,
+  ContextMenuSubProps,
+  ContextMenuSubTriggerProps,
+} from "../context-menu/context-menu.web";
+export type {
+  ContextMenuCheckboxItemSharedProps,
+  ContextMenuRadioGroupSharedProps,
+  ContextMenuRadioItemSharedProps,
+  ContextMenuSharedProps,
+  ContextMenuSubSharedProps,
+} from "../context-menu/context-menu.shared";
 export {
   Menubar,
+  MenubarArrow,
+  MenubarCheckboxItem,
   MenubarContent,
   MenubarItem,
   MenubarLabel,
   MenubarMenu,
+  MenubarRadioGroup,
+  MenubarRadioItem,
   MenubarSeparator,
+  MenubarShortcut,
+  MenubarSub,
+  MenubarSubContent,
+  MenubarSubTrigger,
   MenubarTrigger,
 } from "../menubar/menubar.web";
 export type {
+  MenubarArrowProps,
+  MenubarCheckboxItemProps,
+  MenubarRadioGroupProps,
+  MenubarRadioItemProps,
+  MenubarShortcutProps,
+  MenubarSubContentProps,
+  MenubarSubProps,
+  MenubarSubTriggerProps,
+} from "../menubar/menubar.web";
+export type {
+  MenubarCheckboxItemSharedProps,
   MenubarMenuSharedProps,
+  MenubarRadioGroupSharedProps,
+  MenubarRadioItemSharedProps,
   MenubarSharedProps,
+  MenubarSubSharedProps,
 } from "../menubar/menubar.shared";
 export {
   NavigationMenu,

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "../_shared/variants";
+import { handleMenuArrowKeys } from "../_shared/a11y.web";
 import { getFieldControlClassName } from "../_shared/field-control.web";
 import { CheckIcon, ChevronDownIcon } from "../icons/index.web";
 import {
@@ -78,20 +79,31 @@ export function Select({
 export const SelectTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement>
->(({ children, className, onClick, type = "button", ...props }, ref) => {
+>(({ children, className, id, onClick, onKeyDown, type = "button", ...props }, ref) => {
   const context = useSelectContext();
 
   return (
     <button
       ref={ref}
       type={type}
+      id={id ?? context.triggerId}
       aria-expanded={context.open}
+      aria-haspopup="listbox"
+      aria-controls={context.contentId}
       className={getFieldControlClassName({
         className: cn("inline-flex items-center justify-between gap-3 text-left", className),
       })}
       onClick={(event) => {
         context.setOpen(!context.open);
         onClick?.(event);
+      }}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        if (event.defaultPrevented) return;
+        if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          context.setOpen(true);
+        }
       }}
       {...props}
     >
@@ -133,7 +145,7 @@ SelectValue.displayName = "SelectValue";
 export const SelectContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
+>(({ className, id, onKeyDown, ...props }, ref) => {
   const context = useSelectContext();
 
   if (!context.open) {
@@ -143,10 +155,19 @@ export const SelectContent = React.forwardRef<
   return (
     <div
       ref={ref}
+      id={id ?? context.contentId}
+      role="listbox"
+      aria-labelledby={context.triggerId}
+      tabIndex={-1}
       className={cn(
         "absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-1.5 shadow-[0_18px_42px_rgba(15,23,42,0.14)]",
         className,
       )}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        if (event.defaultPrevented) return;
+        handleMenuArrowKeys(event);
+      }}
       {...props}
     />
   );
@@ -198,3 +219,216 @@ export const SelectItem = React.forwardRef<HTMLButtonElement, SelectItemProps>(
 );
 
 SelectItem.displayName = "SelectItem";
+
+const SelectGroupLabelIdContext = React.createContext<string | null>(null);
+
+export interface SelectGroupProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+export const SelectGroup = React.forwardRef<HTMLDivElement, SelectGroupProps>(
+  ({ children, className, ...props }, ref) => {
+    const rawId = React.useId();
+    const generatedId = React.useMemo(
+      () => `sx-select-group-${rawId.replace(/:/g, "")}`,
+      [rawId],
+    );
+    const { "aria-labelledby": labelledByProp, ...rest } = props;
+    const labelId = labelledByProp ?? generatedId;
+
+    return (
+      <div
+        ref={ref}
+        role="group"
+        aria-labelledby={labelId}
+        className={cn(className)}
+        {...rest}
+      >
+        <SelectGroupLabelIdContext.Provider value={labelId}>
+          {children}
+        </SelectGroupLabelIdContext.Provider>
+      </div>
+    );
+  },
+);
+
+SelectGroup.displayName = "SelectGroup";
+
+export const SelectLabel = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, id, ...props }, ref) => {
+  const contextId = React.useContext(SelectGroupLabelIdContext);
+  const rawId = React.useId();
+  const generatedId = React.useMemo(
+    () => `sx-select-label-${rawId.replace(/:/g, "")}`,
+    [rawId],
+  );
+  const labelId = id ?? contextId ?? generatedId;
+
+  return (
+    <div
+      ref={ref}
+      id={labelId}
+      className={cn(
+        "px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--sx-color-foreground-muted)]",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+
+SelectLabel.displayName = "SelectLabel";
+
+export const SelectSeparator = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    role="separator"
+    aria-orientation="horizontal"
+    className={cn("-mx-1.5 my-1 h-px bg-[color:var(--sx-color-border)]", className)}
+    {...props}
+  />
+));
+
+SelectSeparator.displayName = "SelectSeparator";
+
+export interface SelectScrollButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  readonly scrollAmount?: number;
+}
+
+export const SelectScrollUpButton = React.forwardRef<
+  HTMLButtonElement,
+  SelectScrollButtonProps
+>(({ className, onClick, scrollAmount = 64, ...props }, ref) => {
+  const context = useSelectContext();
+  const [hasOverflow, setHasOverflow] = React.useState(true);
+
+  React.useEffect(() => {
+    const element = document.getElementById(context.contentId);
+
+    if (!element) {
+      return;
+    }
+
+    const checkOverflow = () => {
+      if (element.scrollHeight > 0) {
+        setHasOverflow(element.scrollHeight > element.clientHeight);
+      }
+    };
+
+    checkOverflow();
+    window.addEventListener("resize", checkOverflow);
+
+    return () => {
+      window.removeEventListener("resize", checkOverflow);
+    };
+  }, [context.contentId]);
+
+  if (!hasOverflow) {
+    return null;
+  }
+
+  return (
+    <button
+      ref={ref}
+      type="button"
+      aria-label="Scroll up"
+      tabIndex={-1}
+      className={cn(
+        "flex w-full items-center justify-center py-1 text-[color:var(--sx-color-foreground-muted)]",
+        className,
+      )}
+      onClick={(event) => {
+        document
+          .getElementById(context.contentId)
+          ?.scrollBy({ top: -scrollAmount });
+        onClick?.(event);
+      }}
+      {...props}
+    >
+      <span className="rotate-180">
+        <ChevronDownIcon size={14} />
+      </span>
+    </button>
+  );
+});
+
+SelectScrollUpButton.displayName = "SelectScrollUpButton";
+
+export const SelectScrollDownButton = React.forwardRef<
+  HTMLButtonElement,
+  SelectScrollButtonProps
+>(({ className, onClick, scrollAmount = 64, ...props }, ref) => {
+  const context = useSelectContext();
+  const [hasOverflow, setHasOverflow] = React.useState(true);
+
+  React.useEffect(() => {
+    const element = document.getElementById(context.contentId);
+
+    if (!element) {
+      return;
+    }
+
+    const checkOverflow = () => {
+      if (element.scrollHeight > 0) {
+        setHasOverflow(element.scrollHeight > element.clientHeight);
+      }
+    };
+
+    checkOverflow();
+    window.addEventListener("resize", checkOverflow);
+
+    return () => {
+      window.removeEventListener("resize", checkOverflow);
+    };
+  }, [context.contentId]);
+
+  if (!hasOverflow) {
+    return null;
+  }
+
+  return (
+    <button
+      ref={ref}
+      type="button"
+      aria-label="Scroll down"
+      tabIndex={-1}
+      className={cn(
+        "flex w-full items-center justify-center py-1 text-[color:var(--sx-color-foreground-muted)]",
+        className,
+      )}
+      onClick={(event) => {
+        document
+          .getElementById(context.contentId)
+          ?.scrollBy({ top: scrollAmount });
+        onClick?.(event);
+      }}
+      {...props}
+    >
+      <ChevronDownIcon size={14} />
+    </button>
+  );
+});
+
+SelectScrollDownButton.displayName = "SelectScrollDownButton";
+
+export const SelectArrow = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    aria-hidden="true"
+    data-slot="select-arrow"
+    className={cn(
+      "mx-auto h-2 w-2 rotate-45 border-b border-r border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)]",
+      className,
+    )}
+    {...props}
+  />
+));
+
+SelectArrow.displayName = "SelectArrow";
