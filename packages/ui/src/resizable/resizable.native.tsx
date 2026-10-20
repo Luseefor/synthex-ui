@@ -89,7 +89,7 @@ export const ResizablePanelGroup = React.forwardRef<React.ElementRef<typeof View
   ({ children, direction, style, ...props }, ref) => {
     const theme = useTheme();
     const childArray = React.Children.toArray(children).filter(React.isValidElement) as Array<
-      React.ReactElement<any>
+      React.ReactElement<ResizablePanelProps & Partial<InternalPanelProps>>
     >;
     const panels = childArray.filter(
       (child): child is React.ReactElement<ResizablePanelProps> => child.type === ResizablePanel,
@@ -122,7 +122,7 @@ export const ResizablePanelGroup = React.forwardRef<React.ElementRef<typeof View
       >
         {childArray.map((child) => {
           if (child.type === ResizablePanel) {
-            const next = React.cloneElement(child as React.ReactElement<any>, {
+            const next = React.cloneElement(child, {
               __direction: direction,
               __size: sizes[panelIndex],
             } satisfies Partial<InternalPanelProps>);
