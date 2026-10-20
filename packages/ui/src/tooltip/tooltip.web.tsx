@@ -1,10 +1,6 @@
 import * as React from "react";
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { cn } from "../_shared/variants";
-import {
-  overlayPositionClasses,
-  overlayPositionStyle,
-  type OverlayPositionProps,
-} from "../_shared/positioning.web";
 import {
   TooltipProvider,
   useTooltipContext,
@@ -12,135 +8,116 @@ import {
   type TooltipSharedProps,
 } from "./tooltip.shared";
 
-export interface TooltipProps
-  extends Omit<React.HTMLAttributes<HTMLSpanElement>, "children">,
-  TooltipSharedProps {
+export interface TooltipProps extends TooltipSharedProps {
   readonly children: React.ReactNode;
+  readonly className?: string;
+  /**
+   * Delay before showing. Defaults to 0 for shadcn parity (shadcn
+   * `TooltipProvider` uses `delayDuration={0}`); Radix defaults to 700.
+   * Accepted on native for API parity but ignored (native shows instantly).
+   */
+  readonly delayDuration?: number;
 }
 
 export function Tooltip({
   children,
   className,
   defaultOpen,
+  // shadcn parity: instant by default; keep passing to both Provider and Root.
+  delayDuration = 0,
   onOpenChange,
   open,
-  ...props
 }: TooltipProps) {
   const controller = useTooltipController({ defaultOpen, onOpenChange, open });
 
   return (
     <TooltipProvider value={controller}>
-      <span className={cn("relative inline-flex", className)} {...props}>
-        {children}
-      </span>
+      <TooltipPrimitive.Provider delayDuration={delayDuration}>
+        <TooltipPrimitive.Root
+          delayDuration={delayDuration}
+          onOpenChange={controller.setOpen}
+          open={controller.open}
+        >
+          <span data-slot="tooltip" className={cn("relative inline-flex", className)}>
+            {children}
+          </span>
+        </TooltipPrimitive.Root>
+      </TooltipPrimitive.Provider>
     </TooltipProvider>
   );
 }
 
-export const TooltipTrigger = React.forwardRef<
-  HTMLSpanElement,
-  React.HTMLAttributes<HTMLSpanElement> & { asChild?: boolean }
->(({ children, onBlur, onFocus, onMouseEnter, onMouseLeave, asChild, ...props }, ref) => {
-  const context = useTooltipContext();
+export interface TooltipTriggerProps
+  extends React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Trigger> {
+  readonly asChild?: boolean;
+}
 
-  const handleFocus = (event: React.FocusEvent<HTMLSpanElement>) => {
-    context.setOpen(true);
-    onFocus?.(event);
-  };
-  const handleBlur = (event: React.FocusEvent<HTMLSpanElement>) => {
-    context.setOpen(false);
-    onBlur?.(event);
-  };
-  const handleMouseEnter = (event: React.MouseEvent<HTMLSpanElement>) => {
-    context.setOpen(true);
-    onMouseEnter?.(event);
-  };
-  const handleMouseLeave = (event: React.MouseEvent<HTMLSpanElement>) => {
-    context.setOpen(false);
-    onMouseLeave?.(event);
-  };
+export const TooltipTrigger = React.forwardRef<HTMLButtonElement, TooltipTriggerProps>(
+  ({ onBlur, onFocus, onMouseEnter, onMouseLeave, ...props }, ref) => {
+    const context = useTooltipContext();
 
-  type AsChildProps = {
-    onFocus?: (event: React.FocusEvent<HTMLSpanElement>) => void;
-    onBlur?: (event: React.FocusEvent<HTMLSpanElement>) => void;
-    onMouseEnter?: (event: React.MouseEvent<HTMLSpanElement>) => void;
-    onMouseLeave?: (event: React.MouseEvent<HTMLSpanElement>) => void;
-    [key: string]: unknown;
-  };
-
-  const triggerA11y = {
-    id: (props as { id?: string }).id ?? context.triggerId,
-    "aria-describedby": context.open ? context.contentId : undefined,
-  };
-
-  if (asChild && React.isValidElement<AsChildProps>(children)) {
-    return React.cloneElement(children, {
-      ref,
-      ...triggerA11y,
-      ...props,
-      onFocus: (e: React.FocusEvent<HTMLSpanElement>) => {
-        handleFocus(e);
-        children.props.onFocus?.(e);
-      },
-      onBlur: (e: React.FocusEvent<HTMLSpanElement>) => {
-        handleBlur(e);
-        children.props.onBlur?.(e);
-      },
-      onMouseEnter: (e: React.MouseEvent<HTMLSpanElement>) => {
-        handleMouseEnter(e);
-        children.props.onMouseEnter?.(e);
-      },
-      onMouseLeave: (e: React.MouseEvent<HTMLSpanElement>) => {
-        handleMouseLeave(e);
-        children.props.onMouseLeave?.(e);
-      },
-    });
-  }
-
-  return (
-    <span
-      ref={ref}
-      tabIndex={0}
-      {...triggerA11y}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      {...props}
-    >
-      {children}
-    </span>
-  );
-});
+    return (
+      <TooltipPrimitive.Trigger
+        ref={ref}
+        data-slot="tooltip-trigger"
+        onBlur={(event) => {
+          context.setOpen(false);
+          onBlur?.(event);
+        }}
+        onFocus={(event) => {
+          context.setOpen(true);
+          onFocus?.(event);
+        }}
+        onMouseEnter={(event) => {
+          context.setOpen(true);
+          onMouseEnter?.(event);
+        }}
+        onMouseLeave={(event) => {
+          context.setOpen(false);
+          onMouseLeave?.(event);
+        }}
+        {...props}
+      />
+    );
+  },
+);
 
 TooltipTrigger.displayName = "TooltipTrigger";
 
-export const TooltipContent = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & OverlayPositionProps
->(({ align = "center", alignOffset = 0, className, id, side = "bottom", sideOffset = 0, style, ...props }, ref) => {
-  const context = useTooltipContext();
+export interface TooltipContentProps
+  extends React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> {
+  readonly alignOffset?: number;
+  readonly sideOffset?: number;
+}
 
-  if (!context.open) {
-    return null;
-  }
-
-  return (
-    <div
-      ref={ref}
-      id={id ?? context.contentId}
-      role="tooltip"
-      data-side={side}
-      data-align={align}
-      className={cn(
-        "absolute z-50 rounded-[var(--sx-radius-md)] bg-[color:#0f172a] px-3 py-2 text-xs font-medium text-white shadow-[0_16px_36px_rgba(15,23,42,0.24)]",
-        overlayPositionClasses(side, align),
-        className,
-      )}
-      style={{ ...overlayPositionStyle(side, sideOffset, alignOffset), ...style }}
-      {...props}
-    />
-  );
-});
+export const TooltipContent = React.forwardRef<HTMLDivElement, TooltipContentProps>(
+  (
+    {
+      align = "center",
+      alignOffset = 0,
+      className,
+      side = "bottom",
+      sideOffset = 0,
+      ...props
+    },
+    ref,
+  ) => (
+    <TooltipPrimitive.Portal data-slot="tooltip-portal">
+      <TooltipPrimitive.Content
+        ref={ref}
+        data-slot="tooltip-content"
+        align={align}
+        alignOffset={alignOffset}
+        side={side}
+        sideOffset={sideOffset}
+        className={cn(
+          "z-50 rounded-[var(--sx-radius-md)] bg-[color:#0f172a] px-3 py-2 text-xs font-medium text-white shadow-[0_16px_36px_rgba(15,23,42,0.24)] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2",
+          className,
+        )}
+        {...props}
+      />
+    </TooltipPrimitive.Portal>
+  ),
+);
 
 TooltipContent.displayName = "TooltipContent";

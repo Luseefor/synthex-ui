@@ -21,22 +21,26 @@ export interface PopoverProps
   extends Omit<ViewProps, "children" | "style">,
   PopoverSharedProps {
   readonly children: React.ReactNode;
+  readonly modal?: boolean;
   readonly style?: StyleProp<ViewStyle>;
 }
 
 export function Popover({
   children,
   defaultOpen,
+  modal,
   onOpenChange,
   open,
   style,
+  testID,
   ...props
 }: PopoverProps) {
+  void modal;
   const controller = usePopoverController({ defaultOpen, onOpenChange, open });
 
   return (
     <PopoverProvider value={controller}>
-      <View style={[{ position: "relative" }, style]} {...props}>
+      <View testID={testID ?? "popover"} style={[{ position: "relative" }, style]} {...props}>
         {children}
       </View>
     </PopoverProvider>
@@ -52,7 +56,7 @@ export interface PopoverTriggerProps extends Omit<PressableProps, "style"> {
 export const PopoverTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   PopoverTriggerProps
->(({ children, onPress, style, asChild, ...props }, ref) => {
+>(({ children, onPress, style, asChild, testID, ...props }, ref) => {
   const context = usePopoverContext();
 
   const handlePress = React.useCallback(
@@ -71,6 +75,7 @@ export const PopoverTrigger = React.forwardRef<
   if (asChild && React.isValidElement<AsChildProps>(children)) {
     return React.cloneElement(children, {
       ref,
+      testID: (children.props as { testID?: string }).testID ?? testID ?? "popover-trigger",
       ...props,
       onPress: (e: GestureResponderEvent) => {
         handlePress(e);
@@ -84,6 +89,7 @@ export const PopoverTrigger = React.forwardRef<
       ref={ref}
       onPress={handlePress}
       style={style}
+      testID={testID ?? "popover-trigger"}
       {...props}
     >
       {children}
@@ -101,9 +107,14 @@ export interface PopoverContentProps extends Omit<ViewProps, "style">, OverlayPo
 export const PopoverContent = React.forwardRef<
   React.ElementRef<typeof View>,
   PopoverContentProps
->(({ align, alignOffset, side, sideOffset, style, ...props }, ref) => {
+>(({ align, alignOffset, side, sideOffset, style, testID, ...props }, ref) => {
   const context = usePopoverContext();
   const theme = useTheme();
+
+  void align;
+  void alignOffset;
+  void side;
+  void sideOffset;
 
   if (!context.open) {
     return null;
@@ -112,6 +123,7 @@ export const PopoverContent = React.forwardRef<
   return (
     <View
       ref={ref}
+      testID={testID ?? "popover-content"}
       style={[
         {
           marginTop: 8,

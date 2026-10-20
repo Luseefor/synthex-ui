@@ -23,9 +23,11 @@ import {
 
 export interface SheetProps extends DialogSharedProps {
   readonly children: React.ReactNode;
+  readonly modal?: boolean;
 }
 
-export function Sheet({ children, defaultOpen, onOpenChange, open }: SheetProps) {
+export function Sheet({ children, defaultOpen, modal, onOpenChange, open }: SheetProps) {
+  void modal;
   const controller = useSheetController({ defaultOpen, onOpenChange, open });
 
   return <SheetProvider value={controller}>{children}</SheetProvider>;
@@ -40,7 +42,7 @@ export interface SheetTriggerProps extends Omit<PressableProps, "style"> {
 export const SheetTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   SheetTriggerProps
->(({ children, onPress, style, asChild, ...props }, ref) => {
+>(({ children, onPress, style, asChild, testID, ...props }, ref) => {
   const context = useSheetContext();
 
   const handlePress = React.useCallback(
@@ -59,6 +61,7 @@ export const SheetTrigger = React.forwardRef<
   if (asChild && React.isValidElement<AsChildProps>(children)) {
     return React.cloneElement(children, {
       ref,
+      testID: (children.props as { testID?: string }).testID ?? testID ?? "sheet-trigger",
       ...props,
       onPress: (e: GestureResponderEvent) => {
         handlePress(e);
@@ -72,6 +75,7 @@ export const SheetTrigger = React.forwardRef<
       ref={ref}
       onPress={handlePress}
       style={style}
+      testID={testID ?? "sheet-trigger"}
       {...props}
     >
       {children}
@@ -84,7 +88,7 @@ SheetTrigger.displayName = "SheetTrigger";
 export const SheetClose = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   SheetTriggerProps
->(({ children, onPress, style, asChild, ...props }, ref) => {
+>(({ children, onPress, style, asChild, testID, ...props }, ref) => {
   const context = useSheetContext();
 
   const handlePress = React.useCallback(
@@ -103,6 +107,7 @@ export const SheetClose = React.forwardRef<
   if (asChild && React.isValidElement<AsChildProps>(children)) {
     return React.cloneElement(children, {
       ref,
+      testID: (children.props as { testID?: string }).testID ?? testID ?? "sheet-close",
       ...props,
       onPress: (e: GestureResponderEvent) => {
         handlePress(e);
@@ -116,6 +121,7 @@ export const SheetClose = React.forwardRef<
       ref={ref}
       onPress={handlePress}
       style={style}
+      testID={testID ?? "sheet-close"}
       {...props}
     >
       {children}
@@ -126,12 +132,13 @@ export const SheetClose = React.forwardRef<
 SheetClose.displayName = "SheetClose";
 
 export interface SheetContentProps extends Omit<ViewProps, "style"> {
+  readonly dismissible?: boolean;
   readonly side?: "top" | "right" | "bottom" | "left";
   readonly style?: StyleProp<ViewStyle>;
 }
 
 export const SheetContent = React.forwardRef<React.ElementRef<typeof View>, SheetContentProps>(
-  ({ children, side = "right", style, ...props }, ref) => {
+  ({ children, dismissible = true, side = "right", style, testID, ...props }, ref) => {
     const context = useSheetContext();
     const theme = useTheme();
 
@@ -146,14 +153,19 @@ export const SheetContent = React.forwardRef<React.ElementRef<typeof View>, Shee
         transparent
         animationType="fade"
         visible={context.open}
-        onRequestClose={() => context.setOpen(false)}
+        onRequestClose={() => {
+          if (dismissible) context.setOpen(false);
+        }}
       >
         <Pressable
+          testID="sheet-overlay"
           style={{
             flex: 1,
             backgroundColor: "rgba(15,23,42,0.38)",
           }}
-          onPress={() => context.setOpen(false)}
+          onPress={() => {
+            if (dismissible) context.setOpen(false);
+          }}
         >
           <Pressable
             style={{
@@ -166,6 +178,7 @@ export const SheetContent = React.forwardRef<React.ElementRef<typeof View>, Shee
           >
             <View
               ref={ref}
+              testID={testID ?? "sheet-content"}
               style={[
                 {
                   flex: 1,
@@ -186,6 +199,7 @@ export const SheetContent = React.forwardRef<React.ElementRef<typeof View>, Shee
             >
               <Pressable
                 accessibilityRole="button"
+                testID="sheet-close"
                 onPress={() => context.setOpen(false)}
                 style={{
                   position: "absolute",
@@ -219,7 +233,9 @@ export interface SheetSectionProps extends Omit<ViewProps, "style"> {
 }
 
 export const SheetHeader = React.forwardRef<React.ElementRef<typeof View>, SheetSectionProps>(
-  ({ style, ...props }, ref) => <View ref={ref} style={[{ gap: 8 }, style]} {...props} />,
+  ({ style, testID, ...props }, ref) => (
+    <View ref={ref} testID={testID ?? "sheet-header"} style={[{ gap: 8 }, style]} {...props} />
+  ),
 );
 
 SheetHeader.displayName = "SheetHeader";
@@ -229,12 +245,13 @@ export interface SheetTextProps extends Omit<TextProps, "style"> {
 }
 
 export const SheetTitle = React.forwardRef<React.ElementRef<typeof Text>, SheetTextProps>(
-  ({ style, ...props }, ref) => {
+  ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
     return (
       <Text
         ref={ref}
+        testID={testID ?? "sheet-title"}
         style={[
           {
             color: theme.colors.foreground,
@@ -256,12 +273,13 @@ SheetTitle.displayName = "SheetTitle";
 export const SheetDescription = React.forwardRef<
   React.ElementRef<typeof Text>,
   SheetTextProps
->(({ style, ...props }, ref) => {
+>(({ style, testID, ...props }, ref) => {
   const theme = useTheme();
 
   return (
     <Text
       ref={ref}
+      testID={testID ?? "sheet-description"}
       style={[
         {
           color: theme.colors.foregroundMuted,
@@ -279,9 +297,10 @@ export const SheetDescription = React.forwardRef<
 SheetDescription.displayName = "SheetDescription";
 
 export const SheetFooter = React.forwardRef<React.ElementRef<typeof View>, SheetSectionProps>(
-  ({ style, ...props }, ref) => (
+  ({ style, testID, ...props }, ref) => (
     <View
       ref={ref}
+      testID={testID ?? "sheet-footer"}
       style={[{ marginTop: 12, flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-end", gap: 12 }, style]}
       {...props}
     />

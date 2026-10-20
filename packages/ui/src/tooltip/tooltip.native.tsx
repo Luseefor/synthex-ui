@@ -23,22 +23,27 @@ export interface TooltipProps
   extends Omit<ViewProps, "children" | "style">,
   TooltipSharedProps {
   readonly children: React.ReactNode;
+  readonly delayDuration?: number;
   readonly style?: StyleProp<ViewStyle>;
 }
 
 export function Tooltip({
   children,
   defaultOpen,
+  delayDuration,
   onOpenChange,
   open,
   style,
+  testID,
   ...props
 }: TooltipProps) {
+  // Accepted for web API parity but ignored on native (no hover delay).
+  void delayDuration;
   const controller = useTooltipController({ defaultOpen, onOpenChange, open });
 
   return (
     <TooltipProvider value={controller}>
-      <View style={[{ position: "relative" }, style]} {...props}>
+      <View testID={testID ?? "tooltip"} style={[{ position: "relative" }, style]} {...props}>
         {children}
       </View>
     </TooltipProvider>
@@ -54,7 +59,7 @@ export interface TooltipTriggerProps extends Omit<PressableProps, "style"> {
 export const TooltipTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   TooltipTriggerProps
->(({ children, onHoverIn, onHoverOut, onPressIn, onPressOut, style, asChild, ...props }, ref) => {
+>(({ children, onHoverIn, onHoverOut, onPressIn, onPressOut, style, asChild, testID, ...props }, ref) => {
   const context = useTooltipContext();
 
   type HoverInEvent = Parameters<NonNullable<PressableProps["onHoverIn"]>>[0];
@@ -78,6 +83,7 @@ export const TooltipTrigger = React.forwardRef<
   if (asChild && React.isValidElement<AsChildProps>(children)) {
     return React.cloneElement(children, {
       ref,
+      testID: (children.props as { testID?: string }).testID ?? testID ?? "tooltip-trigger",
       ...props,
       onHoverIn: (e: HoverInEvent) => { handleHoverIn(e); children.props.onHoverIn?.(e); },
       onHoverOut: (e: HoverOutEvent) => { handleHoverOut(e); children.props.onHoverOut?.(e); },
@@ -94,6 +100,7 @@ export const TooltipTrigger = React.forwardRef<
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       style={style}
+      testID={testID ?? "tooltip-trigger"}
       {...props}
     >
       {children}
@@ -109,9 +116,14 @@ export interface TooltipContentProps extends Omit<TextProps, "style">, OverlayPo
 
 // Native renders in normal flow; side/align/sideOffset/alignOffset are accepted for API parity and ignored.
 export const TooltipContent = React.forwardRef<React.ElementRef<typeof Text>, TooltipContentProps>(
-  ({ align, alignOffset, side, sideOffset, style, ...props }, ref) => {
+  ({ align, alignOffset, side, sideOffset, style, testID, ...props }, ref) => {
     const context = useTooltipContext();
     const theme = useTheme();
+
+    void align;
+    void alignOffset;
+    void side;
+    void sideOffset;
 
     if (!context.open) {
       return null;
@@ -120,6 +132,7 @@ export const TooltipContent = React.forwardRef<React.ElementRef<typeof Text>, To
     return (
       <Text
         ref={ref}
+        testID={testID ?? "tooltip-content"}
         style={[
           {
             position: "absolute",
