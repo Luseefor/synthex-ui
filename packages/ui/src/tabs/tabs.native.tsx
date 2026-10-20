@@ -21,6 +21,7 @@ import {
 
 export interface TabsProps extends Omit<ViewProps, "style">, TabsSharedProps {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export function Tabs({
@@ -28,14 +29,20 @@ export function Tabs({
   defaultValue,
   onValueChange,
   style,
+  testID,
   value,
+  orientation: _orientation,
+  activationMode: _activationMode,
   ...props
 }: TabsProps) {
+  void _orientation;
+  void _activationMode;
   const controller = useTabsController({ defaultValue, onValueChange, value });
 
   return (
     <TabsProvider value={controller}>
       <View
+        testID={testID ?? "tabs"}
         style={[
           {
             gap: 16,
@@ -52,15 +59,17 @@ export function Tabs({
 
 export interface TabsListProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export const TabsList = React.forwardRef<React.ElementRef<typeof View>, TabsListProps>(
-  ({ style, ...props }, ref) => {
+  ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
     return (
       <View
         ref={ref}
+        testID={testID ?? "tabs-list"}
         style={[
           {
             flexDirection: "row",
@@ -87,13 +96,14 @@ export interface TabsTriggerProps
     TabsTriggerSharedProps {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
 export const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   TabsTriggerProps
->(({ children, disabled, style, textStyle, value, ...props }, ref) => {
+>(({ children, disabled, style, testID, textStyle, value, ...props }, ref) => {
   const context = useTabsContext();
   const theme = useTheme();
   const isActive = context.value === value;
@@ -119,6 +129,7 @@ export const TabsTrigger = React.forwardRef<
   return (
     <Pressable
       ref={ref}
+      testID={testID ?? "tabs-trigger"}
       accessibilityRole="tab"
       accessibilityState={{ disabled: disabled || undefined, selected: isActive }}
       disabled={disabled}
@@ -153,12 +164,13 @@ TabsTrigger.displayName = "TabsTrigger";
 
 export interface TabsContentProps extends Omit<ViewProps, "style">, TabsContentSharedProps {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export const TabsContent = React.forwardRef<
   React.ElementRef<typeof View>,
   TabsContentProps
->(({ children, forceMount, style, value, ...props }, ref) => {
+>(({ children, forceMount, style, testID, value, ...props }, ref) => {
   const context = useTabsContext();
   const theme = useTheme();
   const isActive = context.value === value;
@@ -170,6 +182,7 @@ export const TabsContent = React.forwardRef<
   return (
     <View
       ref={ref}
+      testID={testID ?? "tabs-content"}
       style={[
         {
           borderRadius: theme.radius.xl,
