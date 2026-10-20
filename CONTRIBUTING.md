@@ -48,7 +48,7 @@ bun run test --workspace @luseefor/synthex-react-web
 ## Changesets
 
 - Add a changeset for any user-facing change: `bunx changeset`
-- Pick patch/minor/major per package. CI runs `npx changeset status --since=main`.
+- Pick patch/minor/major per package. CI runs `npx changeset status --since=origin/main`.
 - Release is automated via `changesets/action` (`bunx changeset publish` on `main`).
 
 ## Registry + tokens regen

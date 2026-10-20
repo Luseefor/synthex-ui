@@ -32,7 +32,7 @@ jobs:
         run: npm run registry:check
 
       - name: Changeset status
-        run: npx changeset status --since=main
+        run: npx changeset status --since=origin/main
 
       - name: Build
         run: bun run build
