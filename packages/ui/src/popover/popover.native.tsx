@@ -2,11 +2,13 @@ import * as React from "react";
 import {
   Pressable,
   View,
+  type GestureResponderEvent,
   type PressableProps,
   type StyleProp,
   type ViewProps,
   type ViewStyle,
 } from "react-native";
+import type { OverlayPositionProps } from "../_shared/positioning";
 import { useTheme } from "../_shared/theme/context";
 import {
   PopoverProvider,
@@ -54,20 +56,25 @@ export const PopoverTrigger = React.forwardRef<
   const context = usePopoverContext();
 
   const handlePress = React.useCallback(
-    (event: any) => {
+    (event: GestureResponderEvent) => {
       context.setOpen(!context.open);
       onPress?.(event);
     },
     [context, onPress]
   );
 
-  if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
+  type AsChildProps = {
+    onPress?: ((event: GestureResponderEvent) => void) | null;
+    [key: string]: unknown;
+  };
+
+  if (asChild && React.isValidElement<AsChildProps>(children)) {
+    return React.cloneElement(children, {
       ref,
       ...props,
-      onPress: (e: any) => {
+      onPress: (e: GestureResponderEvent) => {
         handlePress(e);
-        (children.props as any).onPress?.(e);
+        children.props.onPress?.(e);
       },
     });
   }
@@ -86,14 +93,15 @@ export const PopoverTrigger = React.forwardRef<
 
 PopoverTrigger.displayName = "PopoverTrigger";
 
-export interface PopoverContentProps extends Omit<ViewProps, "style"> {
+export interface PopoverContentProps extends Omit<ViewProps, "style">, OverlayPositionProps {
   readonly style?: StyleProp<ViewStyle>;
 }
 
+// Native renders in normal flow; side/align/sideOffset/alignOffset are accepted for API parity and ignored.
 export const PopoverContent = React.forwardRef<
   React.ElementRef<typeof View>,
   PopoverContentProps
->(({ style, ...props }, ref) => {
+>(({ align, alignOffset, side, sideOffset, style, ...props }, ref) => {
   const context = usePopoverContext();
   const theme = useTheme();
 

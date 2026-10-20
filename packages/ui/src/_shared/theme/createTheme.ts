@@ -17,7 +17,7 @@ export const lightTheme: SynthexTheme = {
 };
 
 /**
- * Dark theme — Zinc-neutral foundation.
+ * Dark theme, zinc-neutral foundation.
  * Inspired by shadcn's dark Zinc palette:
  *   bg ≈ zinc-950, surface ≈ zinc-900, border ≈ white/10%
  */
@@ -138,13 +138,104 @@ export const accentPresets: Record<
       },
     },
   },
+  steel: {
+    label: "Steel",
+    swatch: "#93a8bf",
+    theme: {
+      colors: {
+        primary: "#93a8bf",
+        primaryHover: "#7f96af",
+        primaryMuted: "#eaf0f6",
+        ring: "#93a8bf",
+      },
+    },
+  },
+  stone: {
+    label: "Stone",
+    swatch: "#adb9a3",
+    theme: {
+      colors: {
+        primary: "#adb9a3",
+        primaryHover: "#97a38e",
+        primaryMuted: "#edf2e9",
+        ring: "#adb9a3",
+      },
+    },
+  },
+  bronze: {
+    label: "Bronze",
+    swatch: "#bc9972",
+    theme: {
+      colors: {
+        primary: "#bc9972",
+        primaryHover: "#a8855f",
+        primaryMuted: "#f6ede4",
+        ring: "#bc9972",
+      },
+    },
+  },
+  mulberry: {
+    label: "Mulberry",
+    swatch: "#ab91b4",
+    theme: {
+      colors: {
+        primary: "#ab91b4",
+        primaryHover: "#967aa0",
+        primaryMuted: "#f2edf3",
+        ring: "#ab91b4",
+      },
+    },
+  },
+};
+
+const darkAccentOverrides: Partial<Record<AccentPresetName, DeepPartial<SynthexTheme>>> = {
+  steel: {
+    colors: {
+      primary: "#9db1c6",
+      primaryHover: "#b3c3d5",
+      primaryMuted: "rgba(157, 177, 198, 0.22)",
+      ring: "#9db1c6",
+    },
+  },
+  stone: {
+    colors: {
+      primary: "#b7c1ae",
+      primaryHover: "#cad2c4",
+      primaryMuted: "rgba(183, 193, 174, 0.22)",
+      ring: "#b7c1ae",
+    },
+  },
+  bronze: {
+    colors: {
+      primary: "#caa27a",
+      primaryHover: "#dfb891",
+      primaryMuted: "rgba(202, 162, 122, 0.23)",
+      ring: "#caa27a",
+    },
+  },
+  mulberry: {
+    colors: {
+      primary: "#b79bc0",
+      primaryHover: "#ccafd4",
+      primaryMuted: "rgba(183, 155, 192, 0.23)",
+      ring: "#b79bc0",
+    },
+  },
 };
 
 export function resolveAccentPreset(
   accentPreset?: AccentPresetName,
+  mode?: ThemeMode,
 ): DeepPartial<SynthexTheme> | undefined {
   if (!accentPreset) {
     return undefined;
+  }
+
+  if (mode === "dark") {
+    const darkOverride = darkAccentOverrides[accentPreset];
+    if (darkOverride) {
+      return darkOverride;
+    }
   }
 
   return accentPresets[accentPreset]?.theme;
@@ -158,7 +249,7 @@ export function createTheme(
   },
 ): SynthexTheme {
   const baseTheme = themePresets[options?.mode ?? "light"];
-  const accentTheme = resolveAccentPreset(options?.accentPreset);
+  const accentTheme = resolveAccentPreset(options?.accentPreset, options?.mode ?? baseTheme.mode);
 
   if (!accentTheme && !overrides) {
     return baseTheme;
@@ -218,10 +309,10 @@ export function themeToCssVariables(theme: SynthexTheme): Record<string, string>
     "--sx-space-lg": `${theme.space.lg}px`,
     "--sx-space-xl": `${theme.space.xl}px`,
     "--sx-space-2xl": `${theme.space["2xl"]}px`,
-    // Typography — families
+    // Typography, families
     "--sx-font-family-sans": theme.typography.family.sans,
     "--sx-font-family-mono": theme.typography.family.mono,
-    // Typography — sizes (px → rem for accessibility)
+    // Typography, sizes (px → rem for accessibility)
     "--sx-font-size-xs": `${theme.typography.size.xs / 16}rem`,
     "--sx-font-size-sm": `${theme.typography.size.sm / 16}rem`,
     "--sx-font-size-md": `${theme.typography.size.md / 16}rem`,
@@ -230,11 +321,11 @@ export function themeToCssVariables(theme: SynthexTheme): Record<string, string>
     "--sx-font-size-2xl": `${theme.typography.size["2xl"] / 16}rem`,
     "--sx-font-size-3xl": `${theme.typography.size["3xl"] / 16}rem`,
     "--sx-font-size-4xl": `${theme.typography.size["4xl"] / 16}rem`,
-    // Typography — line heights
+    // Typography, line heights
     "--sx-line-height-tight": `${theme.typography.lineHeight.tight}`,
     "--sx-line-height-normal": `${theme.typography.lineHeight.normal}`,
     "--sx-line-height-relaxed": `${theme.typography.lineHeight.relaxed}`,
-    // Typography — weights
+    // Typography, weights
     "--sx-font-weight-medium": theme.typography.weight.medium,
     "--sx-font-weight-semibold": theme.typography.weight.semibold,
     "--sx-font-weight-bold": theme.typography.weight.bold,

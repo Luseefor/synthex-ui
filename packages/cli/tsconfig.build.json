@@ -7,11 +7,25 @@
     "outDir": "./dist",
     "noEmit": false,
     "paths": {
-      "@luseefor/synthex-core": ["packages/core/dist/index.d.ts"],
-      "@luseefor/synthex-core/*": ["packages/core/dist/*"]
+      "@luseefor/synthex-core": [
+        "packages/core/dist/index.d.ts"
+      ],
+      "@luseefor/synthex-core/*": [
+        "packages/core/dist/*"
+      ]
     },
     "rootDir": "./src",
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src/**/*.ts"]
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "vitest.config.ts",
+    "vitest.setup.ts"
+  ]
 }

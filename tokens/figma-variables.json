@@ -1,0 +1,200 @@
+[
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/background",
+    "Value": "#ffffff"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/backgroundSubtle",
+    "Value": "#f4f4f5"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/surface",
+    "Value": "#ffffff"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/surfaceMuted",
+    "Value": "#fafafa"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/surfaceRaised",
+    "Value": "#f4f4f5"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/foreground",
+    "Value": "#09090b"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/foregroundMuted",
+    "Value": "#71717a"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/foregroundOnBrand",
+    "Value": "#fafafa"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/border",
+    "Value": "#e4e4e7"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/borderStrong",
+    "Value": "#d4d4d8"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/primary",
+    "Value": "#2563eb"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/primaryHover",
+    "Value": "#1d4ed8"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/primaryMuted",
+    "Value": "#dbeafe"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/secondary",
+    "Value": "#f4f4f5"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/secondaryHover",
+    "Value": "#e4e4e7"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/secondaryMuted",
+    "Value": "#fafafa"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/destructive",
+    "Value": "#ef4444"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/destructiveHover",
+    "Value": "#dc2626"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/destructiveMuted",
+    "Value": "#fef2f2"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/accent",
+    "Value": "#f4f4f5"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/accentMuted",
+    "Value": "#fafafa"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "colors/ring",
+    "Value": "#2563eb"
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "radius/sm",
+    "Value": 6
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "radius/md",
+    "Value": 8
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "radius/lg",
+    "Value": 12
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "radius/xl",
+    "Value": 16
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "radius/pill",
+    "Value": 999
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "space/xs",
+    "Value": 4
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "space/sm",
+    "Value": 8
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "space/md",
+    "Value": 12
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "space/lg",
+    "Value": 16
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "space/xl",
+    "Value": 24
+  },
+  {
+    "Collection": "Synthex",
+    "Mode": "Light",
+    "VariableName": "space/2xl",
+    "Value": 32
+  }
+]

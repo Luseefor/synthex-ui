@@ -15,6 +15,10 @@ export interface AlertProps extends Omit<ViewProps, "style">, AlertSharedProps {
   readonly style?: StyleProp<ViewStyle>;
 }
 
+const AlertVariantContext = React.createContext<AlertSharedProps["variant"] | undefined>(
+  undefined,
+);
+
 export const Alert = React.forwardRef<React.ElementRef<typeof View>, AlertProps>(
   ({ style, variant, ...props }, ref) => {
     const theme = useTheme();
@@ -50,7 +54,11 @@ export const Alert = React.forwardRef<React.ElementRef<typeof View>, AlertProps>
       };
     }, [resolved.variant, theme]);
 
-    return <View ref={ref} style={[alertStyle, style]} {...props} />;
+    return (
+      <AlertVariantContext.Provider value={variant}>
+        <View ref={ref} style={[alertStyle, style]} {...props} />
+      </AlertVariantContext.Provider>
+    );
   },
 );
 
@@ -63,7 +71,8 @@ export interface AlertTextProps extends Omit<TextProps, "style">, AlertSharedPro
 export const AlertTitle = React.forwardRef<React.ElementRef<typeof Text>, AlertTextProps>(
   ({ style, variant, ...props }, ref) => {
     const theme = useTheme();
-    const resolved = resolveAlertVariants({ variant });
+    const contextVariant = React.useContext(AlertVariantContext);
+    const resolved = resolveAlertVariants({ variant: variant ?? contextVariant });
     const color =
       resolved.variant === "destructive"
         ? theme.colors.destructive
@@ -97,15 +106,25 @@ AlertTitle.displayName = "AlertTitle";
 export const AlertDescription = React.forwardRef<
   React.ElementRef<typeof Text>,
   AlertTextProps
->(({ style, ...props }, ref) => {
+>(({ style, variant, ...props }, ref) => {
   const theme = useTheme();
+  const contextVariant = React.useContext(AlertVariantContext);
+  const resolved = resolveAlertVariants({ variant: variant ?? contextVariant });
+  const color =
+    resolved.variant === "destructive"
+      ? theme.colors.destructive
+      : resolved.variant === "success"
+        ? theme.colors.accent
+        : resolved.variant === "warning"
+          ? "#b45309"
+          : theme.colors.foregroundMuted;
 
   return (
     <Text
       ref={ref}
       style={[
         {
-          color: theme.colors.foregroundMuted,
+          color,
           fontFamily: theme.typography.family.sans,
           fontSize: theme.typography.size.sm,
           lineHeight: theme.typography.size.sm * theme.typography.lineHeight.relaxed,

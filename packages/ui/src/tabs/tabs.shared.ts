@@ -3,6 +3,7 @@ import * as React from "react";
 interface TabsContextValue {
   readonly value: string;
   readonly setValue: (value: string) => void;
+  readonly baseId: string;
 }
 
 const TabsContext = React.createContext<TabsContextValue | null>(null);
@@ -29,6 +30,8 @@ export function useTabsController({
 }: Pick<TabsSharedProps, "defaultValue" | "onValueChange" | "value">) {
   const [internalValue, setInternalValue] = React.useState(defaultValue ?? "");
   const currentValue = value ?? internalValue;
+  const rawBaseId = React.useId();
+  const baseId = React.useMemo(() => `sx-tabs-${rawBaseId.replace(/:/g, "")}`, [rawBaseId]);
 
   return React.useMemo<TabsContextValue>(
     () => ({
@@ -40,8 +43,9 @@ export function useTabsController({
 
         onValueChange?.(nextValue);
       },
+      baseId,
     }),
-    [currentValue, onValueChange, value],
+    [currentValue, onValueChange, value, baseId],
   );
 }
 

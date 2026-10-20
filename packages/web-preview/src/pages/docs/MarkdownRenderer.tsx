@@ -3,7 +3,33 @@ import { H1, H2, H3 } from "synthex-ui/components";
 import { MermaidBlock } from "./MermaidBlock";
 
 function Inline({ text }: { readonly text: string }) {
-  return text.split("`").map((part, index) => index % 2 ? <code key={index} className="preview-inline-code">{part}</code> : part);
+  return text.split("`").map((part, index) =>
+    index % 2 ? (
+      <code key={index} className="preview-inline-code">{part}</code>
+    ) : (
+      <span key={index}>{renderEmphasis(part, `${index}`)}</span>
+    ),
+  );
+}
+
+function renderEmphasis(text: string, keyPrefix: string): ReactNode {
+  return text.split("**").map((chunk, chunkIndex) =>
+    chunkIndex % 2 ? (
+      <strong key={`${keyPrefix}-b-${chunkIndex}`}>{renderItalic(chunk, `${keyPrefix}-b-${chunkIndex}`)}</strong>
+    ) : (
+      <span key={`${keyPrefix}-t-${chunkIndex}`}>{renderItalic(chunk, `${keyPrefix}-t-${chunkIndex}`)}</span>
+    ),
+  );
+}
+
+function renderItalic(text: string, keyPrefix: string): ReactNode {
+  const parts = text.split(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g);
+  if (parts.length === 1) {
+    return text;
+  }
+  return parts.map((part, partIndex) =>
+    partIndex % 2 ? <em key={`${keyPrefix}-i-${partIndex}`}>{part}</em> : <span key={`${keyPrefix}-u-${partIndex}`}>{part}</span>,
+  );
 }
 
 function parseTableRow(line: string) {

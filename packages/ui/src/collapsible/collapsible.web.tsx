@@ -20,21 +20,45 @@ export function Collapsible({ children, defaultOpen, disabled, onOpenChange, ope
   );
 }
 
-export const CollapsibleTrigger = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(
-  ({ children, onClick, type = "button", ...props }, ref) => {
+export const CollapsibleTrigger = React.forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement> & { readonly asChild?: boolean }
+>(
+  ({ children, onClick, type = "button", asChild, ...props }, ref) => {
     const context = useCollapsibleContext();
+
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+      onClick?.(event);
+      if (!event.defaultPrevented && !context.disabled) {
+        context.setOpen(!context.open);
+      }
+    };
+
+    type AsChildProps = {
+      onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+      [key: string]: unknown;
+    };
+
+    if (asChild && React.isValidElement<AsChildProps>(children)) {
+      return React.cloneElement(children, {
+        ref,
+        "aria-expanded": context.open,
+        disabled: context.disabled,
+        ...props,
+        onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
+          handleClick(e);
+          children.props.onClick?.(e);
+        },
+      });
+    }
+
     return (
       <button
         ref={ref}
         type={type}
         aria-expanded={context.open}
         disabled={context.disabled}
-        onClick={(event) => {
-          onClick?.(event);
-          if (!event.defaultPrevented && !context.disabled) {
-            context.setOpen(!context.open);
-          }
-        }}
+        onClick={handleClick}
         {...props}
       >
         {children}
@@ -44,11 +68,22 @@ export const CollapsibleTrigger = React.forwardRef<HTMLButtonElement, React.Butt
 );
 CollapsibleTrigger.displayName = "CollapsibleTrigger";
 
-export const CollapsibleContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, hidden, ...props }, ref) => {
+export const CollapsibleContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & { readonly forceMount?: boolean; readonly asChild?: boolean }
+>(
+  ({ children, className, forceMount = false, hidden, asChild, ...props }, ref) => {
     const context = useCollapsibleContext();
-    if (!context.open) {
+    if (!context.open && !forceMount) {
       return null;
+    }
+    if (asChild && React.isValidElement<Record<string, unknown>>(children)) {
+      return React.cloneElement(children as React.ReactElement<Record<string, unknown>>, {
+        ref,
+        hidden: hidden ?? !context.open,
+        ...props,
+        "data-state": context.open ? "open" : "closed",
+      });
     }
     return (
       <div
@@ -57,7 +92,9 @@ export const CollapsibleContent = React.forwardRef<HTMLDivElement, React.HTMLAtt
         data-state={context.open ? "open" : "closed"}
         className={cn("data-[state=closed]:hidden", className)}
         {...props}
-      />
+      >
+        {children}
+      </div>
     );
   },
 );

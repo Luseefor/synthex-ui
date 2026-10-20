@@ -8,7 +8,7 @@ Synthex UI is a publish-ready monorepo built around three public packages:
 - `@luseefor/synthex-core`: framework-agnostic layout and command engine
 - `@luseefor/synthex-react-web`: React DOM adapter for dockable workbench rendering
 
-The design-system package is installable like a normal consumer library:
+Install the design-system package like any other library:
 
 ```sh
 npm install synthex-ui
@@ -81,7 +81,7 @@ bun run dev
 - [Workbench](docs/workbench.md)
 - [Architecture diagrams](docs/mermaid-architecture.md)
 
-## Minimal Usage
+## Minimal usage
 
 ```tsx
 import "synthex-ui/styles.css";

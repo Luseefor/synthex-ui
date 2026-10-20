@@ -20,7 +20,7 @@
     "changeset": "changeset",
     "migrate:shadcn": "node ./scripts/migrate-shadcn.mjs",
     "tokens:export": "node ./scripts/export-tokens.mjs",
-    "test": "bun --filter synthex-ui --filter '@luseefor/synthex-react-web' test",
+    "test": "bun --filter synthex-ui --filter '@luseefor/synthex-react-web' --filter '@luseefor/synthex-core' --filter '@luseefor/synthex-cli' test",
     "publish:public": "node ./scripts/publish-packages.mjs",
     "release:check": "node ./scripts/release-check.mjs"
   },
@@ -32,5 +32,8 @@
   },
   "overrides": {
     "uuid": "^11.1.1"
+  },
+  "engines": {
+    "node": ">=20.19.0"
   }
 }

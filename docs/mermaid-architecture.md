@@ -1,8 +1,8 @@
-# Synthex UI Mermaid Documentation
+# Synthex UI Mermaid documentation
 
 This document captures the repo structure, package boundaries, runtime flows, and release pipeline using Mermaid diagrams.
 
-## Monorepo Package Topology
+## Monorepo package topology
 
 ```mermaid
 flowchart LR
@@ -19,7 +19,7 @@ flowchart LR
   CLI --> Core
 ```
 
-## Public Package Responsibilities
+## Public package responsibilities
 
 ```mermaid
 flowchart TD
@@ -42,7 +42,7 @@ flowchart TD
   ReactWeb --> Hook["useSynthex"]
 ```
 
-## UI Package Internal Structure
+## UI package internal structure
 
 ```mermaid
 flowchart TD
@@ -68,7 +68,7 @@ flowchart TD
   Components --> Utilities["command / combobox / resizable / carousel"]
 ```
 
-## Theme Resolution Flow
+## Theme resolution flow
 
 ```mermaid
 flowchart LR
@@ -83,7 +83,7 @@ flowchart LR
   NativeProvider --> NativeValues["native token values"]
 ```
 
-## Layout Engine Model
+## Layout engine model
 
 ```mermaid
 flowchart TD
@@ -105,7 +105,7 @@ flowchart TD
   Normalize --> Validate["validation"]
 ```
 
-## Workbench Interaction Sequence
+## Workbench interaction sequence
 
 ```mermaid
 sequenceDiagram
@@ -124,7 +124,7 @@ sequenceDiagram
   Renderer-->>User: updated docked workbench
 ```
 
-## Preview App Route Map
+## Preview app route map
 
 ```mermaid
 flowchart TD
@@ -141,7 +141,7 @@ flowchart TD
   Playground --> Workbench["live layout engine workbench"]
 ```
 
-## Release Verification Pipeline
+## Release verification pipeline
 
 ```mermaid
 flowchart LR
@@ -153,7 +153,7 @@ flowchart LR
   PackCheck --> Publish["@luseefor/synthex-core -> synthex-ui -> @luseefor/synthex-react-web"]
 ```
 
-## CI Flow
+## CI flow
 
 ```mermaid
 flowchart TD
@@ -167,7 +167,7 @@ flowchart TD
   Verify --> Pack["pack:check"]
 ```
 
-## Package Publish Order
+## Package publish order
 
 ```mermaid
 flowchart LR
@@ -175,7 +175,7 @@ flowchart LR
   UI --> ReactWeb["@luseefor/synthex-react-web"]
 ```
 
-## Consumer Install Matrix
+## Consumer install matrix
 
 ```mermaid
 flowchart TD

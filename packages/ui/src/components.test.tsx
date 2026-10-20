@@ -646,7 +646,7 @@ describe("synthex-ui web components", () => {
           columns={[
             { id: "package", header: "Package", accessor: "package" },
             { id: "status", header: "Status", accessor: "status" },
-            { id: "downloads", header: "Downloads", accessor: "downloads", align: "right" },
+            { id: "downloads", header: "Downloads", accessor: "downloads", align: "right", sortable: true },
           ]}
           data={[
             { package: "synthex-ui", status: "Stable", downloads: 8200 },
@@ -915,7 +915,7 @@ describe("synthex-ui web components", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Delete file" }));
-    expect(screen.getByRole("dialog")).toHaveTextContent("Delete asset");
+    expect(screen.getByRole("alertdialog")).toHaveTextContent("Delete asset");
 
     const code = screen.getByRole("button", { name: "Code" });
     fireEvent.click(code);

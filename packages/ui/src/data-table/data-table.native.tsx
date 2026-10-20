@@ -179,7 +179,7 @@ export function DataTable<TData extends Record<string, unknown>>({
                         textAlign: resolveNativeAlignment(column.align),
                       }}
                     >
-                      {String(column.cell ? column.cell(row) : resolveCellValue(row, column))}
+                      {column.cell ? column.cell(row) : String(resolveCellValue(row, column))}
                     </Text>
                   </View>
                 ))}

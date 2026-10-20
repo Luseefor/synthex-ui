@@ -1,7 +1,16 @@
 import type { ReactNode } from "react";
 
 export type ThemeMode = "light" | "dark";
-export type AccentPresetName = "blue" | "emerald" | "violet" | "amber" | "rose";
+export type AccentPresetName =
+  | "blue"
+  | "emerald"
+  | "violet"
+  | "amber"
+  | "rose"
+  | "steel"
+  | "stone"
+  | "bronze"
+  | "mulberry";
 
 export interface ColorScale {
   readonly background: string;

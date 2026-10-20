@@ -7,12 +7,34 @@
     "noEmit": false,
     "outDir": "./dist",
     "paths": {
-      "@luseefor/synthex-core": ["packages/core/dist/index.d.ts"],
-      "@luseefor/synthex-core/*": ["packages/core/dist/*"]
+      "@luseefor/synthex-core": [
+        "packages/core/dist/index.d.ts"
+      ],
+      "@luseefor/synthex-core/*": [
+        "packages/core/dist/*"
+      ]
     },
     "rootDir": "./src",
-    "types": ["node", "react", "react-dom"]
+    "types": [
+      "node",
+      "react",
+      "react-dom"
+    ]
   },
-  "include": ["src/index.ts", "src/index.web.ts", "src/layout/**/*.ts", "src/layout/**/*.tsx"],
-  "exclude": ["src/index.native.ts", "src/**/*.test.ts", "src/**/*.test.tsx", "dist", "vitest.config.ts", "vitest.setup.ts"]
+  "include": [
+    "src/index.ts",
+    "src/index.web.ts",
+    "src/layout/**/*.ts",
+    "src/layout/**/*.tsx"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "dist",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/index.native.ts",
+    "vitest.config.ts",
+    "vitest.setup.ts"
+  ]
 }

@@ -112,7 +112,7 @@ export function DataTable<TData extends Record<string, unknown>>({
           <TableHeader>
             <TableRow>
               {columns.map((column) => {
-                const sortable = column.sortable !== false;
+                const sortable = column.sortable === true;
                 const activeDirection = sort?.columnId === column.id ? sort.direction : null;
 
                 return (
@@ -231,8 +231,8 @@ function resolveAlignmentClass(align: DataTableAlign = "left") {
   }
 
   if (align === "right") {
-    return "text-right";
+    return "text-end";
   }
 
-  return "text-left";
+  return "text-start";
 }

@@ -11,11 +11,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: "1.3.2"
+          bun-version: "1.4.3"
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -26,6 +28,12 @@ jobs:
       - name: Test
         run: bun run test
 
+      - name: Registry check
+        run: npm run registry:check
+
+      - name: Changeset status
+        run: npx changeset status --since=origin/main
+
       - name: Build
         run: bun run build
 
@@ -34,3 +42,28 @@ jobs:
 
       - name: npm pack smoke checks
         run: bun run pack:check
+
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.3"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Playwright browser (chromium only)
+        run: bunx playwright install --with-deps chromium
+        working-directory: packages/web-preview
+
+      - name: Run E2E (chromium only)
+        run: bunx playwright test --project=chromium
+        working-directory: packages/web-preview

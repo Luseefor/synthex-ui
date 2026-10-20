@@ -1,8 +1,13 @@
 #!/usr/bin/env bun
 
 import { Command, CommanderError } from "commander";
+import { registerAddCommand } from "./commands/add";
+import { registerApplyCommand } from "./commands/apply";
+import { registerCreateCommand } from "./commands/create";
 import { registerInitCommand } from "./commands/init";
 import { registerLayoutCommands } from "./commands/layout";
+import { registerListCommand } from "./commands/list";
+import { registerMigrateCommand } from "./commands/migrate";
 import { registerRedoCommand } from "./commands/redo";
 import { registerRuntimeCommands } from "./commands/run";
 import { registerUndoCommand } from "./commands/undo";
@@ -19,8 +24,13 @@ async function main(): Promise<void> {
     .showHelpAfterError()
     .exitOverride();
 
+  registerAddCommand(program);
+  registerApplyCommand(program);
+  registerCreateCommand(program);
   registerInitCommand(program);
   registerLayoutCommands(program);
+  registerListCommand(program);
+  registerMigrateCommand(program);
   registerUndoCommand(program);
   registerRedoCommand(program);
   registerRuntimeCommands(program);

@@ -1,10 +1,10 @@
 import { PropsPanel } from "./PropsPanel";
-import type { BuilderNode } from "./types";
+import type { BuilderNode, BuilderProps } from "./types";
 
 interface InspectorSidebarProps {
   readonly selected: BuilderNode | null;
   readonly onDelete: () => void;
-  readonly onSetProps: (props: Record<string, any>) => void;
+  readonly onSetProps: (props: BuilderProps) => void;
   readonly onUpdateNode: (node: Partial<BuilderNode>) => void;
 }
 

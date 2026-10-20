@@ -47,20 +47,34 @@ export interface AccordionItemProps
     AccordionItemSharedProps {}
 
 export const AccordionItem = React.forwardRef<HTMLDivElement, AccordionItemProps>(
-  ({ children, className, value, ...props }, ref) => (
-    <AccordionItemProvider value={{ value }}>
-      <div
-        ref={ref}
-        className={cn(
-          "border-b border-[color:var(--sx-color-border)] last:border-b-0",
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </div>
-    </AccordionItemProvider>
-  ),
+  ({ children, className, disabled = false, value, ...props }, ref) => {
+    const rawId = React.useId();
+    const sanitized = React.useMemo(() => rawId.replace(/:/g, ""), [rawId]);
+    const contentId = React.useMemo(() => `sx-accordion-content-${sanitized}`, [sanitized]);
+    const triggerId = React.useMemo(() => `sx-accordion-trigger-${sanitized}`, [sanitized]);
+    const accordion = useAccordionContext();
+    const open = accordion.isItemOpen(value);
+    const itemValue = React.useMemo(
+      () => ({ value, disabled, contentId, triggerId }),
+      [value, disabled, contentId, triggerId],
+    );
+    return (
+      <AccordionItemProvider value={itemValue}>
+        <div
+          ref={ref}
+          data-state={open ? "open" : "closed"}
+          data-disabled={disabled || undefined}
+          className={cn(
+            "border-b border-[color:var(--sx-color-border)] last:border-b-0",
+            className,
+          )}
+          {...props}
+        >
+          {children}
+        </div>
+      </AccordionItemProvider>
+    );
+  },
 );
 
 AccordionItem.displayName = "AccordionItem";
@@ -68,21 +82,31 @@ AccordionItem.displayName = "AccordionItem";
 export const AccordionTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement>
->(({ children, className, onClick, ...props }, ref) => {
+>(({ children, className, disabled: triggerDisabled, id, onClick, ...props }, ref) => {
   const accordion = useAccordionContext();
   const item = useAccordionItemContext();
   const open = accordion.isItemOpen(item.value);
+  const disabled = Boolean(triggerDisabled ?? item.disabled);
 
   return (
     <button
       ref={ref}
       type="button"
+      id={id ?? item.triggerId}
       aria-expanded={open}
+      aria-controls={item.contentId}
+      aria-disabled={disabled || undefined}
+      data-state={open ? "open" : "closed"}
+      data-disabled={disabled || undefined}
+      disabled={disabled}
       className={cn(
-        "flex w-full items-center justify-between gap-4 py-4 text-left text-sm font-medium tracking-[-0.01em] text-[color:var(--sx-color-foreground)] transition-colors duration-[var(--sx-motion-fast)] hover:text-[color:var(--sx-color-primary)]",
+        "flex w-full items-center justify-between gap-4 py-4 text-left text-sm font-medium tracking-[-0.01em] text-[color:var(--sx-color-foreground)] transition-colors duration-[var(--sx-motion-fast)] hover:text-[color:var(--sx-color-primary)] disabled:pointer-events-none disabled:opacity-45",
         className,
       )}
       onClick={(event) => {
+        if (disabled) {
+          return;
+        }
         accordion.toggleItem(item.value);
         onClick?.(event);
       }}
@@ -101,7 +125,7 @@ AccordionTrigger.displayName = "AccordionTrigger";
 export const AccordionContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ children, className, ...props }, ref) => {
+>(({ children, className, id, ...props }, ref) => {
   const accordion = useAccordionContext();
   const item = useAccordionItemContext();
   const open = accordion.isItemOpen(item.value);
@@ -109,7 +133,12 @@ export const AccordionContent = React.forwardRef<
   return (
     <div
       ref={ref}
+      id={id ?? item.contentId}
+      role="region"
+      aria-labelledby={item.triggerId}
       hidden={!open}
+      data-state={open ? "open" : "closed"}
+      data-disabled={item.disabled || undefined}
       className={cn("pb-4 text-sm text-[color:var(--sx-color-foreground-muted)]", className)}
       {...props}
     >
