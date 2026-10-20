@@ -59,18 +59,19 @@ export interface ToggleGroupItemProps extends React.ComponentPropsWithoutRef<typ
 }
 
 export const ToggleGroupItem = React.forwardRef<HTMLButtonElement, ToggleGroupItemProps>(
-  ({ onPressedChange, pressed: _pressed, value, ...props }, ref) => {
+  ({ disabled: itemDisabled, onPressedChange, pressed, value, ...props }, ref) => {
     const context = useToggleGroupContext();
+    const isPressed = pressed ?? context.isPressed(value);
     return (
       <Toggle
         ref={ref}
-        pressed={context.isPressed(value)}
-        onPressedChange={() => {
-          context.toggleValue(value);
-          onPressedChange?.(context.isPressed(value));
-        }}
-        disabled={context.disabled || props.disabled}
         {...props}
+        disabled={context.disabled || itemDisabled}
+        pressed={isPressed}
+        onPressedChange={(next) => {
+          context.toggleValue(value);
+          onPressedChange?.(next);
+        }}
       />
     );
   },
