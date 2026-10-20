@@ -33,13 +33,13 @@ export interface DashboardSnapshot {
 
 export const FALLBACK_DASHBOARD: DashboardSnapshot = {
   metrics: [
-    { label: "GitHub Stars", value: "…", icon: "★", description: "Loading repository data" },
-    { label: "Forks", value: "…", icon: "⑂", description: "Loading repository data" },
-    { label: "Open Issues", value: "…", icon: "◌", description: "Loading repository data" },
-    { label: "Recent Commits", value: "…", icon: "⎇", description: "Loading repository data" },
+    { label: "GitHub Stars", value: "—", icon: "★", description: "Public repository stars" },
+    { label: "Forks", value: "—", icon: "⑂", description: "Repository forks" },
+    { label: "Open Issues", value: "—", icon: "◌", description: "Tracked on GitHub" },
+    { label: "Recent Commits", value: "—", icon: "⎇", description: "last 30 days" },
   ],
   updates: [
-    { title: "Loading GitHub activity…", user: "github", time: "now", initials: "GH" },
+    { title: "Open the repository for commit history", user: "synthex", time: "now", initials: "SX" },
   ],
   chartData: [
     { month: "Jan", value: 0 }, { month: "Feb", value: 0 }, { month: "Mar", value: 0 },
