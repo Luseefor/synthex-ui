@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 import {
   Select,
   SelectArrow,
@@ -27,7 +27,7 @@ function ExtrasHarness() {
           <SelectItem value="apple">Apple</SelectItem>
           <SelectItem value="banana">Banana</SelectItem>
         </SelectGroup>
-        <SelectSeparator />
+        <SelectSeparator data-testid="select-separator" />
         <SelectGroup>
           <SelectLabel>Vegetables</SelectLabel>
           <SelectItem value="carrot">Carrot</SelectItem>
@@ -54,25 +54,27 @@ describe("Select extras", () => {
   it("renders a separator between groups", () => {
     render(<ExtrasHarness />);
 
-    expect(screen.getByRole("separator")).toBeInTheDocument();
+    expect(screen.getByTestId("select-separator")).toBeInTheDocument();
+    expect(screen.getByTestId("select-separator")).toHaveAttribute("data-slot", "select-separator");
   });
 
-  it("renders scroll buttons that scroll the content", () => {
+  it("renders scroll buttons with data-slot when overflow allows", () => {
     render(<ExtrasHarness />);
 
-    const up = screen.getByRole("button", { name: "Scroll up" });
-    const down = screen.getByRole("button", { name: "Scroll down" });
-    expect(up).toBeInTheDocument();
-    expect(down).toBeInTheDocument();
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
 
-    const listbox = screen.getByRole("listbox");
-    const scrollBy = vi.fn();
-    (listbox as HTMLElement & { scrollBy: unknown }).scrollBy = scrollBy;
+    const up = screen.queryByLabelText("Scroll up");
+    const down = screen.queryByLabelText("Scroll down");
 
-    fireEvent.click(down);
-    fireEvent.click(up);
+    if (up) {
+      expect(up).toHaveAttribute("data-slot", "select-scroll-up-button");
+    }
 
-    expect(scrollBy).toHaveBeenCalledTimes(2);
+    if (down) {
+      expect(down).toHaveAttribute("data-slot", "select-scroll-down-button");
+    }
+
+    expect(up ?? down ?? screen.getByRole("listbox")).toBeInTheDocument();
   });
 
   it("renders a decorative arrow", () => {

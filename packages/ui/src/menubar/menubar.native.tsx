@@ -34,15 +34,26 @@ import {
 
 export interface MenubarProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
+  readonly value?: string;
+  readonly defaultValue?: string;
+  readonly onValueChange?: (value: string) => void;
+  readonly dir?: "ltr" | "rtl";
+  readonly testID?: string;
 }
 
 export const Menubar = React.forwardRef<React.ElementRef<typeof View>, MenubarProps>(
-  ({ style, ...props }, ref) => {
+  ({ style, value, defaultValue, onValueChange, dir, testID, ...props }, ref) => {
+    // Accepted for web parity (Radix Menubar Root); ignored native (row layout).
+    void value;
+    void defaultValue;
+    void onValueChange;
+    void dir;
     const theme = useTheme();
 
     return (
       <View
         ref={ref}
+        testID={testID ?? "menubar"}
         style={[
           {
             flexDirection: "row",
@@ -64,9 +75,11 @@ export const Menubar = React.forwardRef<React.ElementRef<typeof View>, MenubarPr
 
 Menubar.displayName = "Menubar";
 
-export function MenubarMenu({ children, defaultOpen, onOpenChange, open, ...props }: DropdownMenuProps) {
+export function MenubarMenu({ children, defaultOpen, onOpenChange, open, value, testID, ...props }: DropdownMenuProps & { readonly value?: string; readonly testID?: string }) {
+  // `value` is web-only (Radix Menubar.Menu); accepted for parity, ignored native.
+  void value;
   return (
-    <DropdownMenu defaultOpen={defaultOpen} onOpenChange={onOpenChange} open={open} {...props}>
+    <DropdownMenu defaultOpen={defaultOpen} onOpenChange={onOpenChange} open={open} testID={testID ?? "menubar-menu"} {...props}>
       {children}
     </DropdownMenu>
   );
@@ -74,13 +87,14 @@ export function MenubarMenu({ children, defaultOpen, onOpenChange, open, ...prop
 
 export const MenubarTrigger = React.forwardRef<
   React.ElementRef<typeof DropdownMenuTrigger>,
-  DropdownMenuTriggerProps
->(({ style, ...props }, ref) => {
+  DropdownMenuTriggerProps & { readonly testID?: string }
+>(({ style, testID, ...props }, ref) => {
   const theme = useTheme();
 
   return (
     <DropdownMenuTrigger
       ref={ref}
+      testID={testID ?? "menubar-trigger"}
       style={[
         {
           minWidth: 96,
@@ -101,84 +115,84 @@ MenubarTrigger.displayName = "MenubarTrigger";
 
 export const MenubarContent = React.forwardRef<
   React.ElementRef<typeof DropdownMenuContent>,
-  DropdownMenuContentProps
->(({ style, ...props }, ref) => (
-  <DropdownMenuContent ref={ref} style={[{ minWidth: 208 }, style]} {...props} />
+  DropdownMenuContentProps & { readonly testID?: string }
+>(({ style, testID, ...props }, ref) => (
+  <DropdownMenuContent ref={ref} testID={testID ?? "menubar-content"} style={[{ minWidth: 208 }, style]} {...props} />
 ));
 
 MenubarContent.displayName = "MenubarContent";
 
 export const MenubarItem = React.forwardRef<
   React.ElementRef<typeof DropdownMenuItem>,
-  DropdownMenuItemProps
->(({ style, ...props }, ref) => <DropdownMenuItem ref={ref} style={style} {...props} />);
+  DropdownMenuItemProps & { readonly testID?: string }
+>(({ style, testID, ...props }, ref) => <DropdownMenuItem ref={ref} testID={testID ?? "menubar-item"} style={style} {...props} />);
 
 MenubarItem.displayName = "MenubarItem";
 
 export const MenubarLabel = React.forwardRef<
   React.ElementRef<typeof DropdownMenuLabel>,
-  DropdownMenuLabelProps
->(({ style, ...props }, ref) => <DropdownMenuLabel ref={ref} style={style} {...props} />);
+  DropdownMenuLabelProps & { readonly testID?: string }
+>(({ style, testID, ...props }, ref) => <DropdownMenuLabel ref={ref} testID={testID ?? "menubar-label"} style={style} {...props} />);
 
 MenubarLabel.displayName = "MenubarLabel";
 
 export const MenubarSeparator = React.forwardRef<
   React.ElementRef<typeof DropdownMenuSeparator>,
-  DropdownMenuSeparatorProps
->(({ style, ...props }, ref) => (
-  <DropdownMenuSeparator ref={ref} style={style} {...props} />
+  DropdownMenuSeparatorProps & { readonly testID?: string }
+>(({ style, testID, ...props }, ref) => (
+  <DropdownMenuSeparator ref={ref} testID={testID ?? "menubar-separator"} style={style} {...props} />
 ));
 
 MenubarSeparator.displayName = "MenubarSeparator";
 
-export type MenubarSubProps = BaseMenuSubProps;
-export function MenubarSub(props: MenubarSubProps) {
-  return <BaseMenuSub {...props} />;
+export type MenubarSubProps = BaseMenuSubProps & { readonly testID?: string };
+export function MenubarSub({ testID, ...props }: MenubarSubProps) {
+  return <BaseMenuSub testID={testID ?? "menubar-sub"} {...props} />;
 }
 
-export type MenubarSubTriggerProps = BaseMenuSubTriggerProps;
+export type MenubarSubTriggerProps = BaseMenuSubTriggerProps & { readonly testID?: string };
 export const MenubarSubTrigger = React.forwardRef<
   React.ElementRef<typeof BaseMenuSubTrigger>,
   MenubarSubTriggerProps
->((props, ref) => <BaseMenuSubTrigger ref={ref} {...props} />);
+>(({ testID, ...props }, ref) => <BaseMenuSubTrigger ref={ref} testID={testID ?? "menubar-sub-trigger"} {...props} />);
 MenubarSubTrigger.displayName = "MenubarSubTrigger";
 
-export type MenubarSubContentProps = BaseMenuSubContentProps;
+export type MenubarSubContentProps = BaseMenuSubContentProps & { readonly testID?: string };
 export const MenubarSubContent = React.forwardRef<
   React.ElementRef<typeof BaseMenuSubContent>,
   MenubarSubContentProps
->((props, ref) => <BaseMenuSubContent ref={ref} {...props} />);
+>(({ testID, ...props }, ref) => <BaseMenuSubContent ref={ref} testID={testID ?? "menubar-sub-content"} {...props} />);
 MenubarSubContent.displayName = "MenubarSubContent";
 
-export type MenubarCheckboxItemProps = BaseMenuCheckboxItemProps;
+export type MenubarCheckboxItemProps = BaseMenuCheckboxItemProps & { readonly testID?: string };
 export const MenubarCheckboxItem = React.forwardRef<
   React.ElementRef<typeof BaseMenuCheckboxItem>,
   MenubarCheckboxItemProps
->((props, ref) => <BaseMenuCheckboxItem ref={ref} {...props} />);
+>(({ testID, ...props }, ref) => <BaseMenuCheckboxItem ref={ref} testID={testID ?? "menubar-checkbox-item"} {...props} />);
 MenubarCheckboxItem.displayName = "MenubarCheckboxItem";
 
-export type MenubarRadioGroupProps = BaseMenuRadioGroupProps;
-export function MenubarRadioGroup(props: MenubarRadioGroupProps) {
-  return <BaseMenuRadioGroup {...props} />;
+export type MenubarRadioGroupProps = BaseMenuRadioGroupProps & { readonly testID?: string };
+export function MenubarRadioGroup({ testID, ...props }: MenubarRadioGroupProps) {
+  return <BaseMenuRadioGroup testID={testID ?? "menubar-radio-group"} {...props} />;
 }
 
-export type MenubarRadioItemProps = BaseMenuRadioItemProps;
+export type MenubarRadioItemProps = BaseMenuRadioItemProps & { readonly testID?: string };
 export const MenubarRadioItem = React.forwardRef<
   React.ElementRef<typeof BaseMenuRadioItem>,
   MenubarRadioItemProps
->((props, ref) => <BaseMenuRadioItem ref={ref} {...props} />);
+>(({ testID, ...props }, ref) => <BaseMenuRadioItem ref={ref} testID={testID ?? "menubar-radio-item"} {...props} />);
 MenubarRadioItem.displayName = "MenubarRadioItem";
 
-export type MenubarShortcutProps = BaseMenuShortcutProps;
+export type MenubarShortcutProps = BaseMenuShortcutProps & { readonly testID?: string };
 export const MenubarShortcut = React.forwardRef<
   React.ElementRef<typeof BaseMenuShortcut>,
   MenubarShortcutProps
->((props, ref) => <BaseMenuShortcut ref={ref} {...props} />);
+>(({ testID, ...props }, ref) => <BaseMenuShortcut ref={ref} testID={testID ?? "menubar-shortcut"} {...props} />);
 MenubarShortcut.displayName = "MenubarShortcut";
 
-export type MenubarArrowProps = BaseMenuArrowProps;
+export type MenubarArrowProps = BaseMenuArrowProps & { readonly testID?: string };
 export const MenubarArrow = React.forwardRef<
   React.ElementRef<typeof BaseMenuArrow>,
   MenubarArrowProps
->((props, ref) => <BaseMenuArrow ref={ref} {...props} />);
+>(({ testID, ...props }, ref) => <BaseMenuArrow ref={ref} testID={testID ?? "menubar-arrow"} {...props} />);
 MenubarArrow.displayName = "MenubarArrow";

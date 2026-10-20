@@ -1,47 +1,52 @@
 import * as React from "react";
+import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu";
 import { cn } from "../_shared/variants";
-import {
-  NavigationMenuItemProvider,
-  NavigationMenuProvider,
-  useNavigationMenuContext,
-  useNavigationMenuController,
-  useNavigationMenuItemContext,
-  type NavigationMenuItemSharedProps,
-  type NavigationMenuSharedProps,
-} from "./navigation-menu.shared";
 
 export interface NavigationMenuProps
-  extends Omit<
-      React.HTMLAttributes<HTMLElement>,
-      "defaultValue" | "onChange" | "value"
-    >,
-    NavigationMenuSharedProps {}
+  extends React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Root> {}
 
-export function NavigationMenu({
-  children,
-  className,
-  defaultValue,
-  onValueChange,
-  value,
-  ...props
-}: NavigationMenuProps) {
-  const controller = useNavigationMenuController({ defaultValue, onValueChange, value });
+export const NavigationMenu = React.forwardRef<HTMLElement, NavigationMenuProps>(
+  (
+    {
+      children,
+      className,
+      defaultValue,
+      delayDuration,
+      onValueChange,
+      orientation,
+      skipDelayDuration,
+      value,
+      ...props
+    },
+    ref,
+  ) => (
+    <NavigationMenuPrimitive.Root
+      ref={ref as React.Ref<HTMLElement>}
+      data-slot="navigation-menu"
+      defaultValue={defaultValue}
+      delayDuration={delayDuration}
+      onValueChange={onValueChange}
+      orientation={orientation}
+      skipDelayDuration={skipDelayDuration}
+      value={value}
+      className={cn("flex flex-col gap-4", className)}
+      {...props}
+    >
+      {children}
+    </NavigationMenuPrimitive.Root>
+  ),
+);
 
-  return (
-    <NavigationMenuProvider value={controller}>
-      <nav className={cn("flex flex-col gap-4", className)} {...props}>
-        {children}
-      </nav>
-    </NavigationMenuProvider>
-  );
-}
+NavigationMenu.displayName = "NavigationMenu";
 
-export interface NavigationMenuListProps extends React.HTMLAttributes<HTMLUListElement> {}
+export interface NavigationMenuListProps
+  extends React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.List> {}
 
 export const NavigationMenuList = React.forwardRef<HTMLUListElement, NavigationMenuListProps>(
   ({ className, ...props }, ref) => (
-    <ul
+    <NavigationMenuPrimitive.List
       ref={ref}
+      data-slot="navigation-menu-list"
       className={cn(
         "flex flex-wrap items-center gap-2 rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-background-subtle)] p-2",
         className,
@@ -54,120 +59,96 @@ export const NavigationMenuList = React.forwardRef<HTMLUListElement, NavigationM
 NavigationMenuList.displayName = "NavigationMenuList";
 
 export interface NavigationMenuItemProps
-  extends React.HTMLAttributes<HTMLLIElement>,
-    NavigationMenuItemSharedProps {}
+  extends React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Item> {}
 
 export const NavigationMenuItem = React.forwardRef<HTMLLIElement, NavigationMenuItemProps>(
-  ({ children, className, value, ...props }, ref) => (
-    <NavigationMenuItemProvider value={{ value }}>
-      <li ref={ref} className={cn("contents", className)} {...props}>
-        {children}
-      </li>
-    </NavigationMenuItemProvider>
+  ({ className, value, ...props }, ref) => (
+    <NavigationMenuPrimitive.Item
+      ref={ref}
+      data-slot="navigation-menu-item"
+      value={value}
+      className={cn("contents", className)}
+      {...props}
+    />
   ),
 );
 
 NavigationMenuItem.displayName = "NavigationMenuItem";
 
-export const NavigationMenuTrigger = React.forwardRef<
-  HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement>
->(({ children, className, id, onClick, type = "button", ...props }, ref) => {
-  const context = useNavigationMenuContext();
-  const item = useNavigationMenuItemContext();
-  const isActive = context.value === item.value;
-  const triggerId = id ?? `sx-nav-trigger-${item.value}`;
-  const contentId = `sx-nav-content-${item.value}`;
+export interface NavigationMenuTriggerProps
+  extends React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Trigger> {
+  readonly asChild?: boolean;
+}
 
-  return (
-    <button
+export const NavigationMenuTrigger = React.forwardRef<HTMLButtonElement, NavigationMenuTriggerProps>(
+  ({ className, ...props }, ref) => (
+    <NavigationMenuPrimitive.Trigger
       ref={ref}
-      id={triggerId}
-      type={type}
-      aria-expanded={isActive}
-      aria-haspopup="menu"
-      aria-controls={contentId}
+      data-slot="navigation-menu-trigger"
       className={cn(
-        "inline-flex min-w-[7rem] items-center justify-center rounded-[var(--sx-radius-md)] px-3 py-2 text-sm font-medium transition-[background-color,color,box-shadow] duration-[var(--sx-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)]",
-        isActive
-          ? "bg-[color:var(--sx-color-surface)] text-[color:var(--sx-color-foreground)] shadow-[0_8px_18px_rgba(15,23,42,0.08)]"
-          : "text-[color:var(--sx-color-foreground-muted)] hover:bg-[color:var(--sx-color-surface)] hover:text-[color:var(--sx-color-foreground)]",
+        "inline-flex min-w-[7rem] items-center justify-center rounded-[var(--sx-radius-md)] px-3 py-2 text-sm font-medium outline-none transition-[background-color,color,box-shadow] duration-[var(--sx-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] text-[color:var(--sx-color-foreground-muted)] hover:bg-[color:var(--sx-color-surface)] hover:text-[color:var(--sx-color-foreground)] data-[state=open]:bg-[color:var(--sx-color-surface)] data-[state=open]:text-[color:var(--sx-color-foreground)] data-[state=open]:shadow-[0_8px_18px_rgba(15,23,42,0.08)]",
         className,
       )}
-      onClick={(event) => {
-        context.setValue(context.value === item.value ? "" : item.value);
-        onClick?.(event);
-      }}
       {...props}
-    >
-      {children}
-    </button>
-  );
-});
+    />
+  ),
+);
 
 NavigationMenuTrigger.displayName = "NavigationMenuTrigger";
 
-export const NavigationMenuLink = React.forwardRef<
-  HTMLAnchorElement,
-  React.AnchorHTMLAttributes<HTMLAnchorElement>
->(({ className, ...props }, ref) => (
-  <a
-    ref={ref}
-    className={cn(
-      "inline-flex min-w-[7rem] items-center justify-center rounded-[var(--sx-radius-md)] px-3 py-2 text-sm font-medium text-[color:var(--sx-color-foreground-muted)] transition-[background-color,color] duration-[var(--sx-motion-fast)] hover:bg-[color:var(--sx-color-surface)] hover:text-[color:var(--sx-color-foreground)]",
-      className,
-    )}
-    {...props}
-  />
-));
+export interface NavigationMenuLinkProps
+  extends React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Link> {
+  readonly asChild?: boolean;
+}
 
-NavigationMenuLink.displayName = "NavigationMenuLink";
-
-export const NavigationMenuContent = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ children, className, id, ...props }, ref) => {
-  const context = useNavigationMenuContext();
-  const item = useNavigationMenuItemContext();
-  const isActive = context.value === item.value;
-
-  if (!isActive) {
-    return null;
-  }
-
-  const contentId = id ?? `sx-nav-content-${item.value}`;
-
-  return (
-    <div
+export const NavigationMenuLink = React.forwardRef<HTMLAnchorElement, NavigationMenuLinkProps>(
+  ({ className, ...props }, ref) => (
+    <NavigationMenuPrimitive.Link
       ref={ref}
-      id={contentId}
-      role="region"
-      aria-labelledby={`sx-nav-trigger-${item.value}`}
+      data-slot="navigation-menu-link"
       className={cn(
-        "rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-5 shadow-[0_12px_28px_rgba(15,23,42,0.06)]",
+        "inline-flex min-w-[7rem] items-center justify-center rounded-[var(--sx-radius-md)] px-3 py-2 text-sm font-medium text-[color:var(--sx-color-foreground-muted)] outline-none transition-[background-color,color] duration-[var(--sx-motion-fast)] hover:bg-[color:var(--sx-color-surface)] hover:text-[color:var(--sx-color-foreground)] focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] data-[active]:bg-[color:var(--sx-color-surface)] data-[active]:text-[color:var(--sx-color-foreground)]",
         className,
       )}
       {...props}
-    >
-      {children}
-    </div>
-  );
-});
+    />
+  ),
+);
+
+NavigationMenuLink.displayName = "NavigationMenuLink";
+
+export interface NavigationMenuContentProps
+  extends React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Content> {}
+
+export const NavigationMenuContent = React.forwardRef<HTMLDivElement, NavigationMenuContentProps>(
+  ({ className, ...props }, ref) => (
+    <NavigationMenuPrimitive.Content
+      ref={ref}
+      data-slot="navigation-menu-content"
+      className={cn(
+        "rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-5 shadow-[0_12px_28px_rgba(15,23,42,0.06)] data-[state=open]:animate-in data-[state=open]:fade-in-0",
+        className,
+      )}
+      {...props}
+    />
+  ),
+);
 
 NavigationMenuContent.displayName = "NavigationMenuContent";
 
-export const NavigationMenuViewport = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ children, className, ...props }, ref) => (
-  <div
-    ref={ref}
-    data-viewport="navigation-menu"
-    className={cn("flex flex-col gap-4", className)}
-    {...props}
-  >
-    {children}
-  </div>
-));
+export interface NavigationMenuViewportProps
+  extends React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Viewport> {}
+
+export const NavigationMenuViewport = React.forwardRef<HTMLDivElement, NavigationMenuViewportProps>(
+  ({ className, ...props }, ref) => (
+    <NavigationMenuPrimitive.Viewport
+      ref={ref}
+      data-slot="navigation-menu-viewport"
+      data-viewport="navigation-menu"
+      className={cn("flex flex-col gap-4", className)}
+      {...props}
+    />
+  ),
+);
 
 NavigationMenuViewport.displayName = "NavigationMenuViewport";

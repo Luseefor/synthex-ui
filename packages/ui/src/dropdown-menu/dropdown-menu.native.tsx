@@ -36,16 +36,22 @@ export interface DropdownMenuProps
   DropdownMenuSharedProps {
   readonly children: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
+  readonly dir?: "ltr" | "rtl";
+  readonly modal?: boolean;
 }
 
 export function DropdownMenu({
   children,
   defaultOpen,
+  dir,
+  modal,
   onOpenChange,
   open,
   style,
   ...props
 }: DropdownMenuProps) {
+  void dir;
+  void modal;
   const controller = useDropdownMenuController({ defaultOpen, onOpenChange, open });
 
   return (

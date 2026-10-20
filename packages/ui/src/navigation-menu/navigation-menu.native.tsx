@@ -22,21 +22,36 @@ import {
 
 export interface NavigationMenuProps extends Omit<ViewProps, "style">, NavigationMenuSharedProps {
   readonly style?: StyleProp<ViewStyle>;
+  readonly dir?: "ltr" | "rtl";
+  readonly orientation?: "horizontal" | "vertical";
+  readonly delayDuration?: number;
+  readonly skipDelayDuration?: number;
+  readonly testID?: string;
 }
 
 export function NavigationMenu({
   children,
   defaultValue,
+  delayDuration,
+  dir,
   onValueChange,
+  orientation,
+  skipDelayDuration,
   style,
+  testID,
   value,
   ...props
 }: NavigationMenuProps) {
+  // Web-only Radix props; accepted for API parity, ignored native (inline layout).
+  void delayDuration;
+  void dir;
+  void orientation;
+  void skipDelayDuration;
   const controller = useNavigationMenuController({ defaultValue, onValueChange, value });
 
   return (
     <NavigationMenuProvider value={controller}>
-      <View style={[{ gap: 16 }, style]} {...props}>
+      <View testID={testID ?? "navigation-menu"} style={[{ gap: 16 }, style]} {...props}>
         {children}
       </View>
     </NavigationMenuProvider>
@@ -45,17 +60,19 @@ export function NavigationMenu({
 
 export interface NavigationMenuListProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export const NavigationMenuList = React.forwardRef<
   React.ElementRef<typeof View>,
   NavigationMenuListProps
->(({ style, ...props }, ref) => {
+>(({ style, testID, ...props }, ref) => {
   const theme = useTheme();
 
   return (
     <View
       ref={ref}
+      testID={testID ?? "navigation-menu-list"}
       style={[
         {
           flexDirection: "row",
@@ -81,14 +98,15 @@ export interface NavigationMenuItemProps
   extends Omit<ViewProps, "style">,
     NavigationMenuItemSharedProps {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export const NavigationMenuItem = React.forwardRef<
   React.ElementRef<typeof View>,
   NavigationMenuItemProps
->(({ children, style, value, ...props }, ref) => (
+>(({ children, style, testID, value, ...props }, ref) => (
   <NavigationMenuItemProvider value={{ value }}>
-    <View ref={ref} style={style} {...props}>
+    <View ref={ref} testID={testID ?? "navigation-menu-item"} style={style} {...props}>
       {children}
     </View>
   </NavigationMenuItemProvider>
@@ -100,12 +118,16 @@ export interface NavigationMenuTriggerProps extends Omit<PressableProps, "style"
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
   readonly textStyle?: StyleProp<TextStyle>;
+  readonly asChild?: boolean;
+  readonly testID?: string;
 }
 
 export const NavigationMenuTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   NavigationMenuTriggerProps
->(({ children, onPress, style, textStyle, ...props }, ref) => {
+>(({ children, onPress, style, textStyle, asChild, testID, ...props }, ref) => {
+  // `asChild` is web-only (Radix Slot); accepted for parity, ignored native.
+  void asChild;
   const context = useNavigationMenuContext();
   const item = useNavigationMenuItemContext();
   const theme = useTheme();
@@ -114,6 +136,7 @@ export const NavigationMenuTrigger = React.forwardRef<
   return (
     <Pressable
       ref={ref}
+      testID={testID ?? "navigation-menu-trigger"}
       accessibilityRole="button"
       accessibilityState={{ expanded: isActive }}
       onPress={(event) => {
@@ -158,17 +181,22 @@ export interface NavigationMenuLinkProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
   readonly textStyle?: StyleProp<TextStyle>;
+  readonly asChild?: boolean;
+  readonly testID?: string;
 }
 
 export const NavigationMenuLink = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   NavigationMenuLinkProps
->(({ children, style, textStyle, ...props }, ref) => {
+>(({ children, style, textStyle, asChild, testID, ...props }, ref) => {
+  // `asChild` is web-only (Radix Slot); accepted for parity, ignored native.
+  void asChild;
   const theme = useTheme();
 
   return (
     <Pressable
       ref={ref}
+      testID={testID ?? "navigation-menu-link"}
       style={({ pressed }) => [
         {
           minWidth: 112,
@@ -204,12 +232,13 @@ NavigationMenuLink.displayName = "NavigationMenuLink";
 
 export interface NavigationMenuContentProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export const NavigationMenuContent = React.forwardRef<
   React.ElementRef<typeof View>,
   NavigationMenuContentProps
->(({ children, style, ...props }, ref) => {
+>(({ children, style, testID, ...props }, ref) => {
   const context = useNavigationMenuContext();
   const item = useNavigationMenuItemContext();
   const theme = useTheme();
@@ -222,6 +251,7 @@ export const NavigationMenuContent = React.forwardRef<
   return (
     <View
       ref={ref}
+      testID={testID ?? "navigation-menu-content"}
       style={[
         {
           borderRadius: theme.radius.xl,
@@ -244,9 +274,9 @@ NavigationMenuContent.displayName = "NavigationMenuContent";
 // Web-only viewport container; on native content renders inline. Provided for API parity.
 export const NavigationMenuViewport = React.forwardRef<
   React.ElementRef<typeof View>,
-  Omit<ViewProps, "style"> & { readonly style?: StyleProp<ViewStyle> }
->(({ style, ...props }, ref) => (
-  <View ref={ref} style={[{ gap: 16 }, style]} {...props} />
+  Omit<ViewProps, "style"> & { readonly style?: StyleProp<ViewStyle>; readonly testID?: string }
+>(({ style, testID, ...props }, ref) => (
+  <View ref={ref} testID={testID ?? "navigation-menu-viewport"} style={[{ gap: 16 }, style]} {...props} />
 ));
 
 NavigationMenuViewport.displayName = "NavigationMenuViewport";

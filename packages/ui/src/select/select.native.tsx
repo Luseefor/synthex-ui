@@ -25,20 +25,33 @@ export interface SelectProps
   extends Omit<ViewProps, "style">,
     SelectSharedProps {
   readonly style?: StyleProp<ViewStyle>;
+  readonly dir?: "ltr" | "rtl";
+  readonly disabled?: boolean;
+  readonly name?: string;
+  readonly required?: boolean;
 }
 
 export function Select({
   children,
   defaultOpen,
   defaultValue,
+  dir,
+  disabled,
+  name,
   onOpenChange,
   onValueChange,
   open,
   placeholder,
+  required,
   style,
+  testID,
   value,
   ...props
 }: SelectProps) {
+  void dir;
+  void disabled;
+  void name;
+  void required;
   const controller = useSelectController({
     defaultOpen,
     defaultValue,
@@ -51,7 +64,8 @@ export function Select({
 
   return (
     <SelectProvider value={controller}>
-      <View style={style} {...props}>
+      {/* testID mirrors web `data-slot="select"` for parity. */}
+      <View testID={testID ?? "select"} style={style} {...props}>
         {children}
       </View>
     </SelectProvider>
@@ -61,18 +75,21 @@ export function Select({
 export interface SelectTriggerProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
+  readonly asChild?: boolean;
 }
 
 export const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   SelectTriggerProps
->(({ children, onPress, style, ...props }, ref) => {
+>(({ children, onPress, style, asChild, testID, ...props }, ref) => {
   const context = useSelectContext();
+  void asChild;
   const theme = useTheme();
 
   return (
     <Pressable
       ref={ref}
+      testID={testID ?? "select-trigger"}
       accessibilityRole="button"
       accessibilityState={{ expanded: context.open }}
       onPress={(event) => {
@@ -104,18 +121,21 @@ SelectTrigger.displayName = "SelectTrigger";
 
 export interface SelectValueProps extends Omit<TextProps, "style"> {
   readonly style?: StyleProp<TextStyle>;
+  readonly placeholder?: string;
 }
 
 export const SelectValue = React.forwardRef<React.ElementRef<typeof Text>, SelectValueProps>(
-  ({ children, style, ...props }, ref) => {
+  ({ children, placeholder: valuePlaceholder, style, testID, ...props }, ref) => {
     const context = useSelectContext();
     const theme = useTheme();
     const selectedLabel = context.getLabel(context.value);
     void context.labelVersion;
+    const placeholder = valuePlaceholder ?? context.placeholder ?? "Select an option";
 
     return (
       <Text
         ref={ref}
+        testID={testID ?? "select-value"}
         numberOfLines={1}
         style={[
           {
@@ -132,7 +152,7 @@ export const SelectValue = React.forwardRef<React.ElementRef<typeof Text>, Selec
       >
         {typeof children === "string" || typeof children === "number"
           ? children
-          : selectedLabel ?? context.placeholder ?? "Select an option"}
+          : selectedLabel ?? placeholder}
       </Text>
     );
   },
@@ -142,12 +162,22 @@ SelectValue.displayName = "SelectValue";
 
 export interface SelectContentProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
+  readonly position?: "item-aligned" | "popper";
+  readonly side?: "top" | "right" | "bottom" | "left";
+  readonly align?: "start" | "center" | "end";
+  readonly sideOffset?: number;
+  readonly alignOffset?: number;
 }
 
 export const SelectContent = React.forwardRef<
   React.ElementRef<typeof View>,
   SelectContentProps
->(({ style, ...props }, ref) => {
+>(({ style, position, side, align, sideOffset, alignOffset, testID, ...props }, ref) => {
+  void position;
+  void side;
+  void align;
+  void sideOffset;
+  void alignOffset;
   const context = useSelectContext();
   const theme = useTheme();
 
@@ -158,6 +188,7 @@ export const SelectContent = React.forwardRef<
   return (
     <View
       ref={ref}
+      testID={testID ?? "select-content"}
       style={[
         {
           marginTop: 8,
@@ -186,7 +217,7 @@ export interface SelectItemProps
 }
 
 export const SelectItem = React.forwardRef<React.ElementRef<typeof Pressable>, SelectItemProps>(
-  ({ children, onPress, style, textStyle, textValue, value, ...props }, ref) => {
+  ({ children, onPress, style, textStyle, textValue, testID, value, ...props }, ref) => {
     const context = useSelectContext();
     const theme = useTheme();
     const active = context.value === value;
@@ -201,6 +232,7 @@ export const SelectItem = React.forwardRef<React.ElementRef<typeof Pressable>, S
     return (
       <Pressable
         ref={ref}
+        testID={testID ?? "select-item"}
         accessibilityRole="button"
         accessibilityState={{ selected: active }}
         onPress={(event) => {
@@ -253,7 +285,9 @@ export interface SelectGroupProps extends Omit<ViewProps, "style"> {
 }
 
 export const SelectGroup = React.forwardRef<React.ElementRef<typeof View>, SelectGroupProps>(
-  ({ style, ...props }, ref) => <View ref={ref} style={style} {...props} />,
+  ({ style, testID, ...props }, ref) => (
+    <View ref={ref} testID={testID ?? "select-group"} style={style} {...props} />
+  ),
 );
 
 SelectGroup.displayName = "SelectGroup";
@@ -263,12 +297,13 @@ export interface SelectLabelProps extends Omit<TextProps, "style"> {
 }
 
 export const SelectLabel = React.forwardRef<React.ElementRef<typeof Text>, SelectLabelProps>(
-  ({ style, ...props }, ref) => {
+  ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
     return (
       <Text
         ref={ref}
+        testID={testID ?? "select-label"}
         style={[
           {
             color: theme.colors.foregroundMuted,
@@ -297,12 +332,13 @@ export interface SelectSeparatorProps extends Omit<ViewProps, "style"> {
 export const SelectSeparator = React.forwardRef<
   React.ElementRef<typeof View>,
   SelectSeparatorProps
->(({ style, ...props }, ref) => {
+>(({ style, testID, ...props }, ref) => {
   const theme = useTheme();
 
   return (
     <View
       ref={ref}
+      testID={testID ?? "select-separator"}
       accessibilityRole="none"
       style={[
         {
@@ -321,14 +357,18 @@ SelectSeparator.displayName = "SelectSeparator";
 
 export interface SelectScrollButtonProps extends Omit<PressableProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
+  readonly scrollAmount?: number;
 }
 
 export const SelectScrollUpButton = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   SelectScrollButtonProps
->(({ onPress, style, ...props }, ref) => (
+>(({ onPress, style, scrollAmount, testID, ...props }, ref) => {
+  void scrollAmount;
+  return (
   <Pressable
     ref={ref}
+    testID={testID ?? "select-scroll-up-button"}
     accessibilityRole="button"
     accessibilityLabel="Scroll up"
     onPress={onPress}
@@ -339,16 +379,20 @@ export const SelectScrollUpButton = React.forwardRef<
       <ChevronDownIcon size={14} />
     </View>
   </Pressable>
-));
+  );
+});
 
 SelectScrollUpButton.displayName = "SelectScrollUpButton";
 
 export const SelectScrollDownButton = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   SelectScrollButtonProps
->(({ onPress, style, ...props }, ref) => (
+>(({ onPress, style, scrollAmount, testID, ...props }, ref) => {
+  void scrollAmount;
+  return (
   <Pressable
     ref={ref}
+    testID={testID ?? "select-scroll-down-button"}
     accessibilityRole="button"
     accessibilityLabel="Scroll down"
     onPress={onPress}
@@ -357,7 +401,8 @@ export const SelectScrollDownButton = React.forwardRef<
   >
     <ChevronDownIcon size={14} />
   </Pressable>
-));
+  );
+});
 
 SelectScrollDownButton.displayName = "SelectScrollDownButton";
 
@@ -366,12 +411,13 @@ export interface SelectArrowProps extends Omit<ViewProps, "style"> {
 }
 
 export const SelectArrow = React.forwardRef<React.ElementRef<typeof View>, SelectArrowProps>(
-  ({ style, ...props }, ref) => {
+  ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
     return (
       <View
         ref={ref}
+        testID={testID ?? "select-arrow"}
         accessible={false}
         style={[
           {
