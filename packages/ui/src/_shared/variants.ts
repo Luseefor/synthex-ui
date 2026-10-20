@@ -1,5 +1,9 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { cva as baseCva, type VariantProps as CvaVariantProps } from "class-variance-authority";
+
+export { baseCva as cva };
+export type { CvaVariantProps };
 
 type VariantOptions = Record<string, readonly string[]>;
 type VariantSelection<TVariants extends VariantOptions> = Partial<{
@@ -13,6 +17,10 @@ export interface VariantDefinition<TVariants extends VariantOptions> {
 
 export type VariantProps<TDefinition extends VariantDefinition<VariantOptions>> =
   VariantSelection<TDefinition["variants"]>;
+
+export type SynthexVariantProps<TDefinition extends VariantDefinition<VariantOptions>> =
+  VariantSelection<TDefinition["variants"]>;
+export type CvaProps<T extends (...args: never[]) => unknown> = CvaVariantProps<T>;
 
 export type ResolvedVariants<TDefinition extends VariantDefinition<VariantOptions>> = {
   readonly [K in keyof TDefinition["variants"]]: TDefinition["variants"][K][number];

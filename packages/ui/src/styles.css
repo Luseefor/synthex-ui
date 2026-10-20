@@ -101,6 +101,33 @@
   --sx-shadow-toast: 0 16px 48px -12px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.04);
   --sx-shadow-dropdown: 0 12px 36px -8px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.04);
   --sx-shadow-dialog: 0 24px 64px -16px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.04);
+
+  /* ── shadcn aliases (same values, shadcn names) ─────────── */
+  --background: var(--sx-color-background);
+  --foreground: var(--sx-color-foreground);
+  --card: var(--sx-color-surface);
+  --card-foreground: var(--sx-color-foreground);
+  --popover: var(--sx-color-surface);
+  --popover-foreground: var(--sx-color-foreground);
+  --primary: var(--sx-color-primary);
+  --primary-foreground: var(--sx-color-foreground-on-brand);
+  --secondary: var(--sx-color-secondary);
+  --secondary-foreground: var(--sx-color-foreground);
+  --muted: var(--sx-color-surface-muted);
+  --muted-foreground: var(--sx-color-foreground-muted);
+  --accent: var(--sx-color-accent);
+  --accent-foreground: var(--sx-color-foreground);
+  --destructive: var(--sx-color-destructive);
+  --destructive-foreground: var(--sx-color-foreground-on-brand);
+  --border: var(--sx-color-border);
+  --input: var(--sx-color-border);
+  --ring: var(--sx-color-ring);
+  --radius: var(--sx-radius-lg);
+  --chart-1: var(--sx-color-primary);
+  --chart-2: var(--sx-color-accent);
+  --chart-3: #0f766e;
+  --chart-4: #9333ea;
+  --chart-5: var(--sx-color-secondary);
 }
 
 /* ── Keyframe Animations ───────────────────────────────── */
