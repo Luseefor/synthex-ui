@@ -40,7 +40,11 @@
   "scripts": {
     "build": "rm -rf ./dist && npx tsc -p tsconfig.build.json",
     "dev": "bun --watch run ./src/index.ts",
-    "typecheck": "npx tsc -p tsconfig.json --noEmit"
+    "typecheck": "npx tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^5.0.5"
   },
   "sideEffects": false
 }
