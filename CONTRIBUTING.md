@@ -36,7 +36,7 @@ Root suite covers `synthex-ui` + `react-web`:
 bun run test
 ```
 
-Core and CLI have their own suites — run them explicitly:
+Core and CLI keep separate suites. Run those directly:
 
 ```sh
 bun run test --workspace @luseefor/synthex-core
@@ -49,18 +49,18 @@ bun run test --workspace @luseefor/synthex-react-web
 
 - Add a changeset for any user-facing change: `bunx changeset`
 - Pick patch/minor/major per package. CI runs `npx changeset status --since=origin/main`.
-- Release is automated via `changesets/action` (`bunx changeset publish` on `main`).
+- `changesets/action` automates the release (`bunx changeset publish` on `main`).
 
 ## Registry + tokens regen
 
-`registry.json` is generated — do not hand-edit:
+A script writes `registry.json`. Do not hand-edit it:
 
 ```sh
 node ./scripts/generate-registry.mjs
 git diff --exit-code registry.json
 ```
 
-Design tokens are generated from `packages/ui/src/_shared/tokens/`:
+A script builds design tokens from `packages/ui/src/_shared/tokens/`:
 
 ```sh
 node ./scripts/export-tokens.mjs

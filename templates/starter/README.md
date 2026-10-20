@@ -1,4 +1,4 @@
-# Synthex Starter
+# Synthex starter
 
 Minimal Vite + React + TS starter using `synthex-ui`.
 
