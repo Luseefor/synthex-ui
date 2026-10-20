@@ -15,6 +15,7 @@ export interface SwitchSharedProps {
   readonly checked?: boolean;
   readonly defaultChecked?: boolean;
   readonly onCheckedChange?: (checked: boolean) => void;
+  readonly required?: boolean;
   readonly uiSize?: SwitchVariantProps["size"];
 }
 

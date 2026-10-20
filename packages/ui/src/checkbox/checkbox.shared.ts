@@ -13,11 +13,14 @@ export const checkboxVariants = defineVariants({
 
 export type CheckboxVariantProps = VariantProps<typeof checkboxVariants>;
 
+export type CheckboxCheckedState = boolean | "indeterminate";
+
 export interface CheckboxSharedProps {
-  readonly checked?: boolean;
-  readonly defaultChecked?: boolean;
+  readonly checked?: CheckboxCheckedState;
+  readonly defaultChecked?: CheckboxCheckedState;
   readonly invalid?: boolean;
   readonly onCheckedChange?: (checked: boolean) => void;
+  readonly required?: boolean;
   readonly uiSize?: CheckboxVariantProps["size"];
 }
 

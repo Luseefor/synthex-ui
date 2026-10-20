@@ -10,7 +10,8 @@ export const buttonVariants = defineVariants({
       "outline",
       "link",
     ] as const,
-    size: ["sm", "md", "lg", "icon"] as const,
+    // "default" is an alias of "md" (md remains the default size).
+    size: ["default", "sm", "md", "lg", "icon"] as const,
   },
   defaultVariants: {
     variant: "default",

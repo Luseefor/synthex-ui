@@ -13,6 +13,7 @@ import { resolveSwitchVariants, type SwitchSharedProps } from "./switch.shared";
 export interface SwitchProps
   extends Omit<PressableProps, "children" | "style">,
     SwitchSharedProps {
+  readonly name?: string;
   readonly style?: StyleProp<ViewStyle>;
 }
 
@@ -22,8 +23,11 @@ export const Switch = React.forwardRef<React.ElementRef<typeof Pressable>, Switc
       checked,
       defaultChecked = false,
       disabled,
+      // Accepted for web form-parity; no native form element to forward to.
+      name: _name,
       onCheckedChange,
       onPress,
+      required: _required,
       style,
       uiSize,
       ...props

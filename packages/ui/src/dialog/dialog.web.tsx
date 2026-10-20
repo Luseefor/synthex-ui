@@ -1,6 +1,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../_shared/variants";
+import { useA11yId, useFocusTrap } from "../_shared/a11y.web";
 import { CloseIcon } from "../icons/index.web";
 import {
   DialogProvider,
@@ -33,13 +34,26 @@ export const DialogTrigger = React.forwardRef<
     [context, onClick]
   );
 
-  if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
+  type AsChildProps = {
+    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    [key: string]: unknown;
+  };
+
+  const triggerA11y = {
+    id: props.id ?? context.triggerId,
+    "aria-haspopup": "dialog" as const,
+    "aria-expanded": context.open,
+    "aria-controls": context.contentId,
+  };
+
+  if (asChild && React.isValidElement<AsChildProps>(children)) {
+    return React.cloneElement(children, {
       ref,
+      ...triggerA11y,
       ...props,
-      onClick: (e: any) => {
+      onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
         handleClick(e);
-        (children.props as any).onClick?.(e);
+        children.props.onClick?.(e);
       },
     });
   }
@@ -48,6 +62,7 @@ export const DialogTrigger = React.forwardRef<
     <button
       ref={ref}
       type={type}
+      {...triggerA11y}
       onClick={(event) => {
         context.setOpen(true);
         onClick?.(event);
@@ -75,13 +90,18 @@ export const DialogClose = React.forwardRef<
     [context, onClick]
   );
 
-  if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
+  type AsChildProps = {
+    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    [key: string]: unknown;
+  };
+
+  if (asChild && React.isValidElement<AsChildProps>(children)) {
+    return React.cloneElement(children, {
       ref,
       ...props,
-      onClick: (e: any) => {
+      onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
         handleClick(e);
-        (children.props as any).onClick?.(e);
+        children.props.onClick?.(e);
       },
     });
   }
@@ -104,12 +124,29 @@ export const DialogClose = React.forwardRef<
 DialogClose.displayName = "DialogClose";
 
 export interface DialogContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  readonly dismissible?: boolean;
   readonly hideClose?: boolean;
+  readonly role?: "dialog" | "alertdialog";
 }
 
 export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
-  ({ children, className, hideClose = false, onClick, ...props }, ref) => {
+  (
+    { children, className, dismissible = true, hideClose = false, onClick, role = "dialog", ...props },
+    ref,
+  ) => {
     const context = useDialogContext();
+    const innerRef = React.useRef<HTMLDivElement | null>(null);
+
+    const setRefs = React.useCallback(
+      (node: HTMLDivElement | null) => {
+        innerRef.current = node;
+        if (typeof ref === "function") ref(node);
+        else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+      },
+      [ref],
+    );
+
+    useFocusTrap(context.open, innerRef);
 
     React.useEffect(() => {
       if (!context.open) {
@@ -118,6 +155,9 @@ export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps
 
       const handleEscape = (event: KeyboardEvent) => {
         if (event.key === "Escape") {
+          if (!dismissible) {
+            return;
+          }
           context.setOpen(false);
         }
       };
@@ -129,7 +169,7 @@ export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps
         document.removeEventListener("keydown", handleEscape);
         document.body.style.overflow = "";
       };
-    }, [context]);
+    }, [context, dismissible]);
 
     if (!context.open) {
       return null;
@@ -141,16 +181,24 @@ export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps
         <div
           className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-[6px]"
           style={{ animation: "sx-overlay-in 200ms var(--sx-easing-standard)" }}
-          onClick={() => context.setOpen(false)}
+          onClick={() => {
+            if (dismissible) {
+              context.setOpen(false);
+            }
+          }}
         />
         {/* Content */}
         <div
           className="fixed left-1/2 top-1/2 z-[101] w-full max-w-lg -translate-x-1/2 -translate-y-1/2"
-          role="dialog"
+          role={role}
           aria-modal="true"
+          aria-labelledby={context.titleId ?? undefined}
+          aria-describedby={context.descriptionId ?? undefined}
+          id={context.contentId}
         >
           <div
-            ref={ref}
+            ref={setRefs}
+            tabIndex={-1}
             className={cn(
               "relative w-full rounded-[var(--sx-radius-xl)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-6 shadow-[var(--sx-shadow-dialog)]",
               className,
@@ -166,7 +214,7 @@ export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps
               <button
                 type="button"
                 aria-label="Close dialog"
-                className="absolute right-4 top-4 inline-flex h-7 w-7 items-center justify-center rounded-[var(--sx-radius-sm)] text-[color:var(--sx-color-foreground-muted)] opacity-70 transition-all duration-[var(--sx-motion-fast)] hover:opacity-100 hover:bg-[color:var(--sx-color-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)]"
+                className="absolute end-4 top-4 inline-flex h-7 w-7 items-center justify-center rounded-[var(--sx-radius-sm)] text-[color:var(--sx-color-foreground-muted)] opacity-70 transition-all duration-[var(--sx-motion-fast)] hover:opacity-100 hover:bg-[color:var(--sx-color-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)]"
                 onClick={() => context.setOpen(false)}
               >
                 <CloseIcon size={15} />
@@ -187,7 +235,7 @@ export const DialogHeader = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("flex flex-col gap-1.5 text-left", className)} {...props} />
+  <div ref={ref} className={cn("flex flex-col gap-1.5 text-start", className)} {...props} />
 ));
 
 DialogHeader.displayName = "DialogHeader";
@@ -195,29 +243,49 @@ DialogHeader.displayName = "DialogHeader";
 export const DialogTitle = React.forwardRef<
   HTMLHeadingElement,
   React.HTMLAttributes<HTMLHeadingElement>
->(({ className, ...props }, ref) => (
-  <h2
-    ref={ref}
-    className={cn(
-      "text-lg font-semibold leading-none tracking-[-0.02em] text-[color:var(--sx-color-foreground)]",
-      className,
-    )}
-    {...props}
-  />
-));
+>(({ className, id, ...props }, ref) => {
+  const context = useDialogContext();
+  const generatedId = useA11yId("sx-dialog-title");
+  const titleId = id ?? generatedId;
+  React.useEffect(() => {
+    context.setTitleId(titleId);
+    return () => context.setTitleId(null);
+  }, [context, titleId]);
+  return (
+    <h2
+      ref={ref}
+      id={titleId}
+      className={cn(
+        "text-lg font-semibold leading-none tracking-[-0.02em] text-[color:var(--sx-color-foreground)]",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
 
 DialogTitle.displayName = "DialogTitle";
 
 export const DialogDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
->(({ className, ...props }, ref) => (
-  <p
-    ref={ref}
-    className={cn("text-sm leading-relaxed text-[color:var(--sx-color-foreground-muted)]", className)}
-    {...props}
-  />
-));
+>(({ className, id, ...props }, ref) => {
+  const context = useDialogContext();
+  const generatedId = useA11yId("sx-dialog-desc");
+  const descId = id ?? generatedId;
+  React.useEffect(() => {
+    context.setDescriptionId(descId);
+    return () => context.setDescriptionId(null);
+  }, [context, descId]);
+  return (
+    <p
+      ref={ref}
+      id={descId}
+      className={cn("text-sm leading-relaxed text-[color:var(--sx-color-foreground-muted)]", className)}
+      {...props}
+    />
+  );
+});
 
 DialogDescription.displayName = "DialogDescription";
 
