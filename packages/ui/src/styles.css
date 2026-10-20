@@ -130,6 +130,35 @@
   --chart-5: var(--sx-color-secondary);
 }
 
+/* ── Tailwind v4 theme tokens ─────────────────────────────────
+   Maps shadcn utility names (bg-primary, text-muted-foreground,
+   border-border, ring-ring, ...) to the --sx-* token surface above.
+   `inline` keeps the var() reference so dark mode and ThemeProvider
+   overrides propagate at runtime, including opacity modifiers
+   (bg-primary/20 resolves via color-mix). Without this block none of
+   those utilities generate any CSS. */
+@theme inline {
+  --color-background: var(--sx-color-background);
+  --color-foreground: var(--sx-color-foreground);
+  --color-card: var(--sx-color-surface);
+  --color-card-foreground: var(--sx-color-foreground);
+  --color-popover: var(--sx-color-surface);
+  --color-popover-foreground: var(--sx-color-foreground);
+  --color-primary: var(--sx-color-primary);
+  --color-primary-foreground: var(--sx-color-foreground-on-brand);
+  --color-secondary: var(--sx-color-secondary);
+  --color-secondary-foreground: var(--sx-color-foreground);
+  --color-muted: var(--sx-color-surface-muted);
+  --color-muted-foreground: var(--sx-color-foreground-muted);
+  --color-accent: var(--sx-color-accent);
+  --color-accent-foreground: var(--sx-color-foreground);
+  --color-destructive: var(--sx-color-destructive);
+  --color-destructive-foreground: var(--sx-color-foreground-on-brand);
+  --color-border: var(--sx-color-border);
+  --color-input: var(--sx-color-border);
+  --color-ring: var(--sx-color-ring);
+}
+
 /* ── Keyframe Animations ───────────────────────────────── */
 @keyframes sx-fade-in {
   from {
