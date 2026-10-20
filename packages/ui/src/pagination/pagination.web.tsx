@@ -8,6 +8,7 @@ export const Pagination = React.forwardRef<HTMLElement, React.HTMLAttributes<HTM
     <nav
       ref={ref}
       aria-label="Pagination"
+      data-slot="pagination"
       className={cn("flex w-full justify-center", className)}
       {...props}
     />
@@ -22,6 +23,7 @@ export const PaginationContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ul
     ref={ref}
+    data-slot="pagination-content"
     className={cn("flex flex-row flex-wrap items-center justify-center gap-2", className)}
     {...props}
   />
@@ -33,7 +35,7 @@ export const PaginationItem = React.forwardRef<
   HTMLLIElement,
   React.LiHTMLAttributes<HTMLLIElement>
 >(({ className, ...props }, ref) => (
-  <li ref={ref} className={cn("list-none", className)} {...props} />
+  <li ref={ref} data-slot="pagination-item" className={cn("list-none", className)} {...props} />
 ));
 
 PaginationItem.displayName = "PaginationItem";
@@ -47,9 +49,11 @@ export const PaginationLink = React.forwardRef<HTMLButtonElement, PaginationLink
     <button
       ref={ref}
       type={type}
+      data-slot="pagination-link"
+      data-active={isActive}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "inline-flex h-10 min-w-10 items-center justify-center rounded-[var(--sx-radius-md)] border px-3 text-sm font-medium tracking-[-0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--sx-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)]",
+        "inline-flex h-10 min-w-10 items-center justify-center rounded-[var(--sx-radius-md)] border px-3 text-sm font-medium tracking-[-0.01em] transition-[background-color,border-color,color,box-shadow] duration-[var(--sx-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-background)]",
         isActive
           ? "border-[color:var(--sx-color-primary)] bg-[color:var(--sx-color-primary)] text-[color:var(--sx-color-foreground-on-brand)] shadow-[0_8px_20px_rgba(29,78,216,0.18)]"
           : "border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] text-[color:var(--sx-color-foreground)] hover:border-[color:var(--sx-color-border-strong)] hover:bg-[color:var(--sx-color-surface-muted)]",
@@ -66,7 +70,7 @@ export const PaginationPrevious = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement>
 >(({ children = "Previous", className, ...props }, ref) => (
-  <PaginationLink ref={ref} className={cn("gap-2 ps-3.5 pe-4", className)} {...props}>
+  <PaginationLink ref={ref} data-slot="pagination-previous" className={cn("gap-2 ps-3.5 pe-4", className)} {...props}>
     <ChevronLeftIcon size={16} />
     {children}
   </PaginationLink>
@@ -78,7 +82,7 @@ export const PaginationNext = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement>
 >(({ children = "Next", className, ...props }, ref) => (
-  <PaginationLink ref={ref} className={cn("gap-2 ps-4 pe-3.5", className)} {...props}>
+  <PaginationLink ref={ref} data-slot="pagination-next" className={cn("gap-2 ps-4 pe-3.5", className)} {...props}>
     {children}
     <ChevronRightIcon size={16} />
   </PaginationLink>
@@ -93,6 +97,7 @@ export function PaginationEllipsis({
   return (
     <span
       aria-hidden="true"
+      data-slot="pagination-ellipsis"
       className={cn(
         "inline-flex h-10 min-w-10 items-center justify-center text-sm text-[color:var(--sx-color-foreground-muted)]",
         className,

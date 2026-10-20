@@ -1,6 +1,13 @@
 import * as React from "react";
 import { useControllableState } from "../hooks/useControllableState";
 
+export type CalendarMode = "single" | "multiple" | "range";
+
+export interface CalendarDateRange {
+  readonly from: Date | undefined;
+  readonly to?: Date | undefined;
+}
+
 export interface CalendarSharedProps {
   readonly defaultMonth?: Date;
   readonly defaultValue?: Date;
@@ -8,6 +15,16 @@ export interface CalendarSharedProps {
   readonly onMonthChange?: (month: Date) => void;
   readonly onValueChange?: (value?: Date) => void;
   readonly value?: Date;
+  /** Selection mode. Defaults to "single" for legacy compat. */
+  readonly mode?: CalendarMode;
+  /** New API selected value (single / multiple / range). */
+  readonly selected?: Date | readonly Date[] | CalendarDateRange | undefined;
+  readonly defaultSelected?: Date | readonly Date[] | CalendarDateRange | undefined;
+  readonly onSelect?: (
+    selected: Date | readonly Date[] | CalendarDateRange | undefined,
+  ) => void;
+  readonly required?: boolean;
+  readonly numberOfMonths?: number;
 }
 
 export interface CalendarDayCell {
@@ -72,6 +89,77 @@ export function createCalendarGrid(month: Date): readonly CalendarDayCell[] {
       key: `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`,
     };
   });
+}
+
+export function isDateInRange(date: Date, range?: CalendarDateRange): boolean {
+  if (!range?.from || !range?.to) return false;
+  const time = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  const from = new Date(
+    range.from.getFullYear(),
+    range.from.getMonth(),
+    range.from.getDate(),
+  ).getTime();
+  const to = new Date(
+    range.to.getFullYear(),
+    range.to.getMonth(),
+    range.to.getDate(),
+  ).getTime();
+  const [start, end] = from <= to ? [from, to] : [to, from];
+  return time >= start && time <= end;
+}
+
+export function toggleDateInSelection(
+  date: Date,
+  current: readonly Date[] | undefined,
+): Date[] {
+  const list = current ? [...current] : [];
+  const index = list.findIndex((entry) => isSameDay(entry, date));
+  if (index >= 0) {
+    list.splice(index, 1);
+  } else {
+    list.push(date);
+  }
+  return list;
+}
+
+export function updateRangeSelection(
+  date: Date,
+  current?: CalendarDateRange,
+): CalendarDateRange {
+  if (!current?.from || (current.from && current.to)) {
+    return { from: date, to: undefined };
+  }
+  const from = current.from;
+  if (isSameDay(from, date)) {
+    return { from: date, to: undefined };
+  }
+  return date.getTime() >= from.getTime()
+    ? { from, to: date }
+    : { from: date, to: from };
+}
+
+export function resolveLegacySelected(props: CalendarSharedProps): {
+  mode: CalendarMode;
+  selected: Date | readonly Date[] | CalendarDateRange | undefined;
+} {
+  const mode = props.mode ?? "single";
+  if (props.selected !== undefined || props.defaultSelected !== undefined) {
+    return {
+      mode,
+      selected: (props.selected ?? props.defaultSelected) as
+        | Date
+        | readonly Date[]
+        | CalendarDateRange
+        | undefined,
+    };
+  }
+  if (mode === "single") {
+    return { mode, selected: props.value ?? props.defaultValue };
+  }
+  if (mode === "multiple") {
+    return { mode, selected: [] };
+  }
+  return { mode, selected: { from: undefined, to: undefined } };
 }
 
 export function useCalendarController({

@@ -17,6 +17,7 @@ import { useTheme } from "../_shared/theme/context";
 import {
   CommandProvider,
   matchesCommandQuery,
+  resolveCommandSearch,
   useCommandContext,
   useCommandController,
   type CommandItemSharedProps,
@@ -32,17 +33,34 @@ export interface CommandProps
 export function Command({
   children,
   defaultQuery,
+  defaultValue,
+  label: _label,
+  filter: _filter,
+  loop: _loop,
   onQueryChange,
+  onValueChange,
   query,
+  value,
   shouldFilter,
   style,
   ...props
 }: CommandProps) {
+  void _label;
+  void _filter;
+  void _loop;
   const theme = useTheme();
-  const controller = useCommandController({
+  const resolved = resolveCommandSearch({
     defaultQuery,
+    defaultValue,
     onQueryChange,
+    onValueChange,
     query,
+    value,
+  });
+  const controller = useCommandController({
+    defaultQuery: resolved.defaultQuery,
+    onQueryChange: resolved.onQueryChange,
+    query: resolved.query,
     shouldFilter,
   });
 

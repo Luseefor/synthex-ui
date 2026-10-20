@@ -1,15 +1,13 @@
 /**
- * Chart primitives use hand-rolled SVG (inline <svg> on web, react-native-svg
- * on native). No recharts dependency is intentional: it keeps the bundle
- * small and works cross-platform with a single shared data model.
+ * Chart primitives use recharts on web and hand-rolled react-native-svg on
+ * native, sharing a single data model (`ChartSeries`).
  *
- * shadcn chart-compat layer (no recharts):
- * Only API names match shadcn (`ChartConfig`, `ChartStyle`,
+ * shadcn chart-compat layer (recharts):
+ * API names match shadcn (`ChartConfig`, `ChartStyle`,
  * `ChartContainer config`, `ChartTooltipContent indicator/labelKey`,
- * `ChartLegendContent`). Rendering stays hand-rolled. `config` maps series
- * keys to `{ label, color }`; on web colors become `--color-<key>` CSS vars
- * via `ChartStyle` / `ChartContainer style`. On native `config` is
- * accepted for type parity and ignored (theme colors are used directly).
+ * `ChartLegendContent`). `config` maps series keys to `{ label, color }`;
+ * on web colors become `--color-<key>` CSS vars via `ChartStyle` /
+ * `ChartContainer style`. On native `config` is accepted for type parity.
  */
 import type { ReactNode } from "react";
 
@@ -38,6 +36,7 @@ export interface BaseChartSharedProps {
   readonly series: readonly ChartSeries[];
   readonly height?: number;
   readonly ariaLabel?: string;
+  readonly config?: ChartConfig;
 }
 
 export interface ChartContainerSharedProps {
@@ -46,21 +45,31 @@ export interface ChartContainerSharedProps {
 }
 
 export interface ChartLegendSharedProps {
-  readonly series: readonly ChartSeries[];
+  readonly series?: readonly ChartSeries[];
+  readonly payload?: readonly { readonly value?: unknown; readonly color?: string; readonly dataKey?: unknown }[];
+  readonly config?: ChartConfig;
 }
 
 export interface ChartTooltipItem {
   readonly label: string;
   readonly value: string | number;
   readonly color?: string;
+  readonly dataKey?: string;
 }
 
 export interface ChartTooltipContentSharedProps {
   readonly label?: string;
-  readonly items: readonly ChartTooltipItem[];
+  readonly items?: readonly ChartTooltipItem[];
   readonly indicator?: ChartTooltipIndicator;
   readonly labelKey?: string;
   readonly config?: ChartConfig;
+  readonly active?: boolean;
+  readonly payload?: readonly {
+    readonly name?: unknown;
+    readonly value?: unknown;
+    readonly color?: string;
+    readonly dataKey?: unknown;
+  }[];
 }
 
 export function getChartConfigStyle(config?: ChartConfig): Record<string, string> {
@@ -92,4 +101,28 @@ export function resolveChartTooltipLabel(
     return labelKey;
   }
   return undefined;
+}
+
+export function transformSeriesToRechartsData(series: readonly ChartSeries[]): readonly Record<string, string | number>[] {
+  const labels = series[0]?.data.map((entry) => entry.label) ?? [];
+  return labels.map((label, labelIndex) => {
+    const row: Record<string, string | number> = { label };
+    for (const entry of series) {
+      row[entry.key] = entry.data[labelIndex]?.value ?? 0;
+    }
+    return row;
+  });
+}
+
+export function resolveSeriesColor(
+  seriesKey: string,
+  seriesColor: string | undefined,
+  index: number,
+  config?: ChartConfig,
+  fallbacks: readonly string[] = ["var(--sx-color-primary)", "var(--sx-color-accent)", "#0f766e", "#933eae"],
+): string {
+  if (seriesColor) return seriesColor;
+  const configured = config?.[seriesKey]?.color;
+  if (typeof configured === "string" && configured.length > 0) return `var(--color-${seriesKey}, ${configured})`;
+  return fallbacks[index % fallbacks.length]!;
 }

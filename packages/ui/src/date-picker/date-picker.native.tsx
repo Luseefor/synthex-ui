@@ -15,6 +15,7 @@ export function DatePicker({
   onValueChange,
   placeholder,
   style,
+  testID,
   value,
   ...props
 }: DatePickerProps) {
@@ -26,9 +27,11 @@ export function DatePicker({
   });
   const [open, setOpen] = React.useState(false);
 
+  // testIDs mirror web `data-slot="date-picker-*"` for parity.
   return (
-    <View style={[{ gap: 8 }, style]} {...props}>
+    <View testID={testID ?? "date-picker"} style={[{ gap: 8 }, style]} {...props}>
       <Pressable
+        testID="date-picker-trigger"
         accessibilityRole="button"
         onPress={() => setOpen((current) => !current)}
         style={{
@@ -50,13 +53,15 @@ export function DatePicker({
         <CalendarIcon size={16} />
       </Pressable>
       {open ? (
-        <Calendar
-          value={currentValue}
-          onValueChange={(next) => {
-            setCurrentValue(next);
-            setOpen(false);
-          }}
-        />
+        <View testID="date-picker-content">
+          <Calendar
+            value={currentValue}
+            onValueChange={(next) => {
+              setCurrentValue(next);
+              setOpen(false);
+            }}
+          />
+        </View>
       ) : null}
     </View>
   );

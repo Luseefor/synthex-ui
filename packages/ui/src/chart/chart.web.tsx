@@ -1,9 +1,23 @@
 import * as React from "react";
+import {
+  Area as RechartsArea,
+  AreaChart as RechartsAreaChart,
+  Bar as RechartsBar,
+  BarChart as RechartsBarChart,
+  CartesianGrid,
+  Line as RechartsLine,
+  LineChart as RechartsLineChart,
+  Tooltip as RechartsTooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { cn } from "../_shared/variants";
 import {
   getChartConfigStyle,
   getChartStyleCss,
   resolveChartTooltipLabel,
+  resolveSeriesColor,
+  transformSeriesToRechartsData,
   type BaseChartSharedProps,
   type ChartConfig,
   type ChartContainerSharedProps,
@@ -12,14 +26,7 @@ import {
   type ChartTooltipContentSharedProps,
 } from "./chart.shared";
 
-const DEFAULT_SERIES_COLORS = [
-  "var(--sx-color-primary)",
-  "var(--sx-color-accent)",
-  "#0f766e",
-  "#9333ea",
-];
-
-const SVG_WIDTH = 640;
+const DEFAULT_WIDTH = 640;
 
 export interface ChartStyleProps {
   readonly id: string;
@@ -38,8 +45,7 @@ export interface ChartLegendProps
   extends React.HTMLAttributes<HTMLDivElement>,
     ChartLegendSharedProps {}
 
-export interface ChartTooltipProps
-  extends React.HTMLAttributes<HTMLDivElement> {}
+export interface ChartTooltipProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export interface ChartTooltipContentProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -56,13 +62,14 @@ export const ChartContainer = React.forwardRef<HTMLDivElement, ChartContainerPro
       data-chart={id ?? "chart"}
       data-slot="chart"
       className={cn(
-        "rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-4 shadow-[0_12px_32px_rgba(15,23,42,0.05)]",
+        "rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-4 shadow-[0_12px_32px_rgba(15,23,42,0.05)] [&_.recharts-cartesian-axis-tick_text]:fill-[color:var(--sx-color-foreground-muted)]",
         className,
       )}
       id={id}
       style={{ ...getChartConfigStyle(config), ...style } as React.CSSProperties}
       {...props}
     >
+      {config && id ? <ChartStyle id={id} config={config} /> : null}
       {children}
     </div>
   ),
@@ -70,41 +77,63 @@ export const ChartContainer = React.forwardRef<HTMLDivElement, ChartContainerPro
 
 ChartContainer.displayName = "ChartContainer";
 
-export const ChartLegend = React.forwardRef<HTMLDivElement, ChartLegendProps>(
-  ({ className, series, ...props }, ref) => (
-    <div ref={ref} data-slot="chart-legend" className={cn("flex flex-wrap gap-3", className)} {...props}>
-      {series.map((entry, index) => (
-        <div key={entry.key} className="flex items-center gap-2 text-sm text-[color:var(--sx-color-foreground-muted)]">
-          <span
-            aria-hidden="true"
-            className="h-2.5 w-2.5 rounded-full"
-            style={{ backgroundColor: resolveSeriesColor(entry, index) }}
-          />
-          <span>{entry.label}</span>
+function LegendSwatch({ color }: { readonly color: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="h-2.5 w-2.5 shrink-0 rounded-full"
+      style={{ backgroundColor: color }}
+    />
+  );
+}
+
+function renderLegendEntries(
+  series: readonly ChartSeries[] | undefined,
+  payload: ChartLegendSharedProps["payload"],
+  config?: ChartConfig,
+) {
+  if (series && series.length > 0) {
+    return series.map((entry, index) => (
+      <div key={entry.key} className="flex items-center gap-2 text-sm text-[color:var(--sx-color-foreground-muted)]">
+        <LegendSwatch color={resolveSeriesColor(entry.key, entry.color, index, config)} />
+        <span>{entry.label}</span>
+      </div>
+    ));
+  }
+  if (payload && payload.length > 0) {
+    return payload.map((entry, index) => {
+      const key = String(entry.dataKey ?? entry.value ?? index);
+      const label =
+        typeof entry.value === "string"
+          ? entry.value
+          : (config?.[key]?.label as string | undefined) ?? key;
+      const color =
+        entry.color ?? resolveSeriesColor(key, undefined, index, config);
+      return (
+        <div key={key} className="flex items-center gap-2 text-sm text-[color:var(--sx-color-foreground-muted)]">
+          <LegendSwatch color={color} />
+          <span>{label}</span>
         </div>
-      ))}
+      );
+    });
+  }
+  return null;
+}
+
+export const ChartLegend = React.forwardRef<HTMLDivElement, ChartLegendProps>(
+  ({ className, series, payload, config, ...props }, ref) => (
+    <div ref={ref} data-slot="chart-legend" className={cn("flex flex-wrap gap-3", className)} {...props}>
+      {renderLegendEntries(series, payload, config)}
     </div>
   ),
 );
 
 ChartLegend.displayName = "ChartLegend";
 
-// shadcn exposes ChartLegendContent as the inner legend renderer.
-// Verified: previously only ChartLegend existed, so alias it here for
-// API parity. Rendering stays hand-rolled.
 export const ChartLegendContent = React.forwardRef<HTMLDivElement, ChartLegendProps>(
-  ({ className, series, ...props }, ref) => (
+  ({ className, series, payload, config, ...props }, ref) => (
     <div ref={ref} data-slot="chart-legend-content" className={cn("flex flex-wrap gap-3", className)} {...props}>
-      {series.map((entry, index) => (
-        <div key={entry.key} className="flex items-center gap-2 text-sm text-[color:var(--sx-color-foreground-muted)]">
-          <span
-            aria-hidden="true"
-            className="h-2.5 w-2.5 rounded-full"
-            style={{ backgroundColor: resolveSeriesColor(entry, index) }}
-          />
-          <span>{entry.label}</span>
-        </div>
-      ))}
+      {renderLegendEntries(series, payload, config)}
     </div>
   ),
 );
@@ -115,6 +144,7 @@ export const ChartTooltip = React.forwardRef<HTMLDivElement, ChartTooltipProps>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
+      data-slot="chart-tooltip-wrapper"
       className={cn(
         "rounded-[var(--sx-radius-lg)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-raised)] p-3 shadow-[0_12px_28px_rgba(15,23,42,0.08)]",
         className,
@@ -125,34 +155,6 @@ export const ChartTooltip = React.forwardRef<HTMLDivElement, ChartTooltipProps>(
 );
 
 ChartTooltip.displayName = "ChartTooltip";
-
-export const ChartTooltipContent = React.forwardRef<HTMLDivElement, ChartTooltipContentProps>(
-  ({ className, config, indicator = "dot", items, label, labelKey, ...props }, ref) => {
-    const resolvedLabel = resolveChartTooltipLabel(label, labelKey, config);
-    return (
-      <div ref={ref} data-slot="chart-tooltip-content" className={cn("flex flex-col gap-2", className)} {...props}>
-        {resolvedLabel ? (
-          <div className="text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--sx-color-foreground-muted)]">
-            {resolvedLabel}
-          </div>
-        ) : null}
-        <div className="flex flex-col gap-1.5">
-          {items.map((item) => (
-            <div key={`${item.label}-${item.value}`} className="flex items-center justify-between gap-4 text-sm">
-              <div className="flex items-center gap-2 text-[color:var(--sx-color-foreground-muted)]">
-                <ChartTooltipIndicatorDot color={item.color} indicator={indicator} />
-                <span>{item.label}</span>
-              </div>
-              <span className="font-medium text-[color:var(--sx-color-foreground)]">{item.value}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  },
-);
-
-ChartTooltipContent.displayName = "ChartTooltipContent";
 
 function ChartTooltipIndicatorDot({
   color,
@@ -192,192 +194,163 @@ function ChartTooltipIndicatorDot({
   );
 }
 
-export function LineChart({ ariaLabel = "Line chart", height = 240, series }: LineChartProps) {
-  const points = getSeriesPoints(series, height);
+export const ChartTooltipContent = React.forwardRef<HTMLDivElement, ChartTooltipContentProps>(
+  (
+    {
+      className,
+      config,
+      indicator = "dot",
+      items,
+      label,
+      labelKey,
+      payload,
+      ...props
+    },
+    ref,
+  ) => {
+    const resolvedLabel = resolveChartTooltipLabel(
+      (label as string | undefined) ?? (payload?.[0]?.name as string | undefined) ?? (props as { readonly label?: string }).label,
+      labelKey,
+      config,
+    );
 
-  return (
-    <svg
-      aria-label={ariaLabel}
-      className="w-full overflow-visible"
-      role="img"
-      viewBox={`0 0 ${SVG_WIDTH} ${height}`}
-    >
-      <ChartGrid height={height} />
-      {points.map((entry, index) => (
-        <g key={entry.key}>
-          <polyline
-            fill="none"
-            points={entry.points.map((point) => `${point.x},${point.y}`).join(" ")}
-            stroke={resolveSeriesColor(series[index]!, index)}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="3"
-          />
-          {entry.points.map((point) => (
-            <circle
-              key={`${entry.key}-${point.label}`}
-              cx={point.x}
-              cy={point.y}
-              fill={resolveSeriesColor(series[index]!, index)}
-              r="4"
-            />
+    const resolvedItems =
+      items ??
+      (payload ?? []).map((entry) => ({
+        label: String(entry.name ?? entry.dataKey ?? ""),
+        value: (entry.value as string | number | undefined) ?? "",
+        color: entry.color,
+        dataKey: entry.dataKey == null ? undefined : String(entry.dataKey),
+      }));
+
+    if (!resolvedItems || resolvedItems.length === 0) {
+      if (!resolvedLabel) return null;
+    }
+
+    return (
+      <div ref={ref} data-slot="chart-tooltip-content" className={cn("flex min-w-[10rem] flex-col gap-2 rounded-[var(--sx-radius-lg)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-raised)] p-3 shadow-[0_12px_28px_rgba(15,23,42,0.08)]", className)} {...props}>
+        {resolvedLabel ? (
+          <div className="text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--sx-color-foreground-muted)]">
+            {resolvedLabel}
+          </div>
+        ) : null}
+        <div className="flex flex-col gap-1.5">
+          {resolvedItems.map((item) => (
+            <div key={`${item.label}-${item.value}`} className="flex items-center justify-between gap-4 text-sm">
+              <div className="flex items-center gap-2 text-[color:var(--sx-color-foreground-muted)]">
+                <ChartTooltipIndicatorDot color={item.color} indicator={indicator} />
+                <span>{item.label}</span>
+              </div>
+              <span className="font-medium text-[color:var(--sx-color-foreground)]">{item.value}</span>
+            </div>
           ))}
-        </g>
-      ))}
-      <ChartAxisLabels series={series} height={height} />
-    </svg>
-  );
-}
+        </div>
+      </div>
+    );
+  },
+);
 
-export function AreaChart({ ariaLabel = "Area chart", height = 240, series }: AreaChartProps) {
-  const points = getSeriesPoints(series, height);
-  const baseline = height - 28;
+ChartTooltipContent.displayName = "ChartTooltipContent";
 
-  return (
-    <svg
-      aria-label={ariaLabel}
-      className="w-full overflow-visible"
-      role="img"
-      viewBox={`0 0 ${SVG_WIDTH} ${height}`}
-    >
-      <ChartGrid height={height} />
-      {points.map((entry, index) => {
-        const color = resolveSeriesColor(series[index]!, index);
-        const areaPath = [
-          `M ${entry.points[0]?.x ?? 0} ${baseline}`,
-          ...entry.points.map((point) => `L ${point.x} ${point.y}`),
-          `L ${entry.points.at(-1)?.x ?? 0} ${baseline}`,
-          "Z",
-        ].join(" ");
-
-        return (
-          <g key={entry.key}>
-            <path d={areaPath} fill={color} fillOpacity="0.18" stroke="none" />
-            <polyline
-              fill="none"
-              points={entry.points.map((point) => `${point.x},${point.y}`).join(" ")}
-              stroke={color}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="3"
-            />
-          </g>
-        );
-      })}
-      <ChartAxisLabels series={series} height={height} />
-    </svg>
-  );
-}
-
-export function BarChart({ ariaLabel = "Bar chart", height = 240, series }: BarChartProps) {
-  const points = getSeriesPoints(series, height);
-  const labels = series[0]?.data.map((entry) => entry.label) ?? [];
-  const plotWidth = SVG_WIDTH - 64;
-  const step = labels.length > 0 ? plotWidth / labels.length : plotWidth;
-  const barGroupWidth = step * 0.62;
-  const barWidth = series.length > 0 ? barGroupWidth / series.length : barGroupWidth;
-  const baseline = height - 28;
-
-  return (
-    <svg
-      aria-label={ariaLabel}
-      className="w-full overflow-visible"
-      role="img"
-      viewBox={`0 0 ${SVG_WIDTH} ${height}`}
-    >
-      <ChartGrid height={height} />
-      {points.map((entry, seriesIndex) =>
-        entry.points.map((point, pointIndex) => (
-          <rect
-            key={`${entry.key}-${point.label}`}
-            fill={resolveSeriesColor(series[seriesIndex]!, seriesIndex)}
-            height={Math.max(baseline - point.y, 8)}
-            rx="8"
-            width={Math.max(barWidth - 6, 10)}
-            x={48 + pointIndex * step + seriesIndex * barWidth}
-            y={point.y}
-          />
-        )),
-      )}
-      <ChartAxisLabels series={series} height={height} />
-    </svg>
-  );
-}
-
-function ChartGrid({ height }: { height: number }) {
-  const rows = 4;
-
-  return (
-    <g>
-      {Array.from({ length: rows }).map((_, index) => {
-        const y = 20 + index * ((height - 48) / (rows - 1));
-        return (
-          <line
-            key={y}
-            stroke="var(--sx-color-border)"
-            strokeDasharray="4 6"
-            strokeWidth="1"
-            x1="40"
-            x2={SVG_WIDTH - 16}
-            y1={y}
-            y2={y}
-          />
-        );
-      })}
-    </g>
-  );
-}
-
-function ChartAxisLabels({
+function ChartFrame({
+  ariaLabel,
+  children,
   height,
-  series,
 }: {
-  height: number;
-  series: readonly ChartSeries[];
+  readonly ariaLabel: string;
+  readonly children: React.ReactNode;
+  readonly height: number;
 }) {
-  const labels = series[0]?.data.map((entry) => entry.label) ?? [];
-  const plotWidth = SVG_WIDTH - 64;
-  const step = labels.length > 1 ? plotWidth / (labels.length - 1) : plotWidth;
-
   return (
-    <g>
-      {labels.map((label, index) => (
-        <text
-          key={label}
-          fill="var(--sx-color-foreground-muted)"
-          fontFamily="var(--sx-font-family-sans)"
-          fontSize="12"
-          textAnchor="middle"
-          x={40 + index * step}
-          y={height - 6}
-        >
-          {label}
-        </text>
-      ))}
-    </g>
+    <div
+      role="img"
+      aria-label={ariaLabel}
+      data-slot="chart-frame"
+      className="w-full overflow-visible"
+      style={{ height }}
+    >
+      {children}
+    </div>
   );
 }
 
-function getSeriesPoints(series: readonly ChartSeries[], height: number) {
-  const values = series.flatMap((entry) => entry.data.map((datum) => datum.value));
-  const maxValue = values.length > 0 ? Math.max(...values) : 1;
-  const labels = series[0]?.data.map((entry) => entry.label) ?? [];
-  const plotWidth = SVG_WIDTH - 64;
-  const step = labels.length > 1 ? plotWidth / (labels.length - 1) : plotWidth;
-  const baseline = height - 28;
-  const minY = 20;
-  const plotHeight = baseline - minY;
+export function LineChart({ ariaLabel = "Line chart", height = 240, series, config }: LineChartProps) {
+  // `series` is a Synthex convenience (shadcn composes Container/Legend/Tooltip
+  // with recharts directly); kept for parity with native hand-rolled charts.
+  const data = React.useMemo(() => transformSeriesToRechartsData(series), [series]);
 
-  return series.map((entry) => ({
-    key: entry.key,
-    points: entry.data.map((datum, index) => ({
-      label: datum.label,
-      x: 40 + index * step,
-      y: baseline - (datum.value / maxValue) * plotHeight,
-    })),
-  }));
+  return (
+    <ChartFrame ariaLabel={ariaLabel} height={height}>
+      <RechartsLineChart data={data as never} width={DEFAULT_WIDTH} height={height} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
+        <CartesianGrid stroke="var(--sx-color-border)" strokeDasharray="4 6" vertical={false} />
+        <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} tick={{ fill: "var(--sx-color-foreground-muted)", fontSize: 12 }} />
+        <YAxis tickLine={false} axisLine={false} width={40} tick={{ fill: "var(--sx-color-foreground-muted)", fontSize: 12 }} />
+        <RechartsTooltip content={<ChartTooltipContent config={config} />} />
+        {series.map((entry, index) => (
+          <RechartsLine
+            key={entry.key}
+            dataKey={entry.key}
+            name={entry.label}
+            stroke={resolveSeriesColor(entry.key, entry.color, index, config)}
+            strokeWidth={3}
+            dot={{ r: 4 }}
+            activeDot={{ r: 4 }}
+          />
+        ))}
+      </RechartsLineChart>
+    </ChartFrame>
+  );
 }
 
-function resolveSeriesColor(series: ChartSeries, index: number) {
-  return series.color ?? DEFAULT_SERIES_COLORS[index % DEFAULT_SERIES_COLORS.length]!;
+export function AreaChart({ ariaLabel = "Area chart", height = 240, series, config }: AreaChartProps) {
+  const data = React.useMemo(() => transformSeriesToRechartsData(series), [series]);
+
+  return (
+    <ChartFrame ariaLabel={ariaLabel} height={height}>
+      <RechartsAreaChart data={data as never} width={DEFAULT_WIDTH} height={height} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
+        <CartesianGrid stroke="var(--sx-color-border)" strokeDasharray="4 6" vertical={false} />
+        <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} tick={{ fill: "var(--sx-color-foreground-muted)", fontSize: 12 }} />
+        <YAxis tickLine={false} axisLine={false} width={40} tick={{ fill: "var(--sx-color-foreground-muted)", fontSize: 12 }} />
+        <RechartsTooltip content={<ChartTooltipContent config={config} />} />
+        {series.map((entry, index) => {
+          const color = resolveSeriesColor(entry.key, entry.color, index, config);
+          return (
+            <RechartsArea
+              key={entry.key}
+              dataKey={entry.key}
+              name={entry.label}
+              stroke={color}
+              fill={color}
+              fillOpacity={0.18}
+              strokeWidth={3}
+            />
+          );
+        })}
+      </RechartsAreaChart>
+    </ChartFrame>
+  );
+}
+
+export function BarChart({ ariaLabel = "Bar chart", height = 240, series, config }: BarChartProps) {
+  const data = React.useMemo(() => transformSeriesToRechartsData(series), [series]);
+
+  return (
+    <ChartFrame ariaLabel={ariaLabel} height={height}>
+      <RechartsBarChart data={data as never} width={DEFAULT_WIDTH} height={height} margin={{ top: 8, right: 16, bottom: 8, left: 0 }} barCategoryGap="20%">
+        <CartesianGrid stroke="var(--sx-color-border)" strokeDasharray="4 6" vertical={false} />
+        <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} tick={{ fill: "var(--sx-color-foreground-muted)", fontSize: 12 }} />
+        <YAxis tickLine={false} axisLine={false} width={40} tick={{ fill: "var(--sx-color-foreground-muted)", fontSize: 12 }} />
+        <RechartsTooltip content={<ChartTooltipContent config={config} />} cursor={{ fill: "var(--sx-color-surface-muted)" }} />
+        {series.map((entry, index) => (
+          <RechartsBar
+            key={entry.key}
+            dataKey={entry.key}
+            name={entry.label}
+            fill={resolveSeriesColor(entry.key, entry.color, index, config)}
+            radius={[8, 8, 0, 0]}
+          />
+        ))}
+      </RechartsBarChart>
+    </ChartFrame>
+  );
 }

@@ -22,19 +22,26 @@ export function DatePicker({
     value,
   });
 
+  // Popover/Calendar already wrap Radix Popover + DayPicker; date-picker only
+  // adds outer slots so `data-slot="date-picker-*"` selectors stay stable.
   return (
-    <Popover className={cn("w-full", className)} {...props}>
-      <PopoverTrigger className="inline-flex h-10 w-full items-center justify-between gap-3 rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-raised)] px-3.5 text-sm text-[color:var(--sx-color-foreground)]">
-        <span>{getDatePickerLabel(currentValue, placeholder)}</span>
-        <CalendarIcon size={16} />
-      </PopoverTrigger>
-      <PopoverContent className="min-w-[19rem] p-0">
-        <Calendar
-          className="border-0 shadow-none"
-          value={currentValue}
-          onValueChange={setCurrentValue}
-        />
-      </PopoverContent>
-    </Popover>
+    <div data-slot="date-picker" className={cn("w-full", className)} {...props}>
+      <Popover>
+        <PopoverTrigger
+          data-slot="date-picker-trigger"
+          className="inline-flex h-10 w-full items-center justify-between gap-3 rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-raised)] px-3.5 text-sm text-[color:var(--sx-color-foreground)]"
+        >
+          <span>{getDatePickerLabel(currentValue, placeholder)}</span>
+          <CalendarIcon size={16} />
+        </PopoverTrigger>
+        <PopoverContent data-slot="date-picker-content" className="min-w-[19rem] p-0">
+          <Calendar
+            className="border-0 shadow-none"
+            value={currentValue}
+            onValueChange={setCurrentValue}
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 }

@@ -3,9 +3,10 @@ import { cn } from "../_shared/variants";
 
 export const Table = React.forwardRef<HTMLTableElement, React.TableHTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
-    <div className="relative w-full overflow-x-auto">
+    <div data-slot="table-container" className="relative w-full overflow-x-auto">
       <table
         ref={ref}
+        data-slot="table"
         className={cn("w-full caption-bottom border-collapse text-sm", className)}
         {...props}
       />
@@ -19,7 +20,7 @@ export const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn("[&_tr]:border-b [&_tr]:border-[color:var(--sx-color-border)]", className)} {...props} />
+  <thead ref={ref} data-slot="table-header" className={cn("[&_tr]:border-b [&_tr]:border-[color:var(--sx-color-border)]", className)} {...props} />
 ));
 
 TableHeader.displayName = "TableHeader";
@@ -28,7 +29,7 @@ export const TableBody = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
-  <tbody ref={ref} className={cn("[&_tr:last-child]:border-0", className)} {...props} />
+  <tbody ref={ref} data-slot="table-body" className={cn("[&_tr:last-child]:border-0", className)} {...props} />
 ));
 
 TableBody.displayName = "TableBody";
@@ -39,6 +40,7 @@ export const TableFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
+    data-slot="table-footer"
     className={cn(
       "border-t border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-muted)] font-medium [&>tr]:last:border-b-0",
       className,
@@ -55,6 +57,7 @@ export const TableRow = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tr
     ref={ref}
+    data-slot="table-row"
     className={cn(
       "border-b border-[color:var(--sx-color-border)] transition-colors hover:bg-[color:var(--sx-color-surface-muted)] data-[state=selected]:bg-[color:var(--sx-color-primary-muted)]",
       className,
@@ -71,6 +74,7 @@ export const TableHead = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <th
     ref={ref}
+    data-slot="table-head"
     className={cn(
       "h-11 px-4 text-start align-middle text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--sx-color-foreground-muted)]",
       className,
@@ -87,6 +91,7 @@ export const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
+    data-slot="table-cell"
     className={cn("px-4 py-3 align-middle text-[color:var(--sx-color-foreground)]", className)}
     {...props}
   />
@@ -100,6 +105,7 @@ export const TableCaption = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <caption
     ref={ref}
+    data-slot="table-caption"
     className={cn("mt-4 text-sm text-[color:var(--sx-color-foreground-muted)]", className)}
     {...props}
   />

@@ -15,6 +15,15 @@ export interface CommandSharedProps {
   readonly onQueryChange?: (query: string) => void;
   readonly query?: string;
   readonly shouldFilter?: boolean;
+  /** Accessible label for the command menu (cmdk compat). */
+  readonly label?: string;
+  /** Custom filter (cmdk compat). */
+  readonly filter?: (value: string, search: string, keywords?: string[]) => number;
+  readonly loop?: boolean;
+  /** cmdk compat aliases for query (search). */
+  readonly value?: string;
+  readonly defaultValue?: string;
+  readonly onValueChange?: (value: string) => void;
 }
 
 export interface CommandItemSharedProps {
@@ -32,14 +41,25 @@ export function matchesCommandQuery(
   value: string,
   keywords: readonly string[] = [],
 ): boolean {
-  const normalizedQuery = normalizeSearchValue(query);
+  const normalizedQuery = normalizeSearchValue(query ?? "");
 
   if (!normalizedQuery) {
     return true;
   }
 
-  const searchableValue = normalizeSearchValue([value, ...keywords].join(" "));
+  const searchableValue = normalizeSearchValue([value ?? "", ...keywords].join(" "));
   return searchableValue.includes(normalizedQuery);
+}
+
+export function resolveCommandSearch(props: CommandSharedProps): {
+  query: string | undefined;
+  defaultQuery: string;
+  onQueryChange: ((query: string) => void) | undefined;
+} {
+  const query = props.query ?? props.value;
+  const defaultQuery = props.defaultQuery ?? props.defaultValue ?? "";
+  const onQueryChange = props.onQueryChange ?? props.onValueChange;
+  return { query, defaultQuery, onQueryChange };
 }
 
 export function useCommandController({

@@ -1,10 +1,10 @@
 import * as React from "react";
+import { Command as CommandPrimitive } from "cmdk";
 import { cn } from "../_shared/variants";
 import { handleMenuArrowKeys } from "../_shared/a11y.web";
 import { CheckIcon, ChevronDownIcon, SearchIcon } from "../icons/index.web";
 import {
   ComboboxProvider,
-  matchesComboboxQuery,
   useComboboxContext,
   useComboboxController,
   type ComboboxItemSharedProps,
@@ -24,12 +24,16 @@ export function Combobox({
   defaultOpen,
   defaultQuery,
   defaultValue,
+  filter,
+  label = "Combobox",
+  loop,
   onOpenChange,
   onQueryChange,
   onValueChange,
   open,
   placeholder,
   query,
+  shouldFilter = true,
   value,
   ...props
 }: ComboboxProps) {
@@ -37,12 +41,16 @@ export function Combobox({
     defaultOpen,
     defaultQuery,
     defaultValue,
+    filter,
+    label,
+    loop,
     onOpenChange,
     onQueryChange,
     onValueChange,
     open,
     placeholder,
     query,
+    shouldFilter,
     value,
   });
   const rootRef = React.useRef<HTMLDivElement | null>(null);
@@ -75,7 +83,7 @@ export function Combobox({
 
   return (
     <ComboboxProvider value={controller}>
-      <div ref={rootRef} className={cn("relative w-full", className)} {...props}>
+      <div ref={rootRef} data-slot="combobox" className={cn("relative w-full", className)} {...props}>
         {children}
       </div>
     </ComboboxProvider>
@@ -92,12 +100,13 @@ export const ComboboxTrigger = React.forwardRef<
     <button
       ref={ref}
       type={type}
+      data-slot="combobox-trigger"
       id={id ?? context.triggerId}
       aria-expanded={context.open}
       aria-haspopup="listbox"
       aria-controls={context.contentId}
       className={cn(
-        "inline-flex h-10 w-full items-center justify-between gap-3 rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-raised)] px-3.5 text-sm text-[color:var(--sx-color-foreground)] shadow-[inset_0_1px_1px_rgba(15,23,42,0.04)] transition-[border-color,box-shadow] duration-[var(--sx-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)]",
+        "inline-flex h-10 w-full items-center justify-between gap-3 rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-raised)] px-3.5 text-sm text-[color:var(--sx-color-foreground)] shadow-[inset_0_1px_1px_rgba(15,23,42,0.04)] transition-[border-color,box-shadow] duration-[var(--sx-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-background)]",
         className,
       )}
       onClick={(event) => {
@@ -135,6 +144,7 @@ export const ComboboxValue = React.forwardRef<
   return (
     <span
       ref={ref}
+      data-slot="combobox-value"
       className={cn(
         "block truncate text-[color:var(--sx-color-foreground)]",
         !selectedLabel && !children && "text-[color:var(--sx-color-foreground-muted)]",
@@ -152,7 +162,7 @@ ComboboxValue.displayName = "ComboboxValue";
 export const ComboboxContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, id, onKeyDown, ...props }, ref) => {
+>(({ children, className, id, onKeyDown, ...props }, ref) => {
   const context = useComboboxContext();
 
   if (!context.open) {
@@ -163,10 +173,11 @@ export const ComboboxContent = React.forwardRef<
     <div
       ref={ref}
       id={id ?? context.contentId}
+      data-slot="combobox-content"
       role="dialog"
       aria-labelledby={context.triggerId}
       className={cn(
-        "absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] shadow-[0_18px_42px_rgba(15,23,42,0.14)]",
+        "absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] shadow-[0_18px_42px_rgba(15,23,42,0.14)] overflow-hidden",
         className,
       )}
       onKeyDown={(event) => {
@@ -175,48 +186,53 @@ export const ComboboxContent = React.forwardRef<
         handleMenuArrowKeys(event);
       }}
       {...props}
-    />
+    >
+      <CommandPrimitive
+        data-slot="combobox-command"
+        label={context.label ?? "Combobox"}
+        shouldFilter={context.shouldFilter}
+        filter={context.filter as React.ComponentPropsWithoutRef<typeof CommandPrimitive>["filter"]}
+        loop={context.loop}
+      >
+        {children}
+      </CommandPrimitive>
+    </div>
   );
 });
 
 ComboboxContent.displayName = "ComboboxContent";
 
-export interface ComboboxInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "defaultValue" | "value"> {}
+type ComboboxInputRootProps = React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>;
+
+export interface ComboboxInputProps extends Omit<ComboboxInputRootProps, "value" | "onValueChange"> {
+  readonly value?: string;
+  readonly onValueChange?: (search: string) => void;
+}
 
 export const ComboboxInput = React.forwardRef<HTMLInputElement, ComboboxInputProps>(
-  ({ className, id, onChange, onKeyDown, placeholder = "Search options", type = "text", ...props }, ref) => {
+  ({ className, onValueChange, placeholder = "Search options", value, ...props }, ref) => {
     const context = useComboboxContext();
+    const currentValue = value ?? context.query;
 
     return (
-      <div className="flex items-center gap-3 border-b border-[color:var(--sx-color-border)] px-3.5 py-3">
+      <div
+        data-slot="combobox-input-wrapper"
+        className="flex items-center gap-3 border-b border-[color:var(--sx-color-border)] px-3.5 py-3"
+      >
         <SearchIcon size={15} color="var(--sx-color-foreground-muted)" />
-        <input
-          ref={ref}
-          type={type}
-          id={id ?? context.inputId}
-          aria-expanded={context.open}
-          aria-controls={context.listId}
-          aria-autocomplete="list"
-          value={context.query}
+        <CommandPrimitive.Input
+          ref={ref as React.Ref<HTMLInputElement>}
+          data-slot="combobox-input"
+          value={currentValue}
+          onValueChange={(next: string) => {
+            context.setQuery(next);
+            onValueChange?.(next);
+          }}
+          placeholder={placeholder}
           className={cn(
             "w-full bg-transparent text-sm text-[color:var(--sx-color-foreground)] placeholder:text-[color:var(--sx-color-foreground-muted)] focus:outline-none",
             className,
           )}
-          onChange={(event) => {
-            context.setQuery(event.target.value);
-            onChange?.(event);
-          }}
-          onKeyDown={(event) => {
-            onKeyDown?.(event);
-            if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-              event.preventDefault();
-              const list = document.getElementById(context.listId);
-              const first = list?.querySelector<HTMLElement>('[role="option"]:not([disabled])');
-              first?.focus();
-            }
-          }}
-          placeholder={placeholder}
           {...props}
         />
       </div>
@@ -226,103 +242,87 @@ export const ComboboxInput = React.forwardRef<HTMLInputElement, ComboboxInputPro
 
 ComboboxInput.displayName = "ComboboxInput";
 
-export interface ComboboxListProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface ComboboxListProps extends React.ComponentPropsWithoutRef<typeof CommandPrimitive.List> {}
 
 export const ComboboxList = React.forwardRef<HTMLDivElement, ComboboxListProps>(
-  ({ className, id, ...props }, ref) => {
-    const context = useComboboxContext();
-    return (
-      <div
-        ref={ref}
-        id={id ?? context.listId}
-        role="listbox"
-        aria-labelledby={context.inputId}
-        className={cn("max-h-64 overflow-y-auto p-2", className)}
-        {...props}
-      />
-    );
-  },
+  ({ className, ...props }, ref) => (
+    <CommandPrimitive.List
+      ref={ref as React.Ref<HTMLDivElement>}
+      data-slot="combobox-list"
+      className={cn("max-h-64 overflow-y-auto p-2", className)}
+      {...props}
+    />
+  ),
 );
 
 ComboboxList.displayName = "ComboboxList";
 
-export interface ComboboxEmptyProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface ComboboxEmptyProps extends React.ComponentPropsWithoutRef<typeof CommandPrimitive.Empty> {}
 
 export const ComboboxEmpty = React.forwardRef<HTMLDivElement, ComboboxEmptyProps>(
-  ({ children = "No results found.", className, ...props }, ref) => {
-    const context = useComboboxContext();
-
-    if (context.visibleItemCount > 0) {
-      return null;
-    }
-
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          "px-3 py-8 text-center text-sm text-[color:var(--sx-color-foreground-muted)]",
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  },
+  ({ children = "No results found.", className, ...props }, ref) => (
+    <CommandPrimitive.Empty
+      ref={ref as React.Ref<HTMLDivElement>}
+      data-slot="combobox-empty"
+      className={cn(
+        "px-3 py-8 text-center text-sm text-[color:var(--sx-color-foreground-muted)]",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </CommandPrimitive.Empty>
+  ),
 );
 
 ComboboxEmpty.displayName = "ComboboxEmpty";
 
-export interface ComboboxItemProps
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "value">,
-    ComboboxItemSharedProps {}
+type ComboboxItemRootProps = React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item>;
 
-export const ComboboxItem = React.forwardRef<HTMLButtonElement, ComboboxItemProps>(
-  ({ children, className, keywords, onClick, textValue, value, ...props }, ref) => {
+export interface ComboboxItemProps
+  extends Omit<ComboboxItemRootProps, "value" | "keywords">,
+    ComboboxItemSharedProps {
+  readonly onSelect?: (value: string) => void;
+}
+
+export const ComboboxItem = React.forwardRef<HTMLDivElement, ComboboxItemProps>(
+  ({ children, className, keywords, onSelect, textValue, value, ...props }, ref) => {
     const context = useComboboxContext();
-    const itemId = React.useId();
     const label =
       textValue ??
       (typeof children === "string" || typeof children === "number" ? String(children) : value);
-    const visible = matchesComboboxQuery(context.query, label, keywords);
+    const searchValue = label ?? value;
     const active = context.value === value;
 
+    // `registerItem` keeps the value->label map for `ComboboxValue` parity
+    // with native; labels are derived from `textValue`/children.
     React.useEffect(() => {
-      context.registerItem(value, label);
+      context.registerItem(value, label ?? value);
     }, [context, label, value]);
 
-    React.useEffect(() => {
-      context.setItemVisibility(itemId, visible);
-      return () => context.unregisterItem(itemId);
-    }, [context, itemId, visible]);
-
-    if (!visible) {
-      return null;
-    }
-
     return (
-      <button
-        ref={ref}
-        type="button"
-        role="option"
-        aria-selected={active}
+      <CommandPrimitive.Item
+        ref={ref as React.Ref<HTMLDivElement>}
+        data-slot="combobox-item"
+        value={searchValue}
+        keywords={keywords as string[] | undefined}
+        onSelect={() => {
+          context.setValue(value);
+          context.setQuery("");
+          context.setOpen(false);
+          onSelect?.(value);
+        }}
         className={cn(
-          "flex w-full items-center justify-between gap-3 rounded-[var(--sx-radius-md)] px-3 py-2.5 text-left text-sm text-[color:var(--sx-color-foreground)] transition-colors duration-[var(--sx-motion-fast)] hover:bg-[color:var(--sx-color-surface-muted)]",
+          "flex w-full cursor-pointer items-center justify-between gap-3 rounded-[var(--sx-radius-md)] px-3 py-2.5 text-left text-sm text-[color:var(--sx-color-foreground)] transition-colors duration-[var(--sx-motion-fast)] aria-selected:bg-[color:var(--sx-color-surface-muted)]",
           active &&
             "border border-[color:var(--sx-color-primary)]/40 bg-[color:color-mix(in_srgb,var(--sx-color-primary)_14%,var(--sx-color-surface))] text-[color:var(--sx-color-foreground)]",
           className,
         )}
-        onClick={(event) => {
-          context.setValue(value);
-          context.setQuery("");
-          context.setOpen(false);
-          onClick?.(event);
-        }}
         {...props}
       >
         <span>{children}</span>
         {active ? <CheckIcon size={14} strokeWidth={2.4} /> : null}
-      </button>
+      </CommandPrimitive.Item>
     );
   },
 );

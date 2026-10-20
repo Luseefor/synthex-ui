@@ -16,20 +16,30 @@ const SVG_WIDTH = 640;
 
 export interface ChartContainerProps extends ChartContainerSharedProps {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 export interface ChartLegendProps extends ChartLegendSharedProps {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 export interface ChartTooltipProps {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 export interface ChartTooltipContentProps extends ChartTooltipContentSharedProps {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
-export interface LineChartProps extends BaseChartSharedProps {}
-export interface AreaChartProps extends BaseChartSharedProps {}
-export interface BarChartProps extends BaseChartSharedProps {}
+export interface LineChartProps extends BaseChartSharedProps {
+  readonly testID?: string;
+}
+export interface AreaChartProps extends BaseChartSharedProps {
+  readonly testID?: string;
+}
+export interface BarChartProps extends BaseChartSharedProps {
+  readonly testID?: string;
+}
 
 export function ChartStyle(_props?: { readonly id?: string; readonly config?: unknown }): null {
   // Native has no CSS cascade, so config colors cannot become CSS vars.
@@ -38,27 +48,36 @@ export function ChartStyle(_props?: { readonly id?: string; readonly config?: un
   return null;
 }
 
-export function ChartContainer({ children, config: _config, style }: ChartContainerProps) {
+export function ChartContainer({ children, config: _config, style, testID }: ChartContainerProps) {
   // `config` is accepted for shadcn API parity but ignored on native:
   // there are no CSS custom properties, so colors come from `series[].color`
   // with theme fallbacks instead of `--color-<key>` vars.
   void _config;
   const theme = useTheme();
 
-  return <View style={[getStyles(theme).container, style]}>{children}</View>;
+  return <View testID={testID ?? "chart"} style={[getStyles(theme).container, style]}>{children}</View>;
 }
 
-export function ChartLegend({ series, style }: ChartLegendProps) {
+export function ChartLegend({ series, payload, config: _config, style, testID }: ChartLegendProps) {
+  void _config;
   const theme = useTheme();
+  const entries =
+    series && series.length > 0
+      ? series.map((entry, index) => ({ key: entry.key, label: entry.label, color: resolveSeriesColor(entry, index) }))
+      : (payload ?? []).map((entry, index) => ({
+          key: String(entry.dataKey ?? entry.value ?? index),
+          label: String(entry.value ?? entry.dataKey ?? ""),
+          color: entry.color ?? DEFAULT_SERIES_COLORS[index % DEFAULT_SERIES_COLORS.length]!,
+        }));
 
   return (
-    <View style={[getStyles(theme).legendRow, style]}>
-      {series.map((entry, index) => (
+    <View testID={testID ?? "chart-legend"} style={[getStyles(theme).legendRow, style]}>
+      {entries.map((entry) => (
         <View key={entry.key} style={getStyles(theme).legendItem}>
           <View
             style={[
               getStyles(theme).legendSwatch,
-              { backgroundColor: resolveSeriesColor(entry, index) },
+              { backgroundColor: entry.color },
             ]}
           />
           <Text style={getStyles(theme).legendLabel}>{entry.label}</Text>
@@ -68,17 +87,15 @@ export function ChartLegend({ series, style }: ChartLegendProps) {
   );
 }
 
-export function ChartLegendContent({ series, style }: ChartLegendProps) {
-  // shadcn exposes ChartLegendContent as the inner legend renderer.
-  // Verified: previously only ChartLegend existed, so share its
-  // implementation here for API parity. Rendering stays hand-rolled.
-  return <ChartLegend series={series} style={style} />;
+export function ChartLegendContent({ series, payload, config, style, testID }: ChartLegendProps) {
+  // `series` is a Synthex convenience (shadcn uses payload/config); kept with docs, resolved via ChartLegend.
+  return <ChartLegend series={series} payload={payload} config={config} style={style} testID={testID ?? "chart-legend-content"} />;
 }
 
-export function ChartTooltip({ children, style }: ChartTooltipProps) {
+export function ChartTooltip({ children, style, testID }: ChartTooltipProps) {
   const theme = useTheme();
 
-  return <View style={[getStyles(theme).tooltip, style]}>{children}</View>;
+  return <View testID={testID ?? "chart-tooltip-wrapper"} style={[getStyles(theme).tooltip, style]}>{children}</View>;
 }
 
 export function ChartTooltipContent({
@@ -87,19 +104,33 @@ export function ChartTooltipContent({
   items,
   label,
   labelKey,
+  payload,
   style,
+  testID,
 }: ChartTooltipContentProps) {
   const theme = useTheme();
   // `indicator` only changes the web swatch shape; native keeps a single
   // dot swatch. Accepted for API parity. `labelKey` resolves via `config`
   // when `label` is absent, matching the web fallback.
   void _indicator;
-  const resolvedLabel = resolveChartTooltipLabel(label, labelKey, config);
+  const resolvedLabel = resolveChartTooltipLabel(
+    label ?? (payload?.[0]?.name as string | undefined),
+    labelKey,
+    config,
+  );
+  const resolvedItems =
+    items ??
+    (payload ?? []).map((entry) => ({
+      label: String(entry.name ?? entry.dataKey ?? ""),
+      value: (entry.value as string | number | undefined) ?? "",
+      color: entry.color,
+    }));
 
+  // testID mirrors web `data-slot="chart-tooltip-content"`.
   return (
-    <View style={[getStyles(theme).tooltipContent, style]}>
+    <View testID={testID ?? "chart-tooltip-content"} style={[getStyles(theme).tooltipContent, style]}>
       {resolvedLabel ? <Text style={getStyles(theme).tooltipLabel}>{resolvedLabel}</Text> : null}
-      {items.map((item) => (
+      {resolvedItems.map((item) => (
         <View key={`${item.label}-${item.value}`} style={getStyles(theme).tooltipRow}>
           <View style={getStyles(theme).tooltipLabelRow}>
             <View
@@ -117,12 +148,13 @@ export function ChartTooltipContent({
   );
 }
 
-export function LineChart({ ariaLabel, height = 240, series }: LineChartProps) {
+export function LineChart({ ariaLabel, height = 240, series, testID }: LineChartProps) {
+  // `series` is a Synthex convenience (shadcn composes Container/Legend/Tooltip); kept with docs.
   const theme = useTheme();
   const points = getSeriesPoints(series, height);
 
   return (
-    <View accessibilityLabel={ariaLabel ?? "Line chart"} accessible>
+    <View testID={testID ?? "chart-frame"} accessibilityLabel={ariaLabel ?? "Line chart"} accessible>
       <Svg height={height} viewBox={`0 0 ${SVG_WIDTH} ${height}`} width="100%">
         <ChartGrid height={height} stroke={theme.colors.border} />
         {points.map((entry, index) => (
@@ -152,13 +184,13 @@ export function LineChart({ ariaLabel, height = 240, series }: LineChartProps) {
   );
 }
 
-export function AreaChart({ ariaLabel, height = 240, series }: AreaChartProps) {
+export function AreaChart({ ariaLabel, height = 240, series, testID }: AreaChartProps) {
   const theme = useTheme();
   const points = getSeriesPoints(series, height);
   const baseline = height - 28;
 
   return (
-    <View accessibilityLabel={ariaLabel ?? "Area chart"} accessible>
+    <View testID={testID ?? "chart-frame"} accessibilityLabel={ariaLabel ?? "Area chart"} accessible>
       <Svg height={height} viewBox={`0 0 ${SVG_WIDTH} ${height}`} width="100%">
         <ChartGrid height={height} stroke={theme.colors.border} />
         {points.map((entry, index) => {
@@ -190,7 +222,7 @@ export function AreaChart({ ariaLabel, height = 240, series }: AreaChartProps) {
   );
 }
 
-export function BarChart({ ariaLabel, height = 240, series }: BarChartProps) {
+export function BarChart({ ariaLabel, height = 240, series, testID }: BarChartProps) {
   const theme = useTheme();
   const points = getSeriesPoints(series, height);
   const labels = series[0]?.data.map((entry) => entry.label) ?? [];
@@ -201,7 +233,7 @@ export function BarChart({ ariaLabel, height = 240, series }: BarChartProps) {
   const baseline = height - 28;
 
   return (
-    <View accessibilityLabel={ariaLabel ?? "Bar chart"} accessible>
+    <View testID={testID ?? "chart-frame"} accessibilityLabel={ariaLabel ?? "Bar chart"} accessible>
       <Svg height={height} viewBox={`0 0 ${SVG_WIDTH} ${height}`} width="100%">
         <ChartGrid height={height} stroke={theme.colors.border} />
         {points.map((entry, seriesIndex) =>
