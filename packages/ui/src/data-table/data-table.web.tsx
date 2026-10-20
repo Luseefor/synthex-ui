@@ -1,4 +1,15 @@
 import * as React from "react";
+import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type OnChangeFn,
+  type PaginationState,
+  type SortingState,
+} from "@tanstack/react-table";
 import { Input } from "../input/input.web";
 import { Button } from "../button/button.web";
 import {
@@ -10,14 +21,31 @@ import {
   TableRow,
 } from "../table/table.web";
 import { cn } from "../_shared/variants";
-import type { DataTableAlign, DataTableColumn, DataTableSharedProps } from "./data-table.shared";
-
-type SortDirection = "asc" | "desc";
+import {
+  createDataTableGlobalFilterFn,
+  normalizeColumnId,
+  resolveDataTableUpdater,
+  toTanStackColumns,
+  type DataTableAlign,
+  type DataTablePaginationState,
+  type DataTableSharedProps,
+  type DataTableSorting,
+  type DataTableUpdater,
+} from "./data-table.shared";
 
 export interface DataTableProps<TData>
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "children">,
     DataTableSharedProps<TData> {}
 
+/**
+ * Cross-platform data table backed by `@tanstack/react-table`.
+ *
+ * Supports TanStack-style controlled `sorting` / `globalFilter` / `pagination`
+ * state plus legacy `searchKey` / `pageSize` props. Sorting is single-column
+ * (first `sorting` entry) with removal disabled to preserve legacy toggle
+ * behaviour; the global filter is case-insensitive and honours `searchKey`
+ * when provided.
+ */
 export function DataTable<TData extends Record<string, unknown>>({
   className,
   columns,
@@ -25,142 +53,223 @@ export function DataTable<TData extends Record<string, unknown>>({
   pageSize = 5,
   searchKey,
   searchPlaceholder = "Filter rows",
+  sorting: controlledSorting,
+  defaultSorting,
+  onSortingChange,
+  globalFilter: controlledGlobalFilter,
+  defaultGlobalFilter = "",
+  onGlobalFilterChange,
+  enableSorting: enableSortingProp = true,
+  enableGlobalFilter = true,
+  pagination: controlledPagination,
+  defaultPagination,
+  onPaginationChange,
+  pageIndex: controlledPageIndex,
+  defaultPageIndex,
+  onPageIndexChange,
   ...props
 }: DataTableProps<TData>) {
-  const [page, setPage] = React.useState(0);
-  const [query, setQuery] = React.useState("");
-  const [sort, setSort] = React.useState<{ columnId: string; direction: SortDirection } | null>(
-    null,
+  const [internalSorting, setInternalSorting] = React.useState<DataTableSorting[]>(
+    defaultSorting ? [...defaultSorting] : [],
+  );
+  const [internalGlobalFilter, setInternalGlobalFilter] = React.useState<string>(defaultGlobalFilter);
+  const [internalPagination, setInternalPagination] = React.useState<DataTablePaginationState>(() => ({
+    pageIndex: defaultPagination?.pageIndex ?? defaultPageIndex ?? 0,
+    pageSize: defaultPagination?.pageSize ?? pageSize,
+  }));
+
+  const prevPageSizeRef = React.useRef(pageSize);
+  React.useEffect(() => {
+    if (prevPageSizeRef.current !== pageSize && controlledPagination === undefined) {
+      setInternalPagination((prev) => ({ ...prev, pageSize }));
+    }
+    prevPageSizeRef.current = pageSize;
+  }, [pageSize, controlledPagination]);
+
+  const sortingState = controlledSorting ?? internalSorting;
+  const globalFilterValue = controlledGlobalFilter ?? internalGlobalFilter;
+  const paginationState: PaginationState = React.useMemo(() => {
+    if (controlledPagination) {
+      return { pageIndex: controlledPagination.pageIndex, pageSize: controlledPagination.pageSize };
+    }
+    return {
+      pageIndex: controlledPageIndex ?? internalPagination.pageIndex,
+      pageSize: internalPagination.pageSize,
+    };
+  }, [controlledPagination, controlledPageIndex, internalPagination]);
+
+  const handleSortingChange: OnChangeFn<SortingState> = React.useCallback(
+    (updater) => {
+      const next = resolveDataTableUpdater(
+        updater as DataTableUpdater<SortingState>,
+        sortingState as SortingState,
+      );
+      const nextSorting: DataTableSorting[] = next.map((entry) => ({ id: entry.id, desc: entry.desc }));
+      if (controlledSorting === undefined) {
+        setInternalSorting(nextSorting);
+      }
+      onSortingChange?.(nextSorting);
+    },
+    [sortingState, controlledSorting, onSortingChange],
   );
 
-  const filteredData = React.useMemo(() => {
-    if (!query.trim()) {
-      return data;
-    }
-
-    const normalized = query.trim().toLowerCase();
-
-    return data.filter((row) => {
-      if (searchKey) {
-        return String(row[searchKey] ?? "")
-          .toLowerCase()
-          .includes(normalized);
+  const handleGlobalFilterChange: OnChangeFn<string> = React.useCallback(
+    (updater) => {
+      const next = resolveDataTableUpdater(updater as DataTableUpdater<string>, globalFilterValue);
+      const nextValue = String(next ?? "");
+      if (controlledGlobalFilter === undefined) {
+        setInternalGlobalFilter(nextValue);
       }
+      onGlobalFilterChange?.(nextValue);
+    },
+    [globalFilterValue, controlledGlobalFilter, onGlobalFilterChange],
+  );
 
-      return columns.some((column) =>
-        resolveSearchValue(row, column)
-          .toLowerCase()
-          .includes(normalized),
+  const handlePaginationChange: OnChangeFn<PaginationState> = React.useCallback(
+    (updater) => {
+      const next = resolveDataTableUpdater(
+        updater as DataTableUpdater<PaginationState>,
+        paginationState,
       );
-    });
-  }, [columns, data, query, searchKey]);
-
-  const sortedData = React.useMemo(() => {
-    if (!sort) {
-      return filteredData;
-    }
-
-    const column = columns.find((entry) => entry.id === sort.columnId);
-
-    if (!column) {
-      return filteredData;
-    }
-
-    const directionFactor = sort.direction === "asc" ? 1 : -1;
-
-    return [...filteredData].sort((left, right) => {
-      const leftValue = resolveSortValue(left, column);
-      const rightValue = resolveSortValue(right, column);
-
-      if (leftValue < rightValue) {
-        return -1 * directionFactor;
+      const nextPagination: DataTablePaginationState = {
+        pageIndex: next.pageIndex,
+        pageSize: next.pageSize,
+      };
+      if (controlledPagination === undefined) {
+        if (controlledPageIndex === undefined) {
+          setInternalPagination(nextPagination);
+        } else {
+          setInternalPagination((prev) => ({ ...prev, pageSize: nextPagination.pageSize }));
+        }
       }
+      onPaginationChange?.(nextPagination);
+      onPageIndexChange?.(nextPagination.pageIndex);
+    },
+    [paginationState, controlledPagination, controlledPageIndex, onPaginationChange, onPageIndexChange],
+  );
 
-      if (leftValue > rightValue) {
-        return 1 * directionFactor;
-      }
+  const columnsById = React.useMemo(
+    () => new Map(columns.map((column, index) => [normalizeColumnId(column, index), column] as const)),
+    [columns],
+  );
 
-      return 0;
-    });
-  }, [columns, filteredData, sort]);
+  const tanStackColumns = React.useMemo(
+    () => toTanStackColumns(columns, { enableSorting: enableSortingProp }),
+    [columns, enableSortingProp],
+  );
 
-  const totalPages = Math.max(1, Math.ceil(sortedData.length / pageSize));
-  const currentPage = Math.min(page, totalPages - 1);
-  const pageData = sortedData.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+  const tanStackGlobalFilterFn = React.useMemo(
+    () => createDataTableGlobalFilterFn(columnsById, searchKey),
+    [columnsById, searchKey],
+  );
 
-  React.useEffect(() => {
-    setPage(0);
-  }, [query]);
+  const tableData = React.useMemo(() => [...data], [data]);
+
+  const table = useReactTable({
+    data: tableData,
+    columns: tanStackColumns,
+    state: {
+      sorting: sortingState as unknown as SortingState,
+      globalFilter: globalFilterValue,
+      pagination: paginationState,
+    },
+    onSortingChange: handleSortingChange,
+    onGlobalFilterChange: handleGlobalFilterChange,
+    onPaginationChange: handlePaginationChange,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    globalFilterFn: tanStackGlobalFilterFn,
+    enableSorting: enableSortingProp,
+    enableGlobalFilter,
+    enableMultiSort: false,
+    enableSortingRemoval: false,
+    sortDescFirst: false,
+    autoResetPageIndex: true,
+  });
+
+  const headerGroups = table.getHeaderGroups();
+  const rows = table.getRowModel().rows;
+  const filteredRowCount = table.getFilteredRowModel().rows.length;
+  const pageCount = table.getPageCount();
+  const pageIndexValue = table.getState().pagination.pageIndex;
 
   return (
-    <div className={cn("flex flex-col gap-4", className)} {...props}>
+    <div data-slot="data-table" className={cn("flex flex-col gap-4", className)} {...props}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Input
           aria-label="Filter table rows"
           className="w-full sm:max-w-xs"
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => table.setGlobalFilter(event.target.value)}
           placeholder={searchPlaceholder}
-          value={query}
+          value={globalFilterValue}
         />
         <div className="text-sm text-[color:var(--sx-color-foreground-muted)]">
-          {sortedData.length} row{sortedData.length === 1 ? "" : "s"}
+          {filteredRowCount} row{filteredRowCount === 1 ? "" : "s"}
         </div>
       </div>
 
       <div className="rounded-[var(--sx-radius-lg)] border border-[color:var(--sx-color-border)]">
         <Table>
           <TableHeader>
-            <TableRow>
-              {columns.map((column) => {
-                const sortable = column.sortable === true;
-                const activeDirection = sort?.columnId === column.id ? sort.direction : null;
-
-                return (
-                  <TableHead key={column.id} className={resolveAlignmentClass(column.align)}>
-                    {sortable ? (
-                      <button
-                        className="inline-flex items-center gap-2 text-inherit"
-                        onClick={() => {
-                          setSort((current) => {
-                            if (!current || current.columnId !== column.id) {
-                              return { columnId: column.id, direction: "asc" };
-                            }
-
-                            return {
-                              columnId: column.id,
-                              direction: current.direction === "asc" ? "desc" : "asc",
-                            };
-                          });
-                        }}
-                        type="button"
-                      >
-                        <span>{column.header}</span>
-                        <span className="text-[10px] text-[color:var(--sx-color-foreground-muted)]">
-                          {activeDirection === "asc" ? "▲" : activeDirection === "desc" ? "▼" : "↕"}
-                        </span>
-                      </button>
-                    ) : (
-                      column.header
-                    )}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
+            {headerGroups.map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  const original = columnsById.get(header.column.id);
+                  const align = original?.align ?? "left";
+                  const canSort = header.column.getCanSort();
+                  const sortDirection = header.column.getIsSorted();
+                  const headerLabel = flexRender(header.column.columnDef.header, header.getContext());
+                  const originalHeaderText =
+                    original && (typeof original.header === "string" || typeof original.header === "number")
+                      ? String(original.header)
+                      : undefined;
+                  const accessibleName =
+                    originalHeaderText ??
+                    (typeof headerLabel === "string" || typeof headerLabel === "number"
+                      ? String(headerLabel)
+                      : header.column.id);
+                  return (
+                    <TableHead key={header.id} className={resolveAlignmentClass(align)}>
+                      {canSort ? (
+                        <button
+                          className="inline-flex items-center gap-2 text-inherit"
+                          onClick={header.column.getToggleSortingHandler()}
+                          type="button"
+                          aria-label={`Sort by ${accessibleName}`}
+                        >
+                          <span>{headerLabel}</span>
+                          <span className="text-[10px] text-[color:var(--sx-color-foreground-muted)]">
+                            {sortDirection === "asc" ? "▲" : sortDirection === "desc" ? "▼" : "↕"}
+                          </span>
+                        </button>
+                      ) : (
+                        headerLabel
+                      )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
           </TableHeader>
           <TableBody>
-            {pageData.length > 0 ? (
-              pageData.map((row, rowIndex) => (
-                <TableRow key={rowIndex}>
-                  {columns.map((column) => (
-                    <TableCell key={column.id} className={resolveAlignmentClass(column.align)}>
-                      {column.cell ? column.cell(row) : resolveCellValue(row, column)}
-                    </TableCell>
-                  ))}
+            {rows.length > 0 ? (
+              rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => {
+                    const original = columnsById.get(cell.column.id);
+                    return (
+                      <TableCell key={cell.id} className={resolveAlignmentClass(original?.align)}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell className="py-10 text-center text-[color:var(--sx-color-foreground-muted)]" colSpan={columns.length}>
+                <TableCell className="py-10 text-center text-[color:var(--sx-color-foreground-muted)]" colSpan={tanStackColumns.length}>
                   No rows match the current filter.
                 </TableCell>
               </TableRow>
@@ -171,20 +280,20 @@ export function DataTable<TData extends Record<string, unknown>>({
 
       <div className="flex items-center justify-between gap-3">
         <div className="text-sm text-[color:var(--sx-color-foreground-muted)]">
-          Page {currentPage + 1} of {totalPages}
+          Page {pageIndexValue + 1} of {Math.max(1, pageCount)}
         </div>
         <div className="flex items-center gap-2">
           <Button
-            disabled={currentPage === 0}
-            onClick={() => setPage((value) => Math.max(0, value - 1))}
+            disabled={!table.getCanPreviousPage()}
+            onClick={() => table.previousPage()}
             size="sm"
             variant="outline"
           >
             Previous
           </Button>
           <Button
-            disabled={currentPage >= totalPages - 1}
-            onClick={() => setPage((value) => Math.min(totalPages - 1, value + 1))}
+            disabled={!table.getCanNextPage()}
+            onClick={() => table.nextPage()}
             size="sm"
             variant="outline"
           >
@@ -194,35 +303,6 @@ export function DataTable<TData extends Record<string, unknown>>({
       </div>
     </div>
   );
-}
-
-function resolveCellValue<TData>(row: TData, column: DataTableColumn<TData>) {
-  if (typeof column.accessor === "function") {
-    return column.accessor(row);
-  }
-
-  return String(row[column.accessor] ?? "");
-}
-
-function resolveSearchValue<TData>(row: TData, column: DataTableColumn<TData>) {
-  if (column.searchValue) {
-    return column.searchValue(row);
-  }
-
-  return typeof column.accessor === "function"
-    ? String(column.accessor(row) ?? "")
-    : String(row[column.accessor] ?? "");
-}
-
-function resolveSortValue<TData>(row: TData, column: DataTableColumn<TData>) {
-  const rawValue =
-    typeof column.accessor === "function" ? column.accessor(row) : row[column.accessor];
-
-  if (typeof rawValue === "number") {
-    return rawValue;
-  }
-
-  return String(rawValue ?? "").toLowerCase();
 }
 
 function resolveAlignmentClass(align: DataTableAlign = "left") {
