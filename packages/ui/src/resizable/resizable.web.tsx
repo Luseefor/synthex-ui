@@ -1,240 +1,117 @@
 import * as React from "react";
-import { cn } from "../_shared/variants";
 import {
-  clampPanelSizes,
-  normalizePanelSizes,
-  type ResizableDirection,
-  type ResizableHandleSharedProps,
-  type ResizablePanelGroupSharedProps,
-  type ResizablePanelMetrics,
-  type ResizablePanelSharedProps,
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+  type ImperativePanelGroupHandle,
+  type ImperativePanelHandle,
+} from "react-resizable-panels";
+import { cn } from "../_shared/variants";
+import type {
+  ResizableDirection,
+  ResizableHandleSharedProps,
+  ResizablePanelGroupSharedProps,
+  ResizablePanelSharedProps,
 } from "./resizable.shared";
 
-interface InternalPanelProps extends ResizablePanelSharedProps {
-  readonly __direction?: ResizableDirection;
-  readonly __size?: number;
-}
-
-interface InternalHandleProps extends ResizableHandleSharedProps {
-  readonly __direction?: ResizableDirection;
-  readonly __index?: number;
-  readonly __onResize?: (
-    index: number,
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => void;
-}
-
 export interface ResizablePanelGroupProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "children">,
-    ResizablePanelGroupSharedProps {}
+  extends Omit<React.ComponentProps<typeof PanelGroup>, "children" | "direction">,
+    ResizablePanelGroupSharedProps {
+  readonly direction: ResizableDirection;
+}
 
 export interface ResizablePanelProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "children">,
-    ResizablePanelSharedProps {}
+  extends Omit<
+      React.ComponentProps<typeof Panel>,
+      "children" | "defaultSize" | "minSize" | "onResize"
+    >,
+    ResizablePanelSharedProps {
+  readonly onResize?: (size: number, prevSize: number | undefined) => void;
+}
 
 export interface ResizableHandleProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    ResizableHandleSharedProps {}
+  extends Omit<React.ComponentProps<typeof PanelResizeHandle>, "children">,
+    ResizableHandleSharedProps {
+  readonly children?: React.ReactNode;
+}
 
-export const ResizablePanel = React.forwardRef<HTMLDivElement, ResizablePanelProps>(
-  ({ children, className, defaultSize, minSize = 15, style, ...props }, ref) => {
-    const {
-      __direction,
-      __size,
-      ...domProps
-    } = props as ResizablePanelProps & InternalPanelProps;
-    const size = __size ?? defaultSize ?? 100;
-    const isHorizontal = __direction === "horizontal";
+export const ResizablePanel = React.forwardRef<ImperativePanelHandle, ResizablePanelProps>(
+  ({ children, className, defaultSize, minSize, onResize, style, ...props }, ref) => {
+    const [size, setSize] = React.useState<number | undefined>(defaultSize);
+
+    React.useEffect(() => {
+      setSize(defaultSize);
+    }, [defaultSize]);
 
     return (
-      <div
-        {...domProps}
+      <Panel
+        {...props}
         ref={ref}
-        data-size={size.toFixed(2)}
+        data-size={size != null ? size.toFixed(2) : undefined}
         data-slot="resizable-panel"
-        className={cn("min-w-0 min-h-0 overflow-hidden", className)}
-        style={{
-          flexBasis: `${size}%`,
-          flexGrow: 0,
-          flexShrink: 0,
-          minHeight: isHorizontal ? undefined : `${minSize}%`,
-          minWidth: isHorizontal ? `${minSize}%` : undefined,
-          ...style,
+        className={cn("bg-card min-h-0 min-w-0 overflow-hidden", className)}
+        defaultSize={defaultSize}
+        minSize={minSize}
+        style={style as object}
+        onResize={(next, prev) => {
+          setSize(next);
+          onResize?.(next, prev);
         }}
       >
         {children}
-      </div>
+      </Panel>
     );
   },
 );
 
 ResizablePanel.displayName = "ResizablePanel";
 
-export const ResizableHandle = React.forwardRef<HTMLButtonElement, ResizableHandleProps>(
-  ({ className, onMouseDown, style, withHandle = true, ...props }, ref) => {
-    const {
-      __direction,
-      __index,
-      __onResize,
-      ...buttonProps
-    } = props as ResizableHandleProps & InternalHandleProps;
-    const isHorizontal = __direction === "horizontal";
-
-    return (
-      <button
-        {...buttonProps}
-        ref={ref}
-        type="button"
-        aria-label="Resize panels"
-        aria-orientation={isHorizontal ? "vertical" : "horizontal"}
-        data-slot="resizable-handle"
-        className={cn(
-          "group relative shrink-0 border-0 bg-transparent outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)]",
-          isHorizontal ? "w-3 cursor-col-resize" : "h-3 cursor-row-resize",
-          className,
-        )}
-        onMouseDown={(event) => {
-          __onResize?.(__index ?? 0, event);
-          onMouseDown?.(event);
-        }}
-        style={style}
-      >
-        <span
-          aria-hidden="true"
-          className={cn(
-            "absolute rounded-full bg-[color:var(--sx-color-border-strong)] transition-colors duration-[var(--sx-motion-fast)] group-hover:bg-[color:var(--sx-color-primary)]",
-            isHorizontal
-              ? "left-1/2 top-1/2 h-12 w-1 -translate-x-1/2 -translate-y-1/2"
-              : "left-1/2 top-1/2 h-1 w-12 -translate-x-1/2 -translate-y-1/2",
-          )}
-        />
-        {withHandle ? (
+export function ResizableHandle({ children, className, withHandle = true, ...props }: ResizableHandleProps) {
+  return (
+    <PanelResizeHandle
+      {...props}
+      data-slot="resizable-handle"
+      className={cn(
+        "bg-border focus-visible:ring-ring group relative flex shrink-0 items-center justify-center focus-visible:ring-1 focus-visible:ring-offset-1 focus-visible:outline-none",
+        "data-[panel-group-direction=horizontal]:w-3 data-[panel-group-direction=horizontal]:cursor-col-resize",
+        "data-[panel-group-direction=vertical]:h-3 data-[panel-group-direction=vertical]:cursor-row-resize",
+        className,
+      )}
+    >
+      {children ??
+        (withHandle ? (
           <span
             aria-hidden="true"
             className={cn(
-              "absolute rounded-full border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-raised)]",
-              isHorizontal
-                ? "left-1/2 top-1/2 h-10 w-1.5 -translate-x-1/2 -translate-y-1/2"
-                : "left-1/2 top-1/2 h-1.5 w-10 -translate-x-1/2 -translate-y-1/2",
+              "bg-card rounded-full border",
+              "h-10 w-1.5 group-data-[panel-group-direction=vertical]:h-1.5 group-data-[panel-group-direction=vertical]:w-10",
             )}
           />
-        ) : null}
-      </button>
-    );
-  },
-);
+        ) : null)}
+    </PanelResizeHandle>
+  );
+}
 
 ResizableHandle.displayName = "ResizableHandle";
 
-export const ResizablePanelGroup = React.forwardRef<HTMLDivElement, ResizablePanelGroupProps>(
-  ({ children, className, direction, style, ...props }, ref) => {
-    const containerRef = React.useRef<HTMLDivElement | null>(null);
-    const childArray = React.Children.toArray(children).filter(React.isValidElement) as Array<
-      React.ReactElement<ResizablePanelProps & Partial<InternalPanelProps> & Partial<InternalHandleProps>>
-    >;
-    const panels = childArray.filter(
-      (child): child is React.ReactElement<ResizablePanelProps> => child.type === ResizablePanel,
-    );
-    const panelMetrics = panels.map(
-      (panel) =>
-        ({
-          defaultSize: panel.props.defaultSize,
-          minSize: panel.props.minSize ?? 15,
-        }) satisfies ResizablePanelMetrics,
-    );
-    const [sizes, setSizes] = React.useState(() => normalizePanelSizes(panelMetrics));
-
-    React.useEffect(() => {
-      setSizes((current) =>
-        current.length === panelMetrics.length ? current : normalizePanelSizes(panelMetrics),
-      );
-    }, [panelMetrics.length]);
-
-    const isHorizontal = direction === "horizontal";
-
-    const handleResize = React.useCallback(
-      (index: number, event: React.MouseEvent<HTMLButtonElement>) => {
-        const container = containerRef.current;
-
-        if (!container) {
-          return;
-        }
-
-        const total = isHorizontal ? container.clientWidth : container.clientHeight;
-
-        if (!total) {
-          return;
-        }
-
-        const start = isHorizontal ? event.clientX : event.clientY;
-        const initialSizes = [...sizes];
-
-        const onMove = (moveEvent: MouseEvent) => {
-          const current = isHorizontal ? moveEvent.clientX : moveEvent.clientY;
-          const delta = ((current - start) / total) * 100;
-
-          setSizes(clampPanelSizes(initialSizes, index, delta, panelMetrics));
-        };
-
-        const onUp = () => {
-          window.removeEventListener("mousemove", onMove);
-          window.removeEventListener("mouseup", onUp);
-        };
-
-        window.addEventListener("mousemove", onMove);
-        window.addEventListener("mouseup", onUp);
-      },
-      [isHorizontal, panelMetrics, sizes],
-    );
-
-    let panelIndex = 0;
-    let handleIndex = 0;
-
-    return (
-      <div
-        {...props}
-        ref={(node) => {
-          containerRef.current = node;
-          if (typeof ref === "function") {
-            ref(node);
-          } else if (ref) {
-            ref.current = node;
-          }
-        }}
-        data-testid="resizable-group"
-        data-slot="resizable-panel-group"
-        className={cn(
-          "flex min-h-[12rem] min-w-0 overflow-hidden rounded-[var(--sx-radius-lg)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)]",
-          isHorizontal ? "flex-row" : "flex-col",
-          className,
-        )}
-        style={style}
-      >
-        {childArray.map((child) => {
-          if (child.type === ResizablePanel) {
-            const next = React.cloneElement(child, {
-              __direction: direction,
-              __size: sizes[panelIndex],
-            } satisfies Partial<InternalPanelProps>);
-            panelIndex += 1;
-            return next;
-          }
-
-          if (child.type === ResizableHandle) {
-            const next = React.cloneElement(child, {
-              __direction: direction,
-              __index: handleIndex,
-              __onResize: handleResize,
-            } satisfies Partial<InternalHandleProps>);
-            handleIndex += 1;
-            return next;
-          }
-
-          return child;
-        })}
-      </div>
-    );
-  },
-);
+export const ResizablePanelGroup = React.forwardRef<
+  ImperativePanelGroupHandle,
+  ResizablePanelGroupProps
+>(({ children, className, direction, style, ...props }, ref) => (
+  <PanelGroup
+    {...props}
+    ref={ref}
+    direction={direction}
+    data-slot="resizable-panel-group"
+    data-testid="resizable-group"
+    className={cn(
+      "bg-card flex min-h-[12rem] w-full min-w-0 overflow-hidden rounded-lg border data-[panel-group-direction=vertical]:flex-col",
+      className,
+    )}
+    style={style}
+  >
+    {children}
+  </PanelGroup>
+));
 
 ResizablePanelGroup.displayName = "ResizablePanelGroup";

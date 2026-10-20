@@ -14,14 +14,20 @@ interface InternalPanelProps extends ResizablePanelSharedProps {
   readonly __size?: number;
 }
 
-export interface ResizablePanelGroupProps extends Omit<ViewProps, "children">, ResizablePanelGroupSharedProps {}
-export interface ResizablePanelProps extends Omit<ViewProps, "children">, ResizablePanelSharedProps {}
+export interface ResizablePanelGroupProps extends Omit<ViewProps, "children">, ResizablePanelGroupSharedProps {
+  readonly testID?: string;
+}
+export interface ResizablePanelProps extends Omit<ViewProps, "children">, ResizablePanelSharedProps {
+  readonly testID?: string;
+}
 export interface ResizableHandleProps
   extends React.ComponentPropsWithoutRef<typeof Pressable>,
-    ResizableHandleSharedProps {}
+    ResizableHandleSharedProps {
+  readonly testID?: string;
+}
 
 export const ResizablePanel = React.forwardRef<React.ElementRef<typeof View>, ResizablePanelProps>(
-  ({ children, defaultSize, minSize = 15, style, ...props }, ref) => {
+  ({ children, defaultSize, minSize = 15, style, testID, ...props }, ref) => {
     const { __direction, __size, ...viewProps } = props as ResizablePanelProps & InternalPanelProps;
     const theme = useTheme();
     const size = __size ?? defaultSize ?? 100;
@@ -30,6 +36,7 @@ export const ResizablePanel = React.forwardRef<React.ElementRef<typeof View>, Re
       <View
         {...viewProps}
         ref={ref}
+        testID={testID ?? "resizable-panel"}
         style={[
           {
             flexGrow: size,
@@ -51,7 +58,7 @@ export const ResizablePanel = React.forwardRef<React.ElementRef<typeof View>, Re
 ResizablePanel.displayName = "ResizablePanel";
 
 export const ResizableHandle = React.forwardRef<React.ElementRef<typeof Pressable>, ResizableHandleProps>(
-  ({ style, withHandle = true, ...props }, ref) => {
+  ({ style, testID, withHandle = true, ...props }, ref) => {
     const theme = useTheme();
     const handleStyle: ViewStyle = {
       alignItems: "center",
@@ -64,6 +71,7 @@ export const ResizableHandle = React.forwardRef<React.ElementRef<typeof Pressabl
     return (
       <Pressable
         ref={ref}
+        testID={testID ?? "resizable-handle"}
         accessibilityRole="adjustable"
         {...props}
         style={typeof style === "function" ? style : [handleStyle, style]}
@@ -86,7 +94,7 @@ export const ResizableHandle = React.forwardRef<React.ElementRef<typeof Pressabl
 ResizableHandle.displayName = "ResizableHandle";
 
 export const ResizablePanelGroup = React.forwardRef<React.ElementRef<typeof View>, ResizablePanelGroupProps>(
-  ({ children, direction, style, ...props }, ref) => {
+  ({ children, direction, style, testID, ...props }, ref) => {
     const theme = useTheme();
     const childArray = React.Children.toArray(children).filter(React.isValidElement) as Array<
       React.ReactElement<ResizablePanelProps & Partial<InternalPanelProps>>
@@ -107,6 +115,7 @@ export const ResizablePanelGroup = React.forwardRef<React.ElementRef<typeof View
       <View
         {...props}
         ref={ref}
+        testID={testID ?? "resizable-panel-group"}
         style={[
           {
             flexDirection: direction === "horizontal" ? "row" : "column",
