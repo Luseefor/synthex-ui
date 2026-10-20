@@ -123,7 +123,7 @@ export function DashboardView({
                             <CardContent className="pl-2">
                                 <div className="mt-4 flex h-[300px] w-full items-end justify-between gap-2 px-4 pb-4">
                                     {chartData.map((data) => (
-                                        <div key={data.month} className="group flex w-full flex-col items-center justify-end">
+                                        <div key={data.month} className="group flex h-full w-full flex-col items-center justify-end">
                                             <div
                                                 className="w-full rounded-t-sm bg-primary/20 transition-all duration-300 group-hover:bg-primary group-hover:shadow-[0_0_15px_rgba(var(--sx-primary-rgb),0.3)]"
                                                 style={{ height: `${data.value}%` }}
