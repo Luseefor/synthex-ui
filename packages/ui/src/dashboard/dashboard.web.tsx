@@ -34,7 +34,7 @@ export function DashboardView({
 
     return (
         <div className="flex min-h-full w-full flex-col bg-background">
-            <header className="relative z-10 flex min-h-16 flex-col gap-3 border-b border-border/50 bg-surface/50 px-4 py-3 backdrop-blur-xl md:flex-row md:items-center md:px-6">
+            <header className="relative z-10 flex min-h-16 flex-col gap-3 border-b border-border bg-background px-4 py-3 md:flex-row md:items-center md:px-6">
                 {showBranding ? (
                     <div className="text-lg font-semibold tracking-tight text-foreground md:mr-8">
                         Synthex UI
@@ -42,20 +42,20 @@ export function DashboardView({
                 ) : null}
                 <div className="flex w-full flex-1 items-center md:w-auto">
                     <div className="relative w-full md:max-w-md">
-                        <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-muted" />
+                        <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             placeholder="Search components, tokens, or hooks..."
-                            className="h-9 rounded-full border-border/50 bg-surface/50 pl-9 transition-all focus-visible:ring-1 focus-visible:ring-primary/50"
+                            className="h-9 pl-9"
                             value={searchValue}
                             onChange={(e) => onSearchChange(e.target.value)}
                         />
                     </div>
                 </div>
                 <div className="flex w-full flex-wrap items-center gap-3 md:w-auto md:justify-end">
-                    <Button variant="outline" size="sm" className="hidden h-9 border-border/50 glass-premium md:flex">
+                    <Button variant="outline" size="sm" className="hidden h-9 md:flex">
                         <span className="mr-2 opacity-50">{latestReleaseLabel}</span> Live Data
                     </Button>
-                    <Button variant="default" size="sm" className="h-9 w-full shadow-sm shadow-primary/20 md:w-auto" onClick={onDocumentationClick}>
+                    <Button variant="default" size="sm" className="h-9 w-full md:w-auto" onClick={onDocumentationClick}>
                         View Documentation
                     </Button>
                 </div>
@@ -71,13 +71,13 @@ export function DashboardView({
                 {hasSearch && componentResults.length > 0 && (
                     <section className="space-y-4">
                         <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground-muted">Matching Components</h3>
+                            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Matching Components</h3>
                         </div>
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                             {componentResults.map((comp, i) => (
-                                <Card key={i} className="glass-premium group cursor-pointer overflow-hidden border-border/50 hover-premium">
+                                <Card key={i} className="cursor-pointer">
                                     <CardHeader className="p-4">
-                                        <CardTitle className="text-base transition-colors group-hover:text-primary">{comp.name}</CardTitle>
+                                        <CardTitle className="text-base">{comp.name}</CardTitle>
                                         <CardDescription className="line-clamp-1 text-xs">{comp.description}</CardDescription>
                                     </CardHeader>
                                 </Card>
@@ -89,16 +89,15 @@ export function DashboardView({
                 {(!hasSearch || metrics.length > 0) && (
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                         {metrics.map((metric, i) => (
-                            <Card key={i} className="glass-premium group relative overflow-hidden border-border/50 shadow-sm transition-transform duration-300 hover:-translate-y-1">
-                                <div className="absolute right-0 top-0 -mr-10 -mt-10 h-32 w-32 rounded-full bg-primary/5 blur-3xl transition-colors group-hover:bg-primary/10" />
+                            <Card key={i}>
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium text-foreground-muted">{metric.label}</CardTitle>
-                                    <span className="text-foreground-muted grayscale transition-all group-hover:grayscale-0">{metric.icon}</span>
+                                    <CardTitle className="text-sm font-medium text-muted-foreground">{metric.label}</CardTitle>
+                                    <span className="text-muted-foreground">{metric.icon}</span>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">{metric.value}</div>
                                     {metric.description && (
-                                        <p className="mt-1 text-xs text-foreground-muted">
+                                        <p className="mt-1 text-xs text-muted-foreground">
                                             {metric.trend && (
                                                 <span className={metric.trend.type === "positive" ? "mr-1 font-medium text-emerald-500" : "mr-1 font-medium text-rose-500"}>
                                                     {metric.trend.value}
@@ -115,7 +114,7 @@ export function DashboardView({
 
                 {!hasSearch && (
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                        <Card className="glass-premium border-border/50 shadow-sm lg:col-span-4">
+                        <Card className="lg:col-span-4">
                             <CardHeader>
                                 <CardTitle>{chartTitle}</CardTitle>
                                 <CardDescription>{chartDescription}</CardDescription>
@@ -125,17 +124,17 @@ export function DashboardView({
                                     {chartData.map((data) => (
                                         <div key={data.month} className="group flex h-full w-full flex-col items-center justify-end">
                                             <div
-                                                className="w-full rounded-t-sm bg-primary/20 transition-all duration-300 group-hover:bg-primary group-hover:shadow-[0_0_15px_rgba(var(--sx-primary-rgb),0.3)]"
+                                                className="w-full rounded-t-sm bg-primary/20 transition-colors duration-300 group-hover:bg-primary"
                                                 style={{ height: `${data.value}%` }}
                                             />
-                                            <span className="mt-2 text-[10px] font-medium text-foreground-muted opacity-50 group-hover:opacity-100">{data.month}</span>
+                                            <span className="mt-2 text-[10px] font-medium text-muted-foreground opacity-50 group-hover:opacity-100">{data.month}</span>
                                         </div>
                                     ))}
                                 </div>
                             </CardContent>
                         </Card>
 
-                        <Card className="glass-premium flex flex-col overflow-hidden border-border/50 shadow-sm lg:col-span-3">
+                        <Card className="flex flex-col overflow-hidden lg:col-span-3">
                             <CardHeader className="flex flex-row items-center">
                                 <div className="grid gap-1">
                                     <CardTitle>Recent Updates</CardTitle>
@@ -143,7 +142,7 @@ export function DashboardView({
                                         Latest commits and merges to the main branch.
                                     </CardDescription>
                                 </div>
-                                <Button size="sm" variant="outline" className="ml-auto hidden gap-1 border-border/50 bg-surface/50 lg:flex" onClick={onRepositoryClick}>
+                                <Button size="sm" variant="outline" className="ml-auto hidden gap-1 bg-surface/50 lg:flex" onClick={onRepositoryClick}>
                                     View Repository
                                 </Button>
                             </CardHeader>
@@ -153,15 +152,15 @@ export function DashboardView({
                                         {updates.map((update, i) => (
                                             <TableRow key={i} className="group border-border/30 transition-colors hover:bg-surface-muted/30">
                                                 <TableCell className="w-[50px] py-4">
-                                                    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-border/50 bg-surface-muted text-xs font-semibold transition-colors group-hover:border-primary/50">
+                                                    <div className="flex h-9 w-9 items-center justify-center rounded-full border bg-surface-muted text-xs font-semibold transition-colors group-hover:border-primary/50">
                                                         {update.initials}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="py-4">
                                                     <div className="font-medium transition-colors group-hover:text-primary">{update.title}</div>
-                                                    <div className="text-sm text-foreground-muted">by @{update.user}</div>
+                                                    <div className="text-sm text-muted-foreground">by @{update.user}</div>
                                                 </TableCell>
-                                                <TableCell className="py-4 text-right text-sm text-foreground-muted opacity-70">
+                                                <TableCell className="py-4 text-right text-sm text-muted-foreground opacity-70">
                                                     {update.time}
                                                 </TableCell>
                                             </TableRow>
@@ -174,7 +173,7 @@ export function DashboardView({
                 )}
 
                 {hasSearch && updates.length > 0 && (
-                    <Card className="glass-premium mt-8 flex flex-col overflow-hidden border-border/50 shadow-sm">
+                    <Card className="mt-8 flex flex-col overflow-hidden">
                         <CardHeader className="flex flex-row items-center border-b border-border/30 bg-surface-muted/10">
                             <CardTitle className="text-base">Matching Updates</CardTitle>
                         </CardHeader>
@@ -184,15 +183,15 @@ export function DashboardView({
                                     {updates.map((update, i) => (
                                         <TableRow key={i} className="group border-border/30 transition-colors hover:bg-surface-muted/30">
                                             <TableCell className="w-[50px] px-6 py-4">
-                                                <div className="flex h-9 w-9 items-center justify-center rounded-full border border-border/50 bg-surface-muted text-xs font-semibold transition-colors group-hover:border-primary/50">
+                                                <div className="flex h-9 w-9 items-center justify-center rounded-full border bg-surface-muted text-xs font-semibold transition-colors group-hover:border-primary/50">
                                                     {update.initials}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="py-4">
                                                 <div className="font-medium transition-colors group-hover:text-primary">{update.title}</div>
-                                                <div className="text-sm text-foreground-muted">by @{update.user}</div>
+                                                <div className="text-sm text-muted-foreground">by @{update.user}</div>
                                             </TableCell>
-                                            <TableCell className="px-6 py-4 text-right text-sm text-foreground-muted opacity-70">
+                                            <TableCell className="px-6 py-4 text-right text-sm text-muted-foreground opacity-70">
                                                 {update.time}
                                             </TableCell>
                                         </TableRow>
@@ -206,11 +205,11 @@ export function DashboardView({
                 {hasSearch && componentResults.length === 0 && metrics.length === 0 && updates.length === 0 && (
                     <div className="flex flex-col items-center justify-center space-y-4 py-20 text-center">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-muted">
-                            <SearchIcon className="h-6 w-6 text-foreground-muted opacity-50" />
+                            <SearchIcon className="h-6 w-6 text-muted-foreground opacity-50" />
                         </div>
                         <div className="space-y-1">
                             <h3 className="text-lg font-semibold">No results found</h3>
-                            <p className="max-w-sm text-foreground-muted">No components, metrics, or updates matched your search for "{searchValue}".</p>
+                            <p className="max-w-sm text-muted-foreground">No components, metrics, or updates matched your search for "{searchValue}".</p>
                         </div>
                         <Button variant="outline" size="sm" onClick={() => onSearchChange("")}>Clear Search</Button>
                     </div>
