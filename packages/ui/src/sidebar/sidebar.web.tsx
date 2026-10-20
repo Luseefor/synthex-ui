@@ -69,12 +69,13 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
           />
           <div
             ref={ref}
+            data-slot="sidebar"
+            data-state={open ? "open" : "closed"}
             className={cn(
-              "fixed inset-y-0 start-0 z-50 flex h-[100dvh] w-[min(18rem,calc(100vw-1.5rem))] flex-col border-e border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] shadow-[0_20px_48px_rgba(15,23,42,0.28)] transition-transform duration-200",
+              "bg-card border-border fixed inset-y-0 start-0 z-50 flex h-[100dvh] w-[min(18rem,calc(100vw-1.5rem))] flex-col border-e shadow-[0_20px_48px_rgba(15,23,42,0.28)] transition-transform duration-200",
               open ? "translate-x-0" : "-translate-x-full rtl:translate-x-full",
               className
             )}
-            data-state={open ? "open" : "closed"}
             {...props}
           >
             {children}
@@ -86,8 +87,9 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
     return (
       <aside
         ref={ref}
+        data-slot="sidebar"
         className={cn(
-          "group/sidebar sticky top-0 z-10 flex h-svh flex-col border-e border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] transition-[width] duration-200 ease-linear",
+          "bg-card border-border group/sidebar sticky top-0 z-10 flex h-svh flex-col border-e transition-[width] duration-200 ease-linear",
           open ? "w-[16rem]" : "w-[3rem]",
           className
         )}
@@ -109,8 +111,9 @@ export const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttribut
     return (
       <div
         ref={ref}
+        data-slot="sidebar-header"
         className={cn(
-          "border-b border-[color:var(--sx-color-border)] py-4 transition-[padding] duration-200",
+          "border-border border-b py-4 transition-[padding] duration-200",
           open ? "px-4" : "px-2",
           className,
         )}
@@ -129,8 +132,9 @@ export const SidebarFooter = React.forwardRef<HTMLDivElement, React.HTMLAttribut
     return (
       <div
         ref={ref}
+        data-slot="sidebar-footer"
         className={cn(
-          "border-t border-[color:var(--sx-color-border)] py-4 transition-[padding] duration-200",
+          "border-border border-t py-4 transition-[padding] duration-200",
           open ? "px-4" : "px-2",
           className,
         )}
@@ -149,6 +153,7 @@ export const SidebarContent = React.forwardRef<HTMLDivElement, React.HTMLAttribu
     return (
       <div
         ref={ref}
+        data-slot="sidebar-content"
         className={cn(
           "flex-1 overflow-x-hidden overflow-y-auto py-2 transition-[padding] duration-200",
           open ? "px-2" : "px-2",
@@ -164,7 +169,7 @@ SidebarContent.displayName = "SidebarContent";
 
 export const SidebarGroup = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("mb-4 flex flex-col gap-2", className)} {...props} />
+    <div ref={ref} data-slot="sidebar-group" className={cn("mb-4 flex flex-col gap-2", className)} {...props} />
   ),
 );
 
@@ -179,8 +184,9 @@ export const SidebarGroupLabel = React.forwardRef<
   return (
     <div
       ref={ref}
+      data-slot="sidebar-group-label"
       className={cn(
-        "text-[0.7rem] font-medium uppercase tracking-tight text-[color:var(--sx-color-foreground-muted)] transition-[opacity,height,padding] duration-200",
+        "text-muted-foreground text-[0.7rem] font-medium uppercase tracking-tight transition-[opacity,height,padding] duration-200",
         open ? "h-auto px-2 opacity-100" : "h-0 overflow-hidden px-0 opacity-0",
         className,
       )}
@@ -195,21 +201,21 @@ export const SidebarGroupContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("flex flex-col gap-1", className)} {...props} />
+  <div ref={ref} data-slot="sidebar-group-content" className={cn("flex flex-col gap-1", className)} {...props} />
 ));
 
 SidebarGroupContent.displayName = "SidebarGroupContent";
 
 export const SidebarMenu = React.forwardRef<HTMLUListElement, React.HTMLAttributes<HTMLUListElement>>(
   ({ className, ...props }, ref) => (
-    <ul ref={ref} className={cn("flex list-none flex-col gap-1 p-0", className)} {...props} />
+    <ul ref={ref} data-slot="sidebar-menu" className={cn("flex list-none flex-col gap-1 p-0", className)} {...props} />
   ),
 );
 
 SidebarMenu.displayName = "SidebarMenu";
 
 export const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.LiHTMLAttributes<HTMLLIElement>>(
-  ({ className, ...props }, ref) => <li ref={ref} className={cn("list-none", className)} {...props} />,
+  ({ className, ...props }, ref) => <li ref={ref} data-slot="sidebar-menu-item" className={cn("list-none", className)} {...props} />,
 );
 
 SidebarMenuItem.displayName = "SidebarMenuItem";
@@ -223,12 +229,13 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
     return (
       <button
         ref={ref}
+        data-slot="sidebar-menu-button"
         aria-label={props["aria-label"] ?? (!open ? stringChildren ?? undefined : undefined)}
         className={cn(
-          "flex min-h-8 w-full items-center gap-2 overflow-hidden rounded-[var(--sx-radius-md)] py-1.5 text-start text-sm transition-[background-color,color,padding] duration-200",
+          "flex min-h-8 w-full items-center gap-2 overflow-hidden rounded-md py-1.5 text-start text-sm transition-[background-color,color,padding] duration-200",
           active
-            ? "bg-[color:var(--sx-color-accent)] text-[color:var(--sx-color-foreground)] font-medium"
-            : "text-[color:var(--sx-color-foreground-muted)] font-normal hover:bg-[color:var(--sx-color-accent)] hover:text-[color:var(--sx-color-foreground)]",
+            ? "bg-accent text-accent-foreground font-medium"
+            : "text-muted-foreground font-normal hover:bg-accent hover:text-accent-foreground",
           open ? "px-2" : "justify-center px-0",
           className,
         )}
@@ -270,8 +277,9 @@ export const SidebarInset = React.forwardRef<HTMLDivElement, SidebarInsetProps>(
   ({ children, className, ...props }, ref) => (
     <main
       ref={ref}
+      data-slot="sidebar-inset"
       className={cn(
-        "relative flex min-h-svh flex-1 flex-col bg-[color:var(--sx-color-background)]",
+        "bg-background relative flex min-h-svh flex-1 flex-col",
         className,
       )}
       {...props}
@@ -287,8 +295,9 @@ export const SidebarRail = React.forwardRef<HTMLDivElement, React.HTMLAttributes
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
+      data-slot="sidebar-rail"
       aria-hidden="true"
-      className={cn("mx-auto h-10 w-1 rounded-full bg-[color:var(--sx-color-border)]", className)}
+      className={cn("bg-border mx-auto h-10 w-1 rounded-full", className)}
       {...props}
     />
   ),
@@ -303,10 +312,11 @@ export const SidebarTrigger = React.forwardRef<HTMLButtonElement, SidebarTrigger
     return (
       <button
         ref={ref}
+        data-slot="sidebar-trigger"
         aria-label="Toggle Sidebar"
         data-sidebar="trigger"
         className={cn(
-          "inline-flex h-8 w-8 items-center justify-center rounded-[var(--sx-radius-md)] text-[color:var(--sx-color-foreground-muted)] transition-colors hover:bg-[color:var(--sx-color-accent)] hover:text-[color:var(--sx-color-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)]",
+          "text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2",
           className
         )}
         onClick={(event) => {

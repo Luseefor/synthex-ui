@@ -22,13 +22,14 @@ import {
 
 export interface ToastProviderProps extends ViewProps {
   readonly children: React.ReactNode;
+  readonly testID?: string;
 }
 
-export function ToastProvider({ children, ...props }: ToastProviderProps) {
+export function ToastProvider({ children, testID, ...props }: ToastProviderProps) {
   const store = useToastState();
   return (
     <ToastProviderStore value={store}>
-      <View {...props}>{children}</View>
+      <View testID={testID ?? "toast-provider"} {...props}>{children}</View>
     </ToastProviderStore>
   );
 }
@@ -37,6 +38,7 @@ export interface ToastViewportProps extends ViewProps {
   readonly expand?: boolean;
   readonly position?: "top" | "bottom";
   readonly richColors?: boolean;
+  readonly testID?: string;
 }
 export function ToastViewport({
   expand = false,
@@ -44,6 +46,7 @@ export function ToastViewport({
   // Retained for Sonner API parity; variant colors already convey richness.
   richColors: _richColors = false,
   style,
+  testID,
   ...props
 }: ToastViewportProps) {
   const store = useToastStore();
@@ -51,6 +54,7 @@ export function ToastViewport({
   return (
     <Modal transparent visible={store.toasts.length > 0}>
       <View
+        testID={testID ?? "toast-viewport"}
         style={[
           {
             gap: expand ? 16 : 12,
@@ -90,6 +94,7 @@ function ToastCard({ toast }: { readonly toast: ToastDescriptor }) {
 
   return (
     <View
+      testID="toast"
       style={{
         backgroundColor: theme.colors.surface,
         borderColor: theme.colors.border,
@@ -160,13 +165,16 @@ function ToastCard({ toast }: { readonly toast: ToastDescriptor }) {
   );
 }
 
-export interface ToastProps extends ViewProps, ToastSharedProps {}
+export interface ToastProps extends ViewProps, ToastSharedProps {
+  readonly testID?: string;
+}
 export function Toast({
   children,
   duration = 5000,
   onOpenChange,
   open = true,
   style,
+  testID,
   ...props
 }: ToastProps) {
   const [visible, setVisible] = React.useState(open);
@@ -196,6 +204,7 @@ export function Toast({
 
   return (
     <View
+      testID={testID ?? "toast"}
       style={[
         {
           backgroundColor: theme.colors.surface,
@@ -214,11 +223,14 @@ export function Toast({
   );
 }
 
-export interface ToastTitleProps extends NativeTextProps {}
-export function ToastTitle({ style, ...props }: ToastTitleProps) {
+export interface ToastTitleProps extends NativeTextProps {
+  readonly testID?: string;
+}
+export function ToastTitle({ style, testID, ...props }: ToastTitleProps) {
   const theme = useTheme();
   return (
     <NativeText
+      testID={testID ?? "toast-title"}
       style={[
         {
           color: theme.colors.foreground,
@@ -234,11 +246,14 @@ export function ToastTitle({ style, ...props }: ToastTitleProps) {
   );
 }
 
-export interface ToastDescriptionProps extends NativeTextProps {}
-export function ToastDescription({ style, ...props }: ToastDescriptionProps) {
+export interface ToastDescriptionProps extends NativeTextProps {
+  readonly testID?: string;
+}
+export function ToastDescription({ style, testID, ...props }: ToastDescriptionProps) {
   const theme = useTheme();
   return (
     <NativeText
+      testID={testID ?? "toast-description"}
       style={[
         {
           color: theme.colors.foregroundMuted,
@@ -255,17 +270,20 @@ export function ToastDescription({ style, ...props }: ToastDescriptionProps) {
 }
 
 export interface ToastActionProps extends React.ComponentPropsWithoutRef<typeof Button> {}
-export function ToastAction(props: ToastActionProps) {
-  return <Button size="sm" variant="secondary" {...props} />;
+export function ToastAction({ testID, ...props }: ToastActionProps) {
+  // testID mirrors web `data-slot="toast-action"` for parity.
+  return <Button size="sm" variant="secondary" testID={testID ?? "toast-action"} {...props} />;
 }
 
 export interface ToastCloseProps extends Omit<PressableProps, "children" | "style"> {
   readonly children?: React.ReactNode;
+  readonly testID?: string;
 }
-export function ToastClose({ children, ...props }: ToastCloseProps) {
+export function ToastClose({ children, testID, ...props }: ToastCloseProps) {
   const theme = useTheme();
   return (
     <Pressable
+      testID={testID ?? "toast-close"}
       accessibilityLabel="Dismiss toast"
       style={[
         {
@@ -287,7 +305,9 @@ export function ToastClose({ children, ...props }: ToastCloseProps) {
   );
 }
 
-export interface ToasterProps extends ToastViewportProps {}
+export interface ToasterProps extends ToastViewportProps {
+  readonly theme?: "light" | "dark" | "system";
+}
 
 export function Toaster(props: ToasterProps) {
   return <ToastViewport {...props} />;

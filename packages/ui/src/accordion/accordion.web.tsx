@@ -1,150 +1,67 @@
 import * as React from "react";
+import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cn } from "../_shared/variants";
 import { ChevronDownIcon } from "../icons/index.web";
-import {
-  AccordionItemProvider,
-  AccordionProvider,
-  useAccordionContext,
-  useAccordionController,
-  useAccordionItemContext,
-  type AccordionItemSharedProps,
-  type AccordionSharedProps,
-} from "./accordion.shared";
 
-export interface AccordionProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange">,
-    AccordionSharedProps {}
-
-export function Accordion({
-  children,
-  className,
-  collapsible,
-  defaultValue,
-  onValueChange,
-  type,
-  value,
+function Accordion({
   ...props
-}: AccordionProps) {
-  const controller = useAccordionController({
-    collapsible,
-    defaultValue,
-    onValueChange,
-    type,
-    value,
-  });
+}: React.ComponentProps<typeof AccordionPrimitive.Root>) {
+  return <AccordionPrimitive.Root data-slot="accordion" {...props} />;
+}
 
+function AccordionItem({
+  className,
+  ...props
+}: React.ComponentProps<typeof AccordionPrimitive.Item>) {
   return (
-    <AccordionProvider value={controller}>
-      <div className={cn("w-full", className)} {...props}>
-        {children}
-      </div>
-    </AccordionProvider>
+    <AccordionPrimitive.Item
+      data-slot="accordion-item"
+      className={cn("border-b last:border-b-0", className)}
+      {...props}
+    />
   );
 }
 
-export interface AccordionItemProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    AccordionItemSharedProps {}
-
-export const AccordionItem = React.forwardRef<HTMLDivElement, AccordionItemProps>(
-  ({ children, className, disabled = false, value, ...props }, ref) => {
-    const rawId = React.useId();
-    const sanitized = React.useMemo(() => rawId.replace(/:/g, ""), [rawId]);
-    const contentId = React.useMemo(() => `sx-accordion-content-${sanitized}`, [sanitized]);
-    const triggerId = React.useMemo(() => `sx-accordion-trigger-${sanitized}`, [sanitized]);
-    const accordion = useAccordionContext();
-    const open = accordion.isItemOpen(value);
-    const itemValue = React.useMemo(
-      () => ({ value, disabled, contentId, triggerId }),
-      [value, disabled, contentId, triggerId],
-    );
-    return (
-      <AccordionItemProvider value={itemValue}>
-        <div
-          ref={ref}
-          data-state={open ? "open" : "closed"}
-          data-disabled={disabled || undefined}
-          className={cn(
-            "border-b border-[color:var(--sx-color-border)] last:border-b-0",
-            className,
-          )}
-          {...props}
-        >
-          {children}
-        </div>
-      </AccordionItemProvider>
-    );
-  },
-);
-
-AccordionItem.displayName = "AccordionItem";
-
-export const AccordionTrigger = React.forwardRef<
-  HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement>
->(({ children, className, disabled: triggerDisabled, id, onClick, ...props }, ref) => {
-  const accordion = useAccordionContext();
-  const item = useAccordionItemContext();
-  const open = accordion.isItemOpen(item.value);
-  const disabled = Boolean(triggerDisabled ?? item.disabled);
-
+function AccordionTrigger({
+  children,
+  className,
+  ...props
+}: React.ComponentProps<typeof AccordionPrimitive.Trigger>) {
   return (
-    <button
-      ref={ref}
-      type="button"
-      id={id ?? item.triggerId}
-      aria-expanded={open}
-      aria-controls={item.contentId}
-      aria-disabled={disabled || undefined}
-      data-state={open ? "open" : "closed"}
-      data-disabled={disabled || undefined}
-      disabled={disabled}
-      className={cn(
-        "flex w-full items-center justify-between gap-4 py-4 text-left text-sm font-medium tracking-[-0.01em] text-[color:var(--sx-color-foreground)] transition-colors duration-[var(--sx-motion-fast)] hover:text-[color:var(--sx-color-primary)] disabled:pointer-events-none disabled:opacity-45",
-        className,
-      )}
-      onClick={(event) => {
-        if (disabled) {
-          return;
-        }
-        accordion.toggleItem(item.value);
-        onClick?.(event);
-      }}
+    <AccordionPrimitive.Header className="flex">
+      <AccordionPrimitive.Trigger
+        data-slot="accordion-trigger"
+        className={cn(
+          "flex flex-1 items-center justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180",
+          className,
+        )}
+        {...props}
+      >
+        {children}
+        <ChevronDownIcon
+          size={16}
+          strokeWidth={2}
+          className="text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-px transition-transform duration-200"
+        />
+      </AccordionPrimitive.Trigger>
+    </AccordionPrimitive.Header>
+  );
+}
+
+function AccordionContent({
+  children,
+  className,
+  ...props
+}: React.ComponentProps<typeof AccordionPrimitive.Content>) {
+  return (
+    <AccordionPrimitive.Content
+      data-slot="accordion-content"
+      className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
       {...props}
     >
-      <span>{children}</span>
-      <span className={cn("transition-transform duration-[var(--sx-motion-fast)]", open && "rotate-180")}>
-        <ChevronDownIcon size={16} strokeWidth={2} />
-      </span>
-    </button>
+      <div className={cn("pt-0 pb-4", className)}>{children}</div>
+    </AccordionPrimitive.Content>
   );
-});
+}
 
-AccordionTrigger.displayName = "AccordionTrigger";
-
-export const AccordionContent = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ children, className, id, ...props }, ref) => {
-  const accordion = useAccordionContext();
-  const item = useAccordionItemContext();
-  const open = accordion.isItemOpen(item.value);
-
-  return (
-    <div
-      ref={ref}
-      id={id ?? item.contentId}
-      role="region"
-      aria-labelledby={item.triggerId}
-      hidden={!open}
-      data-state={open ? "open" : "closed"}
-      data-disabled={item.disabled || undefined}
-      className={cn("pb-4 text-sm text-[color:var(--sx-color-foreground-muted)]", className)}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-});
-
-AccordionContent.displayName = "AccordionContent";
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent };

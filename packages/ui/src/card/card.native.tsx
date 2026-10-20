@@ -13,10 +13,11 @@ import { resolveCardVariants, type CardVariantProps } from "./card.shared";
 
 export interface CardProps extends Omit<ViewProps, "style">, CardVariantProps {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export const Card = React.forwardRef<React.ElementRef<typeof View>, CardProps>(
-  ({ style, variant, ...props }, ref) => {
+  ({ style, testID, variant, ...props }, ref) => {
     const theme = useTheme();
     const resolved = resolveCardVariants({ variant });
     const cardStyle = React.useMemo<ViewStyle>(() => {
@@ -74,7 +75,7 @@ export const Card = React.forwardRef<React.ElementRef<typeof View>, CardProps>(
       };
     }, [resolved.variant, theme]);
 
-    return <View ref={ref} style={[cardStyle, style]} {...props} />;
+    return <View ref={ref} testID={testID ?? "card"} style={[cardStyle, style]} {...props} />;
   },
 );
 
@@ -82,12 +83,14 @@ Card.displayName = "Card";
 
 export interface CardSectionProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export const CardHeader = React.forwardRef<React.ElementRef<typeof View>, CardSectionProps>(
-  ({ style, ...props }, ref) => (
+  ({ style, testID, ...props }, ref) => (
     <View
       ref={ref}
+      testID={testID ?? "card-header"}
       style={[
         {
           paddingHorizontal: 24,
@@ -106,15 +109,17 @@ CardHeader.displayName = "CardHeader";
 
 export interface CardTextProps extends Omit<TextProps, "style"> {
   readonly style?: StyleProp<TextStyle>;
+  readonly testID?: string;
 }
 
 export const CardTitle = React.forwardRef<React.ElementRef<typeof Text>, CardTextProps>(
-  ({ style, ...props }, ref) => {
+  ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
     return (
       <Text
         ref={ref}
+        testID={testID ?? "card-title"}
         style={[
           {
             color: theme.colors.foreground,
@@ -134,7 +139,8 @@ export const CardTitle = React.forwardRef<React.ElementRef<typeof Text>, CardTex
 CardTitle.displayName = "CardTitle";
 
 export const CardDescription = React.forwardRef<React.ElementRef<typeof Text>, CardTextProps>(
-  ({ style, ...props }, ref) => {
+  ({ style, testID, ...props }, ref) => {
+    // testID mirrors web `data-slot="card-description"`.
     const theme = useTheme();
 
     return (
@@ -158,9 +164,10 @@ export const CardDescription = React.forwardRef<React.ElementRef<typeof Text>, C
 CardDescription.displayName = "CardDescription";
 
 export const CardContent = React.forwardRef<React.ElementRef<typeof View>, CardSectionProps>(
-  ({ style, ...props }, ref) => (
+  ({ style, testID, ...props }, ref) => (
     <View
       ref={ref}
+      testID={testID ?? "card-content"}
       style={[
         {
           paddingHorizontal: 24,
@@ -176,9 +183,10 @@ export const CardContent = React.forwardRef<React.ElementRef<typeof View>, CardS
 CardContent.displayName = "CardContent";
 
 export const CardFooter = React.forwardRef<React.ElementRef<typeof View>, CardSectionProps>(
-  ({ style, ...props }, ref) => (
+  ({ style, testID, ...props }, ref) => (
     <View
       ref={ref}
+      testID={testID ?? "card-footer"}
       style={[
         {
           paddingHorizontal: 24,
@@ -195,3 +203,12 @@ export const CardFooter = React.forwardRef<React.ElementRef<typeof View>, CardSe
 );
 
 CardFooter.displayName = "CardFooter";
+
+
+export const CardAction = React.forwardRef<React.ElementRef<typeof View>, CardSectionProps>(
+  ({ style, testID, ...props }, ref) => (
+    <View ref={ref} testID={testID ?? "card-action"} style={[{ alignSelf: "flex-end" }, style]} {...props} />
+  ),
+);
+
+CardAction.displayName = "CardAction";

@@ -13,6 +13,7 @@ import { resolveAlertVariants, type AlertSharedProps } from "./alert.shared";
 
 export interface AlertProps extends Omit<ViewProps, "style">, AlertSharedProps {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 const AlertVariantContext = React.createContext<AlertSharedProps["variant"] | undefined>(
@@ -20,7 +21,7 @@ const AlertVariantContext = React.createContext<AlertSharedProps["variant"] | un
 );
 
 export const Alert = React.forwardRef<React.ElementRef<typeof View>, AlertProps>(
-  ({ style, variant, ...props }, ref) => {
+  ({ style, testID, variant, ...props }, ref) => {
     const theme = useTheme();
     const resolved = resolveAlertVariants({ variant });
 
@@ -56,7 +57,7 @@ export const Alert = React.forwardRef<React.ElementRef<typeof View>, AlertProps>
 
     return (
       <AlertVariantContext.Provider value={variant}>
-        <View ref={ref} style={[alertStyle, style]} {...props} />
+        <View ref={ref} testID={testID ?? "alert"} style={[alertStyle, style]} {...props} />
       </AlertVariantContext.Provider>
     );
   },
@@ -66,10 +67,11 @@ Alert.displayName = "Alert";
 
 export interface AlertTextProps extends Omit<TextProps, "style">, AlertSharedProps {
   readonly style?: StyleProp<TextStyle>;
+  readonly testID?: string;
 }
 
 export const AlertTitle = React.forwardRef<React.ElementRef<typeof Text>, AlertTextProps>(
-  ({ style, variant, ...props }, ref) => {
+  ({ style, testID, variant, ...props }, ref) => {
     const theme = useTheme();
     const contextVariant = React.useContext(AlertVariantContext);
     const resolved = resolveAlertVariants({ variant: variant ?? contextVariant });
@@ -85,6 +87,7 @@ export const AlertTitle = React.forwardRef<React.ElementRef<typeof Text>, AlertT
     return (
       <Text
         ref={ref}
+        testID={testID ?? "alert-title"}
         style={[
           {
             color,
@@ -106,7 +109,7 @@ AlertTitle.displayName = "AlertTitle";
 export const AlertDescription = React.forwardRef<
   React.ElementRef<typeof Text>,
   AlertTextProps
->(({ style, variant, ...props }, ref) => {
+>(({ style, testID, variant, ...props }, ref) => {
   const theme = useTheme();
   const contextVariant = React.useContext(AlertVariantContext);
   const resolved = resolveAlertVariants({ variant: variant ?? contextVariant });
@@ -122,6 +125,7 @@ export const AlertDescription = React.forwardRef<
   return (
     <Text
       ref={ref}
+      testID={testID ?? "alert-description"}
       style={[
         {
           color,

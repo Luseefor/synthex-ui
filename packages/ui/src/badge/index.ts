@@ -1,6 +1,6 @@
-export { Badge } from "./badge.web";
+export { Badge, badgeVariants } from "./badge.web";
+export type { BadgeProps } from "./badge.web";
 export {
-  badgeVariants,
   resolveBadgeVariants,
   type BadgeSharedProps,
   type BadgeVariantProps,

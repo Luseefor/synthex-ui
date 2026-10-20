@@ -1,242 +1,240 @@
 import * as React from "react";
+import * as ToastPrimitives from "@radix-ui/react-toast";
+import { cva, type VariantProps } from "class-variance-authority";
+import { Toaster as SonnerPrimitive } from "sonner";
 import { cn } from "../_shared/variants";
-import { Button } from "../button/button.web";
-import { CheckIcon, CloseIcon } from "../icons/index.web";
+import { CloseIcon } from "../icons/index.web";
 import {
   ToastProviderStore,
   useToast,
   useToastState,
   useToastStore,
-  type ToastDescriptor,
   type ToastSharedProps,
 } from "./toast.shared";
 
-export interface ToastProviderProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ToastProviderProps {
   readonly children: React.ReactNode;
+  readonly swipeDirection?: React.ComponentProps<typeof ToastPrimitives.Provider>["swipeDirection"];
 }
 
-export function ToastProvider({ children, ...props }: ToastProviderProps) {
+export function ToastProvider({ children, swipeDirection = "right" }: ToastProviderProps) {
   const store = useToastState();
 
   return (
-    <ToastProviderStore value={store}>
-      <div {...props}>{children}</div>
-    </ToastProviderStore>
+    <ToastPrimitives.Provider swipeDirection={swipeDirection}>
+      <ToastProviderStore value={store}>{children}</ToastProviderStore>
+    </ToastPrimitives.Provider>
   );
 }
 
-export interface ToastViewportProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ToastViewportProps
+  extends React.ComponentProps<typeof ToastPrimitives.Viewport> {
   readonly expand?: boolean;
   readonly position?: "top" | "bottom";
   readonly richColors?: boolean;
 }
 
-export const ToastViewport = React.forwardRef<HTMLDivElement, ToastViewportProps>(
+export const ToastViewport = React.forwardRef<HTMLOListElement, ToastViewportProps>(
   ({ className, expand = false, position = "bottom", richColors = false, ...props }, ref) => {
     const store = useToastStore();
 
     return (
-      <div
+      <ToastPrimitives.Viewport
         ref={ref}
         data-slot="toast-viewport"
         data-expand={expand}
         data-position={position}
         data-rich-colors={richColors}
         className={cn(
-          position === "top"
-            ? "fixed top-0 right-0 z-[100] flex w-full max-w-[420px] flex-col gap-2 p-4 sm:top-4 sm:right-4"
-            : "fixed bottom-0 right-0 z-[100] flex w-full max-w-[420px] flex-col-reverse gap-2 p-4 sm:bottom-4 sm:right-4 sm:flex-col",
+          "fixed z-[100] flex max-h-screen w-full max-w-[420px] flex-col p-4",
+          position === "top" ? "top-0 right-0 sm:top-4 sm:right-4" : "right-0 bottom-0 sm:right-4 sm:bottom-4",
           expand && "gap-3",
+          !expand && "gap-2",
           className,
         )}
         {...props}
       >
         {store.toasts.map((toast) => (
-          <Toast key={toast.id} duration={toast.duration} variant={toast.variant}>
-            <div className="flex flex-1 flex-col gap-1">
-              <ToastTitle>{toast.title}</ToastTitle>
+          <Toast
+            key={toast.id}
+            duration={toast.duration}
+            variant={toast.variant}
+            open
+            onOpenChange={(open) => {
+              if (!open) {
+                store.dismissToast(toast.id);
+              }
+            }}
+          >
+            <div className="grid gap-1">
+              {toast.title ? <ToastTitle>{toast.title}</ToastTitle> : null}
               {toast.description ? (
                 <ToastDescription>{toast.description}</ToastDescription>
               ) : null}
             </div>
-            <div className="flex items-center gap-1.5 shrink-0">
-              {toast.actionLabel ? (
-                <ToastAction
-                  onClick={() => {
-                    toast.action?.();
-                    store.dismissToast(toast.id);
-                  }}
-                >
-                  {toast.actionLabel}
-                </ToastAction>
-              ) : null}
-              <ToastClose onClick={() => store.dismissToast(toast.id)} />
-            </div>
+            {toast.actionLabel ? (
+              <ToastAction
+                altText={toast.actionLabel}
+                onClick={() => {
+                  toast.action?.();
+                  store.dismissToast(toast.id);
+                }}
+              >
+                {toast.actionLabel}
+              </ToastAction>
+            ) : null}
+            <ToastClose onClick={() => store.dismissToast(toast.id)} />
           </Toast>
         ))}
-      </div>
+      </ToastPrimitives.Viewport>
     );
   },
 );
 
 ToastViewport.displayName = "ToastViewport";
 
-export interface ToastProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-  ToastSharedProps { }
-
-export const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
-  (
-    {
-      children,
-      className,
-      duration = 5000,
-      onOpenChange,
-      open = true,
-      variant = "default",
-      ...props
+const toastVariants = cva(
+  "group pointer-events-auto relative flex w-full items-center justify-between space-x-2 overflow-hidden rounded-md border p-4 pr-6 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
+  {
+    variants: {
+      variant: {
+        default: "bg-card text-card-foreground border",
+        destructive:
+          "destructive group border-destructive bg-destructive text-white",
+        success: "bg-card text-card-foreground border-emerald-500/40",
+        warning: "bg-card text-card-foreground border-amber-500/40",
+      },
     },
-    ref,
-  ) => {
-    const [visible, setVisible] = React.useState(open);
-    const [exiting, setExiting] = React.useState(false);
-
-    React.useEffect(() => {
-      setVisible(open);
-    }, [open]);
-
-    React.useEffect(() => {
-      if (!visible || !duration) {
-        return;
-      }
-
-      const timeout = window.setTimeout(() => {
-        setExiting(true);
-        window.setTimeout(() => {
-          setVisible(false);
-          onOpenChange?.(false);
-        }, 200);
-      }, duration);
-
-      return () => {
-        window.clearTimeout(timeout);
-      };
-    }, [duration, onOpenChange, visible]);
-
-    if (!visible) {
-      return null;
-    }
-
-    const variantClasses =
-      variant === "success"
-        ? "border-l-[3px] border-l-emerald-500"
-        : variant === "warning"
-          ? "border-l-[3px] border-l-amber-500"
-          : variant === "destructive"
-            ? "border-l-[3px] border-l-[color:var(--sx-color-destructive)]"
-            : "border-l-[3px] border-l-[color:var(--sx-color-primary)]";
-
-    const iconBg =
-      variant === "success"
-        ? "bg-emerald-500/10 text-emerald-600"
-        : variant === "warning"
-          ? "bg-amber-500/10 text-amber-600"
-          : variant === "destructive"
-            ? "bg-[color:var(--sx-color-destructive-muted)] text-[color:var(--sx-color-destructive)]"
-            : "bg-[color:var(--sx-color-primary-muted)] text-[color:var(--sx-color-primary)]";
-
-    return (
-      <div
-        ref={ref}
-        role="status"
-        data-state={exiting ? "closed" : "open"}
-        className={cn(
-          "group pointer-events-auto relative flex w-full items-center gap-3 overflow-hidden rounded-[var(--sx-radius-lg)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-4 shadow-[var(--sx-shadow-toast)]",
-          variantClasses,
-          exiting
-            ? "animate-[sx-toast-exit_200ms_var(--sx-easing-standard)_forwards]"
-            : "animate-[sx-toast-enter_300ms_var(--sx-easing-emphasized)]",
-          className,
-        )}
-        {...props}
-      >
-        <div
-          className={cn(
-            "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-            iconBg,
-          )}
-        >
-          {variant === "destructive" ? <CloseIcon size={14} strokeWidth={2.5} /> : <CheckIcon size={14} strokeWidth={2.5} />}
-        </div>
-        <div className="flex flex-1 items-center justify-between gap-4 min-w-0">
-          {children}
-        </div>
-      </div>
-    );
+    defaultVariants: {
+      variant: "default",
+    },
   },
 );
 
-Toast.displayName = "Toast";
+export interface ToastProps
+  extends React.ComponentProps<typeof ToastPrimitives.Root>,
+    VariantProps<typeof toastVariants> {}
 
-export interface ToastTitleProps extends React.HTMLAttributes<HTMLDivElement> { }
-export function ToastTitle({ className, ...props }: ToastTitleProps) {
-  return (
-    <div
-      className={cn("text-sm font-semibold leading-5 tracking-[-0.01em] text-[color:var(--sx-color-foreground)]", className)}
+const Toast = React.forwardRef<React.ElementRef<typeof ToastPrimitives.Root>, ToastProps>(
+  ({ className, variant = "default", ...props }, ref) => (
+    <ToastPrimitives.Root
+      ref={ref}
+      data-slot="toast"
+      data-variant={variant}
+      className={cn(toastVariants({ variant }), className)}
       {...props}
     />
-  );
+  ),
+);
+
+Toast.displayName = ToastPrimitives.Root.displayName;
+
+const ToastAction = React.forwardRef<
+  React.ElementRef<typeof ToastPrimitives.Action>,
+  React.ComponentProps<typeof ToastPrimitives.Action>
+>(({ className, ...props }, ref) => (
+  <ToastPrimitives.Action
+    ref={ref}
+    data-slot="toast-action"
+    className={cn(
+      "ring-ring hover:bg-secondary focus:ring-ring inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors focus:ring-1 focus:outline-none disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-white/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-white group-[.destructive]:focus:ring-destructive",
+      className,
+    )}
+    {...props}
+  />
+));
+
+ToastAction.displayName = ToastPrimitives.Action.displayName;
+
+const ToastClose = React.forwardRef<
+  React.ElementRef<typeof ToastPrimitives.Close>,
+  React.ComponentProps<typeof ToastPrimitives.Close>
+>(({ className, ...props }, ref) => (
+  <ToastPrimitives.Close
+    ref={ref}
+    data-slot="toast-close"
+    aria-label="Dismiss toast"
+    className={cn(
+      "text-foreground/50 hover:text-foreground absolute top-1 right-1 rounded-md p-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus:opacity-100 group-[.destructive]:text-red-300 group-[.destructive]:hover:text-red-50 [&_svg]:size-4",
+      className,
+    )}
+    {...props}
+  >
+    <CloseIcon size={14} />
+  </ToastPrimitives.Close>
+));
+
+ToastClose.displayName = ToastPrimitives.Close.displayName;
+
+const ToastTitle = React.forwardRef<
+  React.ElementRef<typeof ToastPrimitives.Title>,
+  React.ComponentProps<typeof ToastPrimitives.Title>
+>(({ className, ...props }, ref) => (
+  <ToastPrimitives.Title
+    ref={ref}
+    data-slot="toast-title"
+    className={cn("text-sm font-semibold [&+div]:text-xs", className)}
+    {...props}
+  />
+));
+
+ToastTitle.displayName = ToastPrimitives.Title.displayName;
+
+const ToastDescription = React.forwardRef<
+  React.ElementRef<typeof ToastPrimitives.Description>,
+  React.ComponentProps<typeof ToastPrimitives.Description>
+>(({ className, ...props }, ref) => (
+  <ToastPrimitives.Description
+    ref={ref}
+    data-slot="toast-description"
+    className={cn("text-muted-foreground text-sm opacity-90", className)}
+    {...props}
+  />
+));
+
+ToastDescription.displayName = ToastPrimitives.Description.displayName;
+
+export { Toast, ToastAction, ToastClose, ToastTitle, ToastDescription };
+
+export type ToastActionElement = React.ReactElement<typeof ToastAction>;
+
+export interface ToasterProps extends ToastViewportProps {
+  readonly theme?: "light" | "dark" | "system";
+  readonly toastOptions?: Record<string, unknown>;
+  readonly gap?: number;
+  readonly visibleToasts?: number;
 }
 
-export interface ToastDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> { }
-export function ToastDescription({ className, ...props }: ToastDescriptionProps) {
+export function Toaster({
+  expand = false,
+  gap,
+  position = "bottom",
+  richColors = false,
+  theme = "system",
+  toastOptions,
+  visibleToasts,
+  ...props
+}: ToasterProps): React.JSX.Element {
+  const sonnerPosition =
+    position === "top" ? ("top-right" as const) : ("bottom-right" as const);
+
   return (
-    <p
-      className={cn("text-[13px] leading-5 text-[color:var(--sx-color-foreground-muted)]", className)}
-      {...props}
-    />
+    <>
+      <ToastViewport expand={expand} position={position} richColors={richColors} {...props} />
+      <SonnerPrimitive
+        data-slot="sonner-toaster"
+        theme={theme}
+        position={sonnerPosition}
+        expand={expand}
+        richColors={richColors}
+        gap={gap}
+        visibleToasts={visibleToasts}
+        toastOptions={toastOptions}
+      />
+    </>
   );
 }
 
-export interface ToastActionProps extends React.ButtonHTMLAttributes<HTMLButtonElement> { }
-export function ToastAction({ className, type = "button", ...props }: ToastActionProps) {
-  return (
-    <Button
-      type={type}
-      size="sm"
-      variant="outline"
-      className={cn("h-7 shrink-0 rounded-[var(--sx-radius-md)] text-xs font-medium", className)}
-      {...props}
-    />
-  );
-}
-
-export interface ToastCloseProps extends React.ButtonHTMLAttributes<HTMLButtonElement> { }
-export function ToastClose({ className, type = "button", ...props }: ToastCloseProps) {
-  return (
-    <button
-      type={type}
-      aria-label="Dismiss toast"
-      className={cn(
-        "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--sx-radius-sm)] text-[color:var(--sx-color-foreground-muted)] opacity-0 transition-all duration-[var(--sx-motion-fast)] hover:bg-[color:var(--sx-color-surface-muted)] hover:text-[color:var(--sx-color-foreground)] group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)]",
-        className,
-      )}
-      {...props}
-    >
-      <CloseIcon size={14} />
-    </button>
-  );
-}
-
-export interface ToasterProps extends ToastViewportProps {}
-
-export function Toaster(props: ToasterProps) {
-  return <ToastViewport {...props} />;
-}
-
-// Single implementation serves both Toaster and Sonner for API parity.
-// `position`, `expand`, and `richColors` are accepted on both; swipe-to-dismiss
-// and focus management remain future enhancements (see toast.shared).
 export const Sonner = Toaster;
 export type SonnerProps = ToasterProps;
 
@@ -244,4 +242,5 @@ export function useSonner() {
   return useToast();
 }
 
-export { useToast };
+export { useToast, toastVariants };
+export type { ToastSharedProps };

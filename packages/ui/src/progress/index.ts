@@ -1,2 +1,7 @@
-export * from "./progress.shared";
-export * from "./progress.web";
+export { Progress, progressVariants } from "./progress.web";
+export type { ProgressProps } from "./progress.web";
+export {
+  resolveProgressVariants,
+  type ProgressSharedProps,
+  type ProgressVariantProps,
+} from "./progress.shared";

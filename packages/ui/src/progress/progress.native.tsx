@@ -5,10 +5,11 @@ import { resolveProgressVariants, type ProgressSharedProps } from "./progress.sh
 
 export interface ProgressProps extends Omit<ViewProps, "style">, ProgressSharedProps {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export const Progress = React.forwardRef<React.ElementRef<typeof View>, ProgressProps>(
-  ({ max = 100, size, style, value = 0, ...props }, ref) => {
+  ({ max = 100, size, style, testID, value = 0, ...props }, ref) => {
     const theme = useTheme();
     const resolved = resolveProgressVariants({ size });
     const clampedValue = Math.min(Math.max(value, 0), max);
@@ -23,6 +24,7 @@ export const Progress = React.forwardRef<React.ElementRef<typeof View>, Progress
     return (
       <View
         ref={ref}
+        testID={testID ?? "progress"}
         accessibilityRole="progressbar"
         style={[
           {
