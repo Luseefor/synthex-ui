@@ -70,7 +70,7 @@ export default defineConfig(({ command }) => {
         {
           find: /^synthex-ui\/icons$/,
           replacement: fileURLToPath(
-            new URL(`${uiBase}/icons/${useWorkspaceSourceAliases ? "index.web.ts" : "index.web.js"}`, import.meta.url),
+            new URL(`${uiBase}/icons/${useWorkspaceSourceAliases ? "index.web.tsx" : "index.web.js"}`, import.meta.url),
           ),
         },
         {
@@ -82,7 +82,7 @@ export default defineConfig(({ command }) => {
         {
           find: /^synthex-ui\/layout$/,
           replacement: fileURLToPath(
-            new URL(`${uiBase}/layout/${useWorkspaceSourceAliases ? "index.web.ts" : "index.web.js"}`, import.meta.url),
+            new URL(`${uiBase}/layout/${useWorkspaceSourceAliases ? "index.web.tsx" : "index.web.js"}`, import.meta.url),
           ),
         },
         {
