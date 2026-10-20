@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.1.0",
   "type": "module",
-  "packageManager": "bun@1.3.2",
+  "packageManager": "bun@1.4.3",
   "workspaces": [
     "packages/*"
   ],
@@ -15,13 +15,20 @@
     "dev": "npm run dev --workspace @luseefor/web-preview",
     "web:dev": "npm run dev --workspace @luseefor/web-preview",
     "pack:check": "node ./scripts/pack-check.mjs",
-    "publish:public": "node ./scripts/publish-packages.mjs",
-    "release:check": "node ./scripts/release-check.mjs",
-    "test": "npm run test --workspace synthex-ui && npm run test --workspace @luseefor/synthex-react-web"
+    "registry:generate": "node ./scripts/generate-registry.mjs",
+    "registry:check": "node ./scripts/generate-registry.mjs && git diff --exit-code registry.json packages/web-preview/public/registry.json && node ./scripts/validate-registry.mjs",
+    "changeset": "changeset",
+    "migrate:shadcn": "node ./scripts/migrate-shadcn.mjs",
+    "tokens:export": "node ./scripts/export-tokens.mjs",
+    "test": "npm run test --workspace @luseefor/synthex-core && npm run test --workspace @luseefor/synthex-cli && npm run test --workspace synthex-ui && npm run test --workspace @luseefor/synthex-react-web"
   },
   "devDependencies": {
+    "@changesets/cli": "^3.0.3",
     "@types/node": "^24.0.0",
-    "react-router-dom": "^7.9.3",
+    "react-router-dom": "^7.18.4",
     "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "uuid": "^11.1.1"
   }
 }
