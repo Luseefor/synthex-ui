@@ -1,0 +1,88 @@
+# Synthex UI, llms.txt
+
+Versioned web + native component system. Every component ships
+`.web.tsx` + `.native.tsx` + `.shared.ts` under `packages/ui/src/*`.
+
+## Install
+
+```bash
+npm install synthex-ui
+npm install synthex-ui @luseefor/synthex-core @luseefor/synthex-react-web # workbench engine
+```
+
+```ts
+import "synthex-ui/styles.css"; // once, at app root
+```
+
+Tailwind must scan the built output:
+
+```css
+@import "tailwindcss";
+@source "../../node_modules/synthex-ui/dist";
+```
+
+## Theme
+
+```tsx
+import { ThemeProvider } from "synthex-ui/theme";
+
+<ThemeProvider mode="light" accentPreset="blue">
+  <YourApp />
+</ThemeProvider>;
+```
+
+- `mode`: `"light" | "dark"` (default `"light"`). Dark mode also works via
+  `data-theme="dark"` ancestor or `prefers-color-scheme` without a provider.
+- Programmatic tokens: `createTheme`, `themeToCssVariables`, 9 accents,
+  `resolveAccentPreset`, 4 accents in the preview (steel, stone, bronze, mulberry).
+- RTL: `DirectionProvider` (`synthex-ui/components`, also `direction.web/native`)
+  renders `div[dir]` on web / `View style={{ direction }}` on native.
+  Uncontrolled by default; `dir` + `onDirChange` make it controlled,
+  `toggleDir()` flips `ltr`/`rtl`, `useDirection()` reads context.
+
+## Workbench
+
+`@luseefor/synthex-core` (layout reducer, engine, validation, command
+registry, store, serialization) + `@luseefor/synthex-react-web`
+(`LayoutRenderer`, `SplitView`, `TabView`, `useSynthex`).
+
+```tsx
+import { LayoutRenderer, useSynthex } from "@luseefor/synthex-react-web";
+
+const synthex = useSynthex({ layout: initialLayout });
+<LayoutRenderer layout={synthex.layout} renderPanel={(panel) => <YourPanel panel={panel} />} />;
+```
+
+## CLI (`synthex`, packages/cli)
+
+The CLI runs `init`, `layout:create`, `layout:add-panel <panelId>`,
+`layout:split <nodeId> <horizontal|vertical>`, `layout:print`, `undo`,
+`redo`, `run <file>`, `history`, `validate`, `test`.
+
+`synthex add <component>` and `synthex list` (shadcn-style copy from
+`packages/ui/src/*` plus dep install) are planned. I have not built them yet.
+See `docs/synthex-vs-shadcn.md`.
+
+## Components (`synthex-ui/components`)
+
+Form: Button, Input, InputOTP, Label, Textarea, Checkbox, RadioGroup,
+Switch, Toggle, ToggleGroup, Select, Combobox, Command, NativeSelect,
+Slider, Field (+FieldSet/Legend/Label/Error), Form (+FormField/Item/Control),
+InputGroup, ButtonGroup, Kbd, Spinner.
+Layout: Card, Separator, Resizable, AspectRatio, ScrollArea, Sidebar (+provider/trigger/menu),
+Tabs, Accordion, Collapsible, Carousel, Pagination, Breadcrumb, Table, DataTable.
+Overlays: Dialog, AlertDialog, Drawer, Sheet, Popover, HoverCard, Tooltip,
+DropdownMenu, ContextMenu, Menubar, NavigationMenu, Toast/Toaster/Sonner.
+Feedback: Alert, Badge, Avatar, Progress, Skeleton, Empty, Item, Calendar,
+DatePicker, Chart (Area/Bar/Line + container/legend/tooltip).
+Providers: ThemeProvider, DirectionProvider (+`useDirection`).
+App blocks (`synthex.web`): AssistantChatPanel, CadenceBarChart,
+ContactSplitForm, DungeonHUDShell, ExperienceTimeline,
+FloatingAssistantLauncher, KPIStatGrid, Marquee, ProjectCaseRow,
+ThemeAccentSwitcher, TimelineRow.
+Typography: H1, H2, H3, Lead, Muted, Small.
+
+Import from these subpaths. `components`, `blocks` (alias of `dist/synthex/index`; same app blocks as bundled in `components`, no move), `primitives`, `layout`, `hooks`, `icons`,
+`theme`, `styles.css`, `web`, `native`.
+Start with these docs. `docs/getting-started.md`, `docs/theming.md`, `docs/styling.md`,
+`docs/workbench.md`, `docs/synthex-vs-shadcn.md`.
