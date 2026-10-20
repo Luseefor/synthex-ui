@@ -2,7 +2,7 @@
 
 Synthex UI uses CSS custom properties (`--sx-*`) as its theme contract. Every component references these tokens for colors, spacing, typography, radius, shadows, and motion.
 
-## Token Reference
+## Token reference
 
 ### Colors
 
@@ -59,11 +59,11 @@ const theme = createTheme(
 );
 ```
 
-`createTheme` merges: base theme → accent preset → your overrides.
+`createTheme` merges base theme, then accent preset, then your overrides. I start from a preset and override one or two tokens. Full custom themes drift fast.
 
-## Accent Presets
+## Accent presets
 
-Five built-in accent palettes that override primary/accent/ring colors:
+The library ships five accent palettes. Each overrides primary, accent, and ring colors:
 
 | Preset    | Swatch    |
 |-----------|-----------|
@@ -77,7 +77,7 @@ Five built-in accent palettes that override primary/accent/ring colors:
 <ThemeProvider accentPreset="emerald" mode="dark">
 ```
 
-## Custom Theme
+## Custom theme
 
 ```tsx
 import { ThemeProvider } from "synthex-ui/theme";
@@ -96,7 +96,7 @@ import { ThemeProvider } from "synthex-ui/theme";
 >
 ```
 
-## CSS-Only Theming
+## CSS-only theming
 
 Without `ThemeProvider`, override tokens directly:
 

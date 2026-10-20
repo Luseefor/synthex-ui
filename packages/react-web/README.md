@@ -1,6 +1,6 @@
 # @luseefor/synthex-react-web
 
-React DOM adapter for rendering the Synthex layout engine on the web.
+React DOM adapter that renders the Synthex layout engine on the web.
 
 ## Install
 

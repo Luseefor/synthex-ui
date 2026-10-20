@@ -1,6 +1,6 @@
 # @luseefor/synthex-core
 
-Framework-agnostic layout and command engine used by Synthex UI.
+Framework-agnostic layout and command engine for Synthex UI.
 
 ## Install
 
