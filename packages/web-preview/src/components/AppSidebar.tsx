@@ -60,11 +60,11 @@ export function AppSidebar({
                                         <SidebarMenuButton
                                             active={isActive}
                                             className={cn(
-                                                "min-h-11 rounded-[18px] border border-transparent px-3 text-[15px] font-medium transition-all duration-200",
+                                                "h-9 rounded-md px-3 text-sm font-medium",
                                                 isActive
-                                                    ? "border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-accent)] text-[color:var(--sx-color-foreground)] shadow-sm"
-                                                    : "text-[color:var(--sx-color-foreground-muted)] hover:border-[color:var(--sx-color-border)] hover:bg-[color:var(--sx-color-surface-muted)]/45 hover:text-[color:var(--sx-color-foreground)]",
-                                                !open && "mx-auto h-11 w-11 min-h-11 justify-center rounded-[16px] px-0"
+                                                    ? "bg-accent text-accent-foreground"
+                                                    : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+                                                !open && "mx-auto h-9 w-9 justify-center px-0"
                                             )}
                                             onClick={() => {
                                                 navigate(item.to);
