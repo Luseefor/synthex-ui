@@ -247,3 +247,149 @@ export const SelectItem = React.forwardRef<React.ElementRef<typeof Pressable>, S
 );
 
 SelectItem.displayName = "SelectItem";
+
+export interface SelectGroupProps extends Omit<ViewProps, "style"> {
+  readonly style?: StyleProp<ViewStyle>;
+}
+
+export const SelectGroup = React.forwardRef<React.ElementRef<typeof View>, SelectGroupProps>(
+  ({ style, ...props }, ref) => <View ref={ref} style={style} {...props} />,
+);
+
+SelectGroup.displayName = "SelectGroup";
+
+export interface SelectLabelProps extends Omit<TextProps, "style"> {
+  readonly style?: StyleProp<TextStyle>;
+}
+
+export const SelectLabel = React.forwardRef<React.ElementRef<typeof Text>, SelectLabelProps>(
+  ({ style, ...props }, ref) => {
+    const theme = useTheme();
+
+    return (
+      <Text
+        ref={ref}
+        style={[
+          {
+            color: theme.colors.foregroundMuted,
+            fontFamily: theme.typography.family.sans,
+            fontSize: theme.typography.size.xs,
+            fontWeight: theme.typography.weight.semibold,
+            letterSpacing: 1,
+            textTransform: "uppercase",
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+          },
+          style,
+        ]}
+        {...props}
+      />
+    );
+  },
+);
+
+SelectLabel.displayName = "SelectLabel";
+
+export interface SelectSeparatorProps extends Omit<ViewProps, "style"> {
+  readonly style?: StyleProp<ViewStyle>;
+}
+
+export const SelectSeparator = React.forwardRef<
+  React.ElementRef<typeof View>,
+  SelectSeparatorProps
+>(({ style, ...props }, ref) => {
+  const theme = useTheme();
+
+  return (
+    <View
+      ref={ref}
+      accessibilityRole="none"
+      style={[
+        {
+          height: 1,
+          marginVertical: 4,
+          backgroundColor: theme.colors.border,
+        },
+        style,
+      ]}
+      {...props}
+    />
+  );
+});
+
+SelectSeparator.displayName = "SelectSeparator";
+
+export interface SelectScrollButtonProps extends Omit<PressableProps, "style"> {
+  readonly style?: StyleProp<ViewStyle>;
+}
+
+export const SelectScrollUpButton = React.forwardRef<
+  React.ElementRef<typeof Pressable>,
+  SelectScrollButtonProps
+>(({ onPress, style, ...props }, ref) => (
+  <Pressable
+    ref={ref}
+    accessibilityRole="button"
+    accessibilityLabel="Scroll up"
+    onPress={onPress}
+    style={[{ alignItems: "center", paddingVertical: 4 }, style]}
+    {...props}
+  >
+    <View style={{ transform: [{ rotate: "180deg" }] }}>
+      <ChevronDownIcon size={14} />
+    </View>
+  </Pressable>
+));
+
+SelectScrollUpButton.displayName = "SelectScrollUpButton";
+
+export const SelectScrollDownButton = React.forwardRef<
+  React.ElementRef<typeof Pressable>,
+  SelectScrollButtonProps
+>(({ onPress, style, ...props }, ref) => (
+  <Pressable
+    ref={ref}
+    accessibilityRole="button"
+    accessibilityLabel="Scroll down"
+    onPress={onPress}
+    style={[{ alignItems: "center", paddingVertical: 4 }, style]}
+    {...props}
+  >
+    <ChevronDownIcon size={14} />
+  </Pressable>
+));
+
+SelectScrollDownButton.displayName = "SelectScrollDownButton";
+
+export interface SelectArrowProps extends Omit<ViewProps, "style"> {
+  readonly style?: StyleProp<ViewStyle>;
+}
+
+export const SelectArrow = React.forwardRef<React.ElementRef<typeof View>, SelectArrowProps>(
+  ({ style, ...props }, ref) => {
+    const theme = useTheme();
+
+    return (
+      <View
+        ref={ref}
+        accessible={false}
+        style={[
+          {
+            alignSelf: "center",
+            width: 8,
+            height: 8,
+            transform: [{ rotate: "45deg" }],
+            borderBottomWidth: 1,
+            borderRightWidth: 1,
+            borderColor: theme.colors.border,
+            backgroundColor: theme.colors.surface,
+          },
+          style,
+        ]}
+        {...props}
+      />
+    );
+  },
+);
+
+SelectArrow.displayName = "SelectArrow";
