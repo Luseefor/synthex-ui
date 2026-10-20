@@ -518,7 +518,6 @@
       "files": [
         "direction.native.tsx",
         "direction.shared.ts",
-        "direction.test.tsx",
         "direction.web.tsx"
       ],
       "deps": [
