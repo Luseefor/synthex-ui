@@ -52,7 +52,7 @@ export function FeedbackShowcase() {
                   <ToastTitle>Regular toast</ToastTitle>
                   <ToastDescription>Default neutral feedback for a normal completion state.</ToastDescription>
                 </div>
-                <ToastAction>Undo</ToastAction>
+                <ToastAction altText="Undo">Undo</ToastAction>
                 <ToastClose />
               </Toast>
               <Toast open duration={0} variant="warning">

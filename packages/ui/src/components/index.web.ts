@@ -1,12 +1,12 @@
-export { Button } from "../button/button.web";
+export { Button, buttonVariants } from "../button/button.web";
 export {
-  buttonVariants,
   resolveButtonVariants,
   type ButtonSharedProps,
   type ButtonVariantProps,
 } from "../button/button.shared";
 export {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -14,10 +14,10 @@ export {
   CardTitle,
 } from "../card/card.web";
 export {
-  cardVariants,
   resolveCardVariants,
   type CardVariantProps,
 } from "../card/card.shared";
+export { cardVariants } from "../card/card.web";
 export * from "../dashboard";
 export { Input } from "../input/input.web";
 export {
@@ -64,7 +64,9 @@ export {
   FormItem,
   FormLabel,
   FormMessage,
+  useFormField,
 } from "../form/form.web";
+export type { FormFieldProps } from "../form/form.web";
 export type {
   FormFieldSharedProps,
   FormItemSharedProps,
@@ -137,7 +139,7 @@ export {
   CarouselNext,
   CarouselPrevious,
 } from "../carousel/carousel.web";
-export type { CarouselSharedProps } from "../carousel/carousel.shared";
+export type { CarouselApi, CarouselOptions, CarouselPlugin, CarouselSharedProps } from "../carousel/carousel.shared";
 export {
   AreaChart,
   BarChart,
@@ -150,6 +152,7 @@ export {
   LineChart,
 } from "../chart/chart.web";
 export type {
+  BaseChartSharedProps,
   ChartConfig,
   ChartConfigEntry,
   ChartContainerSharedProps,
@@ -161,7 +164,7 @@ export type {
   ChartTooltipItem,
 } from "../chart/chart.shared";
 export { Calendar } from "../calendar/calendar.web";
-export type { CalendarSharedProps } from "../calendar/calendar.shared";
+export type { CalendarDateRange, CalendarMode, CalendarSharedProps } from "../calendar/calendar.shared";
 export { AspectRatio } from "../aspect-ratio/aspect-ratio.web";
 export type { AspectRatioSharedProps } from "../aspect-ratio/aspect-ratio.shared";
 export {
@@ -196,14 +199,13 @@ export {
   type SwitchSharedProps,
   type SwitchVariantProps,
 } from "../switch/switch.shared";
-export { Toggle } from "../toggle/toggle.web";
 export {
   ToggleGroup,
   ToggleGroupItem,
 } from "../toggle-group/toggle-group.web";
 export type { ToggleGroupSharedProps } from "../toggle-group/toggle-group.shared";
+export { Toggle, toggleVariants } from "../toggle/toggle.web";
 export {
-  toggleVariants,
   resolveToggleVariants,
   type ToggleSharedProps,
   type ToggleVariantProps,
@@ -243,11 +245,13 @@ export type {
 } from "../select/select.shared";
 export {
   Command,
+  CommandDialog,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from "../command/command.web";
 export type {
   CommandItemSharedProps,
@@ -518,6 +522,7 @@ export type {
   DataTableAlign,
   DataTableColumn,
   DataTableSharedProps,
+  DataTableSorting,
 } from "../data-table/data-table.shared";
 export {
   AssistantChatPanel,
@@ -561,4 +566,4 @@ export {
   resolveThemeAccentTheme,
   themeAccentPresets,
 } from "../synthex/synthex.shared";
-export { H1, H2, H3, Lead, Muted, Small } from "../typography/typography.web";
+export { H1, H2, H3, H4, P, Blockquote, Code, Lead, Large, Small, Muted } from "../typography/typography.web";
