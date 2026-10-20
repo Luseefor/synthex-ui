@@ -5,11 +5,14 @@ import { resolveToggleVariants, type ToggleSharedProps } from "./toggle.shared";
 
 export interface ToggleProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onChange">,
-  ToggleSharedProps { }
+  ToggleSharedProps {
+  readonly asChild?: boolean;
+}
 
 export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
   (
     {
+      asChild,
       className,
       defaultPressed = false,
       onClick,
@@ -17,6 +20,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
       pressed,
       size,
       variant,
+      children,
       ...props
     },
     ref,
@@ -28,39 +32,64 @@ export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
     });
     const resolved = resolveToggleVariants({ size, variant });
 
+    const classNameMerged = cn(
+      "inline-flex items-center justify-center gap-2 rounded-[var(--sx-radius-md)] text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-50",
+      resolved.size === "sm"
+        ? "h-8 px-3 text-xs"
+        : resolved.size === "lg"
+          ? "h-10 px-8"
+          : "h-9 px-4 text-sm",
+      resolved.variant === "default"
+        ? currentPressed
+          ? "border-transparent bg-[color:var(--sx-color-primary)] text-[color:var(--sx-color-foreground-on-brand)] shadow-[var(--sx-shadow-sm)]"
+          : "border-transparent bg-[color:var(--sx-color-secondary)] text-[color:var(--sx-color-foreground)] hover:bg-[color:var(--sx-color-secondary)]/80"
+        : currentPressed
+          ? "border-transparent bg-[color:var(--sx-color-accent)] text-[color:var(--sx-color-foreground)]"
+          : "border-[color:var(--sx-color-border)] bg-transparent text-[color:var(--sx-color-foreground)] hover:bg-[color:var(--sx-color-accent)] hover:text-[color:var(--sx-color-foreground)]",
+      className,
+    );
+
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+      onClick?.(event);
+
+      if (event.defaultPrevented) {
+        return;
+      }
+
+      setCurrentPressed(!currentPressed);
+    };
+
+    type AsChildProps = {
+      onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+      [key: string]: unknown;
+    };
+
+    if (asChild && React.isValidElement<AsChildProps>(children)) {
+      return React.cloneElement(children, {
+        ref,
+        "aria-pressed": currentPressed,
+        "data-state": currentPressed ? "on" : "off",
+        ...props,
+        className: cn(classNameMerged, children.props.className as string | undefined),
+        onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
+          handleClick(e);
+          children.props.onClick?.(e);
+        },
+      });
+    }
+
     return (
       <button
         ref={ref}
         type="button"
         aria-pressed={currentPressed}
         data-state={currentPressed ? "on" : "off"}
-        className={cn(
-          "inline-flex items-center justify-center gap-2 rounded-[var(--sx-radius-md)] text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-50",
-          resolved.size === "sm"
-            ? "h-8 px-3 text-xs"
-            : resolved.size === "lg"
-              ? "h-10 px-8"
-              : "h-9 px-4 text-sm",
-          resolved.variant === "default"
-            ? currentPressed
-              ? "border-transparent bg-[color:var(--sx-color-primary)] text-[color:var(--sx-color-foreground-on-brand)] shadow-[var(--sx-shadow-sm)]"
-              : "border-transparent bg-[color:var(--sx-color-secondary)] text-[color:var(--sx-color-foreground)] hover:bg-[color:var(--sx-color-secondary)]/80"
-            : currentPressed
-              ? "border-transparent bg-[color:var(--sx-color-accent)] text-[color:var(--sx-color-foreground)]"
-              : "border-[color:var(--sx-color-border)] bg-transparent text-[color:var(--sx-color-foreground)] hover:bg-[color:var(--sx-color-accent)] hover:text-[color:var(--sx-color-foreground)]",
-          className,
-        )}
-        onClick={(event) => {
-          onClick?.(event);
-
-          if (event.defaultPrevented) {
-            return;
-          }
-
-          setCurrentPressed(!currentPressed);
-        }}
+        className={classNameMerged}
+        onClick={handleClick}
         {...props}
-      />
+      >
+        {children}
+      </button>
     );
   },
 );
