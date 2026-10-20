@@ -48,15 +48,19 @@ export function DropdownMenu({
   onOpenChange,
   open,
   style,
+  testID,
   ...props
 }: DropdownMenuProps) {
-  void dir;
   void modal;
   const controller = useDropdownMenuController({ defaultOpen, onOpenChange, open });
 
   return (
     <DropdownMenuProvider value={controller}>
-      <View style={[{ position: "relative" }, style]} {...props}>
+      <View
+        testID={testID ?? "dropdown-menu"}
+        style={[{ position: "relative" }, dir ? { direction: dir } : null, style]}
+        {...props}
+      >
         {children}
       </View>
     </DropdownMenuProvider>
@@ -72,7 +76,7 @@ export interface DropdownMenuTriggerProps extends Omit<PressableProps, "style"> 
 export const DropdownMenuTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DropdownMenuTriggerProps
->(({ children, onPress, style, asChild, ...props }, ref) => {
+>(({ children, onPress, style, asChild, testID, ...props }, ref) => {
   const context = useDropdownMenuContext();
 
   const handlePress = React.useCallback(
@@ -92,6 +96,7 @@ export const DropdownMenuTrigger = React.forwardRef<
     return React.cloneElement(children, {
       ref,
       ...props,
+      testID: testID ?? "dropdown-menu-trigger",
       accessibilityRole: "button",
       accessibilityState: { expanded: context.open },
       onPress: (e: GestureResponderEvent) => {
@@ -104,6 +109,7 @@ export const DropdownMenuTrigger = React.forwardRef<
   return (
     <Pressable
       ref={ref}
+      testID={testID ?? "dropdown-menu-trigger"}
       accessibilityRole="button"
       accessibilityState={{ expanded: context.open }}
       onPress={handlePress}
@@ -125,7 +131,7 @@ export interface DropdownMenuContentProps extends Omit<ViewProps, "style">, Over
 export const DropdownMenuContent = React.forwardRef<
   React.ElementRef<typeof View>,
   DropdownMenuContentProps
->(({ align, alignOffset, side, sideOffset, style, ...props }, ref) => {
+>(({ align, alignOffset, side, sideOffset, style, testID, ...props }, ref) => {
   const context = useDropdownMenuContext();
   const theme = useTheme();
 
@@ -136,6 +142,7 @@ export const DropdownMenuContent = React.forwardRef<
   return (
     <View
       ref={ref}
+      testID={testID ?? "dropdown-menu-content"}
       style={[
         {
           marginTop: 8,
@@ -164,11 +171,11 @@ export interface DropdownMenuLabelProps extends Omit<ViewProps, "style"> {
 export const DropdownMenuLabel = React.forwardRef<
   React.ElementRef<typeof View>,
   DropdownMenuLabelProps
->(({ children, style, textStyle, ...props }, ref) => {
+>(({ children, style, textStyle, testID, ...props }, ref) => {
   const theme = useTheme();
 
   return (
-    <View ref={ref} style={[{ paddingHorizontal: 12, paddingVertical: 8 }, style]} {...props}>
+    <View ref={ref} testID={testID ?? "dropdown-menu-label"} style={[{ paddingHorizontal: 12, paddingVertical: 8 }, style]} {...props}>
       <Text
         style={[
           {
@@ -197,12 +204,13 @@ export interface DropdownMenuSeparatorProps extends Omit<ViewProps, "style"> {
 export const DropdownMenuSeparator = React.forwardRef<
   React.ElementRef<typeof View>,
   DropdownMenuSeparatorProps
->(({ style, ...props }, ref) => {
+>(({ style, testID, ...props }, ref) => {
   const theme = useTheme();
 
   return (
     <View
       ref={ref}
+      testID={testID ?? "dropdown-menu-separator"}
       style={[{ marginVertical: 4, height: 1, backgroundColor: theme.colors.border }, style]}
       {...props}
     />
@@ -220,13 +228,14 @@ export interface DropdownMenuItemProps extends Omit<PressableProps, "style"> {
 export const DropdownMenuItem = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DropdownMenuItemProps
->(({ children, onPress, style, textStyle, ...props }, ref) => {
+>(({ children, onPress, style, textStyle, testID, ...props }, ref) => {
   const context = useDropdownMenuContext();
   const theme = useTheme();
 
   return (
     <Pressable
       ref={ref}
+      testID={testID ?? "dropdown-menu-item"}
       accessibilityRole="button"
       onPress={(event) => {
         onPress?.(event);
@@ -271,12 +280,12 @@ export interface DropdownMenuSubProps extends Omit<ViewProps, "style">, Dropdown
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export function DropdownMenuSub({ children, defaultOpen, onOpenChange, open, style, ...props }: DropdownMenuSubProps) {
+export function DropdownMenuSub({ children, defaultOpen, onOpenChange, open, style, testID, ...props }: DropdownMenuSubProps) {
   const controller = useDropdownMenuSubController({ defaultOpen, onOpenChange, open });
 
   return (
     <DropdownMenuSubProvider value={controller}>
-      <View style={[{ position: "relative" }, style]} {...props}>
+      <View testID={testID ?? "dropdown-menu-sub"} style={[{ position: "relative" }, style]} {...props}>
         {children}
       </View>
     </DropdownMenuSubProvider>
@@ -292,13 +301,14 @@ export interface DropdownMenuSubTriggerProps extends Omit<PressableProps, "style
 export const DropdownMenuSubTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DropdownMenuSubTriggerProps
->(({ children, onPress, style, textStyle, ...props }, ref) => {
+>(({ children, onPress, style, textStyle, testID, ...props }, ref) => {
   const sub = useDropdownMenuSubContext();
   const theme = useTheme();
 
   return (
     <Pressable
       ref={ref}
+      testID={testID ?? "dropdown-menu-sub-trigger"}
       accessibilityRole="button"
       accessibilityState={{ expanded: sub.open }}
       accessibilityHint="Opens submenu"
@@ -349,7 +359,7 @@ export interface DropdownMenuSubContentProps extends Omit<ViewProps, "style"> {
 export const DropdownMenuSubContent = React.forwardRef<
   React.ElementRef<typeof View>,
   DropdownMenuSubContentProps
->(({ style, ...props }, ref) => {
+>(({ style, testID, ...props }, ref) => {
   const sub = useDropdownMenuSubContext();
   const theme = useTheme();
 
@@ -360,6 +370,7 @@ export const DropdownMenuSubContent = React.forwardRef<
   return (
     <View
       ref={ref}
+      testID={testID ?? "dropdown-menu-sub-content"}
       style={[
         {
           marginTop: 4,
@@ -390,7 +401,7 @@ export interface DropdownMenuCheckboxItemProps extends Omit<PressableProps, "sty
 export const DropdownMenuCheckboxItem = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DropdownMenuCheckboxItemProps
->(({ children, checked, defaultChecked = false, onCheckedChange, onPress, style, textStyle, ...props }, ref) => {
+>(({ children, checked, defaultChecked = false, onCheckedChange, onPress, style, textStyle, testID, ...props }, ref) => {
   const theme = useTheme();
   const [currentChecked, setCurrentChecked] = useControllableState<boolean>({
     defaultValue: defaultChecked,
@@ -401,6 +412,7 @@ export const DropdownMenuCheckboxItem = React.forwardRef<
   return (
     <Pressable
       ref={ref}
+      testID={testID ?? "dropdown-menu-checkbox-item"}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: currentChecked }}
       onPress={(event) => {
@@ -447,12 +459,12 @@ export interface DropdownMenuRadioGroupProps extends Omit<ViewProps, "style">, D
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export function DropdownMenuRadioGroup({ children, defaultValue, onValueChange, value, style, ...props }: DropdownMenuRadioGroupProps) {
+export function DropdownMenuRadioGroup({ children, defaultValue, onValueChange, value, style, testID, ...props }: DropdownMenuRadioGroupProps) {
   const controller = useDropdownMenuRadioGroupController({ defaultValue, onValueChange, value });
 
   return (
     <DropdownMenuRadioGroupProvider value={controller}>
-      <View style={style} {...props}>
+      <View testID={testID ?? "dropdown-menu-radio-group"} style={style} {...props}>
         {children}
       </View>
     </DropdownMenuRadioGroupProvider>
@@ -468,7 +480,7 @@ export interface DropdownMenuRadioItemProps extends Omit<PressableProps, "style"
 export const DropdownMenuRadioItem = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DropdownMenuRadioItemProps
->(({ children, onPress, style, textStyle, value, ...props }, ref) => {
+>(({ children, onPress, style, textStyle, value, testID, ...props }, ref) => {
   const theme = useTheme();
   const group = useOptionalDropdownMenuRadioGroupContext();
   const checked = group ? group.value === value : false;
@@ -476,6 +488,7 @@ export const DropdownMenuRadioItem = React.forwardRef<
   return (
     <Pressable
       ref={ref}
+      testID={testID ?? "dropdown-menu-radio-item"}
       accessibilityRole="radio"
       accessibilityState={{ checked, selected: checked }}
       onPress={(event) => {
@@ -526,11 +539,11 @@ export interface DropdownMenuShortcutProps extends Omit<ViewProps, "style"> {
 }
 
 export const DropdownMenuShortcut = React.forwardRef<React.ElementRef<typeof View>, DropdownMenuShortcutProps>(
-  ({ children, style, textStyle, ...props }, ref) => {
+  ({ children, style, textStyle, testID, ...props }, ref) => {
     const theme = useTheme();
 
     return (
-      <View ref={ref} style={[{ marginLeft: "auto", paddingLeft: 16 }, style]} {...props}>
+      <View ref={ref} testID={testID ?? "dropdown-menu-shortcut"} style={[{ marginLeft: "auto", paddingLeft: 16 }, style]} {...props}>
         {typeof children === "string" || typeof children === "number" ? (
           <Text
             style={[
@@ -560,12 +573,13 @@ export interface DropdownMenuArrowProps extends Omit<ViewProps, "style"> {
 }
 
 export const DropdownMenuArrow = React.forwardRef<React.ElementRef<typeof View>, DropdownMenuArrowProps>(
-  ({ style, ...props }, ref) => {
+  ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
     return (
       <View
         ref={ref}
+        testID={testID ?? "dropdown-menu-arrow"}
         aria-hidden={true}
         style={[
           {
