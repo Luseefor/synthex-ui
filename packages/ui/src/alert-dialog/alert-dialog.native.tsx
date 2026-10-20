@@ -1,7 +1,19 @@
 import * as React from "react";
-import type { Pressable } from "react-native";
+import { View, type Pressable } from "react-native";
 import { useDialogContext } from "../dialog/dialog.shared";
+import {
+  Dialog as AlertDialog,
+  DialogContent as BaseContent,
+  DialogDescription as AlertDialogDescription,
+  DialogFooter as AlertDialogFooter,
+  DialogHeader as AlertDialogHeader,
+  DialogTitle as AlertDialogTitle,
+  DialogTrigger as AlertDialogTrigger,
+  type DialogContentProps,
+} from "../dialog/dialog.native";
 import { Button, type ButtonProps } from "../button/button.native";
+
+export { AlertDialog, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger };
 
 export const AlertDialogCancel = React.forwardRef<
   React.ElementRef<typeof Pressable>,
@@ -42,12 +54,9 @@ export const AlertDialogAction = React.forwardRef<
 });
 AlertDialogAction.displayName = "AlertDialogAction";
 
-export {
-  Dialog as AlertDialog,
-  DialogContent as AlertDialogContent,
-  DialogDescription as AlertDialogDescription,
-  DialogFooter as AlertDialogFooter,
-  DialogHeader as AlertDialogHeader,
-  DialogTitle as AlertDialogTitle,
-  DialogTrigger as AlertDialogTrigger,
-} from "../dialog/dialog.native";
+export const AlertDialogContent = React.forwardRef<React.ElementRef<typeof View>, DialogContentProps>(
+  ({ dismissible = false, ...props }, ref) => (
+    <BaseContent ref={ref} dismissible={dismissible} {...props} />
+  ),
+);
+AlertDialogContent.displayName = "AlertDialogContent";
