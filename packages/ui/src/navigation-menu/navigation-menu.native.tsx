@@ -240,3 +240,13 @@ export const NavigationMenuContent = React.forwardRef<
 });
 
 NavigationMenuContent.displayName = "NavigationMenuContent";
+
+// Web-only viewport container; on native content renders inline. Provided for API parity.
+export const NavigationMenuViewport = React.forwardRef<
+  React.ElementRef<typeof View>,
+  Omit<ViewProps, "style"> & { readonly style?: StyleProp<ViewStyle> }
+>(({ style, ...props }, ref) => (
+  <View ref={ref} style={[{ gap: 16 }, style]} {...props} />
+));
+
+NavigationMenuViewport.displayName = "NavigationMenuViewport";

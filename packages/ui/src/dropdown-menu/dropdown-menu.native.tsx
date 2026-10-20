@@ -3,6 +3,7 @@ import {
   Pressable,
   Text,
   View,
+  type GestureResponderEvent,
   type PressableProps,
   type StyleProp,
   type TextStyle,
@@ -10,11 +11,24 @@ import {
   type ViewStyle,
 } from "react-native";
 import { useTheme } from "../_shared/theme/context";
+import { useControllableState } from "../hooks/useControllableState";
+import { CheckIcon, ChevronRightIcon } from "../icons/index.native";
+import type { OverlayPositionProps } from "../_shared/positioning";
 import {
   DropdownMenuProvider,
   useDropdownMenuContext,
   useDropdownMenuController,
+  useDropdownMenuRadioGroupController,
+  DropdownMenuRadioGroupProvider,
+  useOptionalDropdownMenuRadioGroupContext,
+  useDropdownMenuSubContext,
+  useDropdownMenuSubController,
+  DropdownMenuSubProvider,
+  type DropdownMenuCheckboxItemSharedProps,
+  type DropdownMenuRadioGroupSharedProps,
+  type DropdownMenuRadioItemSharedProps,
   type DropdownMenuSharedProps,
+  type DropdownMenuSubSharedProps,
 } from "./dropdown-menu.shared";
 
 export interface DropdownMenuProps
@@ -56,22 +70,27 @@ export const DropdownMenuTrigger = React.forwardRef<
   const context = useDropdownMenuContext();
 
   const handlePress = React.useCallback(
-    (event: any) => {
+    (event: GestureResponderEvent) => {
       context.setOpen(!context.open);
       onPress?.(event);
     },
     [context, onPress]
   );
 
-  if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
+  type AsChildProps = {
+    onPress?: ((event: GestureResponderEvent) => void) | null;
+    [key: string]: unknown;
+  };
+
+  if (asChild && React.isValidElement<AsChildProps>(children)) {
+    return React.cloneElement(children, {
       ref,
       ...props,
       accessibilityRole: "button",
       accessibilityState: { expanded: context.open },
-      onPress: (e: any) => {
+      onPress: (e: GestureResponderEvent) => {
         handlePress(e);
-        (children.props as any).onPress?.(e);
+        children.props.onPress?.(e);
       },
     });
   }
@@ -92,14 +111,15 @@ export const DropdownMenuTrigger = React.forwardRef<
 
 DropdownMenuTrigger.displayName = "DropdownMenuTrigger";
 
-export interface DropdownMenuContentProps extends Omit<ViewProps, "style"> {
+export interface DropdownMenuContentProps extends Omit<ViewProps, "style">, OverlayPositionProps {
   readonly style?: StyleProp<ViewStyle>;
 }
 
+// Native renders in normal flow; side/align/sideOffset/alignOffset are accepted for API parity and ignored.
 export const DropdownMenuContent = React.forwardRef<
   React.ElementRef<typeof View>,
   DropdownMenuContentProps
->(({ style, ...props }, ref) => {
+>(({ align, alignOffset, side, sideOffset, style, ...props }, ref) => {
   const context = useDropdownMenuContext();
   const theme = useTheme();
 
@@ -240,3 +260,322 @@ export const DropdownMenuItem = React.forwardRef<
 });
 
 DropdownMenuItem.displayName = "DropdownMenuItem";
+
+export interface DropdownMenuSubProps extends Omit<ViewProps, "style">, DropdownMenuSubSharedProps {
+  readonly style?: StyleProp<ViewStyle>;
+}
+
+export function DropdownMenuSub({ children, defaultOpen, onOpenChange, open, style, ...props }: DropdownMenuSubProps) {
+  const controller = useDropdownMenuSubController({ defaultOpen, onOpenChange, open });
+
+  return (
+    <DropdownMenuSubProvider value={controller}>
+      <View style={[{ position: "relative" }, style]} {...props}>
+        {children}
+      </View>
+    </DropdownMenuSubProvider>
+  );
+}
+
+export interface DropdownMenuSubTriggerProps extends Omit<PressableProps, "style"> {
+  readonly children?: React.ReactNode;
+  readonly style?: StyleProp<ViewStyle>;
+  readonly textStyle?: StyleProp<TextStyle>;
+}
+
+export const DropdownMenuSubTrigger = React.forwardRef<
+  React.ElementRef<typeof Pressable>,
+  DropdownMenuSubTriggerProps
+>(({ children, onPress, style, textStyle, ...props }, ref) => {
+  const sub = useDropdownMenuSubContext();
+  const theme = useTheme();
+
+  return (
+    <Pressable
+      ref={ref}
+      accessibilityRole="button"
+      accessibilityState={{ expanded: sub.open }}
+      accessibilityHint="Opens submenu"
+      onPress={(event) => {
+        sub.setOpen(!sub.open);
+        onPress?.(event);
+      }}
+      style={({ pressed }) => [
+        {
+          minHeight: 40,
+          borderRadius: theme.radius.md,
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 12,
+          paddingHorizontal: 12,
+          paddingVertical: 10,
+          backgroundColor: pressed || sub.open ? theme.colors.surfaceMuted : "transparent",
+        },
+        style,
+      ]}
+      {...props}
+    >
+      <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 12 }}>
+        {typeof children === "string" || typeof children === "number" ? (
+          <Text
+            style={[
+              { color: theme.colors.foreground, fontFamily: theme.typography.family.sans, fontSize: theme.typography.size.sm },
+              textStyle,
+            ]}
+          >
+            {children}
+          </Text>
+        ) : (
+          children
+        )}
+      </View>
+      <ChevronRightIcon size={14} />
+    </Pressable>
+  );
+});
+
+DropdownMenuSubTrigger.displayName = "DropdownMenuSubTrigger";
+
+export interface DropdownMenuSubContentProps extends Omit<ViewProps, "style"> {
+  readonly style?: StyleProp<ViewStyle>;
+}
+
+export const DropdownMenuSubContent = React.forwardRef<
+  React.ElementRef<typeof View>,
+  DropdownMenuSubContentProps
+>(({ style, ...props }, ref) => {
+  const sub = useDropdownMenuSubContext();
+  const theme = useTheme();
+
+  if (!sub.open) {
+    return null;
+  }
+
+  return (
+    <View
+      ref={ref}
+      style={[
+        {
+          marginTop: 4,
+          marginLeft: 16,
+          minWidth: 176,
+          borderWidth: 1,
+          borderColor: theme.colors.border,
+          borderRadius: theme.radius.lg + 2,
+          backgroundColor: theme.colors.surface,
+          padding: 6,
+          gap: 4,
+        },
+        style,
+      ]}
+      {...props}
+    />
+  );
+});
+
+DropdownMenuSubContent.displayName = "DropdownMenuSubContent";
+
+export interface DropdownMenuCheckboxItemProps extends Omit<PressableProps, "style">, DropdownMenuCheckboxItemSharedProps {
+  readonly children?: React.ReactNode;
+  readonly style?: StyleProp<ViewStyle>;
+  readonly textStyle?: StyleProp<TextStyle>;
+}
+
+export const DropdownMenuCheckboxItem = React.forwardRef<
+  React.ElementRef<typeof Pressable>,
+  DropdownMenuCheckboxItemProps
+>(({ children, checked, defaultChecked = false, onCheckedChange, onPress, style, textStyle, ...props }, ref) => {
+  const theme = useTheme();
+  const [currentChecked, setCurrentChecked] = useControllableState<boolean>({
+    defaultValue: defaultChecked,
+    onChange: onCheckedChange,
+    value: checked,
+  });
+
+  return (
+    <Pressable
+      ref={ref}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: currentChecked }}
+      onPress={(event) => {
+        setCurrentChecked(!currentChecked);
+        onPress?.(event);
+      }}
+      style={({ pressed }) => [
+        {
+          minHeight: 40,
+          borderRadius: theme.radius.md,
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 12,
+          paddingHorizontal: 12,
+          paddingVertical: 10,
+          backgroundColor: pressed ? theme.colors.surfaceMuted : "transparent",
+        },
+        style,
+      ]}
+      {...props}
+    >
+      <View style={{ width: 16, alignItems: "center", justifyContent: "center" }}>
+        {currentChecked ? <CheckIcon size={14} strokeWidth={2.4} /> : null}
+      </View>
+      {typeof children === "string" || typeof children === "number" ? (
+        <Text
+          style={[
+            { flex: 1, color: theme.colors.foreground, fontFamily: theme.typography.family.sans, fontSize: theme.typography.size.sm },
+            textStyle,
+          ]}
+        >
+          {children}
+        </Text>
+      ) : (
+        <View style={{ flex: 1 }}>{children}</View>
+      )}
+    </Pressable>
+  );
+});
+
+DropdownMenuCheckboxItem.displayName = "DropdownMenuCheckboxItem";
+
+export interface DropdownMenuRadioGroupProps extends Omit<ViewProps, "style">, DropdownMenuRadioGroupSharedProps {
+  readonly style?: StyleProp<ViewStyle>;
+}
+
+export function DropdownMenuRadioGroup({ children, defaultValue, onValueChange, value, style, ...props }: DropdownMenuRadioGroupProps) {
+  const controller = useDropdownMenuRadioGroupController({ defaultValue, onValueChange, value });
+
+  return (
+    <DropdownMenuRadioGroupProvider value={controller}>
+      <View style={style} {...props}>
+        {children}
+      </View>
+    </DropdownMenuRadioGroupProvider>
+  );
+}
+
+export interface DropdownMenuRadioItemProps extends Omit<PressableProps, "style">, DropdownMenuRadioItemSharedProps {
+  readonly children?: React.ReactNode;
+  readonly style?: StyleProp<ViewStyle>;
+  readonly textStyle?: StyleProp<TextStyle>;
+}
+
+export const DropdownMenuRadioItem = React.forwardRef<
+  React.ElementRef<typeof Pressable>,
+  DropdownMenuRadioItemProps
+>(({ children, onPress, style, textStyle, value, ...props }, ref) => {
+  const theme = useTheme();
+  const group = useOptionalDropdownMenuRadioGroupContext();
+  const checked = group ? group.value === value : false;
+
+  return (
+    <Pressable
+      ref={ref}
+      accessibilityRole="radio"
+      accessibilityState={{ checked, selected: checked }}
+      onPress={(event) => {
+        group?.onValueChange(value);
+        onPress?.(event);
+      }}
+      style={({ pressed }) => [
+        {
+          minHeight: 40,
+          borderRadius: theme.radius.md,
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 12,
+          paddingHorizontal: 12,
+          paddingVertical: 10,
+          backgroundColor: pressed ? theme.colors.surfaceMuted : "transparent",
+        },
+        style,
+      ]}
+      {...props}
+    >
+      <View style={{ width: 16, alignItems: "center", justifyContent: "center" }}>
+        {checked ? (
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: theme.colors.foreground }} />
+        ) : null}
+      </View>
+      {typeof children === "string" || typeof children === "number" ? (
+        <Text
+          style={[
+            { flex: 1, color: theme.colors.foreground, fontFamily: theme.typography.family.sans, fontSize: theme.typography.size.sm },
+            textStyle,
+          ]}
+        >
+          {children}
+        </Text>
+      ) : (
+        <View style={{ flex: 1 }}>{children}</View>
+      )}
+    </Pressable>
+  );
+});
+
+DropdownMenuRadioItem.displayName = "DropdownMenuRadioItem";
+
+export interface DropdownMenuShortcutProps extends Omit<ViewProps, "style"> {
+  readonly style?: StyleProp<ViewStyle>;
+  readonly textStyle?: StyleProp<TextStyle>;
+}
+
+export const DropdownMenuShortcut = React.forwardRef<React.ElementRef<typeof View>, DropdownMenuShortcutProps>(
+  ({ children, style, textStyle, ...props }, ref) => {
+    const theme = useTheme();
+
+    return (
+      <View ref={ref} style={[{ marginLeft: "auto", paddingLeft: 16 }, style]} {...props}>
+        {typeof children === "string" || typeof children === "number" ? (
+          <Text
+            style={[
+              {
+                color: theme.colors.foregroundMuted,
+                fontFamily: theme.typography.family.sans,
+                fontSize: 12,
+                letterSpacing: 1,
+              },
+              textStyle,
+            ]}
+          >
+            {children}
+          </Text>
+        ) : (
+          children
+        )}
+      </View>
+    );
+  },
+);
+
+DropdownMenuShortcut.displayName = "DropdownMenuShortcut";
+
+export interface DropdownMenuArrowProps extends Omit<ViewProps, "style"> {
+  readonly style?: StyleProp<ViewStyle>;
+}
+
+export const DropdownMenuArrow = React.forwardRef<React.ElementRef<typeof View>, DropdownMenuArrowProps>(
+  ({ style, ...props }, ref) => {
+    const theme = useTheme();
+
+    return (
+      <View
+        ref={ref}
+        aria-hidden={true}
+        style={[
+          {
+            width: 8,
+            height: 8,
+            transform: [{ rotate: "45deg" }],
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            backgroundColor: theme.colors.surface,
+          },
+          style,
+        ]}
+        {...props}
+      />
+    );
+  },
+);
+
+DropdownMenuArrow.displayName = "DropdownMenuArrow";

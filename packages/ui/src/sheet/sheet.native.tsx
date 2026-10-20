@@ -3,6 +3,7 @@ import {
   Modal,
   Pressable,
   Text,
+  type GestureResponderEvent,
   type TextProps,
   View,
   type PressableProps,
@@ -43,20 +44,25 @@ export const SheetTrigger = React.forwardRef<
   const context = useSheetContext();
 
   const handlePress = React.useCallback(
-    (event: any) => {
+    (event: GestureResponderEvent) => {
       context.setOpen(true);
       onPress?.(event);
     },
     [context, onPress]
   );
 
-  if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
+  type AsChildProps = {
+    onPress?: ((event: GestureResponderEvent) => void) | null;
+    [key: string]: unknown;
+  };
+
+  if (asChild && React.isValidElement<AsChildProps>(children)) {
+    return React.cloneElement(children, {
       ref,
       ...props,
-      onPress: (e: any) => {
+      onPress: (e: GestureResponderEvent) => {
         handlePress(e);
-        (children.props as any).onPress?.(e);
+        children.props.onPress?.(e);
       },
     });
   }
@@ -82,20 +88,25 @@ export const SheetClose = React.forwardRef<
   const context = useSheetContext();
 
   const handlePress = React.useCallback(
-    (event: any) => {
+    (event: GestureResponderEvent) => {
       context.setOpen(false);
       onPress?.(event);
     },
     [context, onPress]
   );
 
-  if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
+  type AsChildProps = {
+    onPress?: ((event: GestureResponderEvent) => void) | null;
+    [key: string]: unknown;
+  };
+
+  if (asChild && React.isValidElement<AsChildProps>(children)) {
+    return React.cloneElement(children, {
       ref,
       ...props,
-      onPress: (e: any) => {
+      onPress: (e: GestureResponderEvent) => {
         handlePress(e);
-        (children.props as any).onPress?.(e);
+        children.props.onPress?.(e);
       },
     });
   }
@@ -115,7 +126,7 @@ export const SheetClose = React.forwardRef<
 SheetClose.displayName = "SheetClose";
 
 export interface SheetContentProps extends Omit<ViewProps, "style"> {
-  readonly side?: "left" | "right";
+  readonly side?: "top" | "right" | "bottom" | "left";
   readonly style?: StyleProp<ViewStyle>;
 }
 
@@ -127,6 +138,8 @@ export const SheetContent = React.forwardRef<React.ElementRef<typeof View>, Shee
     if (!context.open) {
       return null;
     }
+
+    const isHorizontal = side === "top" || side === "bottom";
 
     return (
       <Modal
@@ -145,11 +158,9 @@ export const SheetContent = React.forwardRef<React.ElementRef<typeof View>, Shee
           <Pressable
             style={{
               position: "absolute",
-              top: 0,
-              bottom: 0,
-              [side]: 0,
-              width: "100%",
-              maxWidth: 420,
+              ...(isHorizontal
+                ? { left: 0, right: 0, [side]: 0, width: "100%" }
+                : { top: 0, bottom: 0, [side]: 0, width: "100%", maxWidth: 420 }),
             } as ViewStyle}
             onPress={(event) => event.stopPropagation()}
           >
@@ -164,7 +175,11 @@ export const SheetContent = React.forwardRef<React.ElementRef<typeof View>, Shee
                 },
                 side === "right"
                   ? { borderLeftWidth: 1 }
-                  : { borderRightWidth: 1 },
+                  : side === "left"
+                    ? { borderRightWidth: 1 }
+                    : side === "top"
+                      ? { borderBottomWidth: 1 }
+                      : { borderTopWidth: 1 },
                 style,
               ]}
               {...props}

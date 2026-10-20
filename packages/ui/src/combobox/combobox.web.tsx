@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "../_shared/variants";
+import { handleMenuArrowKeys } from "../_shared/a11y.web";
 import { CheckIcon, ChevronDownIcon, SearchIcon } from "../icons/index.web";
 import {
   ComboboxProvider,
@@ -84,15 +85,17 @@ export function Combobox({
 export const ComboboxTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement>
->(({ children, className, onClick, type = "button", ...props }, ref) => {
+>(({ children, className, id, onClick, onKeyDown, type = "button", ...props }, ref) => {
   const context = useComboboxContext();
 
   return (
     <button
       ref={ref}
       type={type}
+      id={id ?? context.triggerId}
       aria-expanded={context.open}
       aria-haspopup="listbox"
+      aria-controls={context.contentId}
       className={cn(
         "inline-flex h-10 w-full items-center justify-between gap-3 rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface-raised)] px-3.5 text-sm text-[color:var(--sx-color-foreground)] shadow-[inset_0_1px_1px_rgba(15,23,42,0.04)] transition-[border-color,box-shadow] duration-[var(--sx-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)]",
         className,
@@ -100,6 +103,14 @@ export const ComboboxTrigger = React.forwardRef<
       onClick={(event) => {
         context.setOpen(!context.open);
         onClick?.(event);
+      }}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        if (event.defaultPrevented) return;
+        if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          context.setOpen(true);
+        }
       }}
       {...props}
     >
@@ -141,7 +152,7 @@ ComboboxValue.displayName = "ComboboxValue";
 export const ComboboxContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
+>(({ className, id, onKeyDown, ...props }, ref) => {
   const context = useComboboxContext();
 
   if (!context.open) {
@@ -151,10 +162,18 @@ export const ComboboxContent = React.forwardRef<
   return (
     <div
       ref={ref}
+      id={id ?? context.contentId}
+      role="dialog"
+      aria-labelledby={context.triggerId}
       className={cn(
         "absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] shadow-[0_18px_42px_rgba(15,23,42,0.14)]",
         className,
       )}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        if (event.defaultPrevented) return;
+        handleMenuArrowKeys(event);
+      }}
       {...props}
     />
   );
@@ -166,7 +185,7 @@ export interface ComboboxInputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "defaultValue" | "value"> {}
 
 export const ComboboxInput = React.forwardRef<HTMLInputElement, ComboboxInputProps>(
-  ({ className, onChange, placeholder = "Search options", type = "text", ...props }, ref) => {
+  ({ className, id, onChange, onKeyDown, placeholder = "Search options", type = "text", ...props }, ref) => {
     const context = useComboboxContext();
 
     return (
@@ -175,6 +194,10 @@ export const ComboboxInput = React.forwardRef<HTMLInputElement, ComboboxInputPro
         <input
           ref={ref}
           type={type}
+          id={id ?? context.inputId}
+          aria-expanded={context.open}
+          aria-controls={context.listId}
+          aria-autocomplete="list"
           value={context.query}
           className={cn(
             "w-full bg-transparent text-sm text-[color:var(--sx-color-foreground)] placeholder:text-[color:var(--sx-color-foreground-muted)] focus:outline-none",
@@ -183,6 +206,15 @@ export const ComboboxInput = React.forwardRef<HTMLInputElement, ComboboxInputPro
           onChange={(event) => {
             context.setQuery(event.target.value);
             onChange?.(event);
+          }}
+          onKeyDown={(event) => {
+            onKeyDown?.(event);
+            if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+              event.preventDefault();
+              const list = document.getElementById(context.listId);
+              const first = list?.querySelector<HTMLElement>('[role="option"]:not([disabled])');
+              first?.focus();
+            }
           }}
           placeholder={placeholder}
           {...props}
@@ -197,14 +229,19 @@ ComboboxInput.displayName = "ComboboxInput";
 export interface ComboboxListProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export const ComboboxList = React.forwardRef<HTMLDivElement, ComboboxListProps>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      role="listbox"
-      className={cn("max-h-64 overflow-y-auto p-2", className)}
-      {...props}
-    />
-  ),
+  ({ className, id, ...props }, ref) => {
+    const context = useComboboxContext();
+    return (
+      <div
+        ref={ref}
+        id={id ?? context.listId}
+        role="listbox"
+        aria-labelledby={context.inputId}
+        className={cn("max-h-64 overflow-y-auto p-2", className)}
+        {...props}
+      />
+    );
+  },
 );
 
 ComboboxList.displayName = "ComboboxList";
