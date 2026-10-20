@@ -13,6 +13,7 @@
         "field-control.web.ts",
         "positioning.ts",
         "positioning.web.ts",
+        "slot.web.tsx",
         "theme/context.tsx",
         "theme/createTheme.test.ts",
         "theme/createTheme.ts",
@@ -30,6 +31,8 @@
         "variants.ts"
       ],
       "deps": [
+        "@radix-ui/react-slot",
+        "class-variance-authority",
         "clsx",
         "react",
         "react-native",
@@ -48,6 +51,7 @@
         "index.ts"
       ],
       "deps": [
+        "@radix-ui/react-accordion",
         "react",
         "react-native"
       ],
@@ -67,6 +71,7 @@
         "index.ts"
       ],
       "deps": [
+        "class-variance-authority",
         "react",
         "react-native"
       ],
@@ -85,6 +90,7 @@
         "index.ts"
       ],
       "deps": [
+        "@radix-ui/react-alert-dialog",
         "react",
         "react-native"
       ],
@@ -105,12 +111,11 @@
         "index.ts"
       ],
       "deps": [
+        "@radix-ui/react-aspect-ratio",
         "react",
         "react-native"
       ],
-      "registryDependencies": [
-        "_shared"
-      ]
+      "registryDependencies": []
     },
     {
       "name": "avatar",
@@ -123,6 +128,8 @@
         "index.ts"
       ],
       "deps": [
+        "@radix-ui/react-avatar",
+        "class-variance-authority",
         "react",
         "react-native"
       ],
@@ -141,6 +148,8 @@
         "index.ts"
       ],
       "deps": [
+        "@radix-ui/react-slot",
+        "class-variance-authority",
         "react",
         "react-native"
       ],
@@ -159,11 +168,13 @@
         "index.ts"
       ],
       "deps": [
+        "@radix-ui/react-slot",
         "react",
         "react-native"
       ],
       "registryDependencies": [
-        "_shared"
+        "_shared",
+        "icons"
       ]
     },
     {
@@ -178,6 +189,8 @@
         "index.ts"
       ],
       "deps": [
+        "@radix-ui/react-slot",
+        "class-variance-authority",
         "react",
         "react-native"
       ],
@@ -197,6 +210,7 @@
       ],
       "deps": [
         "react",
+        "react-day-picker",
         "react-native"
       ],
       "registryDependencies": [
@@ -217,6 +231,7 @@
         "index.ts"
       ],
       "deps": [
+        "class-variance-authority",
         "react",
         "react-native"
       ],
@@ -235,6 +250,7 @@
         "index.ts"
       ],
       "deps": [
+        "embla-carousel-react",
         "react",
         "react-native"
       ],
@@ -257,7 +273,8 @@
       "deps": [
         "react",
         "react-native",
-        "react-native-svg"
+        "react-native-svg",
+        "recharts"
       ],
       "registryDependencies": [
         "_shared"
@@ -274,6 +291,7 @@
         "index.ts"
       ],
       "deps": [
+        "@radix-ui/react-checkbox",
         "react",
         "react-native"
       ],
@@ -294,11 +312,11 @@
         "index.ts"
       ],
       "deps": [
+        "@radix-ui/react-collapsible",
         "react",
         "react-native"
       ],
       "registryDependencies": [
-        "_shared",
         "hooks"
       ]
     },
@@ -313,6 +331,7 @@
         "index.ts"
       ],
       "deps": [
+        "cmdk",
         "react",
         "react-native"
       ],
@@ -333,11 +352,13 @@
         "index.ts"
       ],
       "deps": [
+        "cmdk",
         "react",
         "react-native"
       ],
       "registryDependencies": [
         "_shared",
+        "hooks",
         "icons"
       ]
     },
@@ -419,12 +440,14 @@
         "index.ts"
       ],
       "deps": [
+        "@radix-ui/react-context-menu",
         "react",
         "react-native"
       ],
       "registryDependencies": [
         "_shared",
-        "dropdown-menu"
+        "dropdown-menu",
+        "icons"
       ]
     },
     {
@@ -502,8 +525,8 @@
         "index.ts"
       ],
       "deps": [
+        "@radix-ui/react-dialog",
         "react",
-        "react-dom",
         "react-native"
       ],
       "registryDependencies": [
@@ -540,14 +563,15 @@
         "index.ts"
       ],
       "deps": [
+        "class-variance-authority",
         "react",
-        "react-dom"
+        "react-native",
+        "vaul"
       ],
       "registryDependencies": [
         "_shared",
         "dialog",
-        "icons",
-        "sheet"
+        "icons"
       ]
     },
     {
@@ -562,6 +586,7 @@
         "index.ts"
       ],
       "deps": [
+        "@radix-ui/react-dropdown-menu",
         "react",
         "react-native"
       ],
@@ -578,11 +603,14 @@
       "files": [
         "form.native.tsx",
         "form.shared.tsx",
+        "form.web.test.tsx",
         "form.web.tsx",
         "index.ts"
       ],
       "deps": [
+        "@radix-ui/react-slot",
         "react",
+        "react-hook-form",
         "react-native"
       ],
       "registryDependencies": [
@@ -626,12 +654,13 @@
         "index.ts"
       ],
       "deps": [
-        "react"
+        "@radix-ui/react-hover-card",
+        "react",
+        "react-native"
       ],
       "registryDependencies": [
         "_shared",
-        "hooks",
-        "popover"
+        "hooks"
       ]
     },
     {
@@ -682,6 +711,8 @@
         "input-otp.web.tsx"
       ],
       "deps": [
+        "input-otp",
+        "lucide-react",
         "react",
         "react-native"
       ],
@@ -700,6 +731,8 @@
         "label.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-label",
+        "class-variance-authority",
         "react",
         "react-native"
       ],
@@ -735,12 +768,14 @@
         "menubar.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-menubar",
         "react",
         "react-native"
       ],
       "registryDependencies": [
         "_shared",
-        "dropdown-menu"
+        "dropdown-menu",
+        "icons"
       ]
     },
     {
@@ -754,6 +789,7 @@
         "navigation-menu.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-navigation-menu",
         "react",
         "react-native"
       ],
@@ -791,6 +827,7 @@
         "popover.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-popover",
         "react",
         "react-native"
       ],
@@ -827,6 +864,8 @@
         "progress.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-progress",
+        "class-variance-authority",
         "react",
         "react-native"
       ],
@@ -845,6 +884,7 @@
         "radio-group.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-radio-group",
         "react",
         "react-native"
       ],
@@ -882,6 +922,7 @@
         "select.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-select",
         "react",
         "react-native"
       ],
@@ -901,6 +942,7 @@
         "separator.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-separator",
         "react",
         "react-native"
       ],
@@ -919,8 +961,9 @@
         "sheet.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-dialog",
+        "class-variance-authority",
         "react",
-        "react-dom",
         "react-native"
       ],
       "registryDependencies": [
@@ -958,6 +1001,7 @@
         "skeleton.web.tsx"
       ],
       "deps": [
+        "class-variance-authority",
         "react",
         "react-native"
       ],
@@ -976,6 +1020,7 @@
         "slider.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-slider",
         "react",
         "react-native"
       ],
@@ -995,6 +1040,7 @@
         "switch.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-switch",
         "react",
         "react-native"
       ],
@@ -1107,8 +1153,11 @@
         "toast.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-toast",
+        "class-variance-authority",
         "react",
-        "react-native"
+        "react-native",
+        "sonner"
       ],
       "registryDependencies": [
         "_shared",
@@ -1127,6 +1176,8 @@
         "toggle.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-toggle",
+        "class-variance-authority",
         "react",
         "react-native"
       ],
@@ -1146,6 +1197,8 @@
         "toggle-group.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-toggle-group",
+        "class-variance-authority",
         "react",
         "react-native"
       ],
@@ -1166,6 +1219,7 @@
         "tooltip.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-tooltip",
         "react",
         "react-native"
       ],

@@ -2,7 +2,7 @@
 
 **[Live preview & docs](https://synthex-ui.rijan.sh)**
 
-Synthex UI is a publish-ready monorepo built around three public packages:
+Synthex UI is a publish-ready monorepo with three public packages:
 
 - `synthex-ui`: cross-platform component library and theme system
 - `@luseefor/synthex-core`: framework-agnostic layout and command engine

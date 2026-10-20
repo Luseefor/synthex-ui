@@ -17,9 +17,9 @@ This file provides:
 
 ## Tailwind companion (`tailwind.css`)
 
-Optional plain-CSS fallback for the Tailwind `data-[...]` variants emitted by components — import it after `styles.css`:
+For the Tailwind `data-[...]` variants the components emit, import this optional plain-CSS fallback after `styles.css`:
 `import "synthex-ui/tailwind.css";`
-It provides the `sx-fade-up` / `sx-pop-in` keyframes (verified missing from `styles.css`), accordion open/close height animation, floating-surface entrances keyed on `data-side` / `data-align`, and a `prefers-reduced-motion` disable block.
+It provides the `sx-fade-up` and `sx-pop-in` keyframes, accordion open and close height animation, floating-surface entrances keyed on `data-side` and `data-align`, and a block that turns off motion for `prefers-reduced-motion`. `styles.css` does not include these keyframes.
 
 ## Tailwind CSS requirement
 
@@ -37,7 +37,7 @@ Components reference Tailwind utilities (e.g., `inline-flex`, `rounded-[var(--sx
 
 ## The `cn()` helper
 
-Synthex UI exports `cn()` (powered by `clsx` + `tailwind-merge`, no extra install) for composing class names:
+Synthex UI exports `cn()`, powered by `clsx` plus `tailwind-merge` with no extra install, for composing class names:
 
 ```tsx
 import { cn } from "synthex-ui";
@@ -46,9 +46,9 @@ cn("flex gap-4", isActive && "bg-blue-50", className); // string
 cn("p-4", "px-2"); // -> "p-4 px-2" (conflict resolved)
 ```
 
-Signature: `function cn(...inputs: ClassValue[]): string` (`ClassValue` from `clsx`).
+The signature is `function cn(...inputs: ClassValue[]): string`, where `ClassValue` comes from `clsx`.
 
-Drop-in parity with shadcn `cn`: same `clsx` + `tailwind-merge` composition, so existing call sites work unchanged. If you already use shadcn, this feels familiar.
+It matches shadcn `cn`. It uses the same `clsx` plus `tailwind-merge` mix, so existing call sites work unchanged. If you already use shadcn, this feels familiar.
 
 ## CSS custom properties
 
@@ -78,7 +78,7 @@ The `react-native` condition in `package.json` ensures bundlers like Metro selec
 
 ## Chart shadcn compat (no recharts)
 
-Charts stay hand-rolled SVG — no `recharts` dependency. Only API names match shadcn:
+Charts stay hand-rolled SVG with no `recharts` dependency. Only API names match shadcn:
 
 ```tsx
 import { ChartContainer, ChartLegendContent, ChartStyle, ChartTooltipContent } from "synthex-ui";
@@ -93,6 +93,6 @@ const config = { visitors: { label: "Visitors", color: "#2563eb" } };
 </ChartContainer>;
 ```
 
-- `config` maps series keys to `{ label, color }`. On web colors become `--color-<key>` vars (inline on `ChartContainer`, scoped stylesheet via `ChartStyle`).
-- `ChartTooltipContent` supports `indicator?: "dot" | "line" | "dashed"` and `labelKey` (falls back to `config[labelKey].label` when `label` is absent).
-- On native `config` / `ChartStyle` are accepted for parity and ignored (theme colors used directly).
+- `config` maps series keys to `{ label, color }`. On web colors become `--color-<key>` vars, inline on `ChartContainer` and scoped via `ChartStyle`.
+- `ChartTooltipContent` supports `indicator?: "dot" | "line" | "dashed"` and `labelKey`. It falls back to `config[labelKey].label` when `label` is absent.
+- On native the code accepts `config` and `ChartStyle` for parity and ignores them. It uses theme colors directly.
