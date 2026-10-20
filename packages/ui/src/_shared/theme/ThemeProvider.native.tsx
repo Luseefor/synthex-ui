@@ -20,7 +20,7 @@ export function ThemeProvider({
     <ThemeContext.Provider value={resolvedTheme}>
       <View
         style={{
-          flexShrink: 1,
+          flex: 1,
           backgroundColor: resolvedTheme.colors.background,
         }}
       >
