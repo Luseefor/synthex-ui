@@ -1,6 +1,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../_shared/variants";
+import { useA11yId, useFocusTrap } from "../_shared/a11y.web";
 import { CloseIcon } from "../icons/index.web";
 import { DialogProvider, useDialogContext, useDialogController } from "../dialog/dialog.shared";
 import type { DrawerSharedProps } from "./drawer.shared";
@@ -14,13 +15,47 @@ export function Drawer({ children, defaultOpen, onOpenChange, open }: DrawerProp
   return <DialogProvider value={controller}>{children}</DialogProvider>;
 }
 
-export const DrawerTrigger = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(
-  ({ children, onClick, type = "button", ...props }, ref) => {
+export const DrawerTrigger = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }>(
+  ({ children, onClick, type = "button", asChild, ...props }, ref) => {
     const context = useDialogContext();
+
+    const handleClick = React.useCallback(
+      (event: React.MouseEvent<HTMLButtonElement>) => {
+        context.setOpen(true);
+        onClick?.(event);
+      },
+      [context, onClick],
+    );
+
+    type AsChildProps = {
+      onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+      [key: string]: unknown;
+    };
+
+    const triggerA11y = {
+      id: props.id ?? context.triggerId,
+      "aria-haspopup": "dialog" as const,
+      "aria-expanded": context.open,
+      "aria-controls": context.contentId,
+    };
+
+    if (asChild && React.isValidElement<AsChildProps>(children)) {
+      return React.cloneElement(children, {
+        ref,
+        ...triggerA11y,
+        ...props,
+        onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
+          handleClick(e);
+          children.props.onClick?.(e);
+        },
+      });
+    }
+
     return (
       <button
         ref={ref}
         type={type}
+        {...triggerA11y}
         onClick={(event) => {
           context.setOpen(true);
           onClick?.(event);
@@ -34,9 +69,34 @@ export const DrawerTrigger = React.forwardRef<HTMLButtonElement, React.ButtonHTM
 );
 DrawerTrigger.displayName = "DrawerTrigger";
 
-export const DrawerClose = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(
-  ({ children, onClick, type = "button", ...props }, ref) => {
+export const DrawerClose = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }>(
+  ({ children, onClick, type = "button", asChild, ...props }, ref) => {
     const context = useDialogContext();
+
+    const handleClick = React.useCallback(
+      (event: React.MouseEvent<HTMLButtonElement>) => {
+        context.setOpen(false);
+        onClick?.(event);
+      },
+      [context, onClick],
+    );
+
+    type AsChildProps = {
+      onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+      [key: string]: unknown;
+    };
+
+    if (asChild && React.isValidElement<AsChildProps>(children)) {
+      return React.cloneElement(children, {
+        ref,
+        ...props,
+        onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
+          handleClick(e);
+          children.props.onClick?.(e);
+        },
+      });
+    }
+
     return (
       <button
         ref={ref}
@@ -61,6 +121,30 @@ export interface DrawerContentProps extends React.HTMLAttributes<HTMLDivElement>
 export const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(
   ({ children, className, onClick, side = "bottom", ...props }, ref) => {
     const context = useDialogContext();
+    const innerRef = React.useRef<HTMLDivElement | null>(null);
+    const setRefs = React.useCallback(
+      (node: HTMLDivElement | null) => {
+        innerRef.current = node;
+        if (typeof ref === "function") ref(node);
+        else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+      },
+      [ref],
+    );
+    useFocusTrap(context.open, innerRef);
+
+    React.useEffect(() => {
+      if (!context.open) return;
+      const handleEscape = (event: KeyboardEvent) => {
+        if (event.key === "Escape") context.setOpen(false);
+      };
+      document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.removeEventListener("keydown", handleEscape);
+        document.body.style.overflow = "";
+      };
+    }, [context]);
+
     if (!context.open) return null;
 
     return createPortal(
@@ -69,9 +153,13 @@ export const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps
         onClick={() => context.setOpen(false)}
       >
         <div
-          ref={ref}
+          ref={setRefs}
           role="dialog"
           aria-modal="true"
+          id={context.contentId}
+          aria-labelledby={context.titleId ?? undefined}
+          aria-describedby={context.descriptionId ?? undefined}
+          tabIndex={-1}
           className={cn(
             "absolute border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-6 shadow-[0_24px_64px_rgba(15,23,42,0.22)]",
             side === "bottom"
@@ -110,12 +198,30 @@ export const DrawerHeader = React.forwardRef<HTMLDivElement, React.HTMLAttribute
 DrawerHeader.displayName = "DrawerHeader";
 
 export const DrawerTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
-  ({ className, ...props }, ref) => <h2 ref={ref} className={cn("text-xl font-semibold tracking-[-0.03em] text-[color:var(--sx-color-foreground)]", className)} {...props} />,
+  ({ className, id, ...props }, ref) => {
+    const context = useDialogContext();
+    const generatedId = useA11yId("sx-drawer-title");
+    const titleId = id ?? generatedId;
+    React.useEffect(() => {
+      context.setTitleId(titleId);
+      return () => context.setTitleId(null);
+    }, [context, titleId]);
+    return <h2 ref={ref} id={titleId} className={cn("text-xl font-semibold tracking-[-0.03em] text-[color:var(--sx-color-foreground)]", className)} {...props} />;
+  },
 );
 DrawerTitle.displayName = "DrawerTitle";
 
 export const DrawerDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
-  ({ className, ...props }, ref) => <p ref={ref} className={cn("text-sm leading-6 text-[color:var(--sx-color-foreground-muted)]", className)} {...props} />,
+  ({ className, id, ...props }, ref) => {
+    const context = useDialogContext();
+    const generatedId = useA11yId("sx-drawer-desc");
+    const descId = id ?? generatedId;
+    React.useEffect(() => {
+      context.setDescriptionId(descId);
+      return () => context.setDescriptionId(null);
+    }, [context, descId]);
+    return <p ref={ref} id={descId} className={cn("text-sm leading-6 text-[color:var(--sx-color-foreground-muted)]", className)} {...props} />;
+  },
 );
 DrawerDescription.displayName = "DrawerDescription";
 

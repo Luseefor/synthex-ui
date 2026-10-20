@@ -3,6 +3,8 @@ import * as React from "react";
 interface TooltipContextValue {
   readonly open: boolean;
   readonly setOpen: (open: boolean) => void;
+  readonly contentId: string;
+  readonly triggerId: string;
 }
 
 const TooltipContext = React.createContext<TooltipContextValue | null>(null);
@@ -20,6 +22,10 @@ export function useTooltipController({
 }: TooltipSharedProps) {
   const [internalOpen, setInternalOpen] = React.useState(defaultOpen);
   const currentOpen = open ?? internalOpen;
+  const rawContentId = React.useId();
+  const rawTriggerId = React.useId();
+  const contentId = React.useMemo(() => `sx-tooltip-${rawContentId.replace(/:/g, "")}`, [rawContentId]);
+  const triggerId = React.useMemo(() => `sx-tooltip-trigger-${rawTriggerId.replace(/:/g, "")}`, [rawTriggerId]);
 
   return React.useMemo<TooltipContextValue>(
     () => ({
@@ -31,8 +37,10 @@ export function useTooltipController({
 
         onOpenChange?.(nextOpen);
       },
+      contentId,
+      triggerId,
     }),
-    [currentOpen, onOpenChange, open],
+    [currentOpen, onOpenChange, open, contentId, triggerId],
   );
 }
 

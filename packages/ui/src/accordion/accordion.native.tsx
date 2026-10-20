@@ -61,11 +61,11 @@ export interface AccordionItemProps
 }
 
 export const AccordionItem = React.forwardRef<React.ElementRef<typeof View>, AccordionItemProps>(
-  ({ children, style, value, ...props }, ref) => {
+  ({ children, disabled = false, style, value, ...props }, ref) => {
     const theme = useTheme();
 
     return (
-      <AccordionItemProvider value={{ value }}>
+      <AccordionItemProvider value={{ value, disabled }}>
         <View
           ref={ref}
           style={[
@@ -88,6 +88,7 @@ AccordionItem.displayName = "AccordionItem";
 
 export interface AccordionTriggerProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
+  readonly disabled?: boolean;
   readonly style?: StyleProp<ViewStyle>;
   readonly textStyle?: StyleProp<TextStyle>;
 }
@@ -95,17 +96,23 @@ export interface AccordionTriggerProps extends Omit<PressableProps, "style"> {
 export const AccordionTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   AccordionTriggerProps
->(({ children, onPress, style, textStyle, ...props }, ref) => {
+>(({ children, disabled: triggerDisabled, onPress, style, textStyle, ...props }, ref) => {
   const accordion = useAccordionContext();
   const item = useAccordionItemContext();
   const theme = useTheme();
   const open = accordion.isItemOpen(item.value);
+  const disabled = Boolean(triggerDisabled ?? item.disabled);
 
   return (
     <Pressable
       ref={ref}
       accessibilityRole="button"
+      accessibilityState={{ disabled: disabled || undefined, expanded: open }}
+      disabled={disabled}
       onPress={(event) => {
+        if (disabled) {
+          return;
+        }
         accordion.toggleItem(item.value);
         onPress?.(event);
       }}
@@ -118,6 +125,7 @@ export const AccordionTrigger = React.forwardRef<
           paddingVertical: 16,
           opacity: pressed ? 0.92 : 1,
         },
+        disabled && { opacity: 0.45 },
         style,
       ]}
       {...props}

@@ -1,6 +1,11 @@
 import * as React from "react";
 import { cn } from "../_shared/variants";
 import {
+  overlayPositionClasses,
+  overlayPositionStyle,
+  type OverlayPositionProps,
+} from "../_shared/positioning.web";
+import {
   PopoverProvider,
   usePopoverContext,
   usePopoverController,
@@ -73,14 +78,26 @@ export const PopoverTrigger = React.forwardRef<
     [context, onClick]
   );
 
-  if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
+  type AsChildProps = {
+    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    [key: string]: unknown;
+  };
+
+  const triggerA11y = {
+    id: props.id ?? context.triggerId,
+    "aria-expanded": context.open,
+    "aria-haspopup": "dialog" as const,
+    "aria-controls": context.contentId,
+  };
+
+  if (asChild && React.isValidElement<AsChildProps>(children)) {
+    return React.cloneElement(children, {
       ref,
+      ...triggerA11y,
       ...props,
-      "aria-expanded": context.open,
-      onClick: (e: any) => {
+      onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
         handleClick(e);
-        (children.props as any).onClick?.(e);
+        children.props.onClick?.(e);
       },
     });
   }
@@ -89,7 +106,7 @@ export const PopoverTrigger = React.forwardRef<
     <button
       ref={ref}
       type={type}
-      aria-expanded={context.open}
+      {...triggerA11y}
       onClick={(event) => {
         context.setOpen(!context.open);
         onClick?.(event);
@@ -105,8 +122,8 @@ PopoverTrigger.displayName = "PopoverTrigger";
 
 export const PopoverContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> & OverlayPositionProps
+>(({ align = "start", alignOffset = 0, className, id, side = "bottom", sideOffset = 0, style, ...props }, ref) => {
   const context = usePopoverContext();
 
   if (!context.open) {
@@ -116,10 +133,15 @@ export const PopoverContent = React.forwardRef<
   return (
     <div
       ref={ref}
+      id={id ?? context.contentId}
+      data-side={side}
+      data-align={align}
       className={cn(
-        "absolute left-0 top-[calc(100%+0.5rem)] z-50 min-w-56 rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-3 shadow-[0_18px_42px_rgba(15,23,42,0.14)]",
+        "absolute z-50 min-w-56 rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-3 shadow-[0_18px_42px_rgba(15,23,42,0.14)]",
+        overlayPositionClasses(side, align),
         className,
       )}
+      style={{ ...overlayPositionStyle(side, sideOffset, alignOffset), ...style }}
       {...props}
     />
   );

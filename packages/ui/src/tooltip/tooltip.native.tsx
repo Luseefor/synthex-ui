@@ -11,6 +11,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import { useTheme } from "../_shared/theme/context";
+import type { OverlayPositionProps } from "../_shared/positioning";
 import {
   TooltipProvider,
   useTooltipContext,
@@ -56,19 +57,32 @@ export const TooltipTrigger = React.forwardRef<
 >(({ children, onHoverIn, onHoverOut, onPressIn, onPressOut, style, asChild, ...props }, ref) => {
   const context = useTooltipContext();
 
-  const handleHoverIn = React.useCallback((event: any) => { context.setOpen(true); onHoverIn?.(event); }, [context, onHoverIn]);
-  const handleHoverOut = React.useCallback((event: any) => { context.setOpen(false); onHoverOut?.(event); }, [context, onHoverOut]);
-  const handlePressIn = React.useCallback((event: any) => { context.setOpen(true); onPressIn?.(event); }, [context, onPressIn]);
-  const handlePressOut = React.useCallback((event: any) => { context.setOpen(false); onPressOut?.(event); }, [context, onPressOut]);
+  type HoverInEvent = Parameters<NonNullable<PressableProps["onHoverIn"]>>[0];
+  type HoverOutEvent = Parameters<NonNullable<PressableProps["onHoverOut"]>>[0];
+  type PressInEvent = Parameters<NonNullable<PressableProps["onPressIn"]>>[0];
+  type PressOutEvent = Parameters<NonNullable<PressableProps["onPressOut"]>>[0];
 
-  if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
+  const handleHoverIn = React.useCallback((event: HoverInEvent) => { context.setOpen(true); onHoverIn?.(event); }, [context, onHoverIn]);
+  const handleHoverOut = React.useCallback((event: HoverOutEvent) => { context.setOpen(false); onHoverOut?.(event); }, [context, onHoverOut]);
+  const handlePressIn = React.useCallback((event: PressInEvent) => { context.setOpen(true); onPressIn?.(event); }, [context, onPressIn]);
+  const handlePressOut = React.useCallback((event: PressOutEvent) => { context.setOpen(false); onPressOut?.(event); }, [context, onPressOut]);
+
+  type AsChildProps = {
+    onHoverIn?: PressableProps["onHoverIn"];
+    onHoverOut?: PressableProps["onHoverOut"];
+    onPressIn?: PressableProps["onPressIn"];
+    onPressOut?: PressableProps["onPressOut"];
+    [key: string]: unknown;
+  };
+
+  if (asChild && React.isValidElement<AsChildProps>(children)) {
+    return React.cloneElement(children, {
       ref,
       ...props,
-      onHoverIn: (e: any) => { handleHoverIn(e); (children.props as any).onHoverIn?.(e); },
-      onHoverOut: (e: any) => { handleHoverOut(e); (children.props as any).onHoverOut?.(e); },
-      onPressIn: (e: any) => { handlePressIn(e); (children.props as any).onPressIn?.(e); },
-      onPressOut: (e: any) => { handlePressOut(e); (children.props as any).onPressOut?.(e); },
+      onHoverIn: (e: HoverInEvent) => { handleHoverIn(e); children.props.onHoverIn?.(e); },
+      onHoverOut: (e: HoverOutEvent) => { handleHoverOut(e); children.props.onHoverOut?.(e); },
+      onPressIn: (e: PressInEvent) => { handlePressIn(e); children.props.onPressIn?.(e); },
+      onPressOut: (e: PressOutEvent) => { handlePressOut(e); children.props.onPressOut?.(e); },
     });
   }
 
@@ -89,12 +103,13 @@ export const TooltipTrigger = React.forwardRef<
 
 TooltipTrigger.displayName = "TooltipTrigger";
 
-export interface TooltipContentProps extends Omit<TextProps, "style"> {
+export interface TooltipContentProps extends Omit<TextProps, "style">, OverlayPositionProps {
   readonly style?: StyleProp<TextStyle>;
 }
 
+// Native renders in normal flow; side/align/sideOffset/alignOffset are accepted for API parity and ignored.
 export const TooltipContent = React.forwardRef<React.ElementRef<typeof Text>, TooltipContentProps>(
-  ({ style, ...props }, ref) => {
+  ({ align, alignOffset, side, sideOffset, style, ...props }, ref) => {
     const context = useTooltipContext();
     const theme = useTheme();
 

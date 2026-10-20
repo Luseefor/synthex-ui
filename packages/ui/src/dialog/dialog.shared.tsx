@@ -3,6 +3,12 @@ import * as React from "react";
 interface DialogContextValue {
   readonly open: boolean;
   readonly setOpen: (open: boolean) => void;
+  readonly contentId: string;
+  readonly triggerId: string;
+  readonly titleId: string | null;
+  readonly descriptionId: string | null;
+  readonly setTitleId: (id: string | null) => void;
+  readonly setDescriptionId: (id: string | null) => void;
 }
 
 const DialogContext = React.createContext<DialogContextValue | null>(null);
@@ -19,7 +25,19 @@ export function useDialogController({
   open,
 }: DialogSharedProps) {
   const [internalOpen, setInternalOpen] = React.useState(defaultOpen);
+  const [titleId, setTitleId] = React.useState<string | null>(null);
+  const [descriptionId, setDescriptionId] = React.useState<string | null>(null);
   const currentOpen = open ?? internalOpen;
+  const rawContentId = React.useId();
+  const rawTriggerId = React.useId();
+  const contentId = React.useMemo(
+    () => `sx-dialog-${rawContentId.replace(/:/g, "")}`,
+    [rawContentId],
+  );
+  const triggerId = React.useMemo(
+    () => `sx-dialog-trigger-${rawTriggerId.replace(/:/g, "")}`,
+    [rawTriggerId],
+  );
 
   return React.useMemo<DialogContextValue>(
     () => ({
@@ -31,8 +49,14 @@ export function useDialogController({
 
         onOpenChange?.(nextOpen);
       },
+      contentId,
+      triggerId,
+      titleId,
+      descriptionId,
+      setTitleId,
+      setDescriptionId,
     }),
-    [currentOpen, onOpenChange, open],
+    [currentOpen, onOpenChange, open, contentId, triggerId, titleId, descriptionId],
   );
 }
 
