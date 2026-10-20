@@ -1,0 +1,19 @@
+{
+  "name": "synthex-native-demo",
+  "private": true,
+  "version": "0.1.0",
+  "main": "App.tsx",
+  "scripts": {
+    "start": "expo start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-native": "^0.81.0",
+    "synthex-ui": "file:../../packages/ui"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "^5.9.3"
+  }
+}
