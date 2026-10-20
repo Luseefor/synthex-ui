@@ -1,0 +1,165 @@
+/* ============================================================
+   Synthex UI — Tailwind companion
+   ============================================================
+   Plain-CSS fallback for the Tailwind `data-[...]` variants and
+   `animate-[sx-*]` utilities emitted by synthex-ui components.
+   Import after the token surface (works with or without Tailwind
+   in the consuming app):
+
+     import "synthex-ui/styles.css";
+     import "synthex-ui/tailwind.css";
+
+   Keyframe audit (see dialog.web.tsx inline `animation` styles):
+   - `sx-overlay-in` / `sx-content-in` already exist in styles.css
+     and are mirrored here so this file works standalone.
+   - `sx-fade-up` / `sx-pop-in` did NOT exist as `sx-*` keyframes
+     (only `synthex-fade-up` / `synthex-pop-in`) — added below as
+     aliases following the same motion tokens.
+   ============================================================ */
+
+/* ── Keyframes ───────────────────────────────────────────── */
+@keyframes sx-overlay-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sx-content-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sx-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sx-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sx-accordion-down {
+  from {
+    height: 0;
+  }
+
+  to {
+    height: var(--sx-accordion-content-height, 100%);
+  }
+}
+
+@keyframes sx-accordion-up {
+  from {
+    height: var(--sx-accordion-content-height, 100%);
+  }
+
+  to {
+    height: 0;
+  }
+}
+
+/* ── data-state: open / closed ─────────────────────────────
+   Fallback for `data-[state=closed]:hidden` (collapsible.web.tsx)
+   when the consumer's Tailwind setup doesn't scan `dist/`. */
+.data-\[state\=closed\]\:hidden[data-state="closed"] {
+  display: none;
+}
+
+/* Opt-in height animation for accordion content. Set
+   `--sx-accordion-content-height` to the measured pixel height
+   (shadcn-style) or fall back to percentage. */
+.sx-accordion-content[data-state="open"] {
+  animation: sx-accordion-down var(--sx-motion-normal, 220ms) var(--sx-easing-emphasized, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.sx-accordion-content[data-state="closed"] {
+  animation: sx-accordion-up var(--sx-motion-fast, 140ms) var(--sx-easing-standard, cubic-bezier(0.2, 0, 0, 1));
+}
+
+/* ── data-state: selected ──────────────────────────────────
+   Fallback for `data-[state=selected]:bg-...` (table.web.tsx). */
+.data-\[state\=selected\]\:bg-\[color\:var\(--sx-color-primary-muted\)\][data-state="selected"] {
+  background-color: var(--sx-color-primary-muted);
+}
+
+[data-selected="true"] {
+  background-color: var(--sx-color-primary-muted);
+}
+
+/* ── data-side / data-align (floating surfaces) ────────────
+   Dropdown, popover, tooltip, hover-card and context-menu
+   content all render `data-side` + `data-align`: entrance
+   animation plus per-side transform origins. */
+[data-side][data-align] {
+  animation: sx-pop-in var(--sx-motion-fast, 140ms) var(--sx-easing-emphasized, cubic-bezier(0.16, 1, 0.3, 1)) both;
+}
+
+[data-side="top"] {
+  transform-origin: bottom center;
+}
+
+[data-side="bottom"] {
+  transform-origin: top center;
+}
+
+[data-side="left"] {
+  transform-origin: right center;
+}
+
+[data-side="right"] {
+  transform-origin: left center;
+}
+
+/* ── data-orientation ──────────────────────────────────────
+   Drag affordance for oriented controls (slider.web.tsx):
+   lock the scroll axis perpendicular to the drag axis. */
+[data-orientation="horizontal"] {
+  touch-action: pan-y;
+}
+
+[data-orientation="vertical"] {
+  touch-action: pan-x;
+}
+
+/* ── data-disabled ───────────────────────────────────────── */
+[data-disabled] {
+  cursor: not-allowed;
+}
+
+/* ── Reduced motion ───────────────────────────────────────
+   Disable this file's animations for users who prefer
+   reduced motion (mirrors the global block in styles.css). */
+@media (prefers-reduced-motion: reduce) {
+  [data-side][data-align],
+  .sx-accordion-content[data-state="open"],
+  .sx-accordion-content[data-state="closed"] {
+    animation: none !important;
+    transition: none !important;
+  }
+}

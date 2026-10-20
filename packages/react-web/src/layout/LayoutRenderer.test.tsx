@@ -117,13 +117,13 @@ describe("@luseefor/synthex-react-web", () => {
 
     expect(tabsContainer).not.toBeNull();
     expect(tabsContainer).toHaveStyle({
-      background: "rgb(18, 24, 38)",
+      "background-color": "rgb(18, 24, 38)",
     });
     expect(tabsContainer).toHaveStyle({
-      border: "1px solid rgb(96, 165, 250)",
+      "border-color": "rgb(96, 165, 250)",
     });
     expect(screen.getByRole("button", { name: "Schematic" })).toHaveStyle({
-      background: "rgb(27, 36, 56)",
+      "background-color": "rgb(27, 36, 56)",
     });
   });
 

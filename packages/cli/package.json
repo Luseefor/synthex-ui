@@ -20,12 +20,16 @@
   "license": "MIT",
   "dependencies": {
     "@luseefor/synthex-core": "^1.1.0",
-    "commander": "^14.0.3"
+    "commander": "^15.0.0"
   },
   "scripts": {
     "build": "rm -rf ./dist && npx tsc -p tsconfig.build.json",
     "dev": "bun --watch run ./src/index.ts test",
-    "typecheck": "npx tsc -p tsconfig.json --noEmit"
+    "typecheck": "npx tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^5.0.5"
   },
   "sideEffects": false
 }
