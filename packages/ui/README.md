@@ -8,7 +8,7 @@ Cross-platform React UI framework for consistent web and native product surfaces
 npm install synthex-ui
 ```
 
-For React Native, also install the relevant peer dependencies used by your app.
+For React Native, also install the peer dependencies your app needs.
 
 ## Usage
 

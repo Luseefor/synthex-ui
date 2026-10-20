@@ -1,4 +1,4 @@
-# Workbench Integration
+# Workbench integration
 
 `@luseefor/synthex-react-web` provides a dockable workbench layout system on top of the `@luseefor/synthex-core` layout engine.
 
@@ -31,7 +31,7 @@ function Workbench() {
 
 ### LayoutRenderer
 
-Recursively renders a layout tree of split panes and tab groups.
+`LayoutRenderer` renders a layout tree of split panes and tab groups.
 
 | Prop | Type | Description |
 |------|------|-------------|
@@ -43,15 +43,15 @@ Recursively renders a layout tree of split panes and tab groups.
 
 ### SplitView
 
-Renders horizontal/vertical split panes with a draggable resize handle.
+SplitView renders horizontal and vertical split panes. Drag the handle to resize.
 
 ### TabView
 
-Renders a tabbed container with tab rail and active panel.
+TabView renders a tabbed container with a tab rail and an active panel.
 
-## Theme Integration
+## Theme integration
 
-The workbench automatically inherits `SynthexTheme` colors via CSS variable cascade:
+The workbench inherits `SynthexTheme` colors via CSS variable cascade:
 
 ```
 --synthex-workbench-* (consumer override)
@@ -59,7 +59,9 @@ The workbench automatically inherits `SynthexTheme` colors via CSS variable casc
     → hardcoded fallback
 ```
 
-### Custom Workbench Theme
+### Custom workbench theme
+
+I keep workbench overrides in CSS. It is easier to scan than a theme prop.
 
 Override specific workbench tokens:
 
@@ -86,7 +88,7 @@ Or pass a `theme` prop:
 
 ## useSynthex
 
-Hook for managing workbench state (layout, undo/redo, serialization):
+`useSynthex` manages workbench state, including layout, undo/redo, and serialization:
 
 ```tsx
 const synthex = useSynthex({
@@ -94,7 +96,7 @@ const synthex = useSynthex({
   commands: myCommands,
 });
 
-// synthex.layout — current layout tree
-// synthex.dispatch — command dispatcher
-// synthex.undo / synthex.redo — history navigation
+// synthex.layout: current layout tree
+// synthex.dispatch: command dispatcher
+// synthex.undo / synthex.redo: history navigation
 ```
