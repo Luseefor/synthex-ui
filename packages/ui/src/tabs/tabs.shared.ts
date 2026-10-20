@@ -12,6 +12,8 @@ export interface TabsSharedProps {
   readonly defaultValue?: string;
   readonly value?: string;
   readonly onValueChange?: (value: string) => void;
+  readonly orientation?: "horizontal" | "vertical";
+  readonly activationMode?: "automatic" | "manual";
 }
 
 export interface TabsTriggerSharedProps {
