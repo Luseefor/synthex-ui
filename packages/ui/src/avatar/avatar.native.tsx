@@ -21,10 +21,11 @@ import {
 
 export interface AvatarProps extends Omit<ViewProps, "style">, AvatarSharedProps {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export const Avatar = React.forwardRef<React.ElementRef<typeof View>, AvatarProps>(
-  ({ children, size, style, ...props }, ref) => {
+  ({ children, size, style, testID, ...props }, ref) => {
     const theme = useTheme();
     const [imageStatus, setImageStatus] = React.useState<"idle" | "loading" | "loaded" | "error">(
       "idle",
@@ -68,15 +69,17 @@ Avatar.displayName = "Avatar";
 export interface AvatarImageProps extends Omit<ImageProps, "source"> {
   readonly source: ImageProps["source"];
   readonly style?: StyleProp<ImageStyle>;
+  readonly testID?: string;
 }
 
 export const AvatarImage = React.forwardRef<React.ElementRef<typeof Image>, AvatarImageProps>(
-  ({ onError, onLoad, style, ...props }, ref) => {
+  ({ onError, onLoad, style, testID, ...props }, ref) => {
     const { setImageStatus } = useAvatarContext();
 
     return (
       <Image
         ref={ref}
+        testID={testID ?? "avatar-image"}
         style={[{ width: "100%", height: "100%" }, style]}
         onLoad={(event) => {
           setImageStatus("loaded");
@@ -98,12 +101,13 @@ export interface AvatarFallbackProps
   extends Omit<TextProps, "style">,
     AvatarSharedProps {
   readonly style?: StyleProp<TextStyle>;
+  readonly testID?: string;
 }
 
 export const AvatarFallback = React.forwardRef<
   React.ElementRef<typeof Text>,
   AvatarFallbackProps
->(({ size, style, ...props }, ref) => {
+>(({ size, style, testID, ...props }, ref) => {
   const theme = useTheme();
   const { imageStatus } = useAvatarContext();
   const resolved = resolveAvatarVariants({ size });

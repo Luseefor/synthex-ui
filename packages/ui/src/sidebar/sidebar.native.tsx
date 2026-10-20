@@ -20,14 +20,22 @@ function useSidebarContext() {
   return context;
 }
 
-export interface SidebarProviderProps extends SidebarProviderSharedProps {}
-export interface SidebarProps extends SidebarSharedProps {}
-export interface SidebarInsetProps extends SidebarSharedProps {}
+export interface SidebarProviderProps extends SidebarProviderSharedProps {
+  readonly testID?: string;
+}
+export interface SidebarProps extends SidebarSharedProps {
+  readonly testID?: string;
+}
+export interface SidebarInsetProps extends SidebarSharedProps {
+  readonly testID?: string;
+}
 export interface SidebarMenuButtonProps extends SidebarMenuButtonSharedProps {
   readonly onPress?: () => void;
+  readonly testID?: string;
 }
 export interface SidebarTriggerProps {
   readonly children?: React.ReactNode;
+  readonly testID?: string;
 }
 
 export function SidebarProvider({ children, defaultOpen = true }: SidebarProviderProps) {
@@ -48,12 +56,13 @@ export function useSidebar() {
   return useSidebarContext();
 }
 
-export function Sidebar({ children }: SidebarProps) {
+export function Sidebar({ children, testID }: SidebarProps) {
   const { open } = useSidebarContext();
   const theme = useTheme();
 
   return (
     <View
+      testID={testID ?? "sidebar"}
       style={{
         width: open ? 288 : 88,
         borderWidth: 1,
@@ -67,31 +76,32 @@ export function Sidebar({ children }: SidebarProps) {
   );
 }
 
-export function SidebarHeader({ children }: SidebarSharedProps) {
+export function SidebarHeader({ children, testID }: SidebarSharedProps & { readonly testID?: string }) {
   const theme = useTheme();
 
-  return <View style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.border, padding: 16 }}>{children}</View>;
+  return <View testID={testID ?? "sidebar-header"} style={{ borderBottomWidth: 1, borderBottomColor: theme.colors.border, padding: 16 }}>{children}</View>;
 }
 
-export function SidebarFooter({ children }: SidebarSharedProps) {
+export function SidebarFooter({ children, testID }: SidebarSharedProps & { readonly testID?: string }) {
   const theme = useTheme();
 
-  return <View style={{ borderTopWidth: 1, borderTopColor: theme.colors.border, padding: 16 }}>{children}</View>;
+  return <View testID={testID ?? "sidebar-footer"} style={{ borderTopWidth: 1, borderTopColor: theme.colors.border, padding: 16 }}>{children}</View>;
 }
 
-export function SidebarContent({ children }: SidebarSharedProps) {
-  return <ScrollView contentContainerStyle={{ gap: 16, padding: 12 }}>{children}</ScrollView>;
+export function SidebarContent({ children, testID }: SidebarSharedProps & { readonly testID?: string }) {
+  return <ScrollView testID={testID ?? "sidebar-content"} contentContainerStyle={{ gap: 16, padding: 12 }}>{children}</ScrollView>;
 }
 
-export function SidebarGroup({ children }: SidebarSharedProps) {
-  return <View style={{ gap: 8 }}>{children}</View>;
+export function SidebarGroup({ children, testID }: SidebarSharedProps & { readonly testID?: string }) {
+  return <View testID={testID ?? "sidebar-group"} style={{ gap: 8 }}>{children}</View>;
 }
 
-export function SidebarGroupLabel({ children }: SidebarSharedProps) {
+export function SidebarGroupLabel({ children, testID }: SidebarSharedProps & { readonly testID?: string }) {
   const theme = useTheme();
 
   return (
     <Text
+      testID={testID ?? "sidebar-group-label"}
       style={{
         color: theme.colors.foregroundMuted,
         fontSize: theme.typography.size.xs,
@@ -106,24 +116,25 @@ export function SidebarGroupLabel({ children }: SidebarSharedProps) {
   );
 }
 
-export function SidebarGroupContent({ children }: SidebarSharedProps) {
-  return <View style={{ gap: 4 }}>{children}</View>;
+export function SidebarGroupContent({ children, testID }: SidebarSharedProps & { readonly testID?: string }) {
+  return <View testID={testID ?? "sidebar-group-content"} style={{ gap: 4 }}>{children}</View>;
 }
 
-export function SidebarMenu({ children }: SidebarSharedProps) {
-  return <View style={{ gap: 4 }}>{children}</View>;
+export function SidebarMenu({ children, testID }: SidebarSharedProps & { readonly testID?: string }) {
+  return <View testID={testID ?? "sidebar-menu"} style={{ gap: 4 }}>{children}</View>;
 }
 
-export function SidebarMenuItem({ children }: SidebarSharedProps) {
-  return <View>{children}</View>;
+export function SidebarMenuItem({ children, testID }: SidebarSharedProps & { readonly testID?: string }) {
+  return <View testID={testID ?? "sidebar-menu-item"}>{children}</View>;
 }
 
-export function SidebarMenuButton({ active, children, onPress }: SidebarMenuButtonProps) {
+export function SidebarMenuButton({ active, children, onPress, testID }: SidebarMenuButtonProps) {
   const { open } = useSidebarContext();
   const theme = useTheme();
 
   return (
     <Pressable
+      testID={testID ?? "sidebar-menu-button"}
       accessibilityRole="button"
       onPress={onPress}
       style={{
@@ -154,11 +165,12 @@ export function SidebarMenuButton({ active, children, onPress }: SidebarMenuButt
   );
 }
 
-export function SidebarInset({ children }: SidebarInsetProps) {
+export function SidebarInset({ children, testID }: SidebarInsetProps) {
   const theme = useTheme();
 
   return (
     <View
+      testID={testID ?? "sidebar-inset"}
       style={{
         backgroundColor: theme.colors.surfaceMuted,
         borderRadius: theme.radius.lg + 2,
@@ -170,18 +182,19 @@ export function SidebarInset({ children }: SidebarInsetProps) {
   );
 }
 
-export function SidebarRail() {
+export function SidebarRail({ testID }: { readonly testID?: string } = {}) {
   const theme = useTheme();
 
-  return <View style={{ alignSelf: "center", backgroundColor: theme.colors.border, borderRadius: 999, height: 40, width: 4 }} />;
+  return <View testID={testID ?? "sidebar-rail"} style={{ alignSelf: "center", backgroundColor: theme.colors.border, borderRadius: 999, height: 40, width: 4 }} />;
 }
 
-export function SidebarTrigger({ children = "Toggle sidebar" }: SidebarTriggerProps) {
+export function SidebarTrigger({ children = "Toggle sidebar", testID }: SidebarTriggerProps) {
   const { toggle } = useSidebarContext();
   const theme = useTheme();
 
   return (
     <Pressable
+      testID={testID ?? "sidebar-trigger"}
       accessibilityRole="button"
       onPress={toggle}
       style={{

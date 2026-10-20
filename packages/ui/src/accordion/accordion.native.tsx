@@ -33,10 +33,11 @@ export function Accordion({
   defaultValue,
   onValueChange,
   style,
+  testID,
   type,
   value,
   ...props
-}: AccordionProps) {
+}: AccordionProps & { readonly testID?: string }) {
   const controller = useAccordionController({
     collapsible,
     defaultValue,
@@ -47,7 +48,7 @@ export function Accordion({
 
   return (
     <AccordionProvider value={controller}>
-      <View style={style} {...props}>
+      <View testID={testID ?? "accordion"} style={style} {...props}>
         {children}
       </View>
     </AccordionProvider>
@@ -61,13 +62,14 @@ export interface AccordionItemProps
 }
 
 export const AccordionItem = React.forwardRef<React.ElementRef<typeof View>, AccordionItemProps>(
-  ({ children, disabled = false, style, value, ...props }, ref) => {
+  ({ children, disabled = false, style, testID, value, ...props }, ref) => {
     const theme = useTheme();
 
     return (
       <AccordionItemProvider value={{ value, disabled }}>
         <View
           ref={ref}
+          testID={testID ?? "accordion-item"}
           style={[
             {
               borderBottomWidth: 1,
@@ -90,13 +92,14 @@ export interface AccordionTriggerProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
   readonly disabled?: boolean;
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
 export const AccordionTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   AccordionTriggerProps
->(({ children, disabled: triggerDisabled, onPress, style, textStyle, ...props }, ref) => {
+>(({ children, disabled: triggerDisabled, onPress, style, testID, textStyle, ...props }, ref) => {
   const accordion = useAccordionContext();
   const item = useAccordionItemContext();
   const theme = useTheme();
@@ -106,6 +109,7 @@ export const AccordionTrigger = React.forwardRef<
   return (
     <Pressable
       ref={ref}
+      testID={testID ?? "accordion-trigger"}
       accessibilityRole="button"
       accessibilityState={{ disabled: disabled || undefined, expanded: open }}
       disabled={disabled}
@@ -158,12 +162,13 @@ AccordionTrigger.displayName = "AccordionTrigger";
 
 export interface AccordionContentProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export const AccordionContent = React.forwardRef<
   React.ElementRef<typeof View>,
   AccordionContentProps
->(({ children, style, ...props }, ref) => {
+>(({ children, style, testID, ...props }, ref) => {
   const accordion = useAccordionContext();
   const item = useAccordionItemContext();
   const open = accordion.isItemOpen(item.value);
@@ -173,7 +178,7 @@ export const AccordionContent = React.forwardRef<
   }
 
   return (
-    <View ref={ref} style={[{ paddingBottom: 16 }, style]} {...props}>
+    <View ref={ref} testID={testID ?? "accordion-content"} style={[{ paddingBottom: 16 }, style]} {...props}>
       {children}
     </View>
   );

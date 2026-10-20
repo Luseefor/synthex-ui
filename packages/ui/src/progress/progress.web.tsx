@@ -1,42 +1,49 @@
 import * as React from "react";
+import * as ProgressPrimitive from "@radix-ui/react-progress";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../_shared/variants";
-import { resolveProgressVariants, type ProgressSharedProps } from "./progress.shared";
+
+const progressVariants = cva("bg-primary/20 relative w-full overflow-hidden rounded-full", {
+  variants: {
+    size: {
+      sm: "h-2",
+      md: "h-3",
+      lg: "h-4",
+    },
+  },
+  defaultVariants: {
+    size: "md",
+  },
+});
 
 export interface ProgressProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    ProgressSharedProps {}
+  extends React.ComponentProps<typeof ProgressPrimitive.Root>,
+    VariantProps<typeof progressVariants> {
+  readonly size?: "sm" | "md" | "lg";
+}
 
-export const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
-  ({ className, max = 100, size, value = 0, ...props }, ref) => {
-    const resolved = resolveProgressVariants({ size });
-    const clampedValue = Math.min(Math.max(value, 0), max);
-    const percentage = max <= 0 ? 0 : (clampedValue / max) * 100;
+function Progress({ className, max = 100, size = "md", value = 0, ...props }: ProgressProps) {
+  const clamped = Math.min(Math.max(value ?? 0, 0), max);
+  const percentage = max <= 0 ? 0 : (clamped / max) * 100;
 
-    return (
-      <div
-        ref={ref}
-        role="progressbar"
-        aria-valuemax={max}
-        aria-valuemin={0}
-        aria-valuenow={Math.round(clampedValue)}
-        className={cn(
-          "relative w-full overflow-hidden rounded-full bg-[color:var(--sx-color-secondary-muted)]",
-          resolved.size === "sm"
-            ? "h-2"
-            : resolved.size === "lg"
-              ? "h-4"
-              : "h-3",
-          className,
-        )}
-        {...props}
-      >
-        <div
-          className="h-full rounded-full bg-[linear-gradient(90deg,var(--sx-color-primary)_0%,color-mix(in_srgb,var(--sx-color-primary)_84%,white_16%)_100%)] transition-[width] duration-300 ease-out"
-          style={{ width: `${percentage}%` }}
-        />
-      </div>
-    );
-  },
-);
+  return (
+    <ProgressPrimitive.Root
+      data-slot="progress"
+      data-size={size}
+      data-value={clamped}
+      data-max={max}
+      max={max}
+      value={clamped}
+      className={cn(progressVariants({ size }), className)}
+      {...props}
+    >
+      <ProgressPrimitive.Indicator
+        data-slot="progress-indicator"
+        className="bg-primary h-full w-full flex-1 transition-all"
+        style={{ transform: `translateX(-${100 - percentage}%)` }}
+      />
+    </ProgressPrimitive.Root>
+  );
+}
 
-Progress.displayName = "Progress";
+export { Progress, progressVariants };

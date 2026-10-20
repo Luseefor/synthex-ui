@@ -1,29 +1,32 @@
 import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../_shared/variants";
-import { resolveSkeletonVariants, type SkeletonSharedProps } from "./skeleton.shared";
+
+const skeletonVariants = cva("animate-pulse rounded-md bg-muted", {
+  variants: {
+    variant: {
+      default: "",
+      soft: "opacity-70",
+    },
+  },
+  defaultVariants: {
+    variant: "default",
+  },
+});
 
 export interface SkeletonProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    SkeletonSharedProps {}
+    VariantProps<typeof skeletonVariants> {}
 
-export const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
-  ({ className, variant, ...props }, ref) => {
-    const resolved = resolveSkeletonVariants({ variant });
+function Skeleton({ className, variant, ...props }: SkeletonProps) {
+  return (
+    <div
+      data-slot="skeleton"
+      data-variant={variant ?? "default"}
+      className={cn(skeletonVariants({ variant }), className)}
+      {...props}
+    />
+  );
+}
 
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          "animate-pulse rounded-[var(--sx-radius-md)]",
-          resolved.variant === "soft"
-            ? "bg-[color:color-mix(in_srgb,var(--sx-color-secondary-muted)_76%,white_24%)]"
-            : "bg-[color:var(--sx-color-secondary-muted)]",
-          className,
-        )}
-        {...props}
-      />
-    );
-  },
-);
-
-Skeleton.displayName = "Skeleton";
+export { Skeleton, skeletonVariants };

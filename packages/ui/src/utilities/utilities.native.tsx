@@ -15,12 +15,13 @@ export interface SpinnerProps extends ViewProps {
   readonly size?: "sm" | "md" | "lg";
 }
 
-export function Spinner({ size = "md", style, ...props }: SpinnerProps) {
+export function Spinner({ size = "md", style, testID, ...props }: SpinnerProps & { readonly testID?: string }) {
   const theme = useTheme();
   const dimension = size === "sm" ? 16 : size === "lg" ? 28 : 20;
 
   return (
     <View
+      testID={testID ?? "spinner"}
       accessibilityLabel="Loading"
       accessibilityRole="progressbar"
       style={[
@@ -40,7 +41,7 @@ export function Spinner({ size = "md", style, ...props }: SpinnerProps) {
 }
 
 export interface KbdProps extends NativeTextProps {}
-export function Kbd({ style, ...props }: KbdProps) {
+export function Kbd({ style, testID, ...props }: KbdProps & { readonly testID?: string }) {
   const theme = useTheme();
   return (
     <NativeText
@@ -67,7 +68,7 @@ export function Kbd({ style, ...props }: KbdProps) {
 }
 
 export interface ButtonGroupProps extends ViewProps {}
-export function ButtonGroup({ style, ...props }: ButtonGroupProps) {
+export function ButtonGroup({ style, testID, ...props }: ButtonGroupProps & { readonly testID?: string }) {
   const theme = useTheme();
   return (
     <View
@@ -90,12 +91,12 @@ export function ButtonGroup({ style, ...props }: ButtonGroupProps) {
 }
 
 export interface FieldProps extends ViewProps {}
-export function Field({ style, ...props }: FieldProps) {
-  return <View style={[{ gap: 10 }, style]} {...props} />;
+export function Field({ style, testID, ...props }: FieldProps & { readonly testID?: string }) {
+  return <View testID={testID ?? "field"} style={[{ gap: 10 }, style]} {...props} />;
 }
 
 export interface FieldSetProps extends ViewProps {}
-export function FieldSet({ style, ...props }: FieldSetProps) {
+export function FieldSet({ style, testID, ...props }: FieldSetProps & { readonly testID?: string }) {
   const theme = useTheme();
   return (
     <View
@@ -115,7 +116,7 @@ export function FieldSet({ style, ...props }: FieldSetProps) {
 }
 
 export interface FieldLegendProps extends NativeTextProps {}
-export function FieldLegend({ style, ...props }: FieldLegendProps) {
+export function FieldLegend({ style, testID, ...props }: FieldLegendProps & { readonly testID?: string }) {
   const theme = useTheme();
   return (
     <NativeText
@@ -134,20 +135,21 @@ export function FieldLegend({ style, ...props }: FieldLegendProps) {
 }
 
 export interface FieldContentProps extends ViewProps {}
-export function FieldContent({ style, ...props }: FieldContentProps) {
-  return <View style={[{ gap: 6 }, style]} {...props} />;
+export function FieldContent({ style, testID, ...props }: FieldContentProps & { readonly testID?: string }) {
+  return <View testID={testID ?? "field-content"} style={[{ gap: 6 }, style]} {...props} />;
 }
 
 export interface FieldLabelProps extends React.ComponentPropsWithoutRef<typeof Label> {}
-export function FieldLabel({ style, ...props }: FieldLabelProps) {
-  return <Label style={[{ fontSize: 13, fontWeight: "600" }, style]} {...props} />;
+export function FieldLabel({ style, testID, ...props }: FieldLabelProps & { readonly testID?: string }) {
+  return <Label testID={testID ?? "field-label"} style={[{ fontSize: 13, fontWeight: "600" }, style]} {...props} />;
 }
 
 export interface FieldDescriptionProps extends NativeTextProps {}
-export function FieldDescription({ style, ...props }: FieldDescriptionProps) {
+export function FieldDescription({ style, testID, ...props }: FieldDescriptionProps & { readonly testID?: string }) {
   const theme = useTheme();
   return (
     <NativeText
+      testID={testID ?? "field-description"}
       style={[
         {
           color: theme.colors.foregroundMuted,
@@ -163,10 +165,11 @@ export function FieldDescription({ style, ...props }: FieldDescriptionProps) {
 }
 
 export interface FieldErrorProps extends NativeTextProps {}
-export function FieldError({ style, ...props }: FieldErrorProps) {
+export function FieldError({ style, testID, ...props }: FieldErrorProps & { readonly testID?: string }) {
   const theme = useTheme();
   return (
     <NativeText
+      testID={testID ?? "field-error"}
       style={[
         {
           color: theme.colors.destructive,
@@ -183,10 +186,11 @@ export function FieldError({ style, ...props }: FieldErrorProps) {
 }
 
 export interface InputGroupProps extends ViewProps {}
-export function InputGroup({ style, ...props }: InputGroupProps) {
+export function InputGroup({ style, testID, ...props }: InputGroupProps & { readonly testID?: string }) {
   const theme = useTheme();
   return (
     <View
+      testID={testID ?? "input-group"}
       style={[
         {
           alignItems: "stretch",
@@ -205,10 +209,11 @@ export function InputGroup({ style, ...props }: InputGroupProps) {
 }
 
 export interface InputGroupAddonProps extends ViewProps {}
-export function InputGroupAddon({ style, ...props }: InputGroupAddonProps) {
+export function InputGroupAddon({ style, testID, ...props }: InputGroupAddonProps & { readonly testID?: string }) {
   const theme = useTheme();
   return (
     <View
+      testID={testID ?? "input-group-addon"}
       style={[
         {
           alignItems: "center",
@@ -226,10 +231,11 @@ export function InputGroupAddon({ style, ...props }: InputGroupAddonProps) {
 }
 
 export interface EmptyProps extends ViewProps {}
-export function Empty({ style, ...props }: EmptyProps) {
+export function Empty({ style, testID, ...props }: EmptyProps & { readonly testID?: string }) {
   const theme = useTheme();
   return (
     <View
+      testID={testID ?? "empty"}
       style={[
         {
           alignItems: "center",
@@ -251,15 +257,16 @@ export function Empty({ style, ...props }: EmptyProps) {
 }
 
 export interface EmptyHeaderProps extends ViewProps {}
-export function EmptyHeader({ style, ...props }: EmptyHeaderProps) {
-  return <View style={[{ alignItems: "center", gap: 8 }, style]} {...props} />;
+export function EmptyHeader({ style, testID, ...props }: EmptyHeaderProps & { readonly testID?: string }) {
+  return <View testID={testID ?? "empty-header"} style={[{ alignItems: "center", gap: 8 }, style]} {...props} />;
 }
 
 export interface EmptyTitleProps extends NativeTextProps {}
-export function EmptyTitle({ style, ...props }: EmptyTitleProps) {
+export function EmptyTitle({ style, testID, ...props }: EmptyTitleProps & { readonly testID?: string }) {
   const theme = useTheme();
   return (
     <NativeText
+      testID={testID ?? "empty-title"}
       style={[
         {
           color: theme.colors.foreground,
@@ -275,10 +282,11 @@ export function EmptyTitle({ style, ...props }: EmptyTitleProps) {
 }
 
 export interface EmptyDescriptionProps extends NativeTextProps {}
-export function EmptyDescription({ style, ...props }: EmptyDescriptionProps) {
+export function EmptyDescription({ style, testID, ...props }: EmptyDescriptionProps & { readonly testID?: string }) {
   const theme = useTheme();
   return (
     <NativeText
+      testID={testID ?? "empty-description"}
       style={[
         {
           color: theme.colors.foregroundMuted,
@@ -294,10 +302,11 @@ export function EmptyDescription({ style, ...props }: EmptyDescriptionProps) {
 }
 
 export interface ItemProps extends ViewProps {}
-export function Item({ style, ...props }: ItemProps) {
+export function Item({ style, testID, ...props }: ItemProps & { readonly testID?: string }) {
   const theme = useTheme();
   return (
     <View
+      testID={testID ?? "item"}
       style={[
         {
           backgroundColor: theme.colors.surface,
@@ -316,10 +325,11 @@ export function Item({ style, ...props }: ItemProps) {
 }
 
 export interface ItemTitleProps extends NativeTextProps {}
-export function ItemTitle({ style, ...props }: ItemTitleProps) {
+export function ItemTitle({ style, testID, ...props }: ItemTitleProps & { readonly testID?: string }) {
   const theme = useTheme();
   return (
     <NativeText
+      testID={testID ?? "item-title"}
       style={[
         {
           color: theme.colors.foreground,
@@ -335,10 +345,11 @@ export function ItemTitle({ style, ...props }: ItemTitleProps) {
 }
 
 export interface ItemDescriptionProps extends NativeTextProps {}
-export function ItemDescription({ style, ...props }: ItemDescriptionProps) {
+export function ItemDescription({ style, testID, ...props }: ItemDescriptionProps & { readonly testID?: string }) {
   const theme = useTheme();
   return (
     <NativeText
+      testID={testID ?? "item-description"}
       style={[
         {
           color: theme.colors.foregroundMuted,

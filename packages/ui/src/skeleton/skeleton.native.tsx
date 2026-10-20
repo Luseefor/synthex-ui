@@ -5,10 +5,11 @@ import { resolveSkeletonVariants, type SkeletonSharedProps } from "./skeleton.sh
 
 export interface SkeletonProps extends Omit<ViewProps, "style">, SkeletonSharedProps {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export const Skeleton = React.forwardRef<React.ElementRef<typeof View>, SkeletonProps>(
-  ({ style, variant, ...props }, ref) => {
+  ({ style, testID, variant, ...props }, ref) => {
     const theme = useTheme();
     const resolved = resolveSkeletonVariants({ variant });
 

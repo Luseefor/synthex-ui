@@ -10,7 +10,7 @@ export interface SeparatorProps extends Omit<ViewProps, "style">, SeparatorVaria
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export function Separator({ orientation, style, ...props }: SeparatorProps) {
+export function Separator({ orientation, style, testID, ...props }: SeparatorProps & { readonly testID?: string }) {
   const theme = useTheme();
   const resolved = resolveSeparatorVariants({ orientation });
 

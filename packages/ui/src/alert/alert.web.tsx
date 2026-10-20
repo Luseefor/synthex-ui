@@ -1,101 +1,67 @@
 import * as React from "react";
-import {
-  cn,
-  resolveVariantStyles,
-  type VariantStyleDefinition,
-} from "../_shared/variants";
-import { alertVariants, type AlertSharedProps } from "./alert.shared";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "../_shared/variants";
 
-const alertClassStyles = {
-  slots: ["root", "title", "description"] as const,
-  base: {
-    root:
-      "relative w-full rounded-[var(--sx-radius-lg)] border p-4 [&>svg~*]:pl-8 [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-[color:var(--sx-color-foreground)]",
-    title:
-      "mb-1 text-sm font-semibold leading-none tracking-[-0.01em]",
-    description:
-      "text-sm leading-relaxed text-[color:var(--sx-color-foreground-muted)] [&_p]:leading-relaxed",
-  },
-  variants: {
-    variant: {
-      default: {
-        root: "border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] text-[color:var(--sx-color-foreground)]",
-        title: "text-[color:var(--sx-color-foreground)]",
-      },
-      destructive: {
-        root:
-          "border-[color:var(--sx-color-destructive)]/50 bg-[color:var(--sx-color-destructive-muted)] text-[color:var(--sx-color-destructive)] [&>svg]:text-[color:var(--sx-color-destructive)]",
-        title: "text-[color:var(--sx-color-destructive)]",
-        description: "text-[color:var(--sx-color-destructive)]/80",
-      },
-      success: {
-        root:
-          "border-emerald-500/50 bg-emerald-50 text-emerald-700 [&>svg]:text-emerald-600",
-        title: "text-emerald-800",
-        description: "text-emerald-700/80",
-      },
-      warning: {
-        root:
-          "border-amber-500/50 bg-amber-50 text-amber-700 [&>svg]:text-amber-600",
-        title: "text-amber-800",
-        description: "text-amber-700/80",
+const alertVariants = cva(
+  "relative grid w-full gap-y-0.5 overflow-hidden rounded-xl border px-4 py-3 text-sm has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>svg]:gap-x-3 [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current",
+  {
+    variants: {
+      variant: {
+        default: "bg-card text-card-foreground",
+        destructive:
+          "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90",
+        success:
+          "bg-card text-card-foreground border-emerald-500/40 [&>svg]:text-emerald-600 *:data-[slot=alert-description]:text-emerald-700/80 dark:*:[&>svg]:text-emerald-400",
+        warning:
+          "bg-card text-card-foreground border-amber-500/40 [&>svg]:text-amber-600 *:data-[slot=alert-description]:text-amber-700/80 dark:*:[&>svg]:text-amber-400",
       },
     },
+    defaultVariants: {
+      variant: "default",
+    },
   },
-} satisfies VariantStyleDefinition<
-  typeof alertVariants.variants,
-  "root" | "title" | "description",
-  string
->;
+);
 
 export interface AlertProps
   extends React.HTMLAttributes<HTMLDivElement>,
-  AlertSharedProps { }
+    VariantProps<typeof alertVariants> {}
 
-const AlertVariantContext = React.createContext<AlertSharedProps["variant"] | undefined>(
-  undefined,
-);
+function Alert({ className, variant, ...props }: AlertProps) {
+  return (
+    <div
+      role="alert"
+      data-slot="alert"
+      data-variant={variant ?? "default"}
+      className={cn(alertVariants({ variant }), className)}
+      {...props}
+    />
+  );
+}
 
-export const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
-  ({ className, variant, ...props }, ref) => {
-    const slots = resolveVariantStyles(alertVariants, alertClassStyles, { variant });
+function AlertTitle({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      data-slot="alert-title"
+      className={cn("col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight", className)}
+      {...props}
+    />
+  );
+}
 
-    return (
-      <AlertVariantContext.Provider value={variant}>
-        <div ref={ref} role="alert" className={cn(...slots.root, className)} {...props} />
-      </AlertVariantContext.Provider>
-    );
-  },
-);
+function AlertDescription({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      data-slot="alert-description"
+      className={cn(
+        "text-muted-foreground col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
 
-Alert.displayName = "Alert";
-
-export const AlertTitle = React.forwardRef<
-  HTMLHeadingElement,
-  React.HTMLAttributes<HTMLHeadingElement> & AlertSharedProps
->(({ className, variant, ...props }, ref) => {
-  const contextVariant = React.useContext(AlertVariantContext);
-  const effectiveVariant = variant ?? contextVariant;
-  const slots = resolveVariantStyles(alertVariants, alertClassStyles, {
-    variant: effectiveVariant,
-  });
-
-  return <h5 ref={ref} className={cn(...slots.title, className)} {...props} />;
-});
-
-AlertTitle.displayName = "AlertTitle";
-
-export const AlertDescription = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement> & AlertSharedProps
->(({ className, variant, ...props }, ref) => {
-  const contextVariant = React.useContext(AlertVariantContext);
-  const effectiveVariant = variant ?? contextVariant;
-  const slots = resolveVariantStyles(alertVariants, alertClassStyles, {
-    variant: effectiveVariant,
-  });
-
-  return <p ref={ref} className={cn(...slots.description, className)} {...props} />;
-});
-
-AlertDescription.displayName = "AlertDescription";
+export { Alert, AlertTitle, AlertDescription, alertVariants };

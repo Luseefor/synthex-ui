@@ -12,12 +12,14 @@ import { resolveBadgeVariants, type BadgeSharedProps } from "./badge.shared";
 
 export interface BadgeProps extends Omit<ViewProps, "style">, BadgeSharedProps {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
 export function Badge({
   children,
   style,
+  testID,
   textStyle,
   variant,
   ...props
@@ -57,7 +59,7 @@ export function Badge({
   };
 
   return (
-    <View style={[containerStyle, style]} {...props}>
+    <View testID={testID ?? "badge"} style={[containerStyle, style]} {...props}>
       {renderBadgeText(children, [labelStyle, textStyle])}
     </View>
   );
