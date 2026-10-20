@@ -212,6 +212,13 @@ function mapLayout(
     };
   }
 
+  if (mapped.type === "tabs") {
+    return {
+      ...mapped,
+      children: mapped.children.map((child) => mapLayout(child, mapper) as PanelNode),
+    };
+  }
+
   return mapped;
 }
 
