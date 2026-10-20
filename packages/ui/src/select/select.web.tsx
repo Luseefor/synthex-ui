@@ -63,11 +63,11 @@ export const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerPr
       ref={ref}
       data-slot="select-trigger"
       className={getFieldControlClassName({
-        className: cn("inline-flex items-center justify-between gap-3 text-left", className),
+        className: cn("inline-flex items-center justify-between gap-3 text-start", className),
       })}
       {...props}
     >
-      <span className="min-w-0 flex-1 text-left">{children}</span>
+      <span className="min-w-0 flex-1 text-start">{children}</span>
       <SelectPrimitive.Icon asChild>
         <span className="transition-transform duration-[var(--sx-motion-fast)] data-[state=open]:rotate-180">
           <ChevronDownIcon size={16} />

@@ -108,7 +108,7 @@ export const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps
         <DrawerPrimitive.Close
           data-slot="drawer-close"
           aria-label="Close drawer"
-          className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] text-[color:var(--sx-color-foreground-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)]"
+          className="absolute end-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] text-[color:var(--sx-color-foreground-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)]"
         >
           <CloseIcon size={16} />
         </DrawerPrimitive.Close>
@@ -126,7 +126,7 @@ export const DrawerHeader = React.forwardRef<
   <div
     ref={ref}
     data-slot="drawer-header"
-    className={cn("flex flex-col gap-2 text-left", className)}
+    className={cn("flex flex-col gap-2 text-start", className)}
     {...props}
   />
 ));
