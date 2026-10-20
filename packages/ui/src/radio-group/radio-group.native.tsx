@@ -27,12 +27,13 @@ export interface RadioGroupProps
 export function RadioGroup({
   children,
   defaultValue,
+  disabled = false,
   onValueChange,
   style,
   value,
   ...props
 }: RadioGroupProps) {
-  const controller = useRadioGroupController({ defaultValue, onValueChange, value });
+  const controller = useRadioGroupController({ defaultValue, disabled, onValueChange, value });
 
   return (
     <RadioGroupProvider value={controller}>
@@ -48,7 +49,7 @@ export function RadioGroup({
 }
 
 export interface RadioGroupItemProps
-  extends Omit<PressableProps, "style">,
+  extends Omit<PressableProps, "disabled" | "style">,
     RadioGroupItemSharedProps {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
@@ -58,18 +59,28 @@ export interface RadioGroupItemProps
 export const RadioGroupItem = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   RadioGroupItemProps
->(({ children, disabled, onPress, style, textStyle, value, ...props }, ref) => {
+>(({ children, disabled: itemDisabled, onPress, style, textStyle, value, ...props }, ref) => {
   const context = useRadioGroupContext();
   const theme = useTheme();
   const isActive = context.value === value;
+  const effectiveDisabled = Boolean(itemDisabled ?? context.disabled);
+  const { registerItem, unregisterItem } = context;
+
+  React.useEffect(() => {
+    registerItem(value, effectiveDisabled);
+    return () => unregisterItem(value);
+  }, [registerItem, unregisterItem, value, effectiveDisabled]);
 
   return (
       <Pressable
         ref={ref}
         accessibilityRole="radio"
-        accessibilityState={{ checked: !!isActive, disabled: !!disabled }}
-        disabled={disabled}
+        accessibilityState={{ checked: !!isActive, disabled: !!effectiveDisabled }}
+        disabled={effectiveDisabled}
       onPress={(event) => {
+        if (effectiveDisabled) {
+          return;
+        }
         context.setValue(value);
         onPress?.(event);
       }}
@@ -81,7 +92,7 @@ export const RadioGroupItem = React.forwardRef<
           paddingVertical: 4,
           opacity: pressed ? 0.92 : 1,
         },
-        disabled && { opacity: 0.45 },
+        effectiveDisabled && { opacity: 0.45 },
         style,
       ]}
       {...props}

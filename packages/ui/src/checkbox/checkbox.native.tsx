@@ -11,12 +11,14 @@ import { CheckIcon } from "../icons/index.native";
 import { useTheme } from "../_shared/theme/context";
 import {
   resolveCheckboxVariants,
+  type CheckboxCheckedState,
   type CheckboxSharedProps,
 } from "./checkbox.shared";
 
 export interface CheckboxProps
   extends Omit<PressableProps, "children" | "style">,
     CheckboxSharedProps {
+  readonly name?: string;
   readonly style?: StyleProp<ViewStyle>;
 }
 
@@ -27,8 +29,11 @@ export const Checkbox = React.forwardRef<React.ElementRef<typeof Pressable>, Che
       defaultChecked = false,
       disabled,
       invalid,
+      // Accepted for web form-parity; no native form element to forward to.
+      name: _name,
       onCheckedChange,
       onPress,
+      required: _required,
       style,
       uiSize,
       ...props
@@ -36,12 +41,18 @@ export const Checkbox = React.forwardRef<React.ElementRef<typeof Pressable>, Che
     ref,
   ) => {
     const theme = useTheme();
-    const [currentChecked, setCurrentChecked] = useControllableState({
+    const [currentChecked, setCurrentChecked] = useControllableState<CheckboxCheckedState>({
       defaultValue: defaultChecked,
-      onChange: onCheckedChange,
+      onChange: (next) => {
+        if (next !== "indeterminate") {
+          onCheckedChange?.(next);
+        }
+      },
       value: checked,
     });
     const resolved = resolveCheckboxVariants({ invalid, uiSize });
+    const isIndeterminate = currentChecked === "indeterminate";
+    const isChecked = currentChecked === true || isIndeterminate;
 
     const checkboxStyle = React.useMemo<ViewStyle>(() => {
       const dimensions =
@@ -53,21 +64,24 @@ export const Checkbox = React.forwardRef<React.ElementRef<typeof Pressable>, Che
         alignItems: "center",
         justifyContent: "center",
         borderWidth: 1,
-        borderColor: currentChecked
+        borderColor: isChecked
           ? theme.colors.primary
           : resolved.tone === "invalid"
             ? theme.colors.destructive
             : theme.colors.borderStrong,
-        backgroundColor: currentChecked ? theme.colors.primary : theme.colors.surface,
+        backgroundColor: isChecked ? theme.colors.primary : theme.colors.surface,
         ...dimensions,
       };
-    }, [currentChecked, resolved.size, resolved.tone, theme]);
+    }, [isChecked, resolved.size, resolved.tone, theme]);
 
     return (
       <Pressable
         ref={ref}
         accessibilityRole="checkbox"
-        accessibilityState={{ checked: !!currentChecked, disabled: !!disabled }}
+        accessibilityState={{
+          checked: isIndeterminate ? "mixed" : isChecked,
+          disabled: !!disabled,
+        }}
         disabled={disabled}
         onPress={(event) => {
           onPress?.(event);
@@ -76,7 +90,7 @@ export const Checkbox = React.forwardRef<React.ElementRef<typeof Pressable>, Che
             return;
           }
 
-          setCurrentChecked(!currentChecked);
+          setCurrentChecked(currentChecked === true ? false : true);
         }}
         style={({ pressed }) => [
           checkboxStyle,
@@ -86,12 +100,23 @@ export const Checkbox = React.forwardRef<React.ElementRef<typeof Pressable>, Che
         ]}
         {...props}
       >
-        <View style={{ opacity: currentChecked ? 1 : 0 }}>
-          <CheckIcon
-            color={theme.colors.foregroundOnBrand}
-            size={resolved.size === "sm" ? 11 : 14}
-            strokeWidth={2.6}
-          />
+        <View style={{ opacity: isChecked ? 1 : 0 }}>
+          {isIndeterminate ? (
+            <View
+              style={{
+                width: 10,
+                height: 2,
+                borderRadius: 999,
+                backgroundColor: theme.colors.foregroundOnBrand,
+              }}
+            />
+          ) : (
+            <CheckIcon
+              color={theme.colors.foregroundOnBrand}
+              size={resolved.size === "sm" ? 11 : 14}
+              strokeWidth={2.6}
+            />
+          )}
         </View>
       </Pressable>
     );
