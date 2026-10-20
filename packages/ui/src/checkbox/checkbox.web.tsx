@@ -9,6 +9,7 @@ import { CheckIcon } from "../icons/index.web";
 import {
   checkboxVariants,
   resolveCheckboxVariants,
+  type CheckboxCheckedState,
   type CheckboxSharedProps,
 } from "./checkbox.shared";
 
@@ -57,54 +58,82 @@ export const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
       defaultChecked = false,
       disabled,
       invalid,
+      name,
       onCheckedChange,
       onClick,
+      required,
       uiSize,
       ...props
     },
     ref,
   ) => {
-    const [currentChecked, setCurrentChecked] = useControllableState({
+    const [currentChecked, setCurrentChecked] = useControllableState<CheckboxCheckedState>({
       defaultValue: defaultChecked,
-      onChange: onCheckedChange,
+      onChange: (next) => {
+        if (next !== "indeterminate") {
+          onCheckedChange?.(next);
+        }
+      },
       value: checked,
     });
     const resolved = resolveCheckboxVariants({ invalid, uiSize });
     const slots = resolveVariantStyles(checkboxVariants, checkboxClassStyles, resolved);
+    const isIndeterminate = currentChecked === "indeterminate";
+    const isChecked = currentChecked === true || isIndeterminate;
 
     return (
-      <button
-        ref={ref}
-        type="button"
-        role="checkbox"
-        aria-checked={currentChecked}
-        aria-invalid={invalid || undefined}
-        data-state={currentChecked ? "checked" : "unchecked"}
-        disabled={disabled}
-        className={cn(
-          ...slots.root,
-          currentChecked &&
-            "border-[color:var(--sx-color-primary)] bg-[color:var(--sx-color-primary)] shadow-[0_6px_14px_rgba(29,78,216,0.2)]",
-          className,
-        )}
-        onClick={(event) => {
-          onClick?.(event);
+      <>
+        <button
+          ref={ref}
+          type="button"
+          role="checkbox"
+          aria-checked={isIndeterminate ? "mixed" : currentChecked === true}
+          aria-invalid={invalid || undefined}
+          aria-required={required || undefined}
+          data-state={isIndeterminate ? "indeterminate" : currentChecked ? "checked" : "unchecked"}
+          disabled={disabled}
+          className={cn(
+            ...slots.root,
+            isChecked &&
+              "border-[color:var(--sx-color-primary)] bg-[color:var(--sx-color-primary)] shadow-[0_6px_14px_rgba(29,78,216,0.2)]",
+            className,
+          )}
+          onClick={(event) => {
+            onClick?.(event);
 
-          if (event.defaultPrevented || disabled) {
-            return;
-          }
+            if (event.defaultPrevented || disabled) {
+              return;
+            }
 
-          setCurrentChecked(!currentChecked);
-        }}
-        {...props}
-      >
-        <span
-          aria-hidden="true"
-          className={cn(...slots.indicator, currentChecked && "scale-100 opacity-100")}
+            setCurrentChecked(currentChecked === true ? false : true);
+          }}
+          {...props}
         >
-          <CheckIcon size={resolved.size === "sm" ? 12 : 14} strokeWidth={2.6} />
-        </span>
-      </button>
+          <span
+            aria-hidden="true"
+            className={cn(...slots.indicator, isChecked && "scale-100 opacity-100")}
+          >
+            {isIndeterminate ? (
+              <span className="block h-[2px] w-[10px] rounded-full bg-current" />
+            ) : (
+              <CheckIcon size={resolved.size === "sm" ? 12 : 14} strokeWidth={2.6} />
+            )}
+          </span>
+        </button>
+        {name ? (
+          <input
+            type="checkbox"
+            name={name}
+            checked={currentChecked === true}
+            required={required}
+            readOnly
+            hidden
+            aria-hidden="true"
+            tabIndex={-1}
+            style={{ display: "none" }}
+          />
+        ) : null}
+      </>
     );
   },
 );
