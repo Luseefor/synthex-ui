@@ -27,21 +27,41 @@ export function ThemeProvider({
 
   // Sync theme to document root so portalled components (Sheet, Dialog, etc.)
   // rendered via createPortal to document.body inherit the correct mode and tokens.
+  // Save/restore previous values so nested providers and StrictMode remounts
+  // don't wipe an outer provider's tokens on cleanup.
   useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
     const root = document.documentElement;
-    root.setAttribute("data-theme", resolvedTheme.mode);
+    const prevTheme = root.getAttribute("data-theme");
 
     const vars = themeToCssVariables(resolvedTheme);
+    const prevVars = new Map<string, string | null>();
+    for (const key of Object.keys(vars)) {
+      const current = root.style.getPropertyValue(key);
+      prevVars.set(key, current === "" ? null : current);
+    }
+
+    root.setAttribute("data-theme", resolvedTheme.mode);
 
     for (const [key, value] of Object.entries(vars)) {
       root.style.setProperty(key, value as string);
     }
 
     return () => {
-      root.removeAttribute("data-theme");
+      if (prevTheme === null) {
+        root.removeAttribute("data-theme");
+      } else {
+        root.setAttribute("data-theme", prevTheme);
+      }
 
-      for (const key of Object.keys(vars)) {
-        root.style.removeProperty(key);
+      for (const [key, prev] of prevVars) {
+        if (prev === null) {
+          root.style.removeProperty(key);
+        } else {
+          root.style.setProperty(key, prev);
+        }
       }
     };
   }, [resolvedTheme]);

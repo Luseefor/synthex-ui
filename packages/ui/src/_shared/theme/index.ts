@@ -4,7 +4,9 @@ export {
   darkTheme,
   defaultTheme,
   lightTheme,
+  accentPresets,
+  resolveAccentPreset,
   themePresets,
   themeToCssVariables,
 } from "./createTheme";
-export { useTheme } from "./context";
+export { ThemeContext, useTheme, useThemeOptional, useThemeStrict } from "./context";

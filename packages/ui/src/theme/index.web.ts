@@ -9,7 +9,7 @@ export {
   themePresets,
   themeToCssVariables,
 } from "../_shared/theme/createTheme";
-export { useTheme } from "../_shared/theme/context";
+export { useTheme, useThemeOptional, useThemeStrict, ThemeContext } from "../_shared/theme/context";
 export { colors } from "../_shared/tokens/colors";
 export { motion } from "../_shared/tokens/motion";
 export { radius } from "../_shared/tokens/radius";
