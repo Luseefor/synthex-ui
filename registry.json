@@ -203,6 +203,7 @@
       "dir": "packages/ui/src/calendar",
       "internal": false,
       "files": [
+        "calendar.native.test.tsx",
         "calendar.native.tsx",
         "calendar.shared.ts",
         "calendar.web.tsx",
@@ -244,6 +245,7 @@
       "dir": "packages/ui/src/carousel",
       "internal": false,
       "files": [
+        "carousel.native.test.tsx",
         "carousel.native.tsx",
         "carousel.shared.tsx",
         "carousel.web.tsx",
@@ -257,6 +259,7 @@
       "registryDependencies": [
         "_shared",
         "button",
+        "hooks",
         "icons"
       ]
     },
@@ -266,6 +269,7 @@
       "internal": false,
       "files": [
         "chart-compat.test.tsx",
+        "chart.native.test.tsx",
         "chart.native.tsx",
         "chart.shared.ts",
         "chart.web.tsx"
@@ -277,7 +281,8 @@
         "recharts"
       ],
       "registryDependencies": [
-        "_shared"
+        "_shared",
+        "hooks"
       ]
     },
     {
@@ -478,9 +483,11 @@
       "files": [
         "data-table.native.tsx",
         "data-table.shared.ts",
+        "data-table.web.test.tsx",
         "data-table.web.tsx"
       ],
       "deps": [
+        "@tanstack/react-table",
         "react",
         "react-native"
       ],
@@ -519,6 +526,7 @@
       "internal": false,
       "files": [
         "dialog-a11y.test.tsx",
+        "dialog.native.test.tsx",
         "dialog.native.tsx",
         "dialog.shared.tsx",
         "dialog.web.tsx",
@@ -904,7 +912,8 @@
       ],
       "deps": [
         "react",
-        "react-native"
+        "react-native",
+        "react-resizable-panels"
       ],
       "registryDependencies": [
         "_shared"
@@ -917,6 +926,7 @@
       "files": [
         "index.ts",
         "select-extras.test.tsx",
+        "select.native.test.tsx",
         "select.native.tsx",
         "select.shared.tsx",
         "select.web.tsx"
@@ -1103,6 +1113,7 @@
         "tabs.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-tabs",
         "react",
         "react-native"
       ],
@@ -1148,6 +1159,7 @@
       "internal": false,
       "files": [
         "index.ts",
+        "toast.native.test.tsx",
         "toast.native.tsx",
         "toast.shared.tsx",
         "toast.web.tsx"
