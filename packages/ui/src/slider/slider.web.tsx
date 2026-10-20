@@ -1,97 +1,95 @@
 import * as React from "react";
+import * as SliderPrimitive from "@radix-ui/react-slider";
 import { cn } from "../_shared/variants";
-import { useControllableState } from "../hooks/useControllableState";
-import type { SliderSharedProps } from "./slider.shared";
 
-export interface SliderProps
-  extends Omit<
-      React.InputHTMLAttributes<HTMLInputElement>,
-      "defaultValue" | "disabled" | "max" | "min" | "onChange" | "step" | "value"
-    >,
-    SliderSharedProps {}
+export interface SliderProps extends React.ComponentPropsWithoutRef<
+  typeof SliderPrimitive.Root
+> {}
 
-export const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
+function thumbCount(value?: number[], defaultValue?: number[]): number {
+  if (value !== undefined) {
+    return Math.max(value.length, 1);
+  }
+
+  if (defaultValue !== undefined) {
+    return Math.max(defaultValue.length, 1);
+  }
+
+  return 1;
+}
+
+const Slider = React.forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, SliderProps>(
   (
     {
+      "aria-label": ariaLabel,
+      "aria-labelledby": ariaLabelledBy,
       className,
-      defaultValue = [50],
-      disabled = false,
-      max = 100,
-      min = 0,
+      defaultValue,
+      disabled,
+      max,
+      min,
       onValueChange,
       onValueCommit,
-      orientation = "horizontal",
-      step = 1,
+      orientation,
+      step,
       value,
       ...props
     },
     ref,
   ) => {
-    const [currentValue, setCurrentValue] = useControllableState<number[]>({
-      defaultValue,
-      onChange: onValueChange,
-      value,
-    });
-    const percentage = (((currentValue[0] ?? min) - min) / (max - min || 1)) * 100;
-    const isVertical = orientation === "vertical";
-
-    const commit = React.useCallback(
-      (next: number[]) => {
-        onValueCommit?.(next);
-      },
-      [onValueCommit],
-    );
+    const normalizedValue = value && value.length > 0 ? value : undefined;
+    const normalizedDefaultValue =
+      defaultValue && defaultValue.length > 0 ? defaultValue : undefined;
+    const count = thumbCount(normalizedValue, normalizedDefaultValue);
 
     return (
-      <div
-        data-disabled={disabled || undefined}
-        data-orientation={orientation}
+      <SliderPrimitive.Root
+        ref={ref}
+        data-slot="slider"
+        data-orientation={orientation ?? "horizontal"}
+        disabled={disabled}
+        min={min}
+        max={max}
+        step={step}
+        orientation={orientation}
+        value={normalizedValue}
+        defaultValue={normalizedDefaultValue}
+        onValueChange={onValueChange}
+        onValueCommit={onValueCommit}
         className={cn(
-          "relative flex",
-          isVertical ? "h-40 w-10 flex-col items-center justify-center" : "h-10 w-full items-center",
-          disabled && "opacity-45",
+          "relative flex w-full touch-none select-none items-center data-[disabled]:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col",
           className,
         )}
+        {...props}
       >
-        <div
-          className={
-            isVertical
-              ? "absolute bottom-0 top-0 w-2 rounded-full bg-[color:var(--sx-color-secondary-muted)]"
-              : "absolute left-0 right-0 h-2 rounded-full bg-[color:var(--sx-color-secondary-muted)]"
-          }
-        />
-        <div
-          aria-hidden="true"
-          className={
-            isVertical
-              ? "absolute bottom-0 w-2 rounded-full bg-[color:var(--sx-color-primary)]"
-              : "absolute left-0 h-2 rounded-full bg-[color:var(--sx-color-primary)]"
-          }
-          style={isVertical ? { height: `${percentage}%` } : { width: `${percentage}%` }}
-        />
-        <input
-          ref={ref}
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          disabled={disabled}
-          aria-orientation={orientation}
-          value={currentValue[0] ?? min}
-          className={
-            isVertical
-              ? "relative z-10 h-40 w-10 cursor-pointer appearance-none bg-transparent accent-[color:var(--sx-color-primary)] disabled:cursor-not-allowed disabled:opacity-45 [writing-mode:vertical-lr] [direction:rtl]"
-              : "relative z-10 h-10 w-full cursor-pointer appearance-none bg-transparent disabled:cursor-not-allowed disabled:opacity-45 [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:mt-[-6px] [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-[color:var(--sx-color-border-strong)] [&::-webkit-slider-thumb]:bg-[color:var(--sx-color-surface)] [&::-webkit-slider-thumb]:shadow-[0_4px_12px_rgba(15,23,42,0.12)]"
-          }
-          onChange={(event) => setCurrentValue([Number(event.currentTarget.value)])}
-          onPointerUp={() => commit(currentValue)}
-          onKeyUp={() => commit(currentValue)}
-          onBlur={() => commit(currentValue)}
-          {...props}
-        />
-      </div>
+        <SliderPrimitive.Track
+          data-slot="slider-track"
+          data-orientation={orientation ?? "horizontal"}
+          className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-primary/20 data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5 data-[orientation=vertical]:flex-col"
+        >
+          <SliderPrimitive.Range
+            data-slot="slider-range"
+            data-orientation={orientation ?? "horizontal"}
+            className="absolute h-full bg-primary data-[orientation=vertical]:w-full"
+          />
+        </SliderPrimitive.Track>
+        {Array.from({ length: count }).map((_, index) => (
+          <SliderPrimitive.Thumb
+            // eslint-disable-next-line react/no-array-index-key
+            key={index}
+            data-slot="slider-thumb"
+            aria-label={
+              ariaLabel !== undefined && count > 1 ? `${ariaLabel} ${index + 1}` : (ariaLabel ?? `Value ${index + 1}`)
+            }
+            aria-labelledby={ariaLabel === undefined ? ariaLabelledBy : undefined}
+            className="block h-4 w-4 rounded-full border border-primary/50 bg-background shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+          />
+        ))}
+      </SliderPrimitive.Root>
     );
   },
 );
 
-Slider.displayName = "Slider";
+Slider.displayName = SliderPrimitive.Root.displayName;
+
+export { Slider };

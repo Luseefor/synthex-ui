@@ -1,6 +1,6 @@
 export type SliderOrientation = "horizontal" | "vertical";
 
-/** Single-thumb only; range (multi-thumb) is a future enhancement. */
+/** Multi-thumb range slider; each entry in `value` renders its own thumb. */
 export interface SliderSharedProps {
   readonly defaultValue?: number[];
   readonly max?: number;

@@ -13,13 +13,14 @@ import { resolveButtonVariants, type ButtonSharedProps } from "./button.shared";
 export interface ButtonProps
   extends Omit<PressableProps, "children" | "style">,
     ButtonSharedProps {
+  readonly asChild?: boolean;
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
 export const Button = React.forwardRef<React.ElementRef<typeof Pressable>, ButtonProps>(
-  ({ children, disabled, size, style, textStyle, variant, ...props }, ref) => {
+  ({ asChild, children, disabled, size, style, textStyle, variant, ...props }, ref) => {
     const theme = useTheme();
     const resolved = resolveButtonVariants({ size, variant });
 
@@ -151,6 +152,30 @@ export const Button = React.forwardRef<React.ElementRef<typeof Pressable>, Butto
         } as const,
       };
     }, [resolved.size, resolved.variant, theme]);
+
+    type AsChildProps = {
+      children?: React.ReactNode;
+      style?: StyleProp<ViewStyle>;
+      [key: string]: unknown;
+    };
+
+    if (asChild && React.isValidElement<AsChildProps>(children)) {
+      const childOnPress = children.props.onPress as
+        | ((event: Parameters<NonNullable<PressableProps["onPress"]>>[0]) => void)
+        | undefined;
+      const parentOnPress = props.onPress;
+      return React.cloneElement(children, {
+        ref,
+        accessibilityRole: "button",
+        disabled,
+        ...props,
+        onPress: (event: Parameters<NonNullable<PressableProps["onPress"]>>[0]) => {
+          parentOnPress?.(event);
+          childOnPress?.(event);
+        },
+        style: [styles.container, disabled && styles.disabled, style, children.props.style],
+      });
+    }
 
     return (
       <Pressable

@@ -1,79 +1,103 @@
 import * as React from "react";
+import { OTPInput, OTPInputContext } from "input-otp";
+import { Minus } from "lucide-react";
 import { cn } from "../_shared/variants";
-import { InputOTPProvider, useInputOTPContext, useInputOTPController, type InputOTPSharedProps } from "./input-otp.shared";
+import type { InputOTPSharedProps } from "./input-otp.shared";
 
 export interface InputOTPProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange" | "value">,
-    InputOTPSharedProps {
+  extends Omit<
+    React.ComponentPropsWithoutRef<typeof OTPInput>,
+    "children" | "maxLength" | "onChange" | "render" | "value"
+  > {
   readonly children?: React.ReactNode;
+  readonly length?: number;
+  readonly maxLength?: number;
+  readonly onChange?: (value: string) => void;
+  readonly onValueChange?: InputOTPSharedProps["onValueChange"];
+  readonly value?: string;
 }
 
-export function InputOTP({ children, defaultValue, length, onValueChange, value, ...props }: InputOTPProps) {
-  const controller = useInputOTPController({ defaultValue, length, onValueChange, value });
+function InputOTP({
+  children,
+  className,
+  containerClassName,
+  defaultValue,
+  length,
+  maxLength = 6,
+  onChange,
+  onValueChange,
+  value,
+  ...props
+}: InputOTPProps) {
   return (
-    <InputOTPProvider value={controller}>
-      <div {...props}>{children}</div>
-    </InputOTPProvider>
+    <OTPInput
+      data-slot="input-otp"
+      containerClassName={cn("flex items-center gap-2 has-disabled:opacity-50", containerClassName)}
+      maxLength={length ?? maxLength}
+      value={value}
+      defaultValue={defaultValue}
+      onChange={(next) => {
+        onChange?.(next);
+        onValueChange?.(next);
+      }}
+      className={cn("disabled:cursor-not-allowed", className)}
+      {...props}
+    >
+      {children}
+    </OTPInput>
   );
 }
 
-export const InputOTPGroup = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("flex max-w-full flex-wrap items-center gap-2", className)} {...props} />
-  ),
-);
-InputOTPGroup.displayName = "InputOTPGroup";
+export interface InputOTPGroupProps extends React.ComponentPropsWithoutRef<"div"> {}
 
-export interface InputOTPSlotProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "value"> {
+function InputOTPGroup({ className, ...props }: InputOTPGroupProps) {
+  return (
+    <div data-slot="input-otp-group" className={cn("flex items-center", className)} {...props} />
+  );
+}
+
+export interface InputOTPSlotProps extends React.ComponentPropsWithoutRef<"div"> {
   readonly index: number;
 }
 
-export const InputOTPSlot = React.forwardRef<HTMLInputElement, InputOTPSlotProps>(
-  ({ className, index, onChange, onKeyDown, ...props }, ref) => {
-    const context = useInputOTPContext();
-    const inputRef = React.useRef<HTMLInputElement | null>(null);
-    React.useImperativeHandle(ref, () => inputRef.current as HTMLInputElement);
+function InputOTPSlot({ className, index, ...props }: InputOTPSlotProps) {
+  const inputOTPContext = React.useContext(OTPInputContext);
+  const slot = inputOTPContext?.slots[index];
+  const { char, hasFakeCaret, isActive } = slot ?? {
+    char: null,
+    hasFakeCaret: false,
+    isActive: false,
+  };
 
-    return (
-      <input
-        ref={inputRef}
-        inputMode="numeric"
-        maxLength={1}
-        value={context.value[index] ?? ""}
-        className={cn(
-          "flex h-11 w-11 items-center justify-center rounded-[var(--sx-radius-md)] border border-[color:var(--sx-color-border-strong)] bg-[color:var(--sx-color-surface)] text-center text-lg font-semibold text-[color:var(--sx-color-foreground)] outline-none transition-colors duration-[var(--sx-motion-fast)] focus:border-[color:var(--sx-color-primary)] focus:ring-2 focus:ring-[color:var(--sx-color-ring)]",
-          className,
-        )}
-        onChange={(event) => {
-          const next = event.currentTarget.value.replace(/\s+/g, "");
-          context.setValueAt(index, next);
-          onChange?.(event);
-          if (next && inputRef.current?.nextElementSibling instanceof HTMLInputElement) {
-            inputRef.current.nextElementSibling.focus();
-          }
-        }}
-        onKeyDown={(event) => {
-          if (
-            event.key === "Backspace" &&
-            !context.value[index] &&
-            inputRef.current?.previousElementSibling instanceof HTMLInputElement
-          ) {
-            inputRef.current.previousElementSibling.focus();
-          }
-          onKeyDown?.(event);
-        }}
-        {...props}
-      />
-    );
-  },
-);
-InputOTPSlot.displayName = "InputOTPSlot";
+  return (
+    <div
+      data-slot="input-otp-slot"
+      data-index={index}
+      data-active={isActive}
+      className={cn(
+        "relative flex h-9 w-9 items-center justify-center border-y border-r border-input text-sm shadow-xs transition-all outline-none first:rounded-l-md first:border-l last:rounded-r-md data-active:z-10 data-active:ring-1 data-active:ring-ring",
+        className,
+      )}
+      {...props}
+    >
+      {char}
+      {hasFakeCaret ? (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="animate-caret-blink bg-foreground h-4 w-px duration-1000" />
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
-export const InputOTPSeparator = React.forwardRef<HTMLSpanElement, React.HTMLAttributes<HTMLSpanElement>>(
-  ({ className, children = "—", ...props }, ref) => (
-    <span ref={ref} className={cn("text-[color:var(--sx-color-foreground-muted)]", className)} {...props}>
-      {children}
-    </span>
-  ),
-);
-InputOTPSeparator.displayName = "InputOTPSeparator";
+export interface InputOTPSeparatorProps extends React.ComponentPropsWithoutRef<"div"> {}
+
+function InputOTPSeparator({ children, ...props }: InputOTPSeparatorProps) {
+  return (
+    <div data-slot="input-otp-separator" role="separator" {...props}>
+      {children ?? <Minus size={16} aria-hidden="true" />}
+    </div>
+  );
+}
+
+export { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot };

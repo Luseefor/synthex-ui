@@ -1,6 +1,5 @@
-export { Button } from "./button.web";
+export { Button, buttonVariants } from "./button.web";
 export {
-  buttonVariants,
   resolveButtonVariants,
   type ButtonSharedProps,
   type ButtonVariantProps,

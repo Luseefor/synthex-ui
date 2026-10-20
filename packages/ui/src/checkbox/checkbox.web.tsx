@@ -1,141 +1,86 @@
 import * as React from "react";
-import { useControllableState } from "../hooks/useControllableState";
-import {
-  cn,
-  resolveVariantStyles,
-  type VariantStyleDefinition,
-} from "../_shared/variants";
+import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
+import { cn } from "../_shared/variants";
 import { CheckIcon } from "../icons/index.web";
 import {
-  checkboxVariants,
   resolveCheckboxVariants,
   type CheckboxCheckedState,
-  type CheckboxSharedProps,
+  type CheckboxVariantProps,
 } from "./checkbox.shared";
-
-const checkboxClassStyles = {
-  slots: ["root", "indicator"] as const,
-  base: {
-    root:
-      "inline-flex shrink-0 items-center justify-center rounded-[calc(var(--sx-radius-sm)-1px)] border transition-[border-color,background-color,box-shadow,transform] duration-[var(--sx-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-45",
-    indicator:
-      "scale-0 text-[color:var(--sx-color-foreground-on-brand)] opacity-0 transition-[transform,opacity] duration-[var(--sx-motion-fast)]",
-  },
-  variants: {
-    size: {
-      sm: {
-        root: "h-4 w-4",
-      },
-      md: {
-        root: "h-5 w-5",
-      },
-    },
-    tone: {
-      default: {
-        root:
-          "border-[color:var(--sx-color-border-strong)] bg-[color:var(--sx-color-surface)] hover:border-[color:var(--sx-color-primary)]",
-      },
-      invalid: {
-        root:
-          "border-[color:var(--sx-color-destructive)] bg-[color:var(--sx-color-surface)] focus-visible:ring-[color:color-mix(in_srgb,var(--sx-color-destructive)_28%,transparent)]",
-      },
-    },
-  },
-} satisfies VariantStyleDefinition<typeof checkboxVariants.variants, "root" | "indicator", string>;
 
 export interface CheckboxProps
   extends Omit<
-      React.ButtonHTMLAttributes<HTMLButtonElement>,
-      "checked" | "defaultChecked" | "onChange"
-    >,
-    CheckboxSharedProps {}
+    React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>,
+    "checked" | "defaultChecked" | "onCheckedChange"
+  > {
+  readonly checked?: CheckboxCheckedState;
+  readonly defaultChecked?: CheckboxCheckedState;
+  readonly invalid?: boolean;
+  readonly onCheckedChange?: (checked: boolean) => void;
+  readonly uiSize?: CheckboxVariantProps["size"];
+}
 
-export const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
+const Checkbox = React.forwardRef<
+  React.ElementRef<typeof CheckboxPrimitive.Root>,
+  CheckboxProps
+>(
   (
-    {
-      checked,
-      className,
-      defaultChecked = false,
-      disabled,
-      invalid,
-      name,
-      onCheckedChange,
-      onClick,
-      required,
-      uiSize,
-      ...props
-    },
+    { checked, className, defaultChecked, invalid, onCheckedChange, uiSize, ...props },
     ref,
   ) => {
-    const [currentChecked, setCurrentChecked] = useControllableState<CheckboxCheckedState>({
-      defaultValue: defaultChecked,
-      onChange: (next) => {
-        if (next !== "indeterminate") {
-          onCheckedChange?.(next);
-        }
-      },
-      value: checked,
-    });
     const resolved = resolveCheckboxVariants({ invalid, uiSize });
-    const slots = resolveVariantStyles(checkboxVariants, checkboxClassStyles, resolved);
-    const isIndeterminate = currentChecked === "indeterminate";
-    const isChecked = currentChecked === true || isIndeterminate;
+    const isControlled = checked !== undefined;
+    // Radix only supports boolean `defaultChecked`; manage the
+    // `defaultChecked="indeterminate"` legacy case locally.
+    const managesIndeterminate = !isControlled && defaultChecked === "indeterminate";
+    const [uncontrolledState, setUncontrolledState] =
+      React.useState<CheckboxCheckedState>(defaultChecked ?? false);
+    const currentState: CheckboxCheckedState | undefined = managesIndeterminate
+      ? uncontrolledState
+      : checked;
+    const isIndeterminate = currentState === "indeterminate";
 
     return (
-      <>
-        <button
-          ref={ref}
-          type="button"
-          role="checkbox"
-          aria-checked={isIndeterminate ? "mixed" : currentChecked === true}
-          aria-invalid={invalid || undefined}
-          aria-required={required || undefined}
-          data-state={isIndeterminate ? "indeterminate" : currentChecked ? "checked" : "unchecked"}
-          disabled={disabled}
-          className={cn(
-            ...slots.root,
-            isChecked &&
-              "border-[color:var(--sx-color-primary)] bg-[color:var(--sx-color-primary)] shadow-[0_6px_14px_rgba(29,78,216,0.2)]",
-            className,
-          )}
-          onClick={(event) => {
-            onClick?.(event);
+      <CheckboxPrimitive.Root
+        ref={ref}
+        data-slot="checkbox"
+        data-size={resolved.size}
+        data-invalid={resolved.tone === "invalid" || undefined}
+        checked={managesIndeterminate ? currentState : checked}
+        defaultChecked={typeof defaultChecked === "boolean" ? defaultChecked : undefined}
+        onCheckedChange={(next) => {
+          if (managesIndeterminate) {
+            setUncontrolledState(next === "indeterminate" ? true : next);
+          }
 
-            if (event.defaultPrevented || disabled) {
-              return;
-            }
-
-            setCurrentChecked(currentChecked === true ? false : true);
-          }}
-          {...props}
+          if (next !== "indeterminate") {
+            onCheckedChange?.(next);
+          }
+        }}
+        className={cn(
+          "peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+          resolved.size === "md" && "h-5 w-5",
+          resolved.tone === "invalid" &&
+            "border-destructive data-[state=checked]:bg-destructive focus-visible:ring-destructive/30",
+          className,
+        )}
+        {...props}
+      >
+        <CheckboxPrimitive.Indicator
+          data-slot="checkbox-indicator"
+          className={cn("flex items-center justify-center text-current")}
         >
-          <span
-            aria-hidden="true"
-            className={cn(...slots.indicator, isChecked && "scale-100 opacity-100")}
-          >
-            {isIndeterminate ? (
-              <span className="block h-[2px] w-[10px] rounded-full bg-current" />
-            ) : (
-              <CheckIcon size={resolved.size === "sm" ? 12 : 14} strokeWidth={2.6} />
-            )}
-          </span>
-        </button>
-        {name ? (
-          <input
-            type="checkbox"
-            name={name}
-            checked={currentChecked === true}
-            required={required}
-            readOnly
-            hidden
-            aria-hidden="true"
-            tabIndex={-1}
-            style={{ display: "none" }}
-          />
-        ) : null}
-      </>
+          {isIndeterminate ? (
+            <span className="block h-[2px] w-[10px] rounded-full bg-current" />
+          ) : (
+            <CheckIcon size={resolved.size === "sm" ? 12 : 14} strokeWidth={2.6} />
+          )}
+        </CheckboxPrimitive.Indicator>
+      </CheckboxPrimitive.Root>
     );
   },
 );
 
-Checkbox.displayName = "Checkbox";
+Checkbox.displayName = CheckboxPrimitive.Root.displayName;
+
+export { Checkbox };

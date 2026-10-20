@@ -6,5 +6,7 @@ export {
   FormItem,
   FormLabel,
   FormMessage,
+  useFormField,
 } from "./form.web";
+export type { FormFieldProps } from "./form.web";
 export type { FormFieldSharedProps, FormItemSharedProps } from "./form.shared";

@@ -1,97 +1,54 @@
 import * as React from "react";
-import { useControllableState } from "../hooks/useControllableState";
+import * as TogglePrimitive from "@radix-ui/react-toggle";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../_shared/variants";
-import { resolveToggleVariants, type ToggleSharedProps } from "./toggle.shared";
+import type { ToggleSharedProps } from "./toggle.shared";
 
-export interface ToggleProps
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onChange">,
-  ToggleSharedProps {
-  readonly asChild?: boolean;
-}
-
-export const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
-  (
-    {
-      asChild,
-      className,
-      defaultPressed = false,
-      onClick,
-      onPressedChange,
-      pressed,
-      size,
-      variant,
-      children,
-      ...props
+const toggleVariants = cva(
+  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors hover:bg-muted hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  {
+    variants: {
+      variant: {
+        default: "bg-transparent",
+        outline: "border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground",
+      },
+      size: {
+        default: "h-9 min-w-9 px-2",
+        sm: "h-8 min-w-8 px-1.5",
+        md: "h-9 min-w-9 px-2",
+        lg: "h-10 min-w-10 px-2.5",
+      },
     },
-    ref,
-  ) => {
-    const [currentPressed, setCurrentPressed] = useControllableState({
-      defaultValue: defaultPressed,
-      onChange: onPressedChange,
-      value: pressed,
-    });
-    const resolved = resolveToggleVariants({ size, variant });
-
-    const classNameMerged = cn(
-      "inline-flex items-center justify-center gap-2 rounded-[var(--sx-radius-md)] text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-50",
-      resolved.size === "sm"
-        ? "h-8 px-3 text-xs"
-        : resolved.size === "lg"
-          ? "h-10 px-8"
-          : "h-9 px-4 text-sm",
-      resolved.variant === "default"
-        ? currentPressed
-          ? "border-transparent bg-[color:var(--sx-color-primary)] text-[color:var(--sx-color-foreground-on-brand)] shadow-[var(--sx-shadow-sm)]"
-          : "border-transparent bg-[color:var(--sx-color-secondary)] text-[color:var(--sx-color-foreground)] hover:bg-[color:var(--sx-color-secondary)]/80"
-        : currentPressed
-          ? "border-transparent bg-[color:var(--sx-color-accent)] text-[color:var(--sx-color-foreground)]"
-          : "border-[color:var(--sx-color-border)] bg-transparent text-[color:var(--sx-color-foreground)] hover:bg-[color:var(--sx-color-accent)] hover:text-[color:var(--sx-color-foreground)]",
-      className,
-    );
-
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-      onClick?.(event);
-
-      if (event.defaultPrevented) {
-        return;
-      }
-
-      setCurrentPressed(!currentPressed);
-    };
-
-    type AsChildProps = {
-      onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-      [key: string]: unknown;
-    };
-
-    if (asChild && React.isValidElement<AsChildProps>(children)) {
-      return React.cloneElement(children, {
-        ref,
-        "aria-pressed": currentPressed,
-        "data-state": currentPressed ? "on" : "off",
-        ...props,
-        className: cn(classNameMerged, children.props.className as string | undefined),
-        onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
-          handleClick(e);
-          children.props.onClick?.(e);
-        },
-      });
-    }
-
-    return (
-      <button
-        ref={ref}
-        type="button"
-        aria-pressed={currentPressed}
-        data-state={currentPressed ? "on" : "off"}
-        className={classNameMerged}
-        onClick={handleClick}
-        {...props}
-      >
-        {children}
-      </button>
-    );
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
   },
 );
 
-Toggle.displayName = "Toggle";
+export interface ToggleProps
+  extends React.ComponentPropsWithoutRef<typeof TogglePrimitive.Root>,
+    Omit<ToggleSharedProps, "pressed" | "defaultPressed" | "onPressedChange" | "size" | "variant">,
+    VariantProps<typeof toggleVariants> {
+  readonly pressed?: boolean;
+  readonly defaultPressed?: boolean;
+  readonly onPressedChange?: (pressed: boolean) => void;
+}
+
+const Toggle = React.forwardRef<React.ElementRef<typeof TogglePrimitive.Root>, ToggleProps>(
+  ({ className, defaultPressed, onPressedChange, pressed, size, variant, ...props }, ref) => (
+    <TogglePrimitive.Root
+      ref={ref}
+      data-slot="toggle"
+      pressed={pressed}
+      defaultPressed={defaultPressed}
+      onPressedChange={onPressedChange}
+      className={cn(toggleVariants({ variant, size, className }))}
+      {...props}
+    />
+  ),
+);
+
+Toggle.displayName = TogglePrimitive.Root.displayName;
+
+export { Toggle, toggleVariants };
