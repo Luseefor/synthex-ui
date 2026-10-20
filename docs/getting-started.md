@@ -1,4 +1,4 @@
-# Getting Started
+# Getting started
 
 ## Installation
 
@@ -12,7 +12,7 @@ For the layout engine (workbench-style split/tab views):
 npm install synthex-ui @luseefor/synthex-core @luseefor/synthex-react-web
 ```
 
-## CSS Import
+## CSS import
 
 Import the base stylesheet **once** at your app root:
 
@@ -22,7 +22,7 @@ import "synthex-ui/styles.css";
 
 This provides CSS custom properties (`--sx-*`), a minimal reset, and dark mode support.
 
-## Tailwind CSS Setup
+## Tailwind CSS setup
 
 Synthex UI components use Tailwind utility classes at build time. You must configure Tailwind to scan the library source:
 
@@ -56,10 +56,10 @@ function App() {
 | Prop           | Type                                            | Default   |
 |----------------|--------------------------------------------------|-----------|
 | `mode`         | `"light" \| "dark"`                              | `"light"` |
-| `accentPreset` | `"blue" \| "emerald" \| "violet" \| "amber" \| "rose"` | —         |
-| `theme`        | `DeepPartial<SynthexTheme>`                      | —         |
+| `accentPreset` | `"blue" \| "emerald" \| "violet" \| "amber" \| "rose"` | None      |
+| `theme`        | `DeepPartial<SynthexTheme>`                      | None      |
 
-## First Component
+## First component
 
 ```tsx
 import { Button } from "synthex-ui/components";
@@ -73,19 +73,22 @@ function Demo() {
 }
 ```
 
-## Dark Mode
+## Dark mode
 
-Dark mode works three ways:
+Pick one:
 
-1. **ThemeProvider** — `<ThemeProvider mode="dark">`
-2. **CSS attribute** — Add `data-theme="dark"` to any ancestor element
-3. **System preference** — Automatic via `prefers-color-scheme: dark` (works without ThemeProvider)
+1. Pass `mode="dark"` to `ThemeProvider`.
+2. Add `data-theme="dark"` to any ancestor element.
+3. Rely on `prefers-color-scheme: dark`. This works without ThemeProvider.
+
+I use the ThemeProvider option in apps and leave the system preference for docs sites.
 
 ## Exports
 
 | Subpath               | Description                     |
 |------------------------|---------------------------------|
 | `synthex-ui/components`| UI components (Button, Input…)  |
+| `synthex-ui/blocks`    | App blocks (AssistantChatPanel, KPIStatGrid). Alias of `dist/synthex/index`, also bundled via `components` |
 | `synthex-ui/primitives`| Low-level building blocks       |
 | `synthex-ui/layout`   | Layout primitives               |
 | `synthex-ui/hooks`    | Utility hooks                   |

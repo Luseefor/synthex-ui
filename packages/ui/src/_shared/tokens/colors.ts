@@ -5,7 +5,7 @@ import type { ColorScale } from "../types";
  *
  * Based on a Zinc-neutral foundation (shadcn-grade) with saturated
  * semantic colors for destructive/accent/primary. All neutrals are
- * truly neutral — no blue or green tint.
+ * truly neutral, no blue or green tint.
  */
 export const colors: ColorScale = {
   // ── Surfaces ──────────────────────────────────────────
@@ -34,7 +34,7 @@ export const colors: ColorScale = {
   secondaryHover: "#e4e4e7",        // zinc-200
   secondaryMuted: "#fafafa",        // zinc-50
 
-  // ── Destructive (red — bold, not pastel) ──────────────
+  // ── Destructive (red, bold, not pastel) ──────────────
   destructive: "#ef4444",           // red-500
   destructiveHover: "#dc2626",      // red-600
   destructiveMuted: "#fef2f2",      // red-50
