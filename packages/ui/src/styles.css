@@ -510,6 +510,29 @@
   }
 }
 
+/* ── RTL ──────────────────────────────────────────────────
+   Radix overlay positioning flips automatically when a `dir="rtl"`
+   ancestor is present, so no JS switches are needed here. Component
+   text alignment and edge offsets use logical utilities (`text-start`,
+   `start-*`, `end-*`) so they follow document direction. `side="left"`
+   / `side="right"` props stay physical by contract: they name an edge.
+   Toast slide animations mirror under RTL. */
+[dir="rtl"] [data-slot="toast-viewport"] > * {
+  animation-name: sx-toast-enter-rtl;
+}
+
+@keyframes sx-toast-enter-rtl {
+  from {
+    transform: translateX(calc(-100% - 1rem));
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 /* ── Reset ──────────────────────────────────────────────── */
 *,
 *::before,
