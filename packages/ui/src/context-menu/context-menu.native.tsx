@@ -42,21 +42,31 @@ export interface ContextMenuProps
     ContextMenuSharedProps {
   readonly children: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
+  readonly dir?: "ltr" | "rtl";
+  readonly modal?: boolean;
+  readonly testID?: string;
 }
 
 export function ContextMenu({
   children,
   defaultOpen,
+  dir,
+  modal,
   onOpenChange,
   open,
   style,
+  testID,
   ...props
 }: ContextMenuProps) {
+  // `dir`/`modal` are web-only Radix props; accepted for parity, ignored native.
+  void dir;
+  void modal;
   const controller = useContextMenuController({ defaultOpen, onOpenChange, open });
 
+  // testID mirrors web `data-slot="context-menu"` for parity.
   return (
     <ContextMenuProvider value={controller}>
-      <View style={[{ position: "relative" }, style]} {...props}>
+      <View testID={testID ?? "context-menu"} style={[{ position: "relative" }, style]} {...props}>
         {children}
       </View>
     </ContextMenuProvider>
@@ -67,12 +77,13 @@ export interface ContextMenuTriggerProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
   readonly asChild?: boolean;
+  readonly testID?: string;
 }
 
 export const ContextMenuTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   ContextMenuTriggerProps
->(({ children, onLongPress, style, asChild, ...props }, ref) => {
+>(({ children, onLongPress, style, asChild, testID, ...props }, ref) => {
   const context = useContextMenuContext();
 
   type AsChildProps = {
@@ -83,6 +94,7 @@ export const ContextMenuTrigger = React.forwardRef<
   if (asChild && React.isValidElement<AsChildProps>(children)) {
     return React.cloneElement(children, {
       ref,
+      testID: (children.props as { testID?: string }).testID ?? testID ?? "context-menu-trigger",
       ...props,
       onLongPress: (e: GestureResponderEvent) => {
         context.setOpen(true);
@@ -100,6 +112,7 @@ export const ContextMenuTrigger = React.forwardRef<
         onLongPress?.(event);
       }}
       style={style}
+      testID={testID ?? "context-menu-trigger"}
       {...props}
     >
       {children}
@@ -111,15 +124,20 @@ ContextMenuTrigger.displayName = "ContextMenuTrigger";
 
 export interface ContextMenuContentProps extends Omit<ViewProps, "style">, OverlayPositionProps {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 // Native renders in normal flow; side/align/sideOffset/alignOffset are accepted for API parity and ignored.
 export const ContextMenuContent = React.forwardRef<
   React.ElementRef<typeof View>,
   ContextMenuContentProps
->(({ align, alignOffset, side, sideOffset, style, ...props }, ref) => {
+>(({ align, alignOffset, side, sideOffset, style, testID, ...props }, ref) => {
   const context = useContextMenuContext();
   const theme = useTheme();
+  void align;
+  void alignOffset;
+  void side;
+  void sideOffset;
 
   if (!context.open) {
     return null;
@@ -128,6 +146,7 @@ export const ContextMenuContent = React.forwardRef<
   return (
     <View
       ref={ref}
+      testID={testID ?? "context-menu-content"}
       style={[
         {
           marginTop: 8,
@@ -151,16 +170,17 @@ ContextMenuContent.displayName = "ContextMenuContent";
 export interface ContextMenuLabelProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
   readonly textStyle?: StyleProp<TextStyle>;
+  readonly testID?: string;
 }
 
 export const ContextMenuLabel = React.forwardRef<
   React.ElementRef<typeof View>,
   ContextMenuLabelProps
->(({ children, style, textStyle, ...props }, ref) => {
+>(({ children, style, textStyle, testID, ...props }, ref) => {
   const theme = useTheme();
 
   return (
-    <View ref={ref} style={[{ paddingHorizontal: 12, paddingVertical: 8 }, style]} {...props}>
+    <View ref={ref} testID={testID ?? "context-menu-label"} style={[{ paddingHorizontal: 12, paddingVertical: 8 }, style]} {...props}>
       <Text
         style={[
           {
@@ -184,17 +204,19 @@ ContextMenuLabel.displayName = "ContextMenuLabel";
 
 export interface ContextMenuSeparatorProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
+  readonly testID?: string;
 }
 
 export const ContextMenuSeparator = React.forwardRef<
   React.ElementRef<typeof View>,
   ContextMenuSeparatorProps
->(({ style, ...props }, ref) => {
+>(({ style, testID, ...props }, ref) => {
   const theme = useTheme();
 
   return (
     <View
       ref={ref}
+      testID={testID ?? "context-menu-separator"}
       style={[{ marginVertical: 4, height: 1, backgroundColor: theme.colors.border }, style]}
       {...props}
     />
@@ -207,18 +229,20 @@ export interface ContextMenuItemProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
   readonly textStyle?: StyleProp<TextStyle>;
+  readonly testID?: string;
 }
 
 export const ContextMenuItem = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   ContextMenuItemProps
->(({ children, onPress, style, textStyle, ...props }, ref) => {
+>(({ children, onPress, style, textStyle, testID, ...props }, ref) => {
   const context = useContextMenuContext();
   const theme = useTheme();
 
   return (
     <Pressable
       ref={ref}
+      testID={testID ?? "context-menu-item"}
       accessibilityRole="button"
       onPress={(event) => {
         onPress?.(event);
@@ -259,54 +283,54 @@ export const ContextMenuItem = React.forwardRef<
 
 ContextMenuItem.displayName = "ContextMenuItem";
 
-export type ContextMenuSubProps = BaseMenuSubProps;
-export function ContextMenuSub(props: ContextMenuSubProps) {
-  return <BaseMenuSub {...props} />;
+export type ContextMenuSubProps = BaseMenuSubProps & { readonly testID?: string };
+export function ContextMenuSub({ testID, ...props }: ContextMenuSubProps) {
+  return <BaseMenuSub testID={testID ?? "context-menu-sub"} {...props} />;
 }
 
-export type ContextMenuSubTriggerProps = BaseMenuSubTriggerProps;
+export type ContextMenuSubTriggerProps = BaseMenuSubTriggerProps & { readonly testID?: string };
 export const ContextMenuSubTrigger = React.forwardRef<
   React.ElementRef<typeof BaseMenuSubTrigger>,
   ContextMenuSubTriggerProps
->((props, ref) => <BaseMenuSubTrigger ref={ref} {...props} />);
+>(({ testID, ...props }, ref) => <BaseMenuSubTrigger ref={ref} testID={testID ?? "context-menu-sub-trigger"} {...props} />);
 ContextMenuSubTrigger.displayName = "ContextMenuSubTrigger";
 
-export type ContextMenuSubContentProps = BaseMenuSubContentProps;
+export type ContextMenuSubContentProps = BaseMenuSubContentProps & { readonly testID?: string };
 export const ContextMenuSubContent = React.forwardRef<
   React.ElementRef<typeof BaseMenuSubContent>,
   ContextMenuSubContentProps
->((props, ref) => <BaseMenuSubContent ref={ref} {...props} />);
+>(({ testID, ...props }, ref) => <BaseMenuSubContent ref={ref} testID={testID ?? "context-menu-sub-content"} {...props} />);
 ContextMenuSubContent.displayName = "ContextMenuSubContent";
 
-export type ContextMenuCheckboxItemProps = BaseMenuCheckboxItemProps;
+export type ContextMenuCheckboxItemProps = BaseMenuCheckboxItemProps & { readonly testID?: string };
 export const ContextMenuCheckboxItem = React.forwardRef<
   React.ElementRef<typeof BaseMenuCheckboxItem>,
   ContextMenuCheckboxItemProps
->((props, ref) => <BaseMenuCheckboxItem ref={ref} {...props} />);
+>(({ testID, ...props }, ref) => <BaseMenuCheckboxItem ref={ref} testID={testID ?? "context-menu-checkbox-item"} {...props} />);
 ContextMenuCheckboxItem.displayName = "ContextMenuCheckboxItem";
 
-export type ContextMenuRadioGroupProps = BaseMenuRadioGroupProps;
-export function ContextMenuRadioGroup(props: ContextMenuRadioGroupProps) {
-  return <BaseMenuRadioGroup {...props} />;
+export type ContextMenuRadioGroupProps = BaseMenuRadioGroupProps & { readonly testID?: string };
+export function ContextMenuRadioGroup({ testID, ...props }: ContextMenuRadioGroupProps) {
+  return <BaseMenuRadioGroup testID={testID ?? "context-menu-radio-group"} {...props} />;
 }
 
-export type ContextMenuRadioItemProps = BaseMenuRadioItemProps;
+export type ContextMenuRadioItemProps = BaseMenuRadioItemProps & { readonly testID?: string };
 export const ContextMenuRadioItem = React.forwardRef<
   React.ElementRef<typeof BaseMenuRadioItem>,
   ContextMenuRadioItemProps
->((props, ref) => <BaseMenuRadioItem ref={ref} {...props} />);
+>(({ testID, ...props }, ref) => <BaseMenuRadioItem ref={ref} testID={testID ?? "context-menu-radio-item"} {...props} />);
 ContextMenuRadioItem.displayName = "ContextMenuRadioItem";
 
-export type ContextMenuShortcutProps = BaseMenuShortcutProps;
+export type ContextMenuShortcutProps = BaseMenuShortcutProps & { readonly testID?: string };
 export const ContextMenuShortcut = React.forwardRef<
   React.ElementRef<typeof BaseMenuShortcut>,
   ContextMenuShortcutProps
->((props, ref) => <BaseMenuShortcut ref={ref} {...props} />);
+>(({ testID, ...props }, ref) => <BaseMenuShortcut ref={ref} testID={testID ?? "context-menu-shortcut"} {...props} />);
 ContextMenuShortcut.displayName = "ContextMenuShortcut";
 
-export type ContextMenuArrowProps = BaseMenuArrowProps;
+export type ContextMenuArrowProps = BaseMenuArrowProps & { readonly testID?: string };
 export const ContextMenuArrow = React.forwardRef<
   React.ElementRef<typeof BaseMenuArrow>,
   ContextMenuArrowProps
->((props, ref) => <BaseMenuArrow ref={ref} {...props} />);
+>(({ testID, ...props }, ref) => <BaseMenuArrow ref={ref} testID={testID ?? "context-menu-arrow"} {...props} />);
 ContextMenuArrow.displayName = "ContextMenuArrow";

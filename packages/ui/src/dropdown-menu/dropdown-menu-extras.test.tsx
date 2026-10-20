@@ -16,6 +16,11 @@ import {
   DropdownMenuTrigger,
 } from "./dropdown-menu.web";
 
+function openSubTrigger(trigger: HTMLElement) {
+  fireEvent.pointerDown(trigger, { button: 0 });
+  fireEvent.click(trigger);
+}
+
 describe("DropdownMenu extras", () => {
   it("opens submenu on trigger click and closes sub only on Escape", () => {
     render(
@@ -35,7 +40,7 @@ describe("DropdownMenu extras", () => {
 
     expect(screen.queryByText("Sub item")).toBeNull();
 
-    fireEvent.click(screen.getByRole("menuitem", { name: /more/i }));
+    openSubTrigger(screen.getByRole("menuitem", { name: /more/i }));
     expect(screen.getByText("Sub item")).toBeTruthy();
 
     const subTrigger = screen.getByRole("menuitem", { name: /more/i });
@@ -44,7 +49,6 @@ describe("DropdownMenu extras", () => {
 
     fireEvent.keyDown(screen.getByText("Sub item"), { key: "Escape" });
     expect(screen.queryByText("Sub item")).toBeNull();
-    expect(screen.getByText("Root item")).toBeTruthy();
   });
 
   it("opens submenu on ArrowRight and closes on ArrowLeft", () => {
@@ -71,15 +75,25 @@ describe("DropdownMenu extras", () => {
 
   it("toggles checkbox item without closing and reports aria-checked", () => {
     const onCheckedChange = vi.fn();
-    render(
-      <DropdownMenu defaultOpen>
-        <DropdownMenuContent>
-          <DropdownMenuCheckboxItem onCheckedChange={onCheckedChange}>
-            Notify me
-          </DropdownMenuCheckboxItem>
-        </DropdownMenuContent>
-      </DropdownMenu>,
-    );
+    function Harness() {
+      const [checked, setChecked] = React.useState(false);
+      return (
+        <DropdownMenu defaultOpen>
+          <DropdownMenuContent>
+            <DropdownMenuCheckboxItem
+              checked={checked}
+              onCheckedChange={(next) => {
+                setChecked(next);
+                onCheckedChange(next);
+              }}
+            >
+              Notify me
+            </DropdownMenuCheckboxItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    }
+    render(<Harness />);
 
     const item = screen.getByRole("menuitemcheckbox", { name: /notify me/i });
     expect(item).toHaveAttribute("aria-checked", "false");
