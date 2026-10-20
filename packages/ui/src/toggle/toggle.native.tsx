@@ -17,11 +17,13 @@ export interface ToggleProps
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
   readonly textStyle?: StyleProp<TextStyle>;
+  readonly asChild?: boolean;
 }
 
 export const Toggle = React.forwardRef<React.ElementRef<typeof Pressable>, ToggleProps>(
   (
     {
+      asChild,
       children,
       defaultPressed = false,
       onPress,
@@ -92,20 +94,38 @@ export const Toggle = React.forwardRef<React.ElementRef<typeof Pressable>, Toggl
       [currentPressed, resolved.size, resolved.variant, theme],
     );
 
+    const handlePress = (event: Parameters<NonNullable<typeof onPress>>[0]) => {
+      onPress?.(event);
+
+      if (event.defaultPrevented) {
+        return;
+      }
+
+      setCurrentPressed(!currentPressed);
+    };
+
+    type AsChildProps = {
+      onPress?: ((event: Parameters<NonNullable<typeof onPress>>[0]) => void) | null;
+      [key: string]: unknown;
+    };
+
+    if (asChild && React.isValidElement<AsChildProps>(children)) {
+      return React.cloneElement(children, {
+        ref,
+        ...props,
+        onPress: (e: Parameters<NonNullable<typeof onPress>>[0]) => {
+          handlePress(e);
+          children.props.onPress?.(e);
+        },
+      });
+    }
+
     return (
       <Pressable
         ref={ref}
         accessibilityRole="button"
         accessibilityState={{ selected: currentPressed }}
-        onPress={(event) => {
-          onPress?.(event);
-
-          if (event.defaultPrevented) {
-            return;
-          }
-
-          setCurrentPressed(!currentPressed);
-        }}
+        onPress={handlePress}
         style={({ pressed: isPressed }) => [
           containerStyle,
           isPressed && { opacity: 0.92 },
