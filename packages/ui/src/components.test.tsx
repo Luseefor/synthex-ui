@@ -128,6 +128,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
+  NavigationMenuViewport,
   Pagination,
   PaginationContent,
   PaginationItem,
@@ -408,34 +409,54 @@ describe("synthex-ui web components", () => {
     render(
       <ThemeProvider>
         <Slider aria-label="Opacity" defaultValue={[42]} />
-        <InputOTP defaultValue="12">
+        <Slider aria-label="Range" defaultValue={[20, 80]} />
+        <InputOTP aria-label="One-time code" defaultValue="12" maxLength={4}>
           <InputOTPGroup>
-            <InputOTPSlot index={0} aria-label="Digit 1" />
-            <InputOTPSlot index={1} aria-label="Digit 2" />
+            <InputOTPSlot index={0} />
+            <InputOTPSlot index={1} />
             <InputOTPSeparator />
-            <InputOTPSlot index={2} aria-label="Digit 3" />
-            <InputOTPSlot index={3} aria-label="Digit 4" />
+            <InputOTPSlot index={2} />
+            <InputOTPSlot index={3} />
           </InputOTPGroup>
         </InputOTP>
       </ThemeProvider>,
     );
 
-    fireEvent.change(screen.getByLabelText("Opacity"), { target: { value: "58" } });
-    fireEvent.change(screen.getByLabelText("Digit 3"), { target: { value: "7" } });
+    const opacity = screen.getByRole("slider", { name: "Opacity" });
+    expect(opacity).toHaveAttribute("aria-valuenow", "42");
+    opacity.focus();
+    fireEvent.keyDown(opacity, { key: "ArrowRight" });
+    expect(opacity).toHaveAttribute("aria-valuenow", "43");
 
-    expect(screen.getByLabelText("Opacity")).toHaveValue("58");
-    expect(screen.getByLabelText("Digit 3")).toHaveValue("7");
+    expect(screen.getByRole("slider", { name: "Range 1" })).toHaveAttribute(
+      "aria-valuenow",
+      "20",
+    );
+    expect(screen.getByRole("slider", { name: "Range 2" })).toHaveAttribute(
+      "aria-valuenow",
+      "80",
+    );
+
+    const otpInput = screen.getByLabelText("One-time code");
+    expect(otpInput).toHaveValue("12");
+    fireEvent.change(otpInput, { target: { value: "127" } });
+    expect(otpInput).toHaveValue("127");
   });
 
   it("supports resizable panel groups", () => {
+    // Reason: web now delegates layout to react-resizable-panels (shadcn parity).
+    // The hand-rolled mouseDown/mousemove hook is gone; the library owns layout
+    // via Pointer Events + keyboard. In jsdom (no real pixel layout) keyboard is
+    // the deterministic resize API, and our data-size mirrors library onResize.
+    const onLayout = vi.fn();
     render(
       <ThemeProvider>
-        <ResizablePanelGroup direction="horizontal">
-          <ResizablePanel defaultSize={60}>
+        <ResizablePanelGroup direction="horizontal" onLayout={onLayout}>
+          <ResizablePanel defaultSize={60} minSize={10}>
             <div>Primary pane</div>
           </ResizablePanel>
           <ResizableHandle />
-          <ResizablePanel defaultSize={40}>
+          <ResizablePanel defaultSize={40} minSize={10}>
             <div>Secondary pane</div>
           </ResizablePanel>
         </ResizablePanelGroup>
@@ -443,20 +464,22 @@ describe("synthex-ui web components", () => {
     );
 
     const group = screen.getByTestId("resizable-group");
+    expect(group).toHaveAttribute("data-slot", "resizable-panel-group");
+
     const primaryPanel = screen.getByText("Primary pane").closest('[data-slot="resizable-panel"]');
-
-    Object.defineProperty(group, "clientWidth", {
-      configurable: true,
-      value: 400,
-    });
-
     expect(primaryPanel).toHaveAttribute("data-size", "60.00");
+    expect(primaryPanel).toHaveAttribute("data-panel-size", "60.0");
 
-    fireEvent.mouseDown(screen.getByLabelText("Resize panels"), { clientX: 200 });
-    fireEvent.mouseMove(window, { clientX: 240 });
-    fireEvent.mouseUp(window);
+    const handle = screen.getByRole("separator");
+    expect(handle).toHaveAttribute("data-slot", "resizable-handle");
+
+    expect(onLayout).toHaveBeenCalled();
+    expect(onLayout.mock.calls.at(-1)?.[0]).toEqual([60, 40]);
+
+    fireEvent.keyDown(handle, { key: "ArrowRight" });
 
     expect(Number(primaryPanel?.getAttribute("data-size"))).toBeGreaterThan(60);
+    expect(Number(primaryPanel?.getAttribute("data-panel-size"))).toBeGreaterThan(60);
   });
 
   it("renders toast notifications through the provider and viewport", () => {
@@ -689,7 +712,9 @@ describe("synthex-ui web components", () => {
     );
 
     expect(screen.getByText("Overview Panel")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("tab", { name: "Details" }));
+    expect(screen.getByRole("tabpanel")).toHaveTextContent("Overview Panel");
+    fireEvent.focus(screen.getByRole("tab", { name: "Details" }));
+    expect(screen.getByRole("tabpanel")).toHaveTextContent("Details Panel");
     expect(screen.getByText("Details Panel")).toBeInTheDocument();
   });
 
@@ -857,9 +882,9 @@ describe("synthex-ui web components", () => {
     fireEvent.click(screen.getByRole("button", { name: "Details" }));
     expect(screen.getByText("Details body")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Panel selector" }));
+    fireEvent.click(screen.getByRole("combobox", { name: "Panel selector" }));
     fireEvent.click(screen.getByRole("option", { name: "PCB" }));
-    expect(screen.getByRole("button", { name: "Panel selector" })).toHaveTextContent("PCB");
+    expect(screen.getByRole("combobox", { name: "Panel selector" })).toHaveTextContent("PCB");
 
     fireEvent.click(screen.getByRole("button", { name: "Open dialog" }));
     expect(screen.getByRole("dialog")).toHaveTextContent("Dialog body");
@@ -917,6 +942,11 @@ describe("synthex-ui web components", () => {
     fireEvent.click(screen.getByRole("button", { name: "Delete file" }));
     expect(screen.getByRole("alertdialog")).toHaveTextContent("Delete asset");
 
+    // Radix AlertDialog is modal and marks background inert while open,
+    // so dismiss it before interacting with sibling controls.
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByRole("alertdialog")).toBeNull();
+
     const code = screen.getByRole("button", { name: "Code" });
     fireEvent.click(code);
     expect(code).toHaveAttribute("aria-pressed", "true");
@@ -953,21 +983,21 @@ describe("synthex-ui web components", () => {
       </ThemeProvider>,
     );
 
-    fireEvent.change(screen.getByRole("textbox", { name: "Command palette" }), {
+    fireEvent.change(screen.getByPlaceholderText("Search commands"), {
       target: { value: "console" },
     });
 
     expect(screen.queryByRole("option", { name: "Open schematic" })).not.toBeInTheDocument();
     expect(screen.getByRole("option", { name: "Open console" })).toBeInTheDocument();
 
-    fireEvent.change(screen.getByRole("textbox", { name: "Command palette" }), {
+    fireEvent.change(screen.getByPlaceholderText("Search commands"), {
       target: { value: "missing" },
     });
 
     expect(screen.getByText("No matching command.")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Workspace combobox" }));
-    fireEvent.change(screen.getByRole("textbox", { name: "Workspace search" }), {
+    fireEvent.change(screen.getByPlaceholderText("Search options"), {
       target: { value: "schem" },
     });
     fireEvent.click(screen.getByRole("option", { name: "Schematic" }));
@@ -1036,7 +1066,9 @@ describe("synthex-ui web components", () => {
       </ThemeProvider>,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    const menuTrigger = screen.getByRole("button", { name: "Open menu" });
+    fireEvent.pointerDown(menuTrigger, { button: 0 });
+    fireEvent.click(menuTrigger);
     expect(screen.getByRole("menu")).toHaveTextContent("Panels");
 
     fireEvent.click(screen.getByRole("menuitem", { name: "Console" }));
@@ -1065,23 +1097,22 @@ describe("synthex-ui web components", () => {
           <NavigationMenuList>
             <NavigationMenuItem value="guides">
               <NavigationMenuTrigger>Guides</NavigationMenuTrigger>
+              <NavigationMenuContent>Guides content</NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem value="api">
               <NavigationMenuTrigger>API</NavigationMenuTrigger>
+              <NavigationMenuContent>API content</NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuLink href="https://example.com/changelog">Changelog</NavigationMenuLink>
           </NavigationMenuList>
-          <NavigationMenuItem value="guides">
-            <NavigationMenuContent>Guides content</NavigationMenuContent>
-          </NavigationMenuItem>
-          <NavigationMenuItem value="api">
-            <NavigationMenuContent>API content</NavigationMenuContent>
-          </NavigationMenuItem>
+          <NavigationMenuViewport />
         </NavigationMenu>
       </ThemeProvider>,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "File" }));
+    const fileTrigger = screen.getByRole("menuitem", { name: "File" });
+    fireEvent.pointerDown(fileTrigger, { button: 0 });
+    fireEvent.click(fileTrigger);
     expect(screen.getByRole("menu")).toHaveTextContent("New file");
 
     fireEvent.click(screen.getByRole("button", { name: "API" }));

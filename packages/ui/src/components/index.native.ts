@@ -7,6 +7,7 @@ export {
 } from "../button/button.shared";
 export {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -137,7 +138,7 @@ export {
   CarouselNext,
   CarouselPrevious,
 } from "../carousel/carousel.native";
-export type { CarouselSharedProps } from "../carousel/carousel.shared";
+export type { CarouselApi, CarouselOptions, CarouselPlugin, CarouselSharedProps } from "../carousel/carousel.shared";
 export {
   AreaChart,
   BarChart,
@@ -150,6 +151,7 @@ export {
   LineChart,
 } from "../chart/chart.native";
 export type {
+  BaseChartSharedProps,
   ChartConfig,
   ChartConfigEntry,
   ChartContainerSharedProps,
@@ -161,7 +163,7 @@ export type {
   ChartTooltipItem,
 } from "../chart/chart.shared";
 export { Calendar } from "../calendar/calendar.native";
-export type { CalendarSharedProps } from "../calendar/calendar.shared";
+export type { CalendarDateRange, CalendarMode, CalendarSharedProps } from "../calendar/calendar.shared";
 export { AspectRatio } from "../aspect-ratio/aspect-ratio.native";
 export type { AspectRatioSharedProps } from "../aspect-ratio/aspect-ratio.shared";
 export {
@@ -518,6 +520,7 @@ export type {
   DataTableAlign,
   DataTableColumn,
   DataTableSharedProps,
+  DataTableSorting,
 } from "../data-table/data-table.shared";
 export {
   AssistantChatPanel,
@@ -561,4 +564,4 @@ export {
   resolveThemeAccentTheme,
   themeAccentPresets,
 } from "../synthex/synthex.shared";
-export { H1, H2, H3, Lead, Muted, Small } from "../typography/typography.native";
+export { H1, H2, H3, H4, P, Blockquote, Code, Lead, Large, Small, Muted } from "../typography/typography.native";
