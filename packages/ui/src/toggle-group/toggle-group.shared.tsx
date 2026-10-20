@@ -1,4 +1,5 @@
 import * as React from "react";
+import type { ToggleVariantProps } from "../toggle/toggle.shared";
 
 export interface ToggleGroupSharedProps {
   readonly disabled?: boolean;
@@ -10,7 +11,9 @@ export interface ToggleGroupSharedProps {
 interface ToggleGroupContextValue {
   readonly disabled: boolean;
   readonly isPressed: (value: string) => boolean;
+  readonly size?: ToggleVariantProps["size"];
   readonly toggleValue: (value: string) => void;
+  readonly variant?: ToggleVariantProps["variant"];
 }
 
 const ToggleGroupContext = React.createContext<ToggleGroupContextValue | null>(null);

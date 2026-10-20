@@ -1,97 +1,53 @@
 import * as React from "react";
-import { useControllableState } from "../hooks/useControllableState";
+import * as SwitchPrimitive from "@radix-ui/react-switch";
 import { cn } from "../_shared/variants";
 import { resolveSwitchVariants, type SwitchSharedProps } from "./switch.shared";
 
 export interface SwitchProps
   extends Omit<
-      React.ButtonHTMLAttributes<HTMLButtonElement>,
-      "checked" | "defaultChecked" | "onChange"
-    >,
-    SwitchSharedProps {}
+    React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>,
+    "checked" | "defaultChecked" | "onCheckedChange"
+  > {
+  readonly checked?: boolean;
+  readonly defaultChecked?: boolean;
+  readonly onCheckedChange?: (checked: boolean) => void;
+  readonly uiSize?: SwitchSharedProps["uiSize"];
+}
 
-export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
-  (
-    {
-      checked,
-      className,
-      defaultChecked = false,
-      disabled,
-      name,
-      onCheckedChange,
-      onClick,
-      required,
-      uiSize,
-      ...props
-    },
-    ref,
-  ) => {
-    const [currentChecked, setCurrentChecked] = useControllableState({
-      defaultValue: defaultChecked,
-      onChange: onCheckedChange,
-      value: checked,
-    });
+const Switch = React.forwardRef<React.ElementRef<typeof SwitchPrimitive.Root>, SwitchProps>(
+  ({ checked, className, defaultChecked, onCheckedChange, uiSize, ...props }, ref) => {
     const resolved = resolveSwitchVariants({ uiSize });
     const isSmall = resolved.size === "sm";
 
     return (
-      <>
-        <button
-          ref={ref}
-          type="button"
-          role="switch"
-          aria-checked={currentChecked}
-          aria-required={required || undefined}
-          data-state={currentChecked ? "checked" : "unchecked"}
-          disabled={disabled}
+      <SwitchPrimitive.Root
+        ref={ref}
+        data-slot="switch"
+        data-size={resolved.size}
+        checked={checked}
+        defaultChecked={defaultChecked}
+        onCheckedChange={onCheckedChange}
+        className={cn(
+          "peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input",
+          isSmall ? "h-5 w-9" : "h-6 w-11",
+          className,
+        )}
+        {...props}
+      >
+        <SwitchPrimitive.Thumb
+          data-slot="switch-thumb"
           className={cn(
-            "inline-flex shrink-0 items-center rounded-full border border-transparent transition-[background-color,box-shadow] duration-[var(--sx-motion-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--sx-color-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--sx-color-background)] disabled:pointer-events-none disabled:opacity-45",
-            isSmall ? "h-6 w-10 p-0.5" : "h-7 w-12 p-0.5",
-            currentChecked
-              ? "bg-[color:var(--sx-color-primary)] shadow-[0_8px_18px_rgba(29,78,216,0.22)]"
-              : "bg-[color:var(--sx-color-secondary)]",
-            className,
+            "pointer-events-none block rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=unchecked]:translate-x-0",
+            isSmall
+              ? "h-4 w-4 data-[state=checked]:translate-x-4"
+              : "h-5 w-5 data-[state=checked]:translate-x-5",
           )}
-          onClick={(event) => {
-            onClick?.(event);
-
-            if (event.defaultPrevented || disabled) {
-              return;
-            }
-
-            setCurrentChecked(!currentChecked);
-          }}
-          {...props}
-        >
-          <span
-            aria-hidden="true"
-            className={cn(
-              "block rounded-full bg-[color:var(--sx-color-surface)] shadow-[0_2px_8px_rgba(15,23,42,0.16)] transition-transform duration-[var(--sx-motion-fast)]",
-              isSmall ? "h-5 w-5" : "h-6 w-6",
-              currentChecked
-                ? isSmall
-                  ? "translate-x-4"
-                  : "translate-x-5"
-                : "translate-x-0",
-            )}
-          />
-        </button>
-        {name ? (
-          <input
-            type="checkbox"
-            name={name}
-            checked={!!currentChecked}
-            required={required}
-            readOnly
-            hidden
-            aria-hidden="true"
-            tabIndex={-1}
-            style={{ display: "none" }}
-          />
-        ) : null}
-      </>
+        />
+      </SwitchPrimitive.Root>
     );
   },
 );
 
-Switch.displayName = "Switch";
+Switch.displayName = SwitchPrimitive.Root.displayName;
+
+export { Switch };

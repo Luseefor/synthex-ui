@@ -1,2 +1,7 @@
-export * from "./toggle.shared";
-export * from "./toggle.web";
+export { Toggle, toggleVariants } from "./toggle.web";
+export type { ToggleProps } from "./toggle.web";
+export {
+  resolveToggleVariants,
+  type ToggleSharedProps,
+  type ToggleVariantProps,
+} from "./toggle.shared";

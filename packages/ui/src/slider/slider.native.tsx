@@ -39,8 +39,11 @@ export const Slider = React.forwardRef<React.ElementRef<typeof Pressable>, Slide
       value,
     });
     const [trackSize, setTrackSize] = React.useState(0);
-    const numericValue = currentValue[0] ?? min;
-    const percentage = ((numericValue - min) / (max - min || 1)) * 100;
+    const values = currentValue.length > 0 ? currentValue : [min];
+    const low = Math.min(...values);
+    const high = Math.max(...values);
+    const lowPercentage = ((low - min) / (max - min || 1)) * 100;
+    const highPercentage = ((high - min) / (max - min || 1)) * 100;
     const isVertical = orientation === "vertical";
 
     const commitValue = (next: number[]) => {
@@ -58,8 +61,19 @@ export const Slider = React.forwardRef<React.ElementRef<typeof Pressable>, Slide
         : Math.min(1, Math.max(0, offsetX / trackSize));
       const raw = min + ratio * (max - min);
       const snapped = Math.round(raw / step) * step;
-      const next = [Math.min(max, Math.max(min, snapped))];
-      commitValue(next);
+      const clamped = Math.min(max, Math.max(min, snapped));
+
+      let targetIndex = 0;
+      let smallestDistance = Number.POSITIVE_INFINITY;
+      values.forEach((entry, index) => {
+        const distance = Math.abs(entry - clamped);
+        if (distance < smallestDistance) {
+          smallestDistance = distance;
+          targetIndex = index;
+        }
+      });
+
+      commitValue(values.map((entry, index) => (index === targetIndex ? clamped : entry)));
     };
 
     return (
@@ -67,7 +81,7 @@ export const Slider = React.forwardRef<React.ElementRef<typeof Pressable>, Slide
         ref={ref}
         accessibilityRole="adjustable"
         accessibilityState={{ disabled: disabled || undefined }}
-        accessibilityValue={{ min, max, now: numericValue }}
+        accessibilityValue={{ min, max, now: values[0] }}
         disabled={disabled}
         onPress={(event) => updateFromOffset(event.nativeEvent.locationX, event.nativeEvent.locationY)}
         style={[
@@ -100,51 +114,58 @@ export const Slider = React.forwardRef<React.ElementRef<typeof Pressable>, Slide
                     position: "absolute",
                     left: 0,
                     right: 0,
-                    bottom: 0,
-                    height: `${percentage}%`,
+                    bottom: `${lowPercentage}%`,
+                    height: `${highPercentage - lowPercentage}%`,
                     borderRadius: 999,
                     backgroundColor: theme.colors.primary,
                   }
                 : {
                     position: "absolute",
-                    left: 0,
+                    left: `${lowPercentage}%`,
                     top: 0,
                     bottom: 0,
-                    width: `${percentage}%`,
+                    width: `${highPercentage - lowPercentage}%`,
                     borderRadius: 999,
                     backgroundColor: theme.colors.primary,
                   }
             }
           />
-          <View
-            style={
-              isVertical
-                ? {
-                    position: "absolute",
-                    left: -6,
-                    bottom: `${percentage}%`,
-                    width: 20,
-                    height: 20,
-                    marginBottom: -10,
-                    borderRadius: 999,
-                    borderWidth: 1,
-                    borderColor: theme.colors.borderStrong,
-                    backgroundColor: theme.colors.surface,
-                  }
-                : {
-                    position: "absolute",
-                    top: -6,
-                    left: `${percentage}%`,
-                    width: 20,
-                    height: 20,
-                    marginLeft: -10,
-                    borderRadius: 999,
-                    borderWidth: 1,
-                    borderColor: theme.colors.borderStrong,
-                    backgroundColor: theme.colors.surface,
-                  }
-            }
-          />
+          {values.map((entry, index) => {
+            const percentage = ((entry - min) / (max - min || 1)) * 100;
+            return (
+              <View
+                // eslint-disable-next-line react/no-array-index-key
+                key={index}
+                style={
+                  isVertical
+                    ? {
+                        position: "absolute",
+                        left: -6,
+                        bottom: `${percentage}%`,
+                        width: 20,
+                        height: 20,
+                        marginBottom: -10,
+                        borderRadius: 999,
+                        borderWidth: 1,
+                        borderColor: theme.colors.borderStrong,
+                        backgroundColor: theme.colors.surface,
+                      }
+                    : {
+                        position: "absolute",
+                        top: -6,
+                        left: `${percentage}%`,
+                        width: 20,
+                        height: 20,
+                        marginLeft: -10,
+                        borderRadius: 999,
+                        borderWidth: 1,
+                        borderColor: theme.colors.borderStrong,
+                        backgroundColor: theme.colors.surface,
+                      }
+                }
+              />
+            );
+          })}
         </View>
       </Pressable>
     );

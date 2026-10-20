@@ -2,12 +2,13 @@ import { defineVariants, resolveVariants, type VariantProps } from "../_shared/v
 
 export const toggleVariants = defineVariants({
   variants: {
-    size: ["sm", "md", "lg"] as const,
+    // "default" is an alias of "md" (matches the web cva size scale).
+    size: ["default", "sm", "md", "lg"] as const,
     variant: ["default", "outline"] as const,
   },
   defaultVariants: {
-    size: "md",
-    variant: "outline",
+    size: "default",
+    variant: "default",
   },
 });
 

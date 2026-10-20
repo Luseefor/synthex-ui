@@ -1,79 +1,114 @@
 import * as React from "react";
+import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group";
+import type { VariantProps } from "class-variance-authority";
 import { cn } from "../_shared/variants";
-import { useControllableState } from "../hooks/useControllableState";
-import { Toggle } from "../toggle/toggle.web";
-import { ToggleGroupProvider, useToggleGroupContext, type ToggleGroupSharedProps } from "./toggle-group.shared";
+import { toggleVariants } from "../toggle/toggle.web";
+import type { ToggleGroupSharedProps } from "./toggle-group.shared";
 
-export interface ToggleGroupProps extends React.HTMLAttributes<HTMLDivElement>, ToggleGroupSharedProps {
+const ToggleGroupContext = React.createContext<VariantProps<typeof toggleVariants>>({
+  size: "default",
+  variant: "default",
+});
+
+export interface ToggleGroupProps extends ToggleGroupSharedProps, VariantProps<typeof toggleVariants> {
+  readonly children?: React.ReactNode;
+  readonly className?: string;
   readonly defaultValue?: string | string[];
+  readonly dir?: "ltr" | "rtl";
+  readonly loop?: boolean;
+  readonly orientation?: "horizontal" | "vertical";
+  readonly rovingFocus?: boolean;
 }
 
-export function ToggleGroup({
+function ToggleGroup({
   children,
   className,
   defaultValue,
-  disabled = false,
+  dir,
+  disabled,
+  loop,
   onValueChange,
+  orientation,
+  rovingFocus,
+  size,
   type = "single",
   value,
-  ...props
+  variant,
 }: ToggleGroupProps) {
-  const [currentValue, setCurrentValue] = useControllableState<string | string[]>({
-    defaultValue: defaultValue ?? (type === "multiple" ? [] : ""),
-    onChange: onValueChange,
-    value,
-  });
-
-  const context = React.useMemo(() => ({
+  const contextValue = React.useMemo(() => ({ size, variant }), [size, variant]);
+  const rootClassName = cn("flex w-fit items-center gap-1", className);
+  const sharedProps = {
+    "data-slot": "toggle-group",
+    "data-variant": variant ?? undefined,
+    "data-size": size ?? undefined,
+    className: rootClassName,
+    dir,
     disabled,
-    isPressed: (itemValue: string) =>
-      type === "multiple"
-        ? Array.isArray(currentValue) && currentValue.includes(itemValue)
-        : currentValue === itemValue,
-    toggleValue: (itemValue: string) => {
-      if (type === "multiple") {
-        const currentValues = Array.isArray(currentValue) ? currentValue : [];
-        setCurrentValue(
-          currentValues.includes(itemValue)
-            ? currentValues.filter((value) => value !== itemValue)
-            : [...currentValues, itemValue],
-        );
-        return;
-      }
-
-      setCurrentValue(currentValue === itemValue ? "" : itemValue);
-    },
-  }), [currentValue, disabled, setCurrentValue, type]);
+    loop,
+    orientation,
+    rovingFocus,
+  } as const;
 
   return (
-    <ToggleGroupProvider value={context}>
-      <div className={cn("inline-flex flex-wrap items-center gap-2", className)} {...props}>
-        {children}
-      </div>
-    </ToggleGroupProvider>
+    <ToggleGroupContext.Provider value={contextValue}>
+      {type === "multiple" ? (
+        <ToggleGroupPrimitive.Root
+          {...sharedProps}
+          type="multiple"
+          defaultValue={defaultValue as string[] | undefined}
+          value={value as string[] | undefined}
+          onValueChange={onValueChange as ((value: string[]) => void) | undefined}
+        >
+          {children}
+        </ToggleGroupPrimitive.Root>
+      ) : (
+        <ToggleGroupPrimitive.Root
+          {...sharedProps}
+          type="single"
+          defaultValue={defaultValue as string | undefined}
+          value={value as string | undefined}
+          onValueChange={onValueChange as ((value: string) => void) | undefined}
+        >
+          {children}
+        </ToggleGroupPrimitive.Root>
+      )}
+    </ToggleGroupContext.Provider>
   );
 }
 
-export interface ToggleGroupItemProps extends React.ComponentPropsWithoutRef<typeof Toggle> {
+export interface ToggleGroupItemProps
+  extends Omit<
+    React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Item>,
+    "value"
+  >,
+    VariantProps<typeof toggleVariants> {
   readonly value: string;
 }
 
-export const ToggleGroupItem = React.forwardRef<HTMLButtonElement, ToggleGroupItemProps>(
-  ({ disabled: itemDisabled, onPressedChange, pressed, value, ...props }, ref) => {
-    const context = useToggleGroupContext();
-    const isPressed = pressed ?? context.isPressed(value);
-    return (
-      <Toggle
-        ref={ref}
-        {...props}
-        disabled={context.disabled || itemDisabled}
-        pressed={isPressed}
-        onPressedChange={(next) => {
-          context.toggleValue(value);
-          onPressedChange?.(next);
-        }}
-      />
-    );
-  },
-);
-ToggleGroupItem.displayName = "ToggleGroupItem";
+const ToggleGroupItem = React.forwardRef<
+  React.ElementRef<typeof ToggleGroupPrimitive.Item>,
+  ToggleGroupItemProps
+>(({ className, size, variant, ...props }, ref) => {
+  const context = React.useContext(ToggleGroupContext);
+
+  return (
+    <ToggleGroupPrimitive.Item
+      ref={ref}
+      data-slot="toggle-group-item"
+      data-variant={variant ?? context.variant ?? undefined}
+      data-size={size ?? context.size ?? undefined}
+      className={cn(
+        toggleVariants({
+          size: size ?? context.size ?? undefined,
+          variant: variant ?? context.variant ?? undefined,
+        }),
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+
+ToggleGroupItem.displayName = ToggleGroupPrimitive.Item.displayName;
+
+export { ToggleGroup, ToggleGroupItem };

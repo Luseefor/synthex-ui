@@ -47,6 +47,8 @@ export const Toggle = React.forwardRef<React.ElementRef<typeof Pressable>, Toggl
 
     const containerStyle = React.useMemo<ViewStyle>(() => {
       const sizeStyle: Record<typeof resolved.size, ViewStyle> = {
+        // "default" is an alias of "md".
+        default: { minHeight: 40, paddingHorizontal: 16, borderRadius: theme.radius.md },
         sm: { minHeight: 36, paddingHorizontal: 14, borderRadius: theme.radius.md },
         md: { minHeight: 40, paddingHorizontal: 16, borderRadius: theme.radius.md },
         lg: { minHeight: 44, paddingHorizontal: 20, borderRadius: theme.radius.lg },
