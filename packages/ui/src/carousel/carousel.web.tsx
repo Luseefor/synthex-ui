@@ -1,6 +1,7 @@
 import * as React from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { cn } from "../_shared/variants";
+import { useReducedMotion } from "../hooks/useReducedMotion.web";
 import { Button } from "../button/button.web";
 import { ChevronLeftIcon, ChevronRightIcon } from "../icons/index.web";
 import {
@@ -22,8 +23,9 @@ export function Carousel({
   plugins,
   ...props
 }: CarouselProps) {
+  const reducedMotion = useReducedMotion();
   const [carouselRef, api] = useEmblaCarousel(
-    { ...opts, axis: orientation === "horizontal" ? "x" : "y" },
+    { ...opts, axis: orientation === "horizontal" ? "x" : "y", ...(reducedMotion ? { duration: 0 } : null) },
     plugins,
   );
   const [canScrollPrevious, setCanScrollPrevious] = React.useState(false);
