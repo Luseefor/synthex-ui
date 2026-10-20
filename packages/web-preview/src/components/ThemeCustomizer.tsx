@@ -1,14 +1,13 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { MoonIcon, PaletteIcon, SunIcon } from "synthex-ui/icons";
-
-type ThemeAccentName = "steel" | "stone" | "bronze" | "mulberry";
+import { themeAccentPresets, type ThemeAccentName } from "synthex-ui/components";
 
 const THEME_ACCENTS: Record<ThemeAccentName, { label: string; swatch: string }> = {
-  steel: { label: "Steel", swatch: "#93a8bf" },
-  stone: { label: "Stone", swatch: "#adb9a3" },
-  bronze: { label: "Bronze", swatch: "#bc9972" },
-  mulberry: { label: "Mulberry", swatch: "#ab91b4" },
+  steel: themeAccentPresets.steel,
+  stone: themeAccentPresets.stone,
+  bronze: themeAccentPresets.bronze,
+  mulberry: themeAccentPresets.mulberry,
 };
 
 interface ThemeCustomizerProps {
