@@ -3,6 +3,7 @@ import {
   Modal,
   Pressable,
   Text,
+  type GestureResponderEvent,
   type TextProps,
   View,
   type ModalProps,
@@ -44,20 +45,25 @@ export const DialogTrigger = React.forwardRef<
   const context = useDialogContext();
 
   const handlePress = React.useCallback(
-    (event: any) => {
+    (event: GestureResponderEvent) => {
       context.setOpen(true);
       onPress?.(event);
     },
     [context, onPress]
   );
 
-  if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
+  type AsChildProps = {
+    onPress?: ((event: GestureResponderEvent) => void) | null;
+    [key: string]: unknown;
+  };
+
+  if (asChild && React.isValidElement<AsChildProps>(children)) {
+    return React.cloneElement(children, {
       ref,
       ...props,
-      onPress: (e: any) => {
+      onPress: (e: GestureResponderEvent) => {
         handlePress(e);
-        (children.props as any).onPress?.(e);
+        children.props.onPress?.(e);
       },
     });
   }
@@ -89,20 +95,25 @@ export const DialogClose = React.forwardRef<
   const context = useDialogContext();
 
   const handlePress = React.useCallback(
-    (event: any) => {
+    (event: GestureResponderEvent) => {
       context.setOpen(false);
       onPress?.(event);
     },
     [context, onPress]
   );
 
-  if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
+  type AsChildProps = {
+    onPress?: ((event: GestureResponderEvent) => void) | null;
+    [key: string]: unknown;
+  };
+
+  if (asChild && React.isValidElement<AsChildProps>(children)) {
+    return React.cloneElement(children, {
       ref,
       ...props,
-      onPress: (e: any) => {
+      onPress: (e: GestureResponderEvent) => {
         handlePress(e);
-        (children.props as any).onPress?.(e);
+        children.props.onPress?.(e);
       },
     });
   }
@@ -122,13 +133,14 @@ export const DialogClose = React.forwardRef<
 DialogClose.displayName = "DialogClose";
 
 export interface DialogContentProps extends Omit<ViewProps, "style"> {
+  readonly dismissible?: boolean;
   readonly hideClose?: boolean;
   readonly modalProps?: Omit<ModalProps, "children" | "transparent" | "visible">;
   readonly style?: StyleProp<ViewStyle>;
 }
 
 export const DialogContent = React.forwardRef<React.ElementRef<typeof View>, DialogContentProps>(
-  ({ children, hideClose = false, modalProps, style, ...props }, ref) => {
+  ({ children, dismissible = true, hideClose = false, modalProps, style, ...props }, ref) => {
     const context = useDialogContext();
     const theme = useTheme();
 
@@ -141,7 +153,11 @@ export const DialogContent = React.forwardRef<React.ElementRef<typeof View>, Dia
         transparent
         animationType="fade"
         visible={context.open}
-        onRequestClose={() => context.setOpen(false)}
+        onRequestClose={() => {
+          if (dismissible) {
+            context.setOpen(false);
+          }
+        }}
         {...modalProps}
       >
         <Pressable
@@ -152,7 +168,11 @@ export const DialogContent = React.forwardRef<React.ElementRef<typeof View>, Dia
             justifyContent: "center",
             backgroundColor: "rgba(15,23,42,0.42)",
           }}
-          onPress={() => context.setOpen(false)}
+          onPress={() => {
+            if (dismissible) {
+              context.setOpen(false);
+            }
+          }}
         >
           <Pressable
             onPress={(event) => event.stopPropagation()}

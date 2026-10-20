@@ -52,11 +52,19 @@ export interface AlertProps
   extends React.HTMLAttributes<HTMLDivElement>,
   AlertSharedProps { }
 
+const AlertVariantContext = React.createContext<AlertSharedProps["variant"] | undefined>(
+  undefined,
+);
+
 export const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
   ({ className, variant, ...props }, ref) => {
     const slots = resolveVariantStyles(alertVariants, alertClassStyles, { variant });
 
-    return <div ref={ref} role="alert" className={cn(...slots.root, className)} {...props} />;
+    return (
+      <AlertVariantContext.Provider value={variant}>
+        <div ref={ref} role="alert" className={cn(...slots.root, className)} {...props} />
+      </AlertVariantContext.Provider>
+    );
   },
 );
 
@@ -66,7 +74,11 @@ export const AlertTitle = React.forwardRef<
   HTMLHeadingElement,
   React.HTMLAttributes<HTMLHeadingElement> & AlertSharedProps
 >(({ className, variant, ...props }, ref) => {
-  const slots = resolveVariantStyles(alertVariants, alertClassStyles, { variant });
+  const contextVariant = React.useContext(AlertVariantContext);
+  const effectiveVariant = variant ?? contextVariant;
+  const slots = resolveVariantStyles(alertVariants, alertClassStyles, {
+    variant: effectiveVariant,
+  });
 
   return <h5 ref={ref} className={cn(...slots.title, className)} {...props} />;
 });
@@ -77,7 +89,11 @@ export const AlertDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement> & AlertSharedProps
 >(({ className, variant, ...props }, ref) => {
-  const slots = resolveVariantStyles(alertVariants, alertClassStyles, { variant });
+  const contextVariant = React.useContext(AlertVariantContext);
+  const effectiveVariant = variant ?? contextVariant;
+  const slots = resolveVariantStyles(alertVariants, alertClassStyles, {
+    variant: effectiveVariant,
+  });
 
   return <p ref={ref} className={cn(...slots.description, className)} {...props} />;
 });

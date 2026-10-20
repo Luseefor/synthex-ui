@@ -104,11 +104,13 @@ export const DialogClose = React.forwardRef<
 DialogClose.displayName = "DialogClose";
 
 export interface DialogContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  readonly dismissible?: boolean;
   readonly hideClose?: boolean;
+  readonly role?: "dialog" | "alertdialog";
 }
 
 export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
-  ({ children, className, hideClose = false, onClick, ...props }, ref) => {
+  ({ children, className, dismissible = true, hideClose = false, onClick, role = "dialog", ...props }, ref) => {
     const context = useDialogContext();
 
     React.useEffect(() => {
@@ -118,6 +120,9 @@ export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps
 
       const handleEscape = (event: KeyboardEvent) => {
         if (event.key === "Escape") {
+          if (!dismissible) {
+            return;
+          }
           context.setOpen(false);
         }
       };
@@ -129,7 +134,7 @@ export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps
         document.removeEventListener("keydown", handleEscape);
         document.body.style.overflow = "";
       };
-    }, [context]);
+    }, [context, dismissible]);
 
     if (!context.open) {
       return null;
@@ -141,12 +146,16 @@ export const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps
         <div
           className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-[6px]"
           style={{ animation: "sx-overlay-in 200ms var(--sx-easing-standard)" }}
-          onClick={() => context.setOpen(false)}
+          onClick={() => {
+            if (dismissible) {
+              context.setOpen(false);
+            }
+          }}
         />
         {/* Content */}
         <div
           className="fixed left-1/2 top-1/2 z-[101] w-full max-w-lg -translate-x-1/2 -translate-y-1/2"
-          role="dialog"
+          role={role}
           aria-modal="true"
         >
           <div

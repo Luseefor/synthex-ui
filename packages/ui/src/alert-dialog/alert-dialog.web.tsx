@@ -17,8 +17,14 @@ import { cn } from "../_shared/variants";
 export { AlertDialog, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger };
 
 export const AlertDialogContent = React.forwardRef<React.ElementRef<typeof BaseContent>, React.ComponentPropsWithoutRef<typeof BaseContent>>(
-  ({ className, ...props }, ref) => (
-    <BaseContent ref={ref} className={cn("max-w-md", className)} {...props} />
+  ({ className, dismissible = false, role = "alertdialog", ...props }, ref) => (
+    <BaseContent
+      ref={ref}
+      role={role}
+      dismissible={dismissible}
+      className={cn("max-w-md", className)}
+      {...props}
+    />
   ),
 );
 AlertDialogContent.displayName = "AlertDialogContent";

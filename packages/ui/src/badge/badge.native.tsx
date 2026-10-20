@@ -33,19 +33,20 @@ export function Badge({
       resolved.variant === "outline" ? theme.colors.borderStrong : "transparent",
     paddingHorizontal: 10,
     paddingVertical: 5,
+    // Solid backgrounds to match web (bg-primary / bg-secondary / bg-destructive).
     backgroundColor: {
-      default: theme.colors.primaryMuted,
-      secondary: theme.colors.secondaryMuted,
-      destructive: theme.colors.destructiveMuted,
+      default: theme.colors.primary,
+      secondary: theme.colors.secondary,
+      destructive: theme.colors.destructive,
       outline: "transparent",
     }[resolved.variant],
   };
 
   const labelStyle: TextStyle = {
     color: {
-      default: theme.colors.primary,
+      default: theme.colors.foregroundOnBrand,
       secondary: theme.colors.foreground,
-      destructive: theme.colors.destructive,
+      destructive: theme.colors.foregroundOnBrand,
       outline: theme.colors.foreground,
     }[resolved.variant],
     fontFamily: theme.typography.family.sans,

@@ -41,6 +41,10 @@ const buttonClassStyles = {
       },
     },
     size: {
+      // "default" is an alias of "md".
+      default: {
+        root: "h-9 px-4 py-2",
+      },
       sm: {
         root: "h-8 px-3 text-xs",
       },

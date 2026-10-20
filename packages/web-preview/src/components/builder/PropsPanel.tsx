@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import { Badge, Button, Input } from "synthex-ui/components";
 import { getAutoSizePresets } from "./presets";
-import type { BuilderNode } from "./types";
+import type { BuilderNode, BuilderProps } from "./types";
 
-export function PropsPanel({ n, set, upd }: { n: BuilderNode; set: (p: any) => void; upd: (p: Partial<BuilderNode>) => void }) {
-  const s = (k: string, v: any) => set({ [k]: v });
+export function PropsPanel({ n, set, upd }: { n: BuilderNode; set: (p: BuilderProps) => void; upd: (p: Partial<BuilderNode>) => void }) {
+  const s = (k: string, v: unknown) => set({ [k]: v });
   const sizePresets = getAutoSizePresets(n.type);
 
   return (

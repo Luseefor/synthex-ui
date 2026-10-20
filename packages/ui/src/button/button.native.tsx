@@ -35,6 +35,12 @@ export const Button = React.forwardRef<React.ElementRef<typeof Pressable>, Butto
       };
 
       const sizeStyle: Record<typeof resolved.size, ViewStyle> = {
+        // "default" is an alias of "md".
+        default: {
+          minHeight: 40,
+          paddingHorizontal: 16,
+          borderRadius: theme.radius.md,
+        },
         sm: {
           minHeight: 36,
           paddingHorizontal: 14,
@@ -108,6 +114,10 @@ export const Button = React.forwardRef<React.ElementRef<typeof Pressable>, Butto
       };
 
       const labelSizeStyle: Record<typeof resolved.size, TextStyle> = {
+        // "default" is an alias of "md".
+        default: {
+          fontSize: theme.typography.size.sm,
+        },
         sm: {
           fontSize: 13,
         },
