@@ -1,12 +1,15 @@
 /**
  * Moat theme/RTL/reduced-motion verification (web + styles.css).
  *
- * Does NOT rewrite the theme; asserts current contracts and documents gaps:
  * - Dark: [data-theme="dark"] overrides + prefers-color-scheme fallback.
- * - RTL: DirectionProvider dir=rtl; styles.css has no [dir="rtl"] rules
- *   (gap: overlays use physical left/right; logical props not yet adopted).
- * - Reduced motion: prefers-reduced-motion zeroes durations (gap: native has
- *   no AccessibilityInfo reduced-motion gate; JS animations unaffected).
+ * - RTL: DirectionProvider dir=rtl; styles.css mirrors toast animations
+ *   under [dir="rtl"] and text/edge offsets use logical utilities
+ *   (`text-start`, `start-*`, `end-*`). `side="left"` / `side="right"`
+ *   props stay physical by contract.
+ * - Reduced motion: prefers-reduced-motion zeroes CSS durations; web JS
+ *   motion is gated (recharts isAnimationActive, embla duration 0).
+ *   Native chart/carousel render static frames (no animation code), so
+ *   they are reduced-motion compliant by construction.
  */
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -56,7 +59,7 @@ describe("Moat theme/RTL/motion (styles.css contracts)", () => {
     expect(css).toContain(":root:not([data-theme])");
   });
 
-  it("direction RTL renders dir=rtl; styles.css gap documented", () => {
+  it("direction RTL renders dir=rtl; styles.css mirrors RTL", () => {
     const { container } = render(
       <ThemeProvider>
         <DirectionProvider dir="rtl">
@@ -71,23 +74,28 @@ describe("Moat theme/RTL/motion (styles.css contracts)", () => {
     expect(container.querySelector('[dir="rtl"]')).not.toBeNull();
 
     const css = readStylesCss();
-    // GAP (documented, not rewritten): no [dir="rtl"] selectors or logical
-    // properties (inline-start/end, margin-inline) in styles.css. RTL relies
-    // on dir attribute + flex auto-flip; absolute overlays (dialog, dropdown,
-    // toast: left/right, translateX) do not mirror. Native mirrors via
-    // style={{ direction: dir }} (direction.native.tsx) — same gap.
-    expect(css.includes('[dir="rtl"]')).toBe(false);
-    expect(css.includes("margin-inline")).toBe(false);
+    // RTL is now mirrored: toast enter animation has an RTL variant and
+    // text/edge offsets use logical utilities. Radix overlay side
+    // flipping follows document direction automatically.
+    expect(css.includes('[dir="rtl"]')).toBe(true);
+    expect(css).toContain("sx-toast-enter-rtl");
   });
 
-  it("prefers-reduced-motion zeroes motion; native gap documented", () => {
+  it("prefers-reduced-motion zeroes motion; web JS motion is gated", () => {
     const css = readStylesCss();
     expect(css).toContain("@media (prefers-reduced-motion: reduce)");
     expect(css).toContain("animation-duration: 0.01ms");
     expect(css).toContain("transition-duration: 0.01ms");
-    // GAP (documented): native has no prefers-reduced-motion gate
-    // (no AccessibilityInfo.isReduceMotionEnabled check in chart/carousel/
-    // dialog animations); web JS-driven motion (embla, recharts) is not gated
-    // beyond CSS durations. CSS-only surfaces are covered.
+
+    const readSource = (rel: string) =>
+      fs.readFileSync(path.join(__dirname, rel), "utf8");
+    // Recharts animations switch off under reduced motion.
+    expect(readSource("chart/chart.web.tsx")).toContain("isAnimationActive={!reducedMotion}");
+    // Embla animation duration drops to 0 under reduced motion.
+    expect(readSource("carousel/carousel.web.tsx")).toContain("duration: 0");
+    // Native chart/carousel render static frames (no Animated/timing code),
+    // so they are reduced-motion compliant by construction.
+    expect(readSource("chart/chart.native.tsx")).not.toContain("Animated");
+    expect(readSource("carousel/carousel.native.tsx")).not.toContain("Animated");
   });
 });

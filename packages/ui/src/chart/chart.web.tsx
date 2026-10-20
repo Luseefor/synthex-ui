@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import { cn } from "../_shared/variants";
+import { useReducedMotion } from "../hooks/useReducedMotion.web";
 import {
   getChartConfigStyle,
   getChartStyleCss,
@@ -278,6 +279,7 @@ export function LineChart({ ariaLabel = "Line chart", height = 240, series, conf
   // `series` is a Synthex convenience (shadcn composes Container/Legend/Tooltip
   // with recharts directly); kept for parity with native hand-rolled charts.
   const data = React.useMemo(() => transformSeriesToRechartsData(series), [series]);
+  const reducedMotion = useReducedMotion();
 
   return (
     <ChartFrame ariaLabel={ariaLabel} height={height}>
@@ -295,6 +297,7 @@ export function LineChart({ ariaLabel = "Line chart", height = 240, series, conf
             strokeWidth={3}
             dot={{ r: 4 }}
             activeDot={{ r: 4 }}
+            isAnimationActive={!reducedMotion}
           />
         ))}
       </RechartsLineChart>
@@ -304,6 +307,7 @@ export function LineChart({ ariaLabel = "Line chart", height = 240, series, conf
 
 export function AreaChart({ ariaLabel = "Area chart", height = 240, series, config }: AreaChartProps) {
   const data = React.useMemo(() => transformSeriesToRechartsData(series), [series]);
+  const reducedMotion = useReducedMotion();
 
   return (
     <ChartFrame ariaLabel={ariaLabel} height={height}>
@@ -323,6 +327,7 @@ export function AreaChart({ ariaLabel = "Area chart", height = 240, series, conf
               fill={color}
               fillOpacity={0.18}
               strokeWidth={3}
+              isAnimationActive={!reducedMotion}
             />
           );
         })}
@@ -333,6 +338,7 @@ export function AreaChart({ ariaLabel = "Area chart", height = 240, series, conf
 
 export function BarChart({ ariaLabel = "Bar chart", height = 240, series, config }: BarChartProps) {
   const data = React.useMemo(() => transformSeriesToRechartsData(series), [series]);
+  const reducedMotion = useReducedMotion();
 
   return (
     <ChartFrame ariaLabel={ariaLabel} height={height}>
@@ -348,6 +354,7 @@ export function BarChart({ ariaLabel = "Bar chart", height = 240, series, config
             name={entry.label}
             fill={resolveSeriesColor(entry.key, entry.color, index, config)}
             radius={[8, 8, 0, 0]}
+            isAnimationActive={!reducedMotion}
           />
         ))}
       </RechartsBarChart>
