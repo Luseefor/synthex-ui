@@ -1,18 +1,29 @@
 # Synthex UI
 
-**[Live preview & docs](https://synthex-ui.rijan.sh)**
+Shadcn-parity components for web with the same API on React Native.
 
-Synthex UI is a publish-ready monorepo with three public packages:
-
-- `synthex-ui`: cross-platform component library and theme system
-- `@luseefor/synthex-core`: framework-agnostic layout and command engine
-- `@luseefor/synthex-react-web`: React DOM adapter for dockable workbench rendering
-
-Install the design-system package like any other library:
+## Install
 
 ```sh
 npm install synthex-ui
 ```
+
+## Example
+
+```tsx
+import "synthex-ui/styles.css";
+import { Button } from "synthex-ui/components";
+import { ThemeProvider } from "synthex-ui/theme";
+export function Example() {
+  return (
+    <ThemeProvider>
+      <Button>Run</Button>
+    </ThemeProvider>
+  );
+}
+```
+
+[Live preview](https://synthex-ui.rijan.sh)
 
 For workbench-style engineering surfaces, install the engine packages too:
 
