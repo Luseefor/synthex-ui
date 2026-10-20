@@ -15,6 +15,10 @@ interface ComboboxContextValue {
   readonly value: string;
   readonly visibleItemCount: number;
   readonly getLabel: (value: string) => string | undefined;
+  readonly contentId: string;
+  readonly triggerId: string;
+  readonly listId: string;
+  readonly inputId: string;
 }
 
 const ComboboxContext = React.createContext<ComboboxContextValue | null>(null);
@@ -68,6 +72,12 @@ export function useComboboxController({
   const currentValue = value ?? internalValue;
   const currentOpen = open ?? internalOpen;
   const currentQuery = query ?? internalQuery;
+  const rawBaseId = React.useId();
+  const sanitizedBase = React.useMemo(() => rawBaseId.replace(/:/g, ""), [rawBaseId]);
+  const contentId = React.useMemo(() => `sx-combobox-${sanitizedBase}`, [sanitizedBase]);
+  const triggerId = React.useMemo(() => `sx-combobox-trigger-${sanitizedBase}`, [sanitizedBase]);
+  const listId = React.useMemo(() => `sx-combobox-list-${sanitizedBase}`, [sanitizedBase]);
+  const inputId = React.useMemo(() => `sx-combobox-input-${sanitizedBase}`, [sanitizedBase]);
 
   const syncVisibleItemCount = React.useCallback(() => {
     let nextCount = 0;
@@ -136,6 +146,10 @@ export function useComboboxController({
       value: currentValue,
       visibleItemCount,
       getLabel: (itemValue) => labelsRef.current.get(itemValue),
+      contentId,
+      triggerId,
+      listId,
+      inputId,
     }),
     [
       currentOpen,
@@ -151,6 +165,10 @@ export function useComboboxController({
       syncVisibleItemCount,
       value,
       visibleItemCount,
+      contentId,
+      triggerId,
+      listId,
+      inputId,
     ],
   );
 }
