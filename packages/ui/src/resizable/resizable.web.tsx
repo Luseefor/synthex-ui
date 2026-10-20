@@ -130,7 +130,7 @@ export const ResizablePanelGroup = React.forwardRef<HTMLDivElement, ResizablePan
   ({ children, className, direction, style, ...props }, ref) => {
     const containerRef = React.useRef<HTMLDivElement | null>(null);
     const childArray = React.Children.toArray(children).filter(React.isValidElement) as Array<
-      React.ReactElement<any>
+      React.ReactElement<ResizablePanelProps & Partial<InternalPanelProps> & Partial<InternalHandleProps>>
     >;
     const panels = childArray.filter(
       (child): child is React.ReactElement<ResizablePanelProps> => child.type === ResizablePanel,
@@ -212,7 +212,7 @@ export const ResizablePanelGroup = React.forwardRef<HTMLDivElement, ResizablePan
       >
         {childArray.map((child) => {
           if (child.type === ResizablePanel) {
-            const next = React.cloneElement(child as React.ReactElement<any>, {
+            const next = React.cloneElement(child, {
               __direction: direction,
               __size: sizes[panelIndex],
             } satisfies Partial<InternalPanelProps>);
@@ -221,7 +221,7 @@ export const ResizablePanelGroup = React.forwardRef<HTMLDivElement, ResizablePan
           }
 
           if (child.type === ResizableHandle) {
-            const next = React.cloneElement(child as React.ReactElement<any>, {
+            const next = React.cloneElement(child, {
               __direction: direction,
               __index: handleIndex,
               __onResize: handleResize,
