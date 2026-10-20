@@ -1,5 +1,7 @@
-export function defaults(type: string): { props: Record<string, any>; w: number; h: number } {
-  const map: Record<string, { props: Record<string, any>; w: number; h: number }> = {
+import type { BuilderProps } from "./types";
+
+export function defaults(type: string): { props: BuilderProps; w: number; h: number } {
+  const map: Record<string, { props: BuilderProps; w: number; h: number }> = {
     Container: { props: { border: true }, w: 400, h: 200 }, Spacer: { props: {}, w: 200, h: 40 }, Separator: { props: {}, w: 300, h: 4 }, AspectRatio: { props: { ratio: "16/9" }, w: 320, h: 180 }, ScrollArea: { props: { items: ["Release notes", "Design tokens", "Runtime adapters", "Theming hooks", "Preview surfaces", "CLI integration", "Migration guide"] }, w: 320, h: 220 }, Resizable: { props: { panes: ["Canvas", "Inspector"] }, w: 420, h: 220 },
     Heading: { props: { text: "Heading", level: "h2" }, w: 300, h: 60 }, Text: { props: { text: "Paragraph text goes here." }, w: 360, h: 80 }, Lead: { props: { text: "Lead text — prominent intro paragraph." }, w: 400, h: 60 }, Muted: { props: { text: "Muted helper text." }, w: 260, h: 40 }, Small: { props: { text: "Small caption text." }, w: 200, h: 30 }, Kbd: { props: { text: "⌘K" }, w: 60, h: 36 },
     Button: { props: { text: "Button", variant: "default" }, w: 140, h: 48 }, ButtonGroup: { props: { items: ["Prev", "Action", "Next"] }, w: 320, h: 48 }, Toggle: { props: { text: "Toggle" }, w: 100, h: 40 }, ToggleGroup: { props: { items: ["A", "B", "C"], mode: "multiple", activeItems: ["A"] }, w: 240, h: 40 },
