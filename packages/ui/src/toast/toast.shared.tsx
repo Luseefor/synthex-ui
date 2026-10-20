@@ -1,3 +1,10 @@
+/**
+ * Minimal toast store shared by web and native.
+ *
+ * Swipe-to-dismiss and focus management (focus trap / return focus) are
+ * intentionally deferred as future enhancements; dismissal is currently via
+ * timeout, action, or close affordance only.
+ */
 import * as React from "react";
 
 export interface ToastSharedProps {

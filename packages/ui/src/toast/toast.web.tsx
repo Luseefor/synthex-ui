@@ -25,18 +25,28 @@ export function ToastProvider({ children, ...props }: ToastProviderProps) {
   );
 }
 
-export interface ToastViewportProps extends React.HTMLAttributes<HTMLDivElement> { }
+export interface ToastViewportProps extends React.HTMLAttributes<HTMLDivElement> {
+  readonly expand?: boolean;
+  readonly position?: "top" | "bottom";
+  readonly richColors?: boolean;
+}
 
 export const ToastViewport = React.forwardRef<HTMLDivElement, ToastViewportProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, expand = false, position = "bottom", richColors = false, ...props }, ref) => {
     const store = useToastStore();
 
     return (
       <div
         ref={ref}
         data-slot="toast-viewport"
+        data-expand={expand}
+        data-position={position}
+        data-rich-colors={richColors}
         className={cn(
-          "fixed bottom-0 right-0 z-[100] flex w-full max-w-[420px] flex-col-reverse gap-2 p-4 sm:bottom-4 sm:right-4 sm:flex-col",
+          position === "top"
+            ? "fixed top-0 right-0 z-[100] flex w-full max-w-[420px] flex-col gap-2 p-4 sm:top-4 sm:right-4"
+            : "fixed bottom-0 right-0 z-[100] flex w-full max-w-[420px] flex-col-reverse gap-2 p-4 sm:bottom-4 sm:right-4 sm:flex-col",
+          expand && "gap-3",
           className,
         )}
         {...props}
@@ -218,11 +228,17 @@ export function ToastClose({ className, type = "button", ...props }: ToastCloseP
   );
 }
 
-export function Toaster() {
-  return <ToastViewport />;
+export interface ToasterProps extends ToastViewportProps {}
+
+export function Toaster(props: ToasterProps) {
+  return <ToastViewport {...props} />;
 }
 
+// Single implementation serves both Toaster and Sonner for API parity.
+// `position`, `expand`, and `richColors` are accepted on both; swipe-to-dismiss
+// and focus management remain future enhancements (see toast.shared).
 export const Sonner = Toaster;
+export type SonnerProps = ToasterProps;
 
 export function useSonner() {
   return useToast();
