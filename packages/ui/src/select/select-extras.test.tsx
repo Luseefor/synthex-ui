@@ -1,0 +1,84 @@
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import {
+  Select,
+  SelectArrow,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectScrollDownButton,
+  SelectScrollUpButton,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "./select.web";
+
+function ExtrasHarness() {
+  return (
+    <Select defaultOpen defaultValue="apple">
+      <SelectTrigger aria-label="Fruit selector">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectScrollUpButton aria-label="Scroll up" />
+        <SelectGroup>
+          <SelectLabel>Fruits</SelectLabel>
+          <SelectItem value="apple">Apple</SelectItem>
+          <SelectItem value="banana">Banana</SelectItem>
+        </SelectGroup>
+        <SelectSeparator />
+        <SelectGroup>
+          <SelectLabel>Vegetables</SelectLabel>
+          <SelectItem value="carrot">Carrot</SelectItem>
+        </SelectGroup>
+        <SelectScrollDownButton aria-label="Scroll down" />
+        <SelectArrow data-testid="select-arrow" />
+      </SelectContent>
+    </Select>
+  );
+}
+
+describe("Select extras", () => {
+  it("renders groups with labels wired via aria-labelledby", () => {
+    render(<ExtrasHarness />);
+
+    const group = screen.getByRole("group", { name: "Fruits" });
+    expect(group).toBeInTheDocument();
+
+    const label = screen.getByText("Fruits");
+    expect(label).toBeInTheDocument();
+    expect(group.getAttribute("aria-labelledby")).toBe(label.getAttribute("id"));
+  });
+
+  it("renders a separator between groups", () => {
+    render(<ExtrasHarness />);
+
+    expect(screen.getByRole("separator")).toBeInTheDocument();
+  });
+
+  it("renders scroll buttons that scroll the content", () => {
+    render(<ExtrasHarness />);
+
+    const up = screen.getByRole("button", { name: "Scroll up" });
+    const down = screen.getByRole("button", { name: "Scroll down" });
+    expect(up).toBeInTheDocument();
+    expect(down).toBeInTheDocument();
+
+    const listbox = screen.getByRole("listbox");
+    const scrollBy = vi.fn();
+    (listbox as HTMLElement & { scrollBy: unknown }).scrollBy = scrollBy;
+
+    fireEvent.click(down);
+    fireEvent.click(up);
+
+    expect(scrollBy).toHaveBeenCalledTimes(2);
+  });
+
+  it("renders a decorative arrow", () => {
+    render(<ExtrasHarness />);
+
+    const arrow = screen.getByTestId("select-arrow");
+    expect(arrow).toHaveAttribute("aria-hidden", "true");
+  });
+});
