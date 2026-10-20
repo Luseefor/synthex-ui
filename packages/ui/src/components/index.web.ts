@@ -143,16 +143,21 @@ export {
   BarChart,
   ChartContainer,
   ChartLegend,
+  ChartLegendContent,
+  ChartStyle,
   ChartTooltip,
   ChartTooltipContent,
   LineChart,
 } from "../chart/chart.web";
 export type {
+  ChartConfig,
+  ChartConfigEntry,
   ChartContainerSharedProps,
   ChartDatum,
   ChartLegendSharedProps,
   ChartSeries,
   ChartTooltipContentSharedProps,
+  ChartTooltipIndicator,
   ChartTooltipItem,
 } from "../chart/chart.shared";
 export { Calendar } from "../calendar/calendar.web";

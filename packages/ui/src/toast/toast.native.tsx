@@ -16,6 +16,7 @@ import {
   useToast,
   useToastState,
   useToastStore,
+  type ToastDescriptor,
   type ToastSharedProps,
 } from "./toast.shared";
 
@@ -32,105 +33,167 @@ export function ToastProvider({ children, ...props }: ToastProviderProps) {
   );
 }
 
-export interface ToastViewportProps extends ViewProps {}
-export function ToastViewport({ style, ...props }: ToastViewportProps) {
+export interface ToastViewportProps extends ViewProps {
+  readonly expand?: boolean;
+  readonly position?: "top" | "bottom";
+  readonly richColors?: boolean;
+}
+export function ToastViewport({
+  expand = false,
+  position = "bottom",
+  // Retained for Sonner API parity; variant colors already convey richness.
+  richColors: _richColors = false,
+  style,
+  ...props
+}: ToastViewportProps) {
   const store = useToastStore();
-  const theme = useTheme();
 
   return (
     <Modal transparent visible={store.toasts.length > 0}>
       <View
         style={[
           {
-            bottom: 16,
-            gap: 12,
+            gap: expand ? 16 : 12,
             left: 16,
             position: "absolute",
             right: 16,
+            ...(position === "top" ? { top: 16 } : { bottom: 16 }),
           },
           style,
         ]}
         {...props}
       >
         {store.toasts.map((toast) => (
-          <View
-            key={toast.id}
-            style={{
-              backgroundColor: theme.colors.surface,
-              borderColor: theme.colors.border,
-              borderRadius: theme.radius.lg,
-              borderWidth: 1,
-              flexDirection: "row",
-              gap: 12,
-              padding: 16,
-            }}
-          >
-            <View
-              style={{
-                alignItems: "center",
-                backgroundColor:
-                  toast.variant === "success"
-                    ? theme.colors.primaryMuted
-                    : toast.variant === "warning"
-                      ? theme.colors.accentMuted
-                      : toast.variant === "destructive"
-                        ? theme.colors.destructiveMuted
-                        : theme.colors.surfaceMuted,
-                borderColor: theme.colors.border,
-                borderRadius: 999,
-                borderWidth: 1,
-                height: 36,
-                justifyContent: "center",
-                width: 36,
-              }}
-            >
-              {toast.variant === "destructive" ? (
-                <CloseIcon
-                  color={theme.colors.destructive}
-                  size={14}
-                  strokeWidth={2.2}
-                />
-              ) : (
-                <CheckIcon
-                  color={
-                    toast.variant === "warning"
-                      ? theme.colors.accent
-                      : toast.variant === "success"
-                        ? theme.colors.primary
-                        : theme.colors.foregroundMuted
-                  }
-                  size={14}
-                  strokeWidth={2.2}
-                />
-              )}
-            </View>
-            <View style={{ flex: 1 }}>
-              <ToastTitle>{toast.title}</ToastTitle>
-              {toast.description ? <ToastDescription>{toast.description}</ToastDescription> : null}
-              <View style={{ flexDirection: "row", gap: 8, marginTop: 12 }}>
-                {toast.actionLabel ? (
-                  <ToastAction
-                    onPress={() => {
-                      toast.action?.();
-                      store.dismissToast(toast.id);
-                    }}
-                  >
-                    {toast.actionLabel}
-                  </ToastAction>
-                ) : null}
-                <ToastClose onPress={() => store.dismissToast(toast.id)} />
-              </View>
-            </View>
-          </View>
+          <ToastCard key={toast.id} toast={toast} />
         ))}
       </View>
     </Modal>
   );
 }
 
-export interface ToastProps extends ViewProps, ToastSharedProps {}
-export function Toast({ children, style, ...props }: ToastProps) {
+function ToastCard({ toast }: { readonly toast: ToastDescriptor }) {
+  const store = useToastStore();
   const theme = useTheme();
+  const duration = toast.duration ?? 5000;
+
+  React.useEffect(() => {
+    if (!duration) {
+      return;
+    }
+    const timeout = setTimeout(() => {
+      store.dismissToast(toast.id);
+    }, duration);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [duration, store, toast.id]);
+
+  return (
+    <View
+      style={{
+        backgroundColor: theme.colors.surface,
+        borderColor: theme.colors.border,
+        borderRadius: theme.radius.lg,
+        borderWidth: 1,
+        flexDirection: "row",
+        gap: 12,
+        padding: 16,
+      }}
+    >
+      <View
+        style={{
+          alignItems: "center",
+          backgroundColor:
+            toast.variant === "success"
+              ? theme.colors.primaryMuted
+              : toast.variant === "warning"
+                ? theme.colors.accentMuted
+                : toast.variant === "destructive"
+                  ? theme.colors.destructiveMuted
+                  : theme.colors.surfaceMuted,
+          borderColor: theme.colors.border,
+          borderRadius: 999,
+          borderWidth: 1,
+          height: 36,
+          justifyContent: "center",
+          width: 36,
+        }}
+      >
+        {toast.variant === "destructive" ? (
+          <CloseIcon
+            color={theme.colors.destructive}
+            size={14}
+            strokeWidth={2.2}
+          />
+        ) : (
+          <CheckIcon
+            color={
+              toast.variant === "warning"
+                ? theme.colors.accent
+                : toast.variant === "success"
+                  ? theme.colors.primary
+                  : theme.colors.foregroundMuted
+            }
+            size={14}
+            strokeWidth={2.2}
+          />
+        )}
+      </View>
+      <View style={{ flex: 1 }}>
+        <ToastTitle>{toast.title}</ToastTitle>
+        {toast.description ? <ToastDescription>{toast.description}</ToastDescription> : null}
+        <View style={{ flexDirection: "row", gap: 8, marginTop: 12 }}>
+          {toast.actionLabel ? (
+            <ToastAction
+              onPress={() => {
+                toast.action?.();
+                store.dismissToast(toast.id);
+              }}
+            >
+              {toast.actionLabel}
+            </ToastAction>
+          ) : null}
+          <ToastClose onPress={() => store.dismissToast(toast.id)} />
+        </View>
+      </View>
+    </View>
+  );
+}
+
+export interface ToastProps extends ViewProps, ToastSharedProps {}
+export function Toast({
+  children,
+  duration = 5000,
+  onOpenChange,
+  open = true,
+  style,
+  ...props
+}: ToastProps) {
+  const [visible, setVisible] = React.useState(open);
+
+  React.useEffect(() => {
+    setVisible(open);
+  }, [open]);
+
+  React.useEffect(() => {
+    if (!visible || !duration) {
+      return;
+    }
+    const timeout = setTimeout(() => {
+      setVisible(false);
+      onOpenChange?.(false);
+    }, duration);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [duration, onOpenChange, visible]);
+
+  const theme = useTheme();
+
+  if (!visible) {
+    return null;
+  }
+
   return (
     <View
       style={[
@@ -224,11 +287,16 @@ export function ToastClose({ children, ...props }: ToastCloseProps) {
   );
 }
 
-export function Toaster() {
-  return <ToastViewport />;
+export interface ToasterProps extends ToastViewportProps {}
+
+export function Toaster(props: ToasterProps) {
+  return <ToastViewport {...props} />;
 }
 
+// Single implementation serves both Toaster and Sonner for API parity.
+// Swipe-to-dismiss and focus management remain future enhancements.
 export const Sonner = Toaster;
+export type SonnerProps = ToasterProps;
 
 export function useSonner() {
   return useToast();

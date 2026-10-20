@@ -1,7 +1,8 @@
 import * as React from "react";
-import { View, Text } from "react-native";
+import { View, Text, type StyleProp, type ViewStyle } from "react-native";
 import Svg, { Circle, Line, Path, Rect, Text as SvgText, Polyline } from "react-native-svg";
 import { useTheme } from "../_shared/theme/context";
+import { resolveChartTooltipLabel } from "./chart.shared";
 import type {
   BaseChartSharedProps,
   ChartContainerSharedProps,
@@ -13,27 +14,45 @@ import type {
 const DEFAULT_SERIES_COLORS = ["#2563eb", "#0f766e", "#7c3aed", "#d97706"];
 const SVG_WIDTH = 640;
 
-export interface ChartContainerProps extends ChartContainerSharedProps {}
-export interface ChartLegendProps extends ChartLegendSharedProps {}
+export interface ChartContainerProps extends ChartContainerSharedProps {
+  readonly style?: StyleProp<ViewStyle>;
+}
+export interface ChartLegendProps extends ChartLegendSharedProps {
+  readonly style?: StyleProp<ViewStyle>;
+}
 export interface ChartTooltipProps {
   readonly children?: React.ReactNode;
+  readonly style?: StyleProp<ViewStyle>;
 }
-export interface ChartTooltipContentProps extends ChartTooltipContentSharedProps {}
+export interface ChartTooltipContentProps extends ChartTooltipContentSharedProps {
+  readonly style?: StyleProp<ViewStyle>;
+}
 export interface LineChartProps extends BaseChartSharedProps {}
 export interface AreaChartProps extends BaseChartSharedProps {}
 export interface BarChartProps extends BaseChartSharedProps {}
 
-export function ChartContainer({ children }: ChartContainerProps) {
-  const theme = useTheme();
-
-  return <View style={getStyles(theme).container}>{children}</View>;
+export function ChartStyle(_props?: { readonly id?: string; readonly config?: unknown }): null {
+  // Native has no CSS cascade, so config colors cannot become CSS vars.
+  // Accepted for shadcn API parity; native series resolve color from the
+  // `series` prop / theme directly.
+  return null;
 }
 
-export function ChartLegend({ series }: ChartLegendProps) {
+export function ChartContainer({ children, config: _config, style }: ChartContainerProps) {
+  // `config` is accepted for shadcn API parity but ignored on native:
+  // there are no CSS custom properties, so colors come from `series[].color`
+  // with theme fallbacks instead of `--color-<key>` vars.
+  void _config;
+  const theme = useTheme();
+
+  return <View style={[getStyles(theme).container, style]}>{children}</View>;
+}
+
+export function ChartLegend({ series, style }: ChartLegendProps) {
   const theme = useTheme();
 
   return (
-    <View style={getStyles(theme).legendRow}>
+    <View style={[getStyles(theme).legendRow, style]}>
       {series.map((entry, index) => (
         <View key={entry.key} style={getStyles(theme).legendItem}>
           <View
@@ -49,18 +68,37 @@ export function ChartLegend({ series }: ChartLegendProps) {
   );
 }
 
-export function ChartTooltip({ children }: ChartTooltipProps) {
-  const theme = useTheme();
-
-  return <View style={getStyles(theme).tooltip}>{children}</View>;
+export function ChartLegendContent({ series, style }: ChartLegendProps) {
+  // shadcn exposes ChartLegendContent as the inner legend renderer.
+  // Verified: previously only ChartLegend existed, so share its
+  // implementation here for API parity. Rendering stays hand-rolled.
+  return <ChartLegend series={series} style={style} />;
 }
 
-export function ChartTooltipContent({ items, label }: ChartTooltipContentProps) {
+export function ChartTooltip({ children, style }: ChartTooltipProps) {
   const theme = useTheme();
 
+  return <View style={[getStyles(theme).tooltip, style]}>{children}</View>;
+}
+
+export function ChartTooltipContent({
+  config,
+  indicator: _indicator = "dot",
+  items,
+  label,
+  labelKey,
+  style,
+}: ChartTooltipContentProps) {
+  const theme = useTheme();
+  // `indicator` only changes the web swatch shape; native keeps a single
+  // dot swatch. Accepted for API parity. `labelKey` resolves via `config`
+  // when `label` is absent, matching the web fallback.
+  void _indicator;
+  const resolvedLabel = resolveChartTooltipLabel(label, labelKey, config);
+
   return (
-    <View style={getStyles(theme).tooltipContent}>
-      {label ? <Text style={getStyles(theme).tooltipLabel}>{label}</Text> : null}
+    <View style={[getStyles(theme).tooltipContent, style]}>
+      {resolvedLabel ? <Text style={getStyles(theme).tooltipLabel}>{resolvedLabel}</Text> : null}
       {items.map((item) => (
         <View key={`${item.label}-${item.value}`} style={getStyles(theme).tooltipRow}>
           <View style={getStyles(theme).tooltipLabelRow}>
