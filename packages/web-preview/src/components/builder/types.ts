@@ -14,3 +14,5 @@ export interface BuilderNode {
   w: number;
   h: number;
 }
+
+export type BuilderProps = Record<string, unknown>;

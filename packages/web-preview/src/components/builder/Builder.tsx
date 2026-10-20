@@ -8,7 +8,7 @@ import { ComponentSidebar } from "./ComponentSidebar";
 import { defaults } from "./defaults";
 import { InspectorSidebar } from "./InspectorSidebar";
 import { BUILDER_CSS } from "./styles";
-import type { BuilderNode } from "./types";
+import type { BuilderNode, BuilderProps } from "./types";
 import { snap } from "./utils";
 
 export function Builder() {
@@ -43,7 +43,7 @@ export function Builder() {
   );
 
   const updateProps = useCallback(
-    (id: string, props: Record<string, any>) =>
+    (id: string, props: BuilderProps) =>
       setNodes((list) =>
         list.map((node) =>
           node.id === id ? { ...node, props: { ...node.props, ...props } } : node,
