@@ -72,9 +72,11 @@ export const TabsList = React.forwardRef<HTMLDivElement, TabsListProps>(
 
         switch (event.key) {
           case "ArrowRight":
+          case "ArrowDown":
             nextIndex = (currentIndex + 1) % triggers.length;
             break;
           case "ArrowLeft":
+          case "ArrowUp":
             nextIndex =
               (currentIndex - 1 + triggers.length) % triggers.length;
             break;
@@ -104,16 +106,20 @@ export interface TabsTriggerProps
   TabsTriggerSharedProps { }
 
 export const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(
-  ({ children, className, disabled, onClick, value, ...props }, ref) => {
+  ({ children, className, disabled, id, onClick, value, ...props }, ref) => {
     const context = useTabsContext();
     const isActive = context.value === value;
+    const triggerId = id ?? `${context.baseId}-tab-${value}`;
+    const panelId = `${context.baseId}-panel-${value}`;
 
     return (
       <button
         ref={ref}
         type="button"
         role="tab"
+        id={triggerId}
         aria-selected={isActive}
+        aria-controls={panelId}
         tabIndex={isActive ? 0 : -1}
         data-state={isActive ? "active" : "inactive"}
         disabled={disabled}
@@ -143,9 +149,11 @@ export interface TabsContentProps
   TabsContentSharedProps { }
 
 export const TabsContent = React.forwardRef<HTMLDivElement, TabsContentProps>(
-  ({ children, className, forceMount, value, ...props }, ref) => {
+  ({ children, className, forceMount, id, value, ...props }, ref) => {
     const context = useTabsContext();
     const isActive = context.value === value;
+    const panelId = id ?? `${context.baseId}-panel-${value}`;
+    const triggerId = `${context.baseId}-tab-${value}`;
 
     if (!isActive && !forceMount) {
       return null;
@@ -155,6 +163,8 @@ export const TabsContent = React.forwardRef<HTMLDivElement, TabsContentProps>(
       <div
         ref={ref}
         role="tabpanel"
+        id={panelId}
+        aria-labelledby={triggerId}
         tabIndex={0}
         hidden={!isActive}
         data-state={isActive ? "active" : "inactive"}

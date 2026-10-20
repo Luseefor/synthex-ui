@@ -1,5 +1,28 @@
 import * as React from "react";
 import { cn } from "../_shared/variants";
+import { handleMenuArrowKeys } from "../_shared/a11y.web";
+import {
+  overlayPositionStyle,
+  type OverlayPositionProps,
+} from "../_shared/positioning.web";
+import {
+  DropdownMenuArrow as BaseMenuArrow,
+  DropdownMenuCheckboxItem as BaseMenuCheckboxItem,
+  DropdownMenuRadioGroup as BaseMenuRadioGroup,
+  DropdownMenuRadioItem as BaseMenuRadioItem,
+  DropdownMenuShortcut as BaseMenuShortcut,
+  DropdownMenuSub as BaseMenuSub,
+  DropdownMenuSubContent as BaseMenuSubContent,
+  DropdownMenuSubTrigger as BaseMenuSubTrigger,
+  type DropdownMenuArrowProps as BaseMenuArrowProps,
+  type DropdownMenuCheckboxItemProps as BaseMenuCheckboxItemProps,
+  type DropdownMenuRadioGroupProps as BaseMenuRadioGroupProps,
+  type DropdownMenuRadioItemProps as BaseMenuRadioItemProps,
+  type DropdownMenuShortcutProps as BaseMenuShortcutProps,
+  type DropdownMenuSubContentProps as BaseMenuSubContentProps,
+  type DropdownMenuSubProps as BaseMenuSubProps,
+  type DropdownMenuSubTriggerProps as BaseMenuSubTriggerProps,
+} from "../dropdown-menu/dropdown-menu.web";
 import {
   ContextMenuProvider,
   useContextMenuContext,
@@ -61,19 +84,45 @@ export function ContextMenu({
 
 export const ContextMenuTrigger = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ children, onContextMenu, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> & { asChild?: boolean }
+>(({ children, onContextMenu, asChild, ...props }, ref) => {
   const context = useContextMenuContext();
+
+  const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    context.setPosition({ x: event.clientX, y: event.clientY });
+    context.setOpen(true);
+    onContextMenu?.(event);
+  };
+
+  type AsChildProps = {
+    onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
+    [key: string]: unknown;
+  };
+
+  const triggerA11y = {
+    "aria-haspopup": "menu" as const,
+    "aria-expanded": context.open,
+    "aria-controls": context.contentId,
+  };
+
+  if (asChild && React.isValidElement<AsChildProps>(children)) {
+    return React.cloneElement(children, {
+      ref,
+      ...triggerA11y,
+      ...props,
+      onContextMenu: (e: React.MouseEvent<HTMLDivElement>) => {
+        handleContextMenu(e);
+        children.props.onContextMenu?.(e);
+      },
+    });
+  }
 
   return (
     <div
       ref={ref}
-      onContextMenu={(event) => {
-        event.preventDefault();
-        context.setPosition({ x: event.clientX, y: event.clientY });
-        context.setOpen(true);
-        onContextMenu?.(event);
-      }}
+      {...triggerA11y}
+      onContextMenu={handleContextMenu}
       {...props}
     >
       {children}
@@ -85,26 +134,39 @@ ContextMenuTrigger.displayName = "ContextMenuTrigger";
 
 export const ContextMenuContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, style, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> & OverlayPositionProps
+>(({ align = "start", alignOffset = 0, className, id, onKeyDown, side = "bottom", sideOffset = 0, style, ...props }, ref) => {
   const context = useContextMenuContext();
 
   if (!context.open) {
     return null;
   }
 
+  // Cursor-anchored: side/align select the offset direction; offsets nudge the fixed position.
+  const dx = side === "left" ? -sideOffset : side === "right" ? sideOffset : alignOffset;
+  const dy = side === "top" ? -sideOffset : side === "bottom" ? sideOffset : alignOffset;
+
   return (
     <div
       ref={ref}
+      id={id ?? context.contentId}
       role="menu"
+      tabIndex={-1}
+      data-side={side}
+      data-align={align}
       className={cn(
         "fixed z-[90] min-w-56 rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] p-1.5 shadow-[0_18px_42px_rgba(15,23,42,0.16)]",
         className,
       )}
       style={{
-        left: context.position.x,
-        top: context.position.y,
+        left: context.position.x + dx,
+        top: context.position.y + dy,
         ...style,
+      }}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        if (event.defaultPrevented) return;
+        handleMenuArrowKeys(event);
       }}
       {...props}
     />
@@ -135,6 +197,7 @@ export const ContextMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
+    role="separator"
     className={cn("my-1 h-px bg-[color:var(--sx-color-border)]", className)}
     {...props}
   />
@@ -169,3 +232,49 @@ export const ContextMenuItem = React.forwardRef<
 });
 
 ContextMenuItem.displayName = "ContextMenuItem";
+
+export type ContextMenuSubProps = BaseMenuSubProps;
+export function ContextMenuSub(props: ContextMenuSubProps) {
+  return <BaseMenuSub {...props} />;
+}
+
+export type ContextMenuSubTriggerProps = BaseMenuSubTriggerProps;
+export const ContextMenuSubTrigger = React.forwardRef<HTMLButtonElement, ContextMenuSubTriggerProps>(
+  (props, ref) => <BaseMenuSubTrigger ref={ref} {...props} />,
+);
+ContextMenuSubTrigger.displayName = "ContextMenuSubTrigger";
+
+export type ContextMenuSubContentProps = BaseMenuSubContentProps;
+export const ContextMenuSubContent = React.forwardRef<HTMLDivElement, ContextMenuSubContentProps>(
+  (props, ref) => <BaseMenuSubContent ref={ref} {...props} />,
+);
+ContextMenuSubContent.displayName = "ContextMenuSubContent";
+
+export type ContextMenuCheckboxItemProps = BaseMenuCheckboxItemProps;
+export const ContextMenuCheckboxItem = React.forwardRef<HTMLButtonElement, ContextMenuCheckboxItemProps>(
+  (props, ref) => <BaseMenuCheckboxItem ref={ref} {...props} />,
+);
+ContextMenuCheckboxItem.displayName = "ContextMenuCheckboxItem";
+
+export type ContextMenuRadioGroupProps = BaseMenuRadioGroupProps;
+export function ContextMenuRadioGroup(props: ContextMenuRadioGroupProps) {
+  return <BaseMenuRadioGroup {...props} />;
+}
+
+export type ContextMenuRadioItemProps = BaseMenuRadioItemProps;
+export const ContextMenuRadioItem = React.forwardRef<HTMLButtonElement, ContextMenuRadioItemProps>(
+  (props, ref) => <BaseMenuRadioItem ref={ref} {...props} />,
+);
+ContextMenuRadioItem.displayName = "ContextMenuRadioItem";
+
+export type ContextMenuShortcutProps = BaseMenuShortcutProps;
+export const ContextMenuShortcut = React.forwardRef<HTMLSpanElement, ContextMenuShortcutProps>(
+  (props, ref) => <BaseMenuShortcut ref={ref} {...props} />,
+);
+ContextMenuShortcut.displayName = "ContextMenuShortcut";
+
+export type ContextMenuArrowProps = BaseMenuArrowProps;
+export const ContextMenuArrow = React.forwardRef<HTMLDivElement, ContextMenuArrowProps>(
+  (props, ref) => <BaseMenuArrow ref={ref} {...props} />,
+);
+ContextMenuArrow.displayName = "ContextMenuArrow";

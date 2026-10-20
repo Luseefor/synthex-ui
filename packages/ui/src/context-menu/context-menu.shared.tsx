@@ -1,4 +1,15 @@
 import * as React from "react";
+import type {
+  DropdownMenuCheckboxItemSharedProps,
+  DropdownMenuRadioGroupSharedProps,
+  DropdownMenuRadioItemSharedProps,
+  DropdownMenuSubSharedProps,
+} from "../dropdown-menu/dropdown-menu.shared";
+
+export type ContextMenuSubSharedProps = DropdownMenuSubSharedProps;
+export type ContextMenuCheckboxItemSharedProps = DropdownMenuCheckboxItemSharedProps;
+export type ContextMenuRadioGroupSharedProps = DropdownMenuRadioGroupSharedProps;
+export type ContextMenuRadioItemSharedProps = DropdownMenuRadioItemSharedProps;
 
 interface ContextMenuPosition {
   readonly x: number;
@@ -10,6 +21,7 @@ interface ContextMenuContextValue {
   readonly position: ContextMenuPosition;
   readonly setOpen: (open: boolean) => void;
   readonly setPosition: (position: ContextMenuPosition) => void;
+  readonly contentId: string;
 }
 
 const ContextMenuContext = React.createContext<ContextMenuContextValue | null>(null);
@@ -28,6 +40,8 @@ export function useContextMenuController({
   const [internalOpen, setInternalOpen] = React.useState(defaultOpen);
   const [position, setPosition] = React.useState<ContextMenuPosition>({ x: 0, y: 0 });
   const currentOpen = open ?? internalOpen;
+  const rawContentId = React.useId();
+  const contentId = React.useMemo(() => `sx-context-menu-${rawContentId.replace(/:/g, "")}`, [rawContentId]);
 
   return React.useMemo<ContextMenuContextValue>(
     () => ({
@@ -41,8 +55,9 @@ export function useContextMenuController({
         onOpenChange?.(nextOpen);
       },
       setPosition,
+      contentId,
     }),
-    [currentOpen, onOpenChange, open, position],
+    [currentOpen, onOpenChange, open, position, contentId],
   );
 }
 

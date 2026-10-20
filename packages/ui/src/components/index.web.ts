@@ -294,6 +294,7 @@ export {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
+  NavigationMenuViewport,
 } from "../navigation-menu/navigation-menu.web";
 export type {
   NavigationMenuItemSharedProps,

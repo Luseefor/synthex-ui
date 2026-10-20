@@ -9,6 +9,9 @@ interface AccordionContextValue {
 
 interface AccordionItemContextValue {
   readonly value: string;
+  readonly disabled: boolean;
+  readonly contentId?: string;
+  readonly triggerId?: string;
 }
 
 const AccordionContext = React.createContext<AccordionContextValue | null>(null);
@@ -24,6 +27,7 @@ export interface AccordionSharedProps {
 
 export interface AccordionItemSharedProps {
   readonly value: string;
+  readonly disabled?: boolean;
 }
 
 export function useAccordionController({

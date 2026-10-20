@@ -1,6 +1,11 @@
 import * as React from "react";
 import { cn } from "../_shared/variants";
 import {
+  overlayPositionClasses,
+  overlayPositionStyle,
+  type OverlayPositionProps,
+} from "../_shared/positioning.web";
+import {
   TooltipProvider,
   useTooltipContext,
   useTooltipController,
@@ -38,42 +43,56 @@ export const TooltipTrigger = React.forwardRef<
 >(({ children, onBlur, onFocus, onMouseEnter, onMouseLeave, asChild, ...props }, ref) => {
   const context = useTooltipContext();
 
-  const handleFocus = (event: any) => {
+  const handleFocus = (event: React.FocusEvent<HTMLSpanElement>) => {
     context.setOpen(true);
     onFocus?.(event);
   };
-  const handleBlur = (event: any) => {
+  const handleBlur = (event: React.FocusEvent<HTMLSpanElement>) => {
     context.setOpen(false);
     onBlur?.(event);
   };
-  const handleMouseEnter = (event: any) => {
+  const handleMouseEnter = (event: React.MouseEvent<HTMLSpanElement>) => {
     context.setOpen(true);
     onMouseEnter?.(event);
   };
-  const handleMouseLeave = (event: any) => {
+  const handleMouseLeave = (event: React.MouseEvent<HTMLSpanElement>) => {
     context.setOpen(false);
     onMouseLeave?.(event);
   };
 
-  if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
+  type AsChildProps = {
+    onFocus?: (event: React.FocusEvent<HTMLSpanElement>) => void;
+    onBlur?: (event: React.FocusEvent<HTMLSpanElement>) => void;
+    onMouseEnter?: (event: React.MouseEvent<HTMLSpanElement>) => void;
+    onMouseLeave?: (event: React.MouseEvent<HTMLSpanElement>) => void;
+    [key: string]: unknown;
+  };
+
+  const triggerA11y = {
+    id: (props as { id?: string }).id ?? context.triggerId,
+    "aria-describedby": context.open ? context.contentId : undefined,
+  };
+
+  if (asChild && React.isValidElement<AsChildProps>(children)) {
+    return React.cloneElement(children, {
       ref,
+      ...triggerA11y,
       ...props,
-      onFocus: (e: any) => {
+      onFocus: (e: React.FocusEvent<HTMLSpanElement>) => {
         handleFocus(e);
-        (children.props as any).onFocus?.(e);
+        children.props.onFocus?.(e);
       },
-      onBlur: (e: any) => {
+      onBlur: (e: React.FocusEvent<HTMLSpanElement>) => {
         handleBlur(e);
-        (children.props as any).onBlur?.(e);
+        children.props.onBlur?.(e);
       },
-      onMouseEnter: (e: any) => {
+      onMouseEnter: (e: React.MouseEvent<HTMLSpanElement>) => {
         handleMouseEnter(e);
-        (children.props as any).onMouseEnter?.(e);
+        children.props.onMouseEnter?.(e);
       },
-      onMouseLeave: (e: any) => {
+      onMouseLeave: (e: React.MouseEvent<HTMLSpanElement>) => {
         handleMouseLeave(e);
-        (children.props as any).onMouseLeave?.(e);
+        children.props.onMouseLeave?.(e);
       },
     });
   }
@@ -82,6 +101,7 @@ export const TooltipTrigger = React.forwardRef<
     <span
       ref={ref}
       tabIndex={0}
+      {...triggerA11y}
       onFocus={handleFocus}
       onBlur={handleBlur}
       onMouseEnter={handleMouseEnter}
@@ -97,8 +117,8 @@ TooltipTrigger.displayName = "TooltipTrigger";
 
 export const TooltipContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> & OverlayPositionProps
+>(({ align = "center", alignOffset = 0, className, id, side = "bottom", sideOffset = 0, style, ...props }, ref) => {
   const context = useTooltipContext();
 
   if (!context.open) {
@@ -108,11 +128,16 @@ export const TooltipContent = React.forwardRef<
   return (
     <div
       ref={ref}
+      id={id ?? context.contentId}
       role="tooltip"
+      data-side={side}
+      data-align={align}
       className={cn(
-        "absolute left-1/2 top-[calc(100%+0.5rem)] z-50 -translate-x-1/2 rounded-[var(--sx-radius-md)] bg-[color:#0f172a] px-3 py-2 text-xs font-medium text-white shadow-[0_16px_36px_rgba(15,23,42,0.24)]",
+        "absolute z-50 rounded-[var(--sx-radius-md)] bg-[color:#0f172a] px-3 py-2 text-xs font-medium text-white shadow-[0_16px_36px_rgba(15,23,42,0.24)]",
+        overlayPositionClasses(side, align),
         className,
       )}
+      style={{ ...overlayPositionStyle(side, sideOffset, alignOffset), ...style }}
       {...props}
     />
   );

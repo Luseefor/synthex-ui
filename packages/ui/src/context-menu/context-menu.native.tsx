@@ -3,6 +3,7 @@ import {
   Pressable,
   Text,
   View,
+  type GestureResponderEvent,
   type PressableProps,
   type StyleProp,
   type TextStyle,
@@ -10,12 +11,31 @@ import {
   type ViewStyle,
 } from "react-native";
 import { useTheme } from "../_shared/theme/context";
+import type { OverlayPositionProps } from "../_shared/positioning";
 import {
   ContextMenuProvider,
   useContextMenuContext,
   useContextMenuController,
   type ContextMenuSharedProps,
 } from "./context-menu.shared";
+import {
+  DropdownMenuArrow as BaseMenuArrow,
+  DropdownMenuCheckboxItem as BaseMenuCheckboxItem,
+  DropdownMenuRadioGroup as BaseMenuRadioGroup,
+  DropdownMenuRadioItem as BaseMenuRadioItem,
+  DropdownMenuShortcut as BaseMenuShortcut,
+  DropdownMenuSub as BaseMenuSub,
+  DropdownMenuSubContent as BaseMenuSubContent,
+  DropdownMenuSubTrigger as BaseMenuSubTrigger,
+  type DropdownMenuArrowProps as BaseMenuArrowProps,
+  type DropdownMenuCheckboxItemProps as BaseMenuCheckboxItemProps,
+  type DropdownMenuRadioGroupProps as BaseMenuRadioGroupProps,
+  type DropdownMenuRadioItemProps as BaseMenuRadioItemProps,
+  type DropdownMenuShortcutProps as BaseMenuShortcutProps,
+  type DropdownMenuSubContentProps as BaseMenuSubContentProps,
+  type DropdownMenuSubProps as BaseMenuSubProps,
+  type DropdownMenuSubTriggerProps as BaseMenuSubTriggerProps,
+} from "../dropdown-menu/dropdown-menu.native";
 
 export interface ContextMenuProps
   extends Omit<ViewProps, "children" | "style">,
@@ -46,13 +66,31 @@ export function ContextMenu({
 export interface ContextMenuTriggerProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
+  readonly asChild?: boolean;
 }
 
 export const ContextMenuTrigger = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   ContextMenuTriggerProps
->(({ children, onLongPress, style, ...props }, ref) => {
+>(({ children, onLongPress, style, asChild, ...props }, ref) => {
   const context = useContextMenuContext();
+
+  type AsChildProps = {
+    onLongPress?: ((event: GestureResponderEvent) => void) | null;
+    [key: string]: unknown;
+  };
+
+  if (asChild && React.isValidElement<AsChildProps>(children)) {
+    return React.cloneElement(children, {
+      ref,
+      ...props,
+      onLongPress: (e: GestureResponderEvent) => {
+        context.setOpen(true);
+        onLongPress?.(e);
+        children.props.onLongPress?.(e);
+      },
+    });
+  }
 
   return (
     <Pressable
@@ -71,14 +109,15 @@ export const ContextMenuTrigger = React.forwardRef<
 
 ContextMenuTrigger.displayName = "ContextMenuTrigger";
 
-export interface ContextMenuContentProps extends Omit<ViewProps, "style"> {
+export interface ContextMenuContentProps extends Omit<ViewProps, "style">, OverlayPositionProps {
   readonly style?: StyleProp<ViewStyle>;
 }
 
+// Native renders in normal flow; side/align/sideOffset/alignOffset are accepted for API parity and ignored.
 export const ContextMenuContent = React.forwardRef<
   React.ElementRef<typeof View>,
   ContextMenuContentProps
->(({ style, ...props }, ref) => {
+>(({ align, alignOffset, side, sideOffset, style, ...props }, ref) => {
   const context = useContextMenuContext();
   const theme = useTheme();
 
@@ -219,3 +258,55 @@ export const ContextMenuItem = React.forwardRef<
 });
 
 ContextMenuItem.displayName = "ContextMenuItem";
+
+export type ContextMenuSubProps = BaseMenuSubProps;
+export function ContextMenuSub(props: ContextMenuSubProps) {
+  return <BaseMenuSub {...props} />;
+}
+
+export type ContextMenuSubTriggerProps = BaseMenuSubTriggerProps;
+export const ContextMenuSubTrigger = React.forwardRef<
+  React.ElementRef<typeof BaseMenuSubTrigger>,
+  ContextMenuSubTriggerProps
+>((props, ref) => <BaseMenuSubTrigger ref={ref} {...props} />);
+ContextMenuSubTrigger.displayName = "ContextMenuSubTrigger";
+
+export type ContextMenuSubContentProps = BaseMenuSubContentProps;
+export const ContextMenuSubContent = React.forwardRef<
+  React.ElementRef<typeof BaseMenuSubContent>,
+  ContextMenuSubContentProps
+>((props, ref) => <BaseMenuSubContent ref={ref} {...props} />);
+ContextMenuSubContent.displayName = "ContextMenuSubContent";
+
+export type ContextMenuCheckboxItemProps = BaseMenuCheckboxItemProps;
+export const ContextMenuCheckboxItem = React.forwardRef<
+  React.ElementRef<typeof BaseMenuCheckboxItem>,
+  ContextMenuCheckboxItemProps
+>((props, ref) => <BaseMenuCheckboxItem ref={ref} {...props} />);
+ContextMenuCheckboxItem.displayName = "ContextMenuCheckboxItem";
+
+export type ContextMenuRadioGroupProps = BaseMenuRadioGroupProps;
+export function ContextMenuRadioGroup(props: ContextMenuRadioGroupProps) {
+  return <BaseMenuRadioGroup {...props} />;
+}
+
+export type ContextMenuRadioItemProps = BaseMenuRadioItemProps;
+export const ContextMenuRadioItem = React.forwardRef<
+  React.ElementRef<typeof BaseMenuRadioItem>,
+  ContextMenuRadioItemProps
+>((props, ref) => <BaseMenuRadioItem ref={ref} {...props} />);
+ContextMenuRadioItem.displayName = "ContextMenuRadioItem";
+
+export type ContextMenuShortcutProps = BaseMenuShortcutProps;
+export const ContextMenuShortcut = React.forwardRef<
+  React.ElementRef<typeof BaseMenuShortcut>,
+  ContextMenuShortcutProps
+>((props, ref) => <BaseMenuShortcut ref={ref} {...props} />);
+ContextMenuShortcut.displayName = "ContextMenuShortcut";
+
+export type ContextMenuArrowProps = BaseMenuArrowProps;
+export const ContextMenuArrow = React.forwardRef<
+  React.ElementRef<typeof BaseMenuArrow>,
+  ContextMenuArrowProps
+>((props, ref) => <BaseMenuArrow ref={ref} {...props} />);
+ContextMenuArrow.displayName = "ContextMenuArrow";
