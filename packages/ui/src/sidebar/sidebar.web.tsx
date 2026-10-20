@@ -70,8 +70,8 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
           <div
             ref={ref}
             className={cn(
-              "fixed inset-y-0 left-0 z-50 flex h-[100dvh] w-[min(18rem,calc(100vw-1.5rem))] flex-col border-r border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] shadow-[0_20px_48px_rgba(15,23,42,0.28)] transition-transform duration-200",
-              open ? "translate-x-0" : "-translate-x-full",
+              "fixed inset-y-0 start-0 z-50 flex h-[100dvh] w-[min(18rem,calc(100vw-1.5rem))] flex-col border-e border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] shadow-[0_20px_48px_rgba(15,23,42,0.28)] transition-transform duration-200",
+              open ? "translate-x-0" : "-translate-x-full rtl:translate-x-full",
               className
             )}
             data-state={open ? "open" : "closed"}
@@ -87,7 +87,7 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
       <aside
         ref={ref}
         className={cn(
-          "group/sidebar sticky top-0 z-10 flex h-svh flex-col border-r border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] transition-[width] duration-200 ease-linear",
+          "group/sidebar sticky top-0 z-10 flex h-svh flex-col border-e border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] transition-[width] duration-200 ease-linear",
           open ? "w-[16rem]" : "w-[3rem]",
           className
         )}
@@ -225,7 +225,7 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
         ref={ref}
         aria-label={props["aria-label"] ?? (!open ? stringChildren ?? undefined : undefined)}
         className={cn(
-          "flex min-h-8 w-full items-center gap-2 overflow-hidden rounded-[var(--sx-radius-md)] py-1.5 text-left text-sm transition-[background-color,color,padding] duration-200",
+          "flex min-h-8 w-full items-center gap-2 overflow-hidden rounded-[var(--sx-radius-md)] py-1.5 text-start text-sm transition-[background-color,color,padding] duration-200",
           active
             ? "bg-[color:var(--sx-color-accent)] text-[color:var(--sx-color-foreground)] font-medium"
             : "text-[color:var(--sx-color-foreground-muted)] font-normal hover:bg-[color:var(--sx-color-accent)] hover:text-[color:var(--sx-color-foreground)]",

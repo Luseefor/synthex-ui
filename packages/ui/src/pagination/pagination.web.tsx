@@ -66,7 +66,7 @@ export const PaginationPrevious = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement>
 >(({ children = "Previous", className, ...props }, ref) => (
-  <PaginationLink ref={ref} className={cn("gap-2 pl-3.5 pr-4", className)} {...props}>
+  <PaginationLink ref={ref} className={cn("gap-2 ps-3.5 pe-4", className)} {...props}>
     <ChevronLeftIcon size={16} />
     {children}
   </PaginationLink>
@@ -78,7 +78,7 @@ export const PaginationNext = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement>
 >(({ children = "Next", className, ...props }, ref) => (
-  <PaginationLink ref={ref} className={cn("gap-2 pl-4 pr-3.5", className)} {...props}>
+  <PaginationLink ref={ref} className={cn("gap-2 ps-4 pe-3.5", className)} {...props}>
     {children}
     <ChevronRightIcon size={16} />
   </PaginationLink>
