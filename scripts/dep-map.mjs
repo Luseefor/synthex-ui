@@ -1,0 +1,241 @@
+#!/usr/bin/env node
+// Maps each packages/ui/src component to its minimal third-party runtime deps.
+// Parses per-file imports (file-level BFS through relative imports) so transitive
+// deps are included (e.g. date-picker -> calendar -> react-day-picker).
+// Writes docs/install.md. Usage: node scripts/dep-map.mjs
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const rootDir = path.resolve(here, "..");
+const srcDir = path.join(rootDir, "packages/ui/src");
+const pkgPath = path.join(rootDir, "packages/ui/package.json");
+const outPath = path.join(rootDir, "docs/install.md");
+
+function toPackageName(spec) {
+  if (spec.startsWith("@")) {
+    const parts = spec.split("/");
+    return parts.length >= 2 ? `${parts[0]}/${parts[1]}` : spec;
+  }
+  return spec.split("/")[0] ?? spec;
+}
+
+function isTestFile(absPath) {
+  const base = path.basename(absPath);
+  return (
+    base.includes(".test.") || base.includes(".spec.") || absPath.includes("__tests__")
+  );
+}
+
+function listSourceFiles(dir) {
+  const out = [];
+  const walk = (d) => {
+    for (const entry of readdirSync(d, { withFileTypes: true })) {
+      const full = path.join(d, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+      } else if (entry.isFile()) {
+        if (!/\.(mjs|cjs|js|jsx|ts|tsx)$/.test(entry.name)) continue;
+        if (isTestFile(full)) continue;
+        out.push(full);
+      }
+    }
+  };
+  walk(dir);
+  return out.sort((a, b) => a.localeCompare(b));
+}
+
+function resolveRelative(importerAbs, spec) {
+  const base = path.resolve(path.dirname(importerAbs), spec);
+  const candidates = [
+    base,
+    `${base}.ts`,
+    `${base}.tsx`,
+    `${base}.js`,
+    `${base}.jsx`,
+    `${base}.mjs`,
+    `${base}.cjs`,
+    path.join(base, "index.ts"),
+    path.join(base, "index.tsx"),
+  ];
+  for (const c of candidates) {
+    try {
+      if (existsSync(c) && statSync(c).isFile()) return path.normalize(c);
+    } catch {
+      // ignore
+    }
+  }
+  return null;
+}
+
+const importFromRe = /from\s+['"]([^'"]+)['"]/g;
+const sideEffectRe = /import\s+['"]([^'"]+)['"]/g;
+const dynamicRe = /import\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+
+const fileCache = new Map();
+
+function parseFile(absPath, runtimeDeps) {
+  const cached = fileCache.get(absPath);
+  if (cached) return cached;
+  let content = "";
+  try {
+    content = readFileSync(absPath, "utf8");
+  } catch {
+    const empty = { externals: new Set(), internals: [] };
+    fileCache.set(absPath, empty);
+    return empty;
+  }
+  const specs = [];
+  for (const re of [importFromRe, sideEffectRe, dynamicRe]) {
+    re.lastIndex = 0;
+    let m;
+    while ((m = re.exec(content)) !== null) {
+      if (m[1]) specs.push(m[1]);
+    }
+  }
+  const externals = new Set();
+  const internals = [];
+  for (const spec of specs) {
+    if (spec.startsWith(".")) {
+      const resolved = resolveRelative(absPath, spec);
+      if (resolved) internals.push(resolved);
+      continue;
+    }
+    if (spec.startsWith("node:") || spec === "node:test") continue;
+    const pkg = toPackageName(spec);
+    if (runtimeDeps.has(pkg)) externals.add(pkg);
+  }
+  const result = { externals, internals };
+  fileCache.set(absPath, result);
+  return result;
+}
+
+function computeTransitive(seeds, runtimeDeps) {
+  const visited = new Set();
+  const queue = [...seeds];
+  const external = new Set();
+  while (queue.length > 0) {
+    const file = queue.pop();
+    if (visited.has(file)) continue;
+    visited.add(file);
+    const { externals, internals } = parseFile(file, runtimeDeps);
+    for (const e of externals) external.add(e);
+    for (const i of internals) {
+      if (!visited.has(i)) queue.push(i);
+    }
+  }
+  return [...external].sort((a, b) => a.localeCompare(b));
+}
+
+const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
+const depVersions = pkg.dependencies ?? {};
+const runtimeDeps = new Set(Object.keys(depVersions));
+
+const dirNames = readdirSync(srcDir, { withFileTypes: true })
+  .filter((e) => e.isDirectory())
+  .map((e) => e.name)
+  .sort((a, b) => a.localeCompare(b));
+
+const rows = dirNames.map((name) => {
+  const seeds = listSourceFiles(path.join(srcDir, name));
+  const deps = computeTransitive(seeds, runtimeDeps);
+  return { name, deps };
+});
+
+const totalDeps = runtimeDeps.size;
+const radixCount = [...runtimeDeps].filter((d) => d.startsWith("@radix-ui/")).length;
+
+function installCommand(deps) {
+  if (deps.length === 0) return null;
+  const pinned = deps.map((d) => `${d}@${depVersions[d] ?? "latest"}`);
+  return `bun add ${pinned.join(" ")}`;
+}
+
+const heaviest = [...rows]
+  .filter((r) => r.name !== "components" && r.name !== "dashboard" && !r.name.startsWith("_"))
+  .sort((a, b) => b.deps.length - a.deps.length || a.name.localeCompare(b.name));
+
+const lines = [];
+lines.push("# Install map");
+lines.push("");
+lines.push(
+  "> Generated by `node scripts/dep-map.mjs`. Do not edit by hand — re-run the script.",
+);
+lines.push("");
+lines.push(
+  `Installing \`synthex-ui\` pulls **${totalDeps} runtime dependencies** ` +
+    `(${radixCount} Radix primitives + TanStack Table, recharts, embla-carousel-react, ` +
+    `vaul, react-day-picker, cmdk, react-hook-form, sonner, react-resizable-panels, ` +
+    `input-otp, class-variance-authority, clsx, tailwind-merge). ` +
+    `Most apps only need a handful. Use the table below for the minimal per-component install.`,
+);
+lines.push("");
+lines.push("Peer dependencies (`react`, `react-dom` / `react-native`, `lucide-react`) are assumed present and are not listed per component.");
+lines.push("");
+lines.push("## Component dependency table");
+lines.push("");
+lines.push("| Component | Required runtime deps | Minimal install |");
+lines.push("| --- | --- | --- |");
+for (const { name, deps } of rows) {
+  const depCell = deps.length === 0 ? "— (base only)" : deps.map((d) => `\`${d}\``).join(", ");
+  const cmd = installCommand(deps);
+  const cmdCell = cmd === null ? "No extra install" : `\`${cmd}\``;
+  lines.push(`| \`${name}\` | ${depCell} | ${cmdCell} |`);
+}
+lines.push("");
+lines.push("## Heaviest single-component chains");
+lines.push("");
+lines.push(
+  "Ranked by transitive runtime dep count (excluding the `components` / `dashboard` barrels, " +
+    "which re-export everything and weigh the full 39).",
+);
+lines.push("");
+for (const { name, deps } of heaviest.slice(0, 10)) {
+  lines.push(`- \`${name}\` — ${deps.length} dep${deps.length === 1 ? "" : "s"}: ${deps.map((d) => `\`${d}\``).join(", ") || "—"}`);
+}
+lines.push("");
+lines.push("Notes on the heaviest chains:");
+const top = heaviest[0];
+const topTied = top ? heaviest.filter((r) => r.deps.length === top.deps.length) : [];
+if (top) {
+  const tiedNames = topTied.map((r) => `\`${r.name}\``).join(" and ");
+  lines.push(
+    `- Heaviest non-barrel component${topTied.length > 1 ? "s" : ""}: ${tiedNames} with ${top.deps.length} runtime deps each.`,
+  );
+}
+const fiveDep = heaviest.filter((r) => r.deps.length === 5).map((r) => `\`${r.name}\``);
+if (fiveDep.length > 0) {
+  lines.push(
+    `- 5-dep group (${fiveDep.length}): ${fiveDep.join(", ")} — each is one Radix/heavy dep plus base styling, or two Radix primitives plus base styling.`,
+  );
+}
+lines.push(
+  "- `toast` pairs Radix Toast with `sonner` plus base styling; `form` pairs Radix Label + Radix Slot with `react-hook-form` plus base styling.",
+);
+lines.push(
+  "- Base styling (`class-variance-authority`, `clsx`, `tailwind-merge`) comes from `_shared/variants` (`cn()`/`cva`) and is included transitively wherever a component styles via `cn`.",
+);
+lines.push(
+  "- `date-picker` has zero *direct* runtime imports but resolves to 5 transitive deps via `calendar` (`react-day-picker`) and `popover` (`@radix-ui/react-popover`). Direct-only parsing would miss this — the script follows relative imports file-by-file.",
+);
+lines.push("");
+lines.push("## Methodology");
+lines.push("");
+lines.push(
+  "- `scripts/dep-map.mjs` walks every non-test source file under `packages/ui/src/<component>/`,",
+);
+lines.push("  collects `from \"…\"` / side-effect / dynamic `import(\"…\")` specifiers,");
+lines.push("  resolves relative imports to their target files (including into `_shared`, `hooks`, `icons`, and sibling components),");
+lines.push("  and accumulates only specifiers present in `packages/ui/package.json#dependencies`.");
+lines.push("- Test files (`*.test.*`, `*.spec.*`, `__tests__`), `node:` builtins, and peer deps are ignored.");
+lines.push("- Versions in the install commands are pinned from `dependencies` at generation time.");
+lines.push("");
+
+writeFileSync(outPath, `${lines.join("\n")}`);
+console.log(`Wrote ${outPath} with ${rows.length} components (${totalDeps} runtime deps).`);
+const top5 = heaviest
+  .slice(0, 5)
+  .map((r) => `${r.name} (${r.deps.length})`)
+  .join(", ");
+console.log(`Heaviest non-barrel chains: ${top5}.`);
