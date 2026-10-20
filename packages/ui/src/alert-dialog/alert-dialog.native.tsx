@@ -15,14 +15,19 @@ import { Button, type ButtonProps } from "../button/button.native";
 
 export { AlertDialog, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger };
 
+export interface AlertDialogContentProps extends DialogContentProps {
+  readonly hideClose?: boolean;
+}
+
 export const AlertDialogCancel = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   ButtonProps
->(({ onPress, variant = "outline", style, ...props }, ref) => {
+>(({ onPress, testID, variant = "outline", style, ...props }, ref) => {
   const context = useDialogContext();
   return (
     <Button
       ref={ref}
+      testID={testID ?? "alert-dialog-cancel"}
       variant={variant}
       style={[{ marginTop: 8 }, style] as any}
       onPress={(event) => {
@@ -38,11 +43,12 @@ AlertDialogCancel.displayName = "AlertDialogCancel";
 export const AlertDialogAction = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   ButtonProps
->(({ onPress, variant = "destructive", ...props }, ref) => {
+>(({ onPress, testID, variant = "destructive", ...props }, ref) => {
   const context = useDialogContext();
   return (
     <Button
       ref={ref}
+      testID={testID ?? "alert-dialog-action"}
       variant={variant}
       onPress={(event) => {
         context.setOpen(false);
@@ -54,9 +60,15 @@ export const AlertDialogAction = React.forwardRef<
 });
 AlertDialogAction.displayName = "AlertDialogAction";
 
-export const AlertDialogContent = React.forwardRef<React.ElementRef<typeof View>, DialogContentProps>(
-  ({ dismissible = false, ...props }, ref) => (
-    <BaseContent ref={ref} dismissible={dismissible} {...props} />
+export const AlertDialogContent = React.forwardRef<React.ElementRef<typeof View>, AlertDialogContentProps>(
+  ({ dismissible = false, hideClose = true, testID, ...props }, ref) => (
+    <BaseContent
+      ref={ref}
+      dismissible={dismissible}
+      hideClose={hideClose}
+      testID={testID ?? "alert-dialog-content"}
+      {...props}
+    />
   ),
 );
 AlertDialogContent.displayName = "AlertDialogContent";
