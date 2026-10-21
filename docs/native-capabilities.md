@@ -1,7 +1,7 @@
 # Native capabilities
 
-Scope: `synthex-ui` native (`react-native` condition) vs web, branch `ace/native-otp`
-stacked on OPEN PR #125 (`ace/native-overlays`), unreleased source in this checkout
+Scope: `synthex-ui` native (`react-native` condition) vs web, branch `ace/native-slider`
+stacked on OPEN PR #126 (`ace/native-otp`), unreleased source in this checkout
 (packed Expo checks pass, device evidence is pending).
 Method: read every `packages/ui/src/*/*.native.tsx|ts` + `index.native.ts`, `package.json` exports,
 `native-exports.test.ts`, the mocked native tests, `packages/ui/src/_shared/overlay.native.tsx`,
@@ -9,8 +9,9 @@ Method: read every `packages/ui/src/*/*.native.tsx|ts` + `index.native.ts`, `pac
 and `packages/ui/src/input-otp/input-otp.edit.ts` + `input-otp.shared.tsx` for the OTP contract.
 No device run (devices/computer-use disabled). This is an implementation inventory, not a claim
 of complete web/native parity.
-See [device validation](./native-device-validation.md) for a runnable packed Expo fixture
-and [native OTP](./native-otp.md) for the one-time-code contract.
+See [device validation](./native-device-validation.md) for a runnable packed Expo fixture,
+[native OTP](./native-otp.md) for the one-time-code contract, and
+[native slider](./native-slider.md) for the slider contract.
 
 ## What each evidence tier means
 
@@ -109,7 +110,7 @@ applies to custom native themes.
 | sheet | `Modal` pattern shared with dialog; `side` prop styles placement; `modal` ignored (`sheet/sheet.native.tsx`) | Side variants are positional styles inside one Modal; no swipe-to-close | typecheck only |
 | sidebar | `SidebarProvider{open state}` + fixed `width: open?288:88` View + `ScrollView` content (`sidebar/sidebar.native.tsx`) | No `collapsible=offcanvas/icon` modes, no sheet-on-mobile, no keyboard shortcut; `SidebarRail` is a static bar | typecheck only |
 | skeleton | Static `View` block (`skeleton/skeleton.native.tsx`) | No shimmer/pulse animation | typecheck only |
-| slider | `Pressable` track, tap-to-set via `locationX/Y`, thumbs are absolute Views; `onValueCommit` fired; no drag gesture (`slider/slider.native.tsx`) | Tap-only (no PanResponder drag); `accessibilityValue.now=values[0]` ignores multi-thumb; vertical uses same handler mirrored | typecheck only |
+| slider | Root `Pressable` track (ref/tap retained) + parent `PanResponder` drag past 4pt single-finger axis intent; nearest thumb fixed per gesture with no-cross clamp; per-thumb adjustable actions (`slider/slider.native.tsx` + math); see [native slider](./native-slider.md) | No `minStepsBetweenThumbs`; track measure paired with responder page coords (device frame/`ScrollView` negotiation pending); VoiceOver/TalkBack announcements pending | mocked contract tests; `native:check` bundles; device checks pending |
 | switch | `Pressable` track + translating thumb `View`; `name/required` ignored (`switch/switch.native.tsx`) | Custom Pressable, not RN `Switch` (no native haptics/settings integration); form props inert | `switch.contract.native.test.tsx` (mocked) |
 | synthex blocks (`ThemeAccentSwitcher/AssistantChatPanel/FloatingAssistantLauncher/CadenceBarChart/Marquee/KPIStatGrid/TimelineRow/ExperienceTimeline/ProjectCaseRow/ContactSplitForm/DungeonHUDShell`) | RN Views/Text/ScrollView/Animated (`Animated.loop/timing`, `Linking`); `Marquee` duplicates items + `translateX` loop honoring `useReducedMotion` (`synthex/synthex.native.tsx`) | Marketing/demo blocks, not shadcn parity targets; charts are simplified bars; chat/launcher are styled Views with no network; animation curves differ from web CSS | typecheck only; no native tests |
 | table | `ScrollView{horizontal}` + `View` sections; string/number cells auto-wrapped in `Text` (`table/table.native.tsx`) | No `table` semantics, no sticky header, horizontal-only scroll container | typecheck only |
@@ -168,9 +169,13 @@ via `NativeOverlayProvider`/`NativeDirectionContext`. Each remaining listed prop
   this gap: on `ace/native-overlays` they use the shared anchored transparent-`Modal` layer
   (`_shared/overlay.native.tsx` + `positioning.native.ts`) with flip/clamp/shrink and outside/system
   dismissal; dropdown sub-menus stay inline `View`s inside the modal surface (no nested modal per submenu).
-- **G5 — Slider is tap-only; multi-thumb value misreported** (`slider/slider.native.tsx` + tail).
-  Only `onPress(locationX/Y)` updates; no drag gesture, so thumbs cannot be dragged. `accessibilityValue`
-  reports `values[0]` even for range sliders, and VoiceOver adjustable actions are not wired.
+- **G5 (narrowed) — Slider device validation remains pending** (`slider/slider.native.tsx` + math).
+  Tap, drag with fixed thumb identity and no-cross clamp, per-thumb adjustable actions,
+  direction/inverted handling, and controlled commit semantics are implemented and covered
+  by source + mocked-host tests. Drag beyond the track, `ScrollView` negotiation, RTL/vertical/inverted
+  axes, range overlap identity, labels/actions under large fonts and disable, ref/controlled behavior,
+  and the owned copy require the [device checklist](./native-device-validation.md). See the
+  [native slider contract](./native-slider.md).
 
 ## Broader device checklist (pending — none run here)
 
@@ -182,7 +187,7 @@ via `NativeOverlayProvider`/`NativeDirectionContext`. Each remaining listed prop
    Sheet/Drawer limits are unchanged by this stage: sheet `side` variants are positional styles
    inside one Modal with no swipe-to-close; drawer is always bottom-presented (`direction` silently
    ignored), no gesture drag-to-dismiss, no snap points. Shared overlay changes do not alter them.
-3. Gesture families: carousel swipe (currently absent — confirm expected UX), slider drag, resizable
+3. Gesture families: carousel swipe (currently absent — confirm expected UX), slider drag (implemented in source, device pending — see [native slider](./native-slider.md)), resizable
    drag (currently no-op), drawer swipe-to-close, tooltip press-hold vs hover, context-menu long-press
    timing, marquee `Animated` + `useNativeDriver` under reduced-motion on/off.
 4. Anchored overlays (Select/DropdownMenu/Popover/Combobox) on real devices: trigger→content anchoring
@@ -221,9 +226,12 @@ anchored overlay layer (`_shared/overlay.native.tsx`, `_shared/positioning.nativ
 `_shared/direction-context.native.ts`) and adopt it in Select, DropdownMenu, Popover, and Combobox,
 including `SelectTrigger asChild` support (former gap G2 is resolved and removed) and a narrowed gap G4
 covering only the remaining in-flow families. Earlier stages covered Button/Checkbox/Switch/Input/Textarea,
-Tabs, Dialog, and chart geometry. This stage (`ace/native-otp`, stacked on PR #125, not published/merged)
+Tabs, Dialog, and chart geometry. The OTP stage (`ace/native-otp`, stacked on PR #125, not published/merged)
 adds native OTP focus, paste and Backspace handling; full contract
-in [native OTP](./native-otp.md). The fixture and pending manual checks are
+in [native OTP](./native-otp.md). This stage (`ace/native-slider`, stacked on OPEN PR #126,
+not published/merged) adds native slider tap/drag with fixed thumb identity, no-cross clamp,
+per-thumb adjustable actions, and controlled commit semantics; full contract
+in [native slider](./native-slider.md). The fixture and pending manual checks are
 in [native device validation](./native-device-validation.md). Shared native
 Dialog/overlay changes do not automatically fix the separate Sheet/Drawer implementations, whose limits
 above are unchanged.

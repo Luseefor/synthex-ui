@@ -2,7 +2,7 @@
 
 Web + React Native components from one API, plus an optional dockable workbench engine.
 
-> Branch status (`ace/native-otp`): `create --template`, `setup`,
+> Branch status (`ace/native-slider`): `create --template`, `setup`,
 > and the lean `add` below describe the CLI source in this checkout. Forthcoming
 > CLI release; implemented in source, not yet published in
 > `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
@@ -128,6 +128,8 @@ with collision handling, RTL alignment, outside dismissal and keyboard avoidance
 Device layout, keyboard and screen-reader checks remain pending.
 [Native OTP](./docs/native-otp.md) documents focus movement, paste and
 backspace behavior, controlled values and the pending device checks.
+[Native Slider](./docs/native-slider.md) covers dragging, range-thumb constraints,
+RTL/inverted axes and adjustable accessibility actions.
 
 ## Own the source (optional)
 

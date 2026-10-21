@@ -15,6 +15,7 @@ import { ThemeProvider, useTheme } from "synthex-ui/theme";
 import { BarChart, DirectionProvider } from "synthex-ui/native";
 import OwnedOverlays from "./OwnedOverlays";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "synthex-ui/input-otp";
+import { Slider } from "synthex-ui/slider";
 
 export default function App() {
   const [dark, setDark] = React.useState(false);
@@ -48,6 +49,14 @@ function Contracts({ dark, setDark, rtl, setRtl }: { dark: boolean; setDark: (va
   const [otp, setOtp] = React.useState("");
   const [otpDisabled, setOtpDisabled] = React.useState(false);
   const otpRef = React.useRef<React.ElementRef<typeof InputOTPSlot>>(null);
+  const [sliderSingle, setSliderSingle] = React.useState([13]);
+  const [sliderRange, setSliderRange] = React.useState([20, 80]);
+  const [sliderVertical, setSliderVertical] = React.useState([50]);
+  const [sliderDisabled, setSliderDisabled] = React.useState(false);
+  const [sliderInverted, setSliderInverted] = React.useState(false);
+  const [singleCommits, setSingleCommits] = React.useState(0);
+  const [rangeCommits, setRangeCommits] = React.useState(0);
+  const sliderRef = React.useRef<React.ElementRef<typeof Slider>>(null);
   const inputRef = React.useRef<React.ElementRef<typeof Input>>(null);
   const labelStyle = { color: theme.colors.foreground, fontSize: 16 };
   const headingStyle = { ...labelStyle, fontSize: 20, fontWeight: "700" as const };
@@ -56,6 +65,29 @@ function Contracts({ dark, setDark, rtl, setRtl }: { dark: boolean; setDark: (va
       <Text accessibilityRole="header" style={{ ...headingStyle, fontSize: 26 }}>Synthex native contracts</Text>
       <Text style={labelStyle}>Interactive fixture. Bundle success does not verify device behavior.</Text>
       <OwnedOverlays />
+
+      <View style={{ gap: 10 }}>
+        <Text accessibilityRole="header" style={headingStyle}>Draggable sliders</Text>
+        <Slider ref={sliderRef} testID="slider-single" min={5} max={25} step={2} value={sliderSingle} onValueChange={setSliderSingle}
+          onValueCommit={() => setSingleCommits(count => count + 1)} disabled={sliderDisabled} inverted={sliderInverted}
+          accessibilityLabel="Single value" />
+        <Text testID="slider-single-value" style={labelStyle}>Single: {sliderSingle.join(", ")}</Text>
+        <Text testID="slider-single-commit" style={labelStyle}>Single commits: {singleCommits}</Text>
+        <Slider testID="slider-range" step={5} value={sliderRange} onValueChange={setSliderRange}
+          onValueCommit={() => setRangeCommits(count => count + 1)} disabled={sliderDisabled} inverted={sliderInverted}
+          accessibilityLabel="Selected range" thumbLabels={["Lower bound", "Upper bound"]} />
+        <Text testID="slider-range-value" style={labelStyle}>Range: {sliderRange.join(", ")}</Text>
+        <Text testID="slider-range-commit" style={labelStyle}>Range commits: {rangeCommits}</Text>
+        <Slider testID="slider-vertical" orientation="vertical" style={{ height: 180 }} value={sliderVertical}
+          onValueChange={setSliderVertical} disabled={sliderDisabled} inverted={sliderInverted} accessibilityLabel="Vertical value" />
+        <Text testID="slider-vertical-value" style={labelStyle}>Vertical: {sliderVertical.join(", ")}</Text>
+        <Button testID="slider-disabled-toggle" variant="secondary" onPress={() => setSliderDisabled(!sliderDisabled)}>
+          Slider editing: {sliderDisabled ? "off" : "on"}
+        </Button>
+        <Button testID="slider-inverted-toggle" variant="outline" onPress={() => setSliderInverted(!sliderInverted)}>
+          Inverted: {String(sliderInverted)}
+        </Button>
+      </View>
 
       <View style={{ gap: 10 }}>
         <Text accessibilityRole="header" style={headingStyle}>One-time code</Text>
