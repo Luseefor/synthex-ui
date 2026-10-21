@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "./components/ui/popover";
 import { Combobox, ComboboxContent, ComboboxInput, ComboboxItem, ComboboxList, ComboboxTrigger, ComboboxValue } from "./components/ui/combobox";
-import { DirectionProvider } from "./components/ui/direction";
+import { DirectionProvider } from "./components/ui/direction/direction.native";
 
 // Copied by native:check next to the CLI's owned sources. These imports must
 // compile as source under the consumer's RN types, not just packaged .d.ts.
