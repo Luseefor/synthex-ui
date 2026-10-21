@@ -5,10 +5,13 @@ import {
   getBundledAssetsDir,
   getBundledRegistryJsonPath,
   getBundledStarterRoot,
+  getBundledTemplateRoot,
   getBundledUiRoot,
   getDefaultRegistryJsonPath,
   getDefaultRegistryRoot,
   getDefaultStarterRoot,
+  getDefaultTemplateRoot,
+  getTemplateDirName,
 } from "./assets";
 import { getDefaultRegistryRoot as listRegistryRoot } from "../commands/list";
 import { getDefaultStarterRoot as createStarterRoot } from "../commands/create";
@@ -55,5 +58,33 @@ describe("cli asset paths", () => {
     expect(getBundledUiRoot().endsWith("dist/assets/ui")).toBe(true);
     expect(getBundledStarterRoot().endsWith("dist/assets/templates/starter")).toBe(true);
     expect(getBundledRegistryJsonPath().endsWith("dist/assets/registry.json")).toBe(true);
+  });
+
+  it("maps each framework to its template directory", () => {
+    expect(getTemplateDirName("vite")).toBe("starter");
+    expect(getTemplateDirName("next")).toBe("next");
+    expect(getTemplateDirName("expo")).toBe("native");
+    expect(() => getTemplateDirName("angular" as never)).toThrow(/unknown template/i);
+  });
+
+  it("defaults to the vite starter template", () => {
+    expect(getDefaultTemplateRoot()).toBe(getDefaultStarterRoot());
+    expect(getDefaultTemplateRoot("vite")).toBe(getDefaultStarterRoot());
+    expect(getDefaultTemplateRoot("vite").endsWith(`templates${"/"}starter`)).toBe(true);
+    expect(getDefaultTemplateRoot("next").endsWith(`templates${"/"}next`)).toBe(true);
+    expect(getDefaultTemplateRoot("expo").endsWith(`templates${"/"}native`)).toBe(true);
+    expect(() => getDefaultTemplateRoot("angular" as never)).toThrow(/unknown template/i);
+  });
+
+  it("resolves template roots that exist on disk", async () => {
+    for (const template of ["vite", "next", "expo"] as const) {
+      expect((await stat(getDefaultTemplateRoot(template))).isDirectory()).toBe(true);
+    }
+  });
+
+  it("locates bundled templates under dist/assets/templates", () => {
+    expect(getBundledTemplateRoot("vite").endsWith("dist/assets/templates/starter")).toBe(true);
+    expect(getBundledTemplateRoot("next").endsWith("dist/assets/templates/next")).toBe(true);
+    expect(getBundledTemplateRoot("expo").endsWith("dist/assets/templates/native")).toBe(true);
   });
 });

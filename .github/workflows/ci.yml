@@ -67,3 +67,6 @@ jobs:
       - name: Run E2E (chromium only)
         run: bunx playwright test --project=chromium
         working-directory: packages/web-preview
+
+  onboarding:
+    uses: ./.github/workflows/onboarding.yml

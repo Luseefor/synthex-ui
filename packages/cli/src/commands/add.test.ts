@@ -334,18 +334,59 @@ describe("copy filtering and atomic preflight", () => {
     );
   });
 
-  it("dry-run reports conflicts as skipped-existing without writing", async () => {
+  it("dry-run rejects changed files without overwrite like a real run", async () => {
     const { registryRoot, cwd } = await setupRegistryWithMetadata([
       { name: "button", files: { "index.ts": "good\n" }, registryDependencies: [] },
     ]);
     await mkdir(path.join(cwd, "components", "ui", "button"), { recursive: true });
     await writeFile(path.join(cwd, "components", "ui", "button", "index.ts"), "existing\n");
 
+    await expect(addComponents(["button"], { cwd, registryRoot, dryRun: true })).rejects.toThrow(/overwrite/i);
+    await expect(readFile(path.join(cwd, "components", "ui", "button", "index.ts"), "utf8")).resolves.toBe(
+      "existing\n",
+    );
+  });
+
+  it("dry-run reports identical files as skipped-existing", async () => {
+    const { registryRoot, cwd } = await setupRegistryWithMetadata([
+      { name: "button", files: { "index.ts": "good\n" }, registryDependencies: [] },
+    ]);
+    await mkdir(path.join(cwd, "components", "ui", "button"), { recursive: true });
+    await writeFile(path.join(cwd, "components", "ui", "button", "index.ts"), "good\n");
+
     const manifest = await addComponents(["button"], { cwd, registryRoot, dryRun: true });
 
     expect(manifest.files[0]?.status).toBe("skipped-existing");
+  });
+
+  it("dry-run with overwrite plans changed files without writing", async () => {
+    const { registryRoot, cwd } = await setupRegistryWithMetadata([
+      { name: "button", files: { "index.ts": "good\n" }, registryDependencies: [] },
+    ]);
+    await mkdir(path.join(cwd, "components", "ui", "button"), { recursive: true });
+    await writeFile(path.join(cwd, "components", "ui", "button", "index.ts"), "existing\n");
+
+    const manifest = await addComponents(["button"], { cwd, registryRoot, dryRun: true, overwrite: true });
+
+    expect(manifest.files[0]?.status).toBe("planned");
     await expect(readFile(path.join(cwd, "components", "ui", "button", "index.ts"), "utf8")).resolves.toBe(
       "existing\n",
+    );
+  });
+
+  it("dry-run remote rejects changed files without overwrite", async () => {
+    const registryRoot = await createFakeRegistry();
+    const cwd = await createTempCwd();
+    const remote = { name: "remote-btn", files: { "index.ts": "good\n" } };
+    const url = `data:application/json,${encodeURIComponent(JSON.stringify(remote))}`;
+
+    await addComponents([url], { cwd, registryRoot });
+    await expect(addComponents([url], { cwd, registryRoot, dryRun: true, overwrite: true })).resolves.toBeDefined();
+    await writeFile(path.join(cwd, "components", "ui", "remote-btn", "index.ts"), "edited\n");
+
+    await expect(addComponents([url], { cwd, registryRoot, dryRun: true })).rejects.toThrow(/overwrite/i);
+    await expect(readFile(path.join(cwd, "components", "ui", "remote-btn", "index.ts"), "utf8")).resolves.toBe(
+      "edited\n",
     );
   });
 });
@@ -428,5 +469,422 @@ describe("incremental adds with shared deps", () => {
     const dup = await addComponents([urlA, urlA], { cwd: dupCwd, registryRoot });
     expect(dup.files).toHaveLength(1);
     await expect(readFile(path.join(dupCwd, "components", "ui", "dup", "index.ts"), "utf8")).resolves.toBe("a\n");
+  });
+});
+
+describe("ui config destinationRoot", () => {
+  async function writeConfig(cwd: string, config: unknown): Promise<void> {
+    await writeFile(path.join(cwd, "synthex-ui.json"), typeof config === "string" ? config : JSON.stringify(config));
+  }
+
+  function validConfig(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+    return {
+      version: 1,
+      framework: "vite",
+      packageManager: "npm",
+      componentsDir: "src/components/ui",
+      css: "src/synthex.css",
+      provider: "src/components/synthex-provider.tsx",
+      ...overrides,
+    };
+  }
+
+  it("copies into configured src/components/ui", async () => {
+    const registryRoot = await createFakeRegistry();
+    const cwd = await createTempCwd();
+    await writeConfig(cwd, validConfig());
+
+    const manifest = await addComponents(["button"], { cwd, registryRoot });
+
+    expect(manifest.destinationRoot).toBe(path.join(path.resolve(cwd), "src", "components", "ui"));
+    await expect(
+      readFile(path.join(cwd, "src", "components", "ui", "button", "button.web.tsx"), "utf8"),
+    ).resolves.toBe("export const Button = 1;\n");
+    await expect(stat(path.join(cwd, "components"))).rejects.toThrow();
+  });
+
+  it("falls back to legacy components/ui without config", async () => {
+    const registryRoot = await createFakeRegistry();
+    const cwd = await createTempCwd();
+
+    const manifest = await addComponents(["button"], { cwd, registryRoot });
+
+    expect(manifest.destinationRoot).toBe(path.join(path.resolve(cwd), "components", "ui"));
+    await expect(
+      readFile(path.join(cwd, "components", "ui", "button", "button.web.tsx"), "utf8"),
+    ).resolves.toBe("export const Button = 1;\n");
+  });
+
+  it("dry-run plans configured dir without writing", async () => {
+    const registryRoot = await createFakeRegistry();
+    const cwd = await createTempCwd();
+    await writeConfig(cwd, validConfig());
+
+    const manifest = await addComponents(["button"], { cwd, registryRoot, dryRun: true });
+
+    expect(manifest.destinationRoot).toBe(path.join(path.resolve(cwd), "src", "components", "ui"));
+    expect(manifest.files.every((file) => file.destination.startsWith(manifest.destinationRoot))).toBe(true);
+    await expect(stat(path.join(cwd, "src"))).rejects.toThrow();
+    await expect(stat(path.join(cwd, "components"))).rejects.toThrow();
+  });
+
+  it("fails before writes on escaping componentsDir", async () => {
+    const registryRoot = await createFakeRegistry();
+    const cwd = await createTempCwd();
+    await writeConfig(cwd, validConfig({ componentsDir: "../escape" }));
+
+    await expect(addComponents(["button"], { cwd, registryRoot })).rejects.toThrow(/invalid synthex-ui\.json/i);
+    await expect(stat(path.join(cwd, "components"))).rejects.toThrow();
+    await expect(stat(path.join(cwd, "src"))).rejects.toThrow();
+  });
+
+  it("fails before writes on malformed config", async () => {
+    const registryRoot = await createFakeRegistry();
+    const cwd = await createTempCwd();
+    await writeFile(path.join(cwd, "synthex-ui.json"), "{ not json");
+
+    await expect(addComponents(["button"], { cwd, registryRoot })).rejects.toThrow(/synthex-ui\.json/i);
+    await expect(stat(path.join(cwd, "components"))).rejects.toThrow();
+  });
+
+  it("rejects invalid packageManager without writes", async () => {
+    const registryRoot = await createFakeRegistry();
+    const cwd = await createTempCwd();
+
+    await expect(
+      addComponents(["button"], { cwd, registryRoot, packageManager: "deno" as never }),
+    ).rejects.toThrow(/package manager/i);
+    await expect(stat(path.join(cwd, "components"))).rejects.toThrow();
+  });
+});
+
+describe("platform-aware copy with ui config", () => {
+  async function setupPlatformRegistry(): Promise<{ registryRoot: string; cwd: string }> {
+    return setupRegistryWithMetadata([
+      {
+        name: "button",
+        files: {
+          "button.web.tsx":
+            'import { Slot } from "@radix-ui/react-slot";\nimport { cn } from "../_shared/variants";\nexport const ButtonWeb = 1;\n',
+          "button.native.tsx":
+            'import { Pressable } from "react-native";\nimport { useTheme } from "../_shared/theme/context";\nexport const ButtonNative = 1;\n',
+          "button.shared.ts": "export const shared = 1;\n",
+          "index.ts": 'export { Button, buttonVariants } from "./button.web";\nexport const webOnly = 1;\n',
+          "index.native.ts": 'export { Button } from "./button.native";\nexport const nativeOnly = 1;\n',
+        },
+        registryDependencies: ["_shared"],
+      },
+      {
+        name: "_shared",
+        files: {
+          "variants.ts": "export const cn = 1;\n",
+          "theme/context.tsx": "export const useTheme = 1;\n",
+          "theme/index.ts": 'export { ThemeProvider } from "./ThemeProvider.web";\n',
+          "theme/ThemeProvider.web.tsx": "export const ProviderWeb = 1;\n",
+          "theme/ThemeProvider.native.tsx": "export const ProviderNative = 1;\n",
+        },
+        registryDependencies: [],
+      },
+    ]);
+  }
+
+  async function writeViteConfig(cwd: string): Promise<void> {
+    await writeFile(
+      path.join(cwd, "synthex-ui.json"),
+      JSON.stringify({
+        version: 1,
+        framework: "vite",
+        packageManager: "npm",
+        componentsDir: "src/components/ui",
+        css: "src/synthex.css",
+        provider: "src/components/synthex-provider.tsx",
+      }),
+    );
+  }
+
+  async function writeExpoConfig(cwd: string): Promise<void> {
+    await writeFile(
+      path.join(cwd, "synthex-ui.json"),
+      JSON.stringify({
+        version: 1,
+        framework: "expo",
+        packageManager: "npm",
+        componentsDir: "components/ui",
+        css: null,
+        provider: "components/synthex-provider.tsx",
+      }),
+    );
+  }
+
+  it("web config filters .native files so Vite builds without react-native", async () => {
+    const { registryRoot, cwd } = await setupPlatformRegistry();
+    await writeViteConfig(cwd);
+
+    const manifest = await addComponents(["button"], { cwd, registryRoot });
+
+    const rels = manifest.files.map((f) => f.relativePath);
+    expect(rels).not.toContain("button.native.tsx");
+    expect(rels).not.toContain("index.native.ts");
+    expect(rels).toContain("button.web.tsx");
+    expect(rels).toContain("index.ts");
+
+    await expect(stat(path.join(cwd, "src", "components", "ui", "button", "button.native.tsx"))).rejects.toThrow();
+    await expect(stat(path.join(cwd, "src", "components", "ui", "button", "index.native.ts"))).rejects.toThrow();
+
+    const indexContent = await readFile(
+      path.join(cwd, "src", "components", "ui", "button", "index.ts"),
+      "utf8",
+    );
+    expect(indexContent).toContain("./button.web");
+
+    const webContent = await readFile(
+      path.join(cwd, "src", "components", "ui", "button", "button.web.tsx"),
+      "utf8",
+    );
+    expect(webContent).not.toContain("react-native");
+
+    const sharedThemeIndex = await readFile(
+      path.join(cwd, "src", "components", "ui", "_shared", "theme", "index.ts"),
+      "utf8",
+    );
+    expect(sharedThemeIndex).toContain("./ThemeProvider.web");
+  });
+
+  it("expo config drops .web files and prefers native barrel", async () => {
+    const { registryRoot, cwd } = await setupPlatformRegistry();
+    await writeExpoConfig(cwd);
+
+    const manifest = await addComponents(["button"], { cwd, registryRoot });
+
+    const rels = manifest.files.map((f) => f.relativePath);
+    expect(rels).not.toContain("button.web.tsx");
+    expect(rels).not.toContain("theme/ThemeProvider.web.tsx");
+    expect(rels).toContain("button.native.tsx");
+    expect(rels).toContain("index.native.ts");
+    expect(rels).toContain("index.ts");
+
+    await expect(stat(path.join(cwd, "components", "ui", "button", "button.web.tsx"))).rejects.toThrow();
+
+    const buttonIndex = await readFile(path.join(cwd, "components", "ui", "button", "index.ts"), "utf8");
+    expect(buttonIndex).toContain("nativeOnly");
+    expect(buttonIndex).not.toContain("webOnly");
+    expect(buttonIndex).not.toContain("./button.web");
+
+    const themeIndex = await readFile(
+      path.join(cwd, "components", "ui", "_shared", "theme", "index.ts"),
+      "utf8",
+    );
+    expect(themeIndex).toContain("./ThemeProvider.native");
+    expect(themeIndex).not.toContain("./ThemeProvider.web");
+
+    const nativeContent = await readFile(
+      path.join(cwd, "components", "ui", "button", "button.native.tsx"),
+      "utf8",
+    );
+    expect(nativeContent).toContain("react-native");
+    expect(nativeContent).not.toContain("@radix-ui");
+  });
+
+  it("expo second add is idempotent for native barrels", async () => {
+    const { registryRoot, cwd } = await setupPlatformRegistry();
+    await writeExpoConfig(cwd);
+
+    await addComponents(["button"], { cwd, registryRoot });
+    const second = await addComponents(["button"], { cwd, registryRoot });
+
+    expect(second.files.every((f) => f.status === "skipped-existing")).toBe(true);
+    const buttonIndex = await readFile(path.join(cwd, "components", "ui", "button", "index.ts"), "utf8");
+    expect(buttonIndex).toContain("nativeOnly");
+  });
+
+  it("expo dry-run lists remapped native barrel without writing", async () => {
+    const { registryRoot, cwd } = await setupPlatformRegistry();
+    await writeExpoConfig(cwd);
+
+    const manifest = await addComponents(["button"], { cwd, registryRoot, dryRun: true });
+
+    const rels = manifest.files.map((f) => f.relativePath);
+    expect(rels).toContain("index.ts");
+    expect(rels).toContain("index.native.ts");
+    expect(rels).not.toContain("button.web.tsx");
+    await expect(stat(path.join(cwd, "components"))).rejects.toThrow();
+  });
+
+  it("expo rejects edited transformed file without overwrite and leaves project intact", async () => {
+    const { registryRoot, cwd } = await setupPlatformRegistry();
+    await writeExpoConfig(cwd);
+
+    await addComponents(["button"], { cwd, registryRoot });
+    await writeFile(path.join(cwd, "components", "ui", "button", "index.ts"), "user-edited\n");
+
+    await expect(addComponents(["button"], { cwd, registryRoot })).rejects.toThrow(/overwrite/i);
+    await expect(readFile(path.join(cwd, "components", "ui", "button", "index.ts"), "utf8")).resolves.toBe(
+      "user-edited\n",
+    );
+
+    const fixed = await addComponents(["button"], { cwd, registryRoot, overwrite: true });
+    expect(fixed.files.find((f) => f.relativePath === "index.ts")?.status).toBe("overwritten");
+    await expect(readFile(path.join(cwd, "components", "ui", "button", "index.ts"), "utf8")).resolves.toContain(
+      "nativeOnly",
+    );
+  });
+
+  it("expo dry-run rejects edited transformed file without overwrite", async () => {
+    const { registryRoot, cwd } = await setupPlatformRegistry();
+    await writeExpoConfig(cwd);
+
+    await addComponents(["button"], { cwd, registryRoot });
+    await writeFile(path.join(cwd, "components", "ui", "button", "index.ts"), "user-edited\n");
+
+    await expect(addComponents(["button"], { cwd, registryRoot, dryRun: true })).rejects.toThrow(/overwrite/i);
+    await expect(
+      addComponents(["button"], { cwd, registryRoot, dryRun: true, overwrite: true }),
+    ).resolves.toBeDefined();
+  });
+
+  it("legacy no-config preserves both platforms", async () => {
+    const { registryRoot, cwd } = await setupPlatformRegistry();
+
+    const manifest = await addComponents(["button"], { cwd, registryRoot });
+
+    const rels = manifest.files.map((f) => f.relativePath);
+    expect(rels).toContain("button.web.tsx");
+    expect(rels).toContain("button.native.tsx");
+    expect(rels).toContain("index.ts");
+    expect(rels).toContain("index.native.ts");
+
+    const indexContent = await readFile(path.join(cwd, "components", "ui", "button", "index.ts"), "utf8");
+    expect(indexContent).toContain("./button.web");
+  });
+
+  it("web dry-run plans only web files", async () => {
+    const { registryRoot, cwd } = await setupPlatformRegistry();
+    await writeViteConfig(cwd);
+
+    const manifest = await addComponents(["button"], { cwd, registryRoot, dryRun: true });
+
+    const rels = manifest.files.map((f) => f.relativePath);
+    expect(rels).not.toContain("button.native.tsx");
+    expect(rels).toContain("button.web.tsx");
+    await expect(stat(path.join(cwd, "src"))).rejects.toThrow();
+  });
+
+  it("throws when platform filtering empties a component", async () => {
+    const { registryRoot, cwd } = await setupRegistryWithMetadata([
+      {
+        name: "native-only",
+        files: { "only.native.tsx": "export const x = 1;\n" },
+        registryDependencies: [],
+      },
+    ]);
+    await writeViteConfig(cwd);
+
+    await expect(addComponents(["native-only"], { cwd, registryRoot })).rejects.toThrow(/no files to copy/i);
+    await expect(stat(path.join(cwd, "src"))).rejects.toThrow();
+  });
+
+  it("expo remote manifest drops .web and prefers native barrel", async () => {
+    const registryRoot = await createFakeRegistry();
+    const cwd = await createTempCwd();
+    await writeExpoConfig(cwd);
+    const remote = {
+      name: "remote-btn",
+      files: {
+        "button.web.tsx": 'import { Slot } from "@radix-ui/react-slot";\nexport const W = 1;\n',
+        "button.native.tsx": 'import { Pressable } from "react-native";\nexport const N = 1;\n',
+        "index.ts": 'export { Button, buttonVariants } from "./button.web";\nexport const webOnly = 1;\n',
+        "index.native.ts": 'export { Button } from "./button.native";\nexport const nativeOnly = 1;\n',
+      },
+    };
+    const url = `data:application/json,${encodeURIComponent(JSON.stringify(remote))}`;
+
+    const manifest = await addComponents([url], { cwd, registryRoot });
+
+    const rels = manifest.files.map((f) => f.relativePath);
+    expect(rels).not.toContain("button.web.tsx");
+    expect(rels).toContain("button.native.tsx");
+    expect(rels).toContain("index.ts");
+
+    const indexContent = await readFile(path.join(cwd, "components", "ui", "remote-btn", "index.ts"), "utf8");
+    expect(indexContent).toContain("nativeOnly");
+    expect(indexContent).not.toContain("webOnly");
+
+    const second = await addComponents([url], { cwd, registryRoot });
+    expect(second.files.every((f) => f.status === "skipped-existing")).toBe(true);
+  });
+
+  it("expo remote rejects edited transformed file without overwrite", async () => {
+    const registryRoot = await createFakeRegistry();
+    const cwd = await createTempCwd();
+    await writeExpoConfig(cwd);
+    const remote = {
+      name: "remote-btn",
+      files: {
+        "index.ts": 'export { Button } from "./button.web";\n',
+        "index.native.ts": 'export { Button } from "./button.native";\n',
+        "button.native.tsx": 'import { Pressable } from "react-native";\nexport const N = 1;\n',
+      },
+    };
+    const url = `data:application/json,${encodeURIComponent(JSON.stringify(remote))}`;
+
+    await addComponents([url], { cwd, registryRoot });
+    await writeFile(path.join(cwd, "components", "ui", "remote-btn", "index.ts"), "edited\n");
+
+    await expect(addComponents([url], { cwd, registryRoot })).rejects.toThrow(/overwrite/i);
+  });
+
+  it("expo remaps real _shared/theme barrel to ThemeProvider.native", async () => {
+    const { registryRoot, cwd } = await setupRegistryWithMetadata([
+      {
+        name: "_shared",
+        files: {
+          "theme/index.ts":
+            'export { ThemeProvider } from "./ThemeProvider.web";\nexport { useTheme } from "./context";\n',
+          "theme/context.tsx": "export const useTheme = 1;\n",
+          "theme/ThemeProvider.web.tsx": "export const ProviderWeb = 1;\n",
+          "theme/ThemeProvider.native.tsx": "export const ProviderNative = 1;\n",
+        },
+        registryDependencies: [],
+      },
+    ]);
+    await writeExpoConfig(cwd);
+
+    const manifest = await addComponents(["_shared"], { cwd, registryRoot });
+
+    expect(manifest.files.map((f) => f.relativePath)).not.toContain("theme/ThemeProvider.web.tsx");
+    const indexContent = await readFile(
+      path.join(cwd, "components", "ui", "_shared", "theme", "index.ts"),
+      "utf8",
+    );
+    expect(indexContent).toContain('"./ThemeProvider.native"');
+    expect(indexContent).not.toContain('"./ThemeProvider.web"');
+
+    const second = await addComponents(["_shared"], { cwd, registryRoot });
+    expect(second.files.every((f) => f.status === "skipped-existing")).toBe(true);
+  });
+
+  it("expo preserves .web import when no native sibling exists", async () => {
+    const { registryRoot, cwd } = await setupRegistryWithMetadata([
+      {
+        name: "custom",
+        files: {
+          "index.ts": 'export { A } from "./with-native.web";\nexport { B } from "./without-native.web";\n',
+          "with-native.web.tsx": "export const A = 1;\n",
+          "with-native.native.tsx": "export const A = 1;\n",
+          "without-native.web.tsx": "export const B = 1;\n",
+        },
+        registryDependencies: [],
+      },
+    ]);
+    await writeExpoConfig(cwd);
+
+    const manifest = await addComponents(["custom"], { cwd, registryRoot });
+
+    expect(manifest.files.map((f) => f.relativePath)).not.toContain("with-native.web.tsx");
+    expect(manifest.files.map((f) => f.relativePath)).not.toContain("without-native.web.tsx");
+    const indexContent = await readFile(path.join(cwd, "components", "ui", "custom", "index.ts"), "utf8");
+    expect(indexContent).toContain('"./with-native.native"');
+    expect(indexContent).toContain('"./without-native.web"');
+    expect(indexContent).not.toContain('"./with-native.web"');
   });
 });

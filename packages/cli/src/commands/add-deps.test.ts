@@ -29,10 +29,16 @@ async function setupFakeRegistry(entries: readonly FakeEntry[]): Promise<{
   return { registryRoot, cwd };
 }
 
-function bunAddCalls(infoSpy: ReturnType<typeof vi.spyOn>): string[] {
+function installHintCalls(infoSpy: ReturnType<typeof vi.spyOn>): string[] {
   return infoSpy.mock.calls
     .map((args: unknown[]) => String(args[0] ?? ""))
-    .filter((message: string) => message.startsWith("bun add"));
+    .filter(
+      (message: string) =>
+        message.startsWith("npm install") ||
+        message.startsWith("pnpm add") ||
+        message.startsWith("yarn add") ||
+        message.startsWith("bun add"),
+    );
 }
 
 afterEach(() => {
@@ -40,7 +46,7 @@ afterEach(() => {
 });
 
 describe("add install hint", () => {
-  it("unions deps across two components", async () => {
+  it("unions deps across two components with default npm", async () => {
     const { registryRoot, cwd } = await setupFakeRegistry([
       {
         name: "button",
@@ -58,14 +64,14 @@ describe("add install hint", () => {
 
     await addComponents(["button", "dialog"], { cwd, registryRoot });
 
-    const calls = bunAddCalls(infoSpy);
+    const calls = installHintCalls(infoSpy);
     expect(calls).toHaveLength(1);
     expect(calls[0]).toBe(
-      "bun add @radix-ui/react-dialog @radix-ui/react-slot class-variance-authority clsx tailwind-merge",
+      "npm install @radix-ui/react-dialog @radix-ui/react-slot class-variance-authority clsx tailwind-merge",
     );
   });
 
-  it("includes transitive registryDependencies deps", async () => {
+  it("includes transitive registryDependencies deps with default npm", async () => {
     const { registryRoot, cwd } = await setupFakeRegistry([
       { name: "parent", deps: ["parent-dep"], registryDependencies: ["child"] },
       { name: "child", deps: ["child-dep", "react"], registryDependencies: [] },
@@ -74,9 +80,9 @@ describe("add install hint", () => {
 
     await addComponents(["parent"], { cwd, registryRoot });
 
-    const calls = bunAddCalls(infoSpy);
+    const calls = installHintCalls(infoSpy);
     expect(calls).toHaveLength(1);
-    expect(calls[0]).toBe("bun add child-dep parent-dep");
+    expect(calls[0]).toBe("npm install child-dep parent-dep");
   });
 
   it("prints nothing when only peer deps remain", async () => {
@@ -87,7 +93,7 @@ describe("add install hint", () => {
 
     await addComponents(["peer-only"], { cwd, registryRoot });
 
-    expect(bunAddCalls(infoSpy)).toEqual([]);
+    expect(installHintCalls(infoSpy)).toEqual([]);
   });
 
   it("prints nothing on dry-run", async () => {
@@ -102,6 +108,69 @@ describe("add install hint", () => {
 
     await addComponents(["button"], { cwd, registryRoot, dryRun: true });
 
-    expect(bunAddCalls(infoSpy)).toEqual([]);
+    expect(installHintCalls(infoSpy)).toEqual([]);
+  });
+});
+
+describe("add install hint package manager resolution", () => {
+  async function writeUiConfig(cwd: string, packageManager: string): Promise<void> {
+    await writeFile(
+      path.join(cwd, "synthex-ui.json"),
+      JSON.stringify({
+        version: 1,
+        framework: "vite",
+        packageManager,
+        componentsDir: "components/ui",
+        css: "synthex.css",
+        provider: "components/synthex-provider.tsx",
+      }),
+    );
+  }
+
+  it("uses config packageManager when no explicit override", async () => {
+    const { registryRoot, cwd } = await setupFakeRegistry([
+      { name: "button", deps: ["left-dep"], registryDependencies: [] },
+    ]);
+    await writeUiConfig(cwd, "pnpm");
+    const infoSpy = vi.spyOn(logger, "info").mockImplementation(() => {});
+
+    await addComponents(["button"], { cwd, registryRoot });
+
+    expect(installHintCalls(infoSpy)).toEqual(["pnpm add left-dep"]);
+  });
+
+  it("explicit override wins over config packageManager", async () => {
+    const { registryRoot, cwd } = await setupFakeRegistry([
+      { name: "button", deps: ["left-dep"], registryDependencies: [] },
+    ]);
+    await writeUiConfig(cwd, "pnpm");
+    const infoSpy = vi.spyOn(logger, "info").mockImplementation(() => {});
+
+    await addComponents(["button"], { cwd, registryRoot, packageManager: "yarn" });
+
+    expect(installHintCalls(infoSpy)).toEqual(["yarn add left-dep"]);
+  });
+
+  it("detects nearest lockfile when no config is present", async () => {
+    const { registryRoot, cwd } = await setupFakeRegistry([
+      { name: "button", deps: ["left-dep"], registryDependencies: [] },
+    ]);
+    await writeFile(path.join(cwd, "yarn.lock"), "");
+    const infoSpy = vi.spyOn(logger, "info").mockImplementation(() => {});
+
+    await addComponents(["button"], { cwd, registryRoot });
+
+    expect(installHintCalls(infoSpy)).toEqual(["yarn add left-dep"]);
+  });
+
+  it("explicit bun override prints bun hint without config", async () => {
+    const { registryRoot, cwd } = await setupFakeRegistry([
+      { name: "button", deps: ["left-dep"], registryDependencies: [] },
+    ]);
+    const infoSpy = vi.spyOn(logger, "info").mockImplementation(() => {});
+
+    await addComponents(["button"], { cwd, registryRoot, packageManager: "bun" });
+
+    expect(installHintCalls(infoSpy)).toEqual(["bun add left-dep"]);
   });
 });
