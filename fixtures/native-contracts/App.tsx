@@ -16,6 +16,7 @@ import { BarChart, DirectionProvider } from "synthex-ui/native";
 import OwnedOverlays from "./OwnedOverlays";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "synthex-ui/input-otp";
 import { Slider } from "synthex-ui/slider";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "synthex-ui/resizable";
 
 export default function App() {
   const [dark, setDark] = React.useState(false);
@@ -57,6 +58,12 @@ function Contracts({ dark, setDark, rtl, setRtl }: { dark: boolean; setDark: (va
   const [singleCommits, setSingleCommits] = React.useState(0);
   const [rangeCommits, setRangeCommits] = React.useState(0);
   const sliderRef = React.useRef<React.ElementRef<typeof Slider>>(null);
+  const [horizontalSizes, setHorizontalSizes] = React.useState([30, 40, 30]);
+  const [verticalSizes, setVerticalSizes] = React.useState([50, 50]);
+  const [resizableDisabled, setResizableDisabled] = React.useState(false);
+  const [horizontalCommits, setHorizontalCommits] = React.useState(0);
+  const [verticalCommits, setVerticalCommits] = React.useState(0);
+  const resizableRef = React.useRef<React.ElementRef<typeof ResizablePanelGroup>>(null);
   const inputRef = React.useRef<React.ElementRef<typeof Input>>(null);
   const labelStyle = { color: theme.colors.foreground, fontSize: 16 };
   const headingStyle = { ...labelStyle, fontSize: 20, fontWeight: "700" as const };
@@ -65,6 +72,33 @@ function Contracts({ dark, setDark, rtl, setRtl }: { dark: boolean; setDark: (va
       <Text accessibilityRole="header" style={{ ...headingStyle, fontSize: 26 }}>Synthex native contracts</Text>
       <Text style={labelStyle}>Interactive fixture. Bundle success does not verify device behavior.</Text>
       <OwnedOverlays />
+
+      <View style={{ gap: 10 }}>
+        <Text accessibilityRole="header" style={headingStyle}>Resizable panels</Text>
+        <ResizablePanelGroup ref={resizableRef} testID="resizable-horizontal" direction="horizontal"
+          sizes={horizontalSizes} onSizesChange={setHorizontalSizes} disabled={resizableDisabled}
+          onSizesCommit={() => setHorizontalCommits(count => count + 1)}>
+          <ResizablePanel minSize={15} maxSize={70}><Text style={labelStyle}>First panel</Text></ResizablePanel>
+          <ResizableHandle testID="resizable-horizontal-handle-0" accessibilityLabel="Resize first and middle panels" />
+          <ResizablePanel minSize={15} maxSize={70}><Text style={labelStyle}>Middle panel</Text></ResizablePanel>
+          <ResizableHandle testID="resizable-horizontal-handle-1" accessibilityLabel="Resize middle and last panels" />
+          <ResizablePanel minSize={15} maxSize={70}><Text style={labelStyle}>Last panel</Text></ResizablePanel>
+        </ResizablePanelGroup>
+        <Text testID="resizable-horizontal-sizes" style={labelStyle}>Horizontal: {horizontalSizes.map(n => n.toFixed(1)).join(", ")}</Text>
+        <Text testID="resizable-horizontal-commit" style={labelStyle}>Horizontal commits: {horizontalCommits}</Text>
+        <ResizablePanelGroup testID="resizable-vertical" direction="vertical" style={{ height: 260 }}
+          sizes={verticalSizes} onSizesChange={setVerticalSizes} disabled={resizableDisabled}
+          onSizesCommit={() => setVerticalCommits(count => count + 1)}>
+          <ResizablePanel minSize={15} maxSize={70}><Text style={labelStyle}>Upper panel</Text></ResizablePanel>
+          <ResizableHandle testID="resizable-vertical-handle-0" accessibilityLabel="Resize upper and lower panels" />
+          <ResizablePanel minSize={15} maxSize={70}><Text style={labelStyle}>Lower panel</Text></ResizablePanel>
+        </ResizablePanelGroup>
+        <Text testID="resizable-vertical-sizes" style={labelStyle}>Vertical: {verticalSizes.map(n => n.toFixed(1)).join(", ")}</Text>
+        <Text testID="resizable-vertical-commit" style={labelStyle}>Vertical commits: {verticalCommits}</Text>
+        <Button testID="resizable-disabled-toggle" variant="secondary" onPress={() => setResizableDisabled(!resizableDisabled)}>
+          Panel resizing: {resizableDisabled ? "off" : "on"}
+        </Button>
+      </View>
 
       <View style={{ gap: 10 }}>
         <Text accessibilityRole="header" style={headingStyle}>Draggable sliders</Text>

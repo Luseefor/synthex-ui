@@ -1,6 +1,6 @@
 # Native device validation
 
-Scope: branch `ace/native-slider`, stacked on OPEN PR #126 (`ace/native-otp`),
+Scope: branch `ace/native-resizable`, stacked on OPEN PR #127 (`ace/native-slider`),
 unreleased source in this checkout. The source tests use
 mocked React Native hosts plus pure geometry tests. The `native:check` gate installs
 the packed UI in an isolated Expo app, typechecks its native subpath imports
@@ -13,7 +13,7 @@ The generated type-only consumer also checks every exported native forwarded
 component's packed ref declaration against its host instance type under the
 Expo starter's React Native types.
 
-Full OTP contract in [native OTP](./native-otp.md). Full slider contract in [native slider](./native-slider.md).
+Full OTP contract in [native OTP](./native-otp.md). Full slider contract in [native slider](./native-slider.md). Full resizable contract in [native resizable](./native-resizable.md).
 
 ## Reproduce the fixture
 
@@ -87,6 +87,12 @@ focus behavior require testing. See [React Native accessibility](https://reactna
 | Slider labels, actions, scaling, and disable | `slider-range` with `thumbLabels`, OS large font, `slider-disabled-toggle` | Thumbs expose own value plus global `min`/`max`; step actions do not cross; disabled blocks edits; large fonts stay usable | Pending | Pending |
 | Slider ref and controlled value | Ref on `slider-single`; controlled `value` updates | Ref resolves; controlled renders props with no optimistic value; cancel/config change clears without commit | Pending | Pending |
 | Owned slider | `owned-slider`, `owned-slider-value` | Owned copy mirrors packaged tap/drag/value behavior | Pending | Pending |
+| Resizable drag and commit | `resizable-horizontal`, `resizable-horizontal-sizes`, `resizable-horizontal-commit`, handles `resizable-horizontal-handle-0` | Drag past 4pt resizes the handle pair with the pair total conserved; release commits once when changed | Pending | Pending |
+| Resizable drag beyond pair and in ScrollView | Drag `resizable-horizontal` beyond pair bounds; drag each group inside a `ScrollView` | Clamps to feasible `minSize`/`maxSize` without moving other panels; scroll negotiation recorded per gesture | Pending | Pending |
+| Resizable RTL and vertical | `resizable-vertical`, `resizable-vertical-sizes`, `resizable-vertical-commit`, global direction flip | RTL mirrors horizontal axis; vertical stays physical; record mismatches | Pending | Pending |
+| Resizable labels, actions, scaling, and disable | `resizable-horizontal` with custom labels, OS large font, `resizable-disabled-toggle` | Handles expose leading-panel value plus feasible pair bounds; step actions stay in bounds; disabled blocks edits; large fonts stay usable | Pending | Pending |
+| Resizable ref and controlled sizes | Ref on `resizable-horizontal`; controlled `sizes` updates | Ref resolves; controlled renders props with no optimistic size; cancel/config change clears without commit | Pending | Pending |
+| Owned resizable | `owned-resizable`, `owned-resizable-sizes`, `owned-resizable-handle-0` | Owned copy mirrors packaged drag/size behavior | Pending | Pending |
 | Chart geometry | `grouped-chart` | Category labels align with bar groups; chart label announces; record small-screen readability | Pending | Pending |
 | Modal interior and close | `open-dialog`, `dialog-interior-action`, `explicit-close` | Interior action increments without closing; explicit close closes | Pending | Pending |
 | Backdrop and system dismissal | `dismiss-mode`, `dialog-overlay`, Android Back / iOS accessibility escape | Backdrop and Android Back honor dismissal mode; record accessibility escape behavior separately | Pending | Pending |
@@ -115,6 +121,12 @@ page coordinates, mocked tap/drag/accessibility/ref contracts, typechecks, and p
 Metro export verify wiring and bundle generation; none of them proves device frames,
 `ScrollView` negotiation, or TalkBack/VoiceOver announcements on iOS/Android.
 
+Resizable is a native `View` group plus `Pressable` handles with `PanResponder` drag:
+measured panel spans and responder deltas, mocked drag/accessibility/ref contracts,
+typechecks, and packed Metro export verify wiring and bundle generation; none of them
+proves device frames, `ScrollView` negotiation, or TalkBack/VoiceOver announcements
+on iOS/Android.
+
 Caveats for device runs: content is measured on open and on window/root-layout changes only
 (continuous anchor tracking is not implemented); a trigger whose ref cannot be measured falls
 back to a centered surface; nested-Modal stacking and real device-keyboard behavior are pending
@@ -123,12 +135,13 @@ swipe-to-close; drawer always bottom-presented).
 
 For the remaining families, use the gaps and broader checklist in
 [native capabilities](./native-capabilities.md), the OTP contract in
-[native OTP](./native-otp.md), and the slider contract in
-[native slider](./native-slider.md). Carousel swipe, resizable drag,
+[native OTP](./native-otp.md), the slider contract in
+[native slider](./native-slider.md), and the resizable contract in
+[native resizable](./native-resizable.md). Carousel swipe
 and the remaining in-flow overlays (command,
 context-menu, hover-card, navigation-menu, tooltip) require separate
-implementation and device evidence. OTP and slider interaction are implemented in source;
-all OTP and slider device checks above remain pending and require real-device evidence.
+implementation and device evidence. OTP, slider, and resizable interaction are implemented in source;
+all OTP, slider, and resizable device checks above remain pending and require real-device evidence.
 
 ## Result record
 

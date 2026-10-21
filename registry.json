@@ -964,6 +964,9 @@
       "files": [
         "index.native.ts",
         "index.ts",
+        "resizable.contract.native.test.tsx",
+        "resizable.math.test.ts",
+        "resizable.math.ts",
         "resizable.native.tsx",
         "resizable.shared.ts",
         "resizable.web.tsx"
