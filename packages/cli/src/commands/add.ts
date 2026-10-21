@@ -1,5 +1,6 @@
-import { copyFile, mkdir, readdir, stat, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { Command } from "commander";
 import { CliError } from "../utils/errors";
 import { logger } from "../utils/logger";
@@ -129,6 +130,8 @@ export async function addComponents(
       { files: conflicts },
     );
   }
+
+  await maybeLogInstallHint(components, resolved);
 
   return {
     components: [...components],
@@ -416,5 +419,129 @@ async function pathExists(target: string): Promise<boolean> {
     return true;
   } catch {
     return false;
+  }
+}
+
+const PEER_DEPS: ReadonlySet<string> = new Set(["react", "react-dom", "react-native"]);
+
+export interface RegistryDepEntry {
+  readonly name: string;
+  readonly deps?: readonly string[];
+  readonly registryDependencies?: readonly string[];
+}
+
+export interface RegistryDepFile {
+  readonly components?: readonly RegistryDepEntry[];
+}
+
+export function getDefaultRegistryJsonPath(): string {
+  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../registry.json");
+}
+
+export function collectInstallDeps(
+  requested: readonly string[],
+  registry: RegistryDepFile | null | undefined,
+): string[] {
+  const components = registry?.components;
+  if (!components) {
+    return [];
+  }
+  const byName = new Map<string, RegistryDepEntry>();
+  for (const entry of components) {
+    if (entry !== null && typeof entry === "object" && typeof entry.name === "string") {
+      byName.set(entry.name, entry);
+    }
+  }
+  const collected = new Set<string>();
+  const visited = new Set<string>();
+  const queue: string[] = [...requested];
+  while (queue.length > 0) {
+    const name = queue.shift();
+    if (name === undefined || visited.has(name)) {
+      continue;
+    }
+    visited.add(name);
+    const entry = byName.get(name);
+    if (entry === undefined) {
+      continue;
+    }
+    for (const dep of entry.deps ?? []) {
+      if (!PEER_DEPS.has(dep)) {
+        collected.add(dep);
+      }
+    }
+    for (const registryDep of entry.registryDependencies ?? []) {
+      if (!visited.has(registryDep)) {
+        queue.push(registryDep);
+      }
+    }
+  }
+  return [...collected].sort((a, b) => a.localeCompare(b));
+}
+
+export function resolveRequestedComponentNames(specs: readonly string[]): string[] {
+  const names: string[] = [];
+  for (const spec of specs) {
+    if (isUrlSpec(spec)) {
+      continue;
+    }
+    if (isRegistrySpec(spec)) {
+      try {
+        names.push(parseRegistryReference(spec).component);
+      } catch {
+        continue;
+      }
+      continue;
+    }
+    names.push(spec);
+  }
+  return names;
+}
+
+async function readRegistryFile(filePath: string): Promise<RegistryDepFile | null> {
+  try {
+    const raw = await readFile(filePath, "utf8");
+    const data: unknown = JSON.parse(raw);
+    if (typeof data !== "object" || data === null || !Array.isArray((data as { components?: unknown }).components)) {
+      return null;
+    }
+    return data as RegistryDepFile;
+  } catch {
+    return null;
+  }
+}
+
+async function maybeLogInstallHint(specs: readonly string[], resolved: ResolvedAddOptions): Promise<void> {
+  if (resolved.dryRun) {
+    return;
+  }
+  try {
+    const names = resolveRequestedComponentNames(specs);
+    if (names.length === 0) {
+      return;
+    }
+    const candidates = [
+      path.join(resolved.registryRoot, "registry.json"),
+      path.resolve(resolved.registryRoot, "../../../registry.json"),
+      getDefaultRegistryJsonPath(),
+    ].filter((candidate, index, all) => all.indexOf(candidate) === index);
+    let registry: RegistryDepFile | null = null;
+    for (const candidate of candidates) {
+      const parsed = await readRegistryFile(candidate);
+      if (parsed !== null) {
+        registry = parsed;
+        break;
+      }
+    }
+    if (registry === null) {
+      return;
+    }
+    const deps = collectInstallDeps(names, registry);
+    if (deps.length === 0) {
+      return;
+    }
+    logger.info(`bun add ${deps.join(" ")}`);
+  } catch {
+    return;
   }
 }
