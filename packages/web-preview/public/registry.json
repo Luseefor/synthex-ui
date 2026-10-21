@@ -758,7 +758,11 @@
       "files": [
         "index.native.ts",
         "index.ts",
+        "input-otp.contract.native.test.tsx",
+        "input-otp.edit.test.ts",
+        "input-otp.edit.ts",
         "input-otp.native.tsx",
+        "input-otp.shared.test.tsx",
         "input-otp.shared.tsx",
         "input-otp.web.tsx"
       ],
