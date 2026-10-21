@@ -14,6 +14,7 @@ export interface ComponentPlan {
   readonly destinationRoot: string;
   readonly platform: ComponentPlatform;
   readonly files: readonly RegistryComponentFile[];
+  readonly dependencies: readonly string[];
   /** Previously installed roots explicitly retired from valid registry metadata. */
   readonly removedComponents?: readonly string[];
 }

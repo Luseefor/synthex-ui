@@ -20,7 +20,7 @@ async function setupFakeRegistry(entries: readonly FakeEntry[]): Promise<{
   for (const entry of entries) {
     const dir = path.join(registryRoot, entry.name);
     await mkdir(dir, { recursive: true });
-    await writeFile(path.join(dir, "index.ts"), `export const ${entry.name.replace(/-/g, "_")} = 1;\n`);
+    await writeFile(path.join(dir, "index.ts"), entry.deps.map((dep) => `import ${JSON.stringify(dep)};\n`).join("") + `export const ${entry.name.replace(/-/g, "_")} = 1;\n`);
   }
   await writeFile(
     path.join(registryRoot, "registry.json"),

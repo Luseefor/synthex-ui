@@ -389,6 +389,16 @@ try {
       assert(r.status === 0, `${template}: configured add failed: ${r.stderr || r.stdout}`);
       const config = JSON.parse(readFileSync(path.join(appDir, "synthex-ui.json"), "utf8"));
       assert(existsSync(path.join(appDir, config.componentsDir, template === "expo" ? "button/button.native.tsx" : "button/button.web.tsx")), `${template}: add ignored configured componentsDir`);
+      const lean = extractJson(r.stdout);
+      assert(Array.isArray(lean.dependencies), `${template}: missing dependency report`);
+      const leanPaths = lean.files.map((file) => `${file.component}/${file.relativePath}`);
+      if (template !== "expo") {
+        assert(leanPaths.length === 4, `${template}: Button should copy four files, got ${leanPaths.join(", ")}`);
+        assert(JSON.stringify(lean.dependencies) === JSON.stringify(["@radix-ui/react-slot", "class-variance-authority", "clsx", "tailwind-merge"]), `${template}: unexpected web Button deps: ${lean.dependencies}`);
+      } else {
+        assert(!lean.dependencies.some((dep) => dep.startsWith("@radix-ui/") || dep === "lucide-react"), "expo: web dependencies leaked into hint");
+        assert(!leanPaths.some((file) => /ThemeProvider|\.web\./.test(file)), "expo: unneeded web/provider files copied");
+      }
     }
 
     console.log(`npm pack check passed for ${cliPkg.name} CLI functional gate`);

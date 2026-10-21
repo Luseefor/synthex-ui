@@ -725,3 +725,265 @@ describe("registry origin changes", () => {
     expect((await readState(cwd)).requests).toEqual(["card", url]);
   });
 });
+
+describe("shared-file retention on subset updates", () => {
+  async function writeViteConfig(cwd: string): Promise<void> {
+    await writeFile(
+      path.join(cwd, "synthex-ui.json"),
+      JSON.stringify({
+        version: 1,
+        framework: "vite",
+        packageManager: "npm",
+        componentsDir: "src/components/ui",
+        css: "src/synthex.css",
+        provider: "src/components/synthex-provider.tsx",
+      }),
+    );
+  }
+
+  function sharedButtonDialogFixture(): FixtureSpec {
+    return {
+      version: "1.0.0",
+      components: {
+        button: {
+          "index.ts": "export * from './button.web';\n",
+          "button.web.tsx": "import { bs } from '../_shared/button-shared';\nexport const Button = 'v1';\n",
+        },
+        dialog: {
+          "index.ts": "export * from './dialog.web';\n",
+          "dialog.web.tsx": "import { ds } from '../_shared/dialog-shared';\nexport const Dialog = 'v1';\n",
+        },
+        _shared: {
+          "button-shared.ts": "export const bs = 'v1';\n",
+          "dialog-shared.ts": "export const ds = 'v1';\n",
+        },
+      },
+      registryDeps: { button: ["_shared"], dialog: ["_shared"] },
+    };
+  }
+
+  it("subset update retains dialog bytes and shared files needed by other roots", async () => {
+    const { registryRoot, cwd } = await setupFixture(sharedButtonDialogFixture());
+    await writeViteConfig(cwd);
+    await addComponents(["button", "dialog"], { cwd, registryRoot });
+
+    const buttonPath = "src/components/ui/button/button.web.tsx";
+    const buttonSharedPath = "src/components/ui/_shared/button-shared.ts";
+    const dialogPath = "src/components/ui/dialog/dialog.web.tsx";
+    const dialogSharedPath = "src/components/ui/_shared/dialog-shared.ts";
+
+    expect(await readFile(proj(cwd, dialogPath), "utf8")).toContain("'v1'");
+    expect(await pathExists(proj(cwd, dialogSharedPath))).toBe(true);
+
+    await writeRegistryFile(
+      registryRoot,
+      "button",
+      "button.web.tsx",
+      "import { bs } from '../_shared/button-shared';\nexport const Button = 'v2';\n",
+    );
+    await writeRegistryFile(
+      registryRoot,
+      "dialog",
+      "dialog.web.tsx",
+      "import { ds } from '../_shared/dialog-shared';\nexport const Dialog = 'v2';\n",
+    );
+    await writeRegistryFile(registryRoot, "_shared", "button-shared.ts", "export const bs = 'v2';\n");
+    await removeRegistryFile(registryRoot, "_shared", "dialog-shared.ts");
+    await setRegistryVersion(registryRoot, "1.1.0");
+
+    const stateBefore = await readState(cwd);
+    const dialogSharedBaseBefore = stateBefore.files[dialogSharedPath].base;
+    const dialogBaseBefore = stateBefore.files[dialogPath].base;
+
+    const result = await updateComponents(["button"], { cwd, registryRoot });
+    expect(result.conflicts).toBe(0);
+    expect(result.backupDir).not.toBeNull();
+
+    expect(await readFile(proj(cwd, buttonPath), "utf8")).toContain("'v2'");
+    expect(await readFile(proj(cwd, buttonSharedPath), "utf8")).toContain("'v2'");
+
+    expect(await readFile(proj(cwd, dialogPath), "utf8")).toContain("'v1'");
+    expect(await readFile(proj(cwd, dialogPath), "utf8")).not.toContain("'v2'");
+    expect(await pathExists(proj(cwd, dialogSharedPath))).toBe(true);
+    expect(await readFile(proj(cwd, dialogSharedPath), "utf8")).toBe("export const ds = 'v1';\n");
+
+    const stateAfter = await readState(cwd);
+    expect(stateAfter.requests).toContain("button");
+    expect(stateAfter.requests).toContain("dialog");
+    expect(stateAfter.files[dialogPath].registryVersion).toBe("1.0.0");
+    expect(stateAfter.files[dialogPath].base).toBe(dialogBaseBefore);
+    expect(stateAfter.files[dialogSharedPath].registryVersion).toBe("1.0.0");
+    expect(stateAfter.files[dialogSharedPath].base).toBe(dialogSharedBaseBefore);
+    expect(stateAfter.files[buttonPath].registryVersion).toBe("1.1.0");
+    expect(stateAfter.files[buttonSharedPath].registryVersion).toBe("1.1.0");
+
+    expect(result.files.find((f) => f.path === dialogPath)).toBeUndefined();
+    expect(result.files.find((f) => f.path === dialogSharedPath)).toBeUndefined();
+  });
+
+  it("update-all prunes truly unused shared files, conflicts when locally modified", async () => {
+    const obsoleteFixture = (): FixtureSpec => ({
+      version: "1.0.0",
+      components: {
+        button: {
+          "index.ts": "export * from './button.web';\n",
+          "button.web.tsx":
+            "import { bs } from '../_shared/button-shared';\nimport { o } from '../_shared/obsolete';\nexport const Button = 'v1';\n",
+        },
+        dialog: {
+          "index.ts": "export * from './dialog.web';\n",
+          "dialog.web.tsx": "import { ds } from '../_shared/dialog-shared';\nexport const Dialog = 'v1';\n",
+        },
+        _shared: {
+          "button-shared.ts": "export const bs = 'v1';\n",
+          "dialog-shared.ts": "export const ds = 'v1';\n",
+          "obsolete.ts": "export const o = 'v1';\n",
+        },
+      },
+      registryDeps: { button: ["_shared"], dialog: ["_shared"] },
+    });
+
+    const clean = await setupFixture(obsoleteFixture());
+    await writeViteConfig(clean.cwd);
+    await addComponents(["button", "dialog"], { cwd: clean.cwd, registryRoot: clean.registryRoot });
+    const obsoletePath = "src/components/ui/_shared/obsolete.ts";
+    expect(await pathExists(proj(clean.cwd, obsoletePath))).toBe(true);
+    await writeRegistryFile(
+      clean.registryRoot,
+      "button",
+      "button.web.tsx",
+      "import { bs } from '../_shared/button-shared';\nexport const Button = 'v2';\n",
+    );
+    await removeRegistryFile(clean.registryRoot, "_shared", "obsolete.ts");
+    const pruned = await updateComponents([], { cwd: clean.cwd, registryRoot: clean.registryRoot });
+    expect(pruned.conflicts).toBe(0);
+    const deleted = pruned.files.find((f) => f.path === obsoletePath);
+    expect(deleted!.status).toBe("deleted");
+    expect(await pathExists(proj(clean.cwd, obsoletePath))).toBe(false);
+    expect((await readState(clean.cwd)).files[obsoletePath]).toBeUndefined();
+    expect(pruned.backupDir).not.toBeNull();
+
+    const dirty = await setupFixture(obsoleteFixture());
+    await writeViteConfig(dirty.cwd);
+    await addComponents(["button", "dialog"], { cwd: dirty.cwd, registryRoot: dirty.registryRoot });
+    await writeFile(proj(dirty.cwd, obsoletePath), "export const o = 'local';\n");
+    const dirtyStateBefore = await readStateRaw(dirty.cwd);
+    await writeRegistryFile(
+      dirty.registryRoot,
+      "button",
+      "button.web.tsx",
+      "import { bs } from '../_shared/button-shared';\nexport const Button = 'v2';\n",
+    );
+    await removeRegistryFile(dirty.registryRoot, "_shared", "obsolete.ts");
+    const blocked = await updateComponents([], { cwd: dirty.cwd, registryRoot: dirty.registryRoot });
+    expect(blocked.conflicts).toBe(1);
+    expect(blocked.backupDir).toBeNull();
+    expect(blocked.files.find((f) => f.path === obsoletePath)!.status).toBe("conflict");
+    expect(await readFile(proj(dirty.cwd, obsoletePath), "utf8")).toBe("export const o = 'local';\n");
+    expect((await readStateRaw(dirty.cwd))?.equals(dirtyStateBefore!)).toBe(true);
+  });
+
+  it("explicitly listing all roots prunes like update-all while a proper subset retains", async () => {
+    const obsoleteFixture = (): FixtureSpec => ({
+      version: "1.0.0",
+      components: {
+        button: {
+          "index.ts": "export * from './button.web';\n",
+          "button.web.tsx":
+            "import { bs } from '../_shared/button-shared';\nimport { o } from '../_shared/obsolete';\nexport const Button = 'v1';\n",
+        },
+        dialog: {
+          "index.ts": "export * from './dialog.web';\n",
+          "dialog.web.tsx": "import { ds } from '../_shared/dialog-shared';\nexport const Dialog = 'v1';\n",
+        },
+        _shared: {
+          "button-shared.ts": "export const bs = 'v1';\n",
+          "dialog-shared.ts": "export const ds = 'v1';\n",
+          "obsolete.ts": "export const o = 'v1';\n",
+        },
+      },
+      registryDeps: { button: ["_shared"], dialog: ["_shared"] },
+    });
+    const obsoletePath = "src/components/ui/_shared/obsolete.ts";
+
+    const subsetCase = await setupFixture(obsoleteFixture());
+    await writeViteConfig(subsetCase.cwd);
+    await addComponents(["button", "dialog"], { cwd: subsetCase.cwd, registryRoot: subsetCase.registryRoot });
+    await writeRegistryFile(
+      subsetCase.registryRoot,
+      "button",
+      "button.web.tsx",
+      "import { bs } from '../_shared/button-shared';\nexport const Button = 'v2';\n",
+    );
+    await removeRegistryFile(subsetCase.registryRoot, "_shared", "obsolete.ts");
+    const subsetResult = await updateComponents(["button"], {
+      cwd: subsetCase.cwd,
+      registryRoot: subsetCase.registryRoot,
+    });
+    expect(subsetResult.conflicts).toBe(0);
+    expect(await pathExists(proj(subsetCase.cwd, obsoletePath))).toBe(true);
+    expect((await readState(subsetCase.cwd)).files[obsoletePath]).toBeDefined();
+    expect(subsetResult.files.find((f) => f.path === obsoletePath)).toBeUndefined();
+
+    const explicitFull = await setupFixture(obsoleteFixture());
+    await writeViteConfig(explicitFull.cwd);
+    await addComponents(["button", "dialog"], {
+      cwd: explicitFull.cwd,
+      registryRoot: explicitFull.registryRoot,
+    });
+    await writeRegistryFile(
+      explicitFull.registryRoot,
+      "button",
+      "button.web.tsx",
+      "import { bs } from '../_shared/button-shared';\nexport const Button = 'v2';\n",
+    );
+    await removeRegistryFile(explicitFull.registryRoot, "_shared", "obsolete.ts");
+    const fullResult = await updateComponents(["button", "dialog"], {
+      cwd: explicitFull.cwd,
+      registryRoot: explicitFull.registryRoot,
+    });
+    expect(fullResult.conflicts).toBe(0);
+    expect(fullResult.files.find((f) => f.path === obsoletePath)!.status).toBe("deleted");
+    expect(await pathExists(proj(explicitFull.cwd, obsoletePath))).toBe(false);
+    expect((await readState(explicitFull.cwd)).files[obsoletePath]).toBeUndefined();
+  });
+
+  it("full update converges tracked shared files when the plan selects no shared files", async () => {
+    const { registryRoot, cwd } = await setupFixture({
+      version: "1.0.0",
+      components: {
+        button: {
+          "index.ts": "export * from './button.web';\n",
+          "button.web.tsx": "import { s } from '../_shared/shared';\nexport const Button = 'v1';\n",
+        },
+        _shared: {
+          "shared.ts": "export const s = 'v1';\n",
+        },
+      },
+      registryDeps: { button: ["_shared"] },
+    });
+    await writeViteConfig(cwd);
+    await addComponents(["button"], { cwd, registryRoot });
+    const sharedPath = "src/components/ui/_shared/shared.ts";
+    expect(await pathExists(proj(cwd, sharedPath))).toBe(true);
+
+    await writeRegistryFile(
+      registryRoot,
+      "button",
+      "button.web.tsx",
+      "export const Button = 'v2';\n",
+    );
+    const raw = await readFile(path.join(registryRoot, "registry.json"), "utf8");
+    const meta = JSON.parse(raw) as { components?: { name?: string; registryDependencies?: string[] }[] };
+    for (const entry of meta.components ?? []) {
+      if (entry?.name === "button") entry.registryDependencies = [];
+    }
+    await writeFile(path.join(registryRoot, "registry.json"), JSON.stringify(meta, null, 2));
+
+    const result = await updateComponents([], { cwd, registryRoot });
+    expect(result.conflicts).toBe(0);
+    expect(result.files.find((f) => f.path === sharedPath)!.status).toBe("deleted");
+    expect(await pathExists(proj(cwd, sharedPath))).toBe(false);
+    expect((await readState(cwd)).files[sharedPath]).toBeUndefined();
+  });
+});

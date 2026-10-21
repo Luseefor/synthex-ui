@@ -2,10 +2,10 @@
 
 Web + React Native components from one API, plus an optional dockable workbench engine.
 
-> Branch status (`ace/framework-onboarding`): `create --template` and `setup`
-> below describe the CLI source in this checkout. They are slated for an
-> upcoming `@luseefor/synthex-cli` release and are not yet in the published
-> `npx @luseefor/synthex-cli@latest` build. See `docs/frameworks.md`.
+> Branch status (`ace/lean-component-installs`): `create --template`, `setup`,
+> and the lean `add` below describe the CLI source in this checkout. Forthcoming
+> CLI release; implemented in source, not yet published in
+> `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
 
 ## Install
 
@@ -116,19 +116,25 @@ On native, import from `synthex-ui/native`.
 
 ## Own the source (optional)
 
-Copy web + native sources into your repo with transitive deps resolved:
+Copy the platform-selected sources into your repo:
 
 ```sh
 npx @luseefor/synthex-cli@latest add button card --dry-run
 npx @luseefor/synthex-cli@latest add button card
 ```
 
+With `synthex-ui.json`, Vite/Next copy web files and Expo copies native
+files (only `_shared` is pruned to the relative import closure); without
+config, legacy installs keep both platforms and whole directories.
 Destination is `componentsDir` from `synthex-ui.json` when present,
 otherwise the legacy default `components/ui`. `@synthex/<name>`,
 `@default/<name>`, and `@<name>` are accepted; other
-namespaces are rejected. The printed install hint uses your package-manager
-syntax (resolved from `--cwd` config/detection) and can include native-only
-packages, so filter it for web-only apps. See `docs/registry.md` and
+namespaces are rejected. Configured hints come from the actual selected
+files (type imports included; host React peers excluded); legacy installs
+keep the union of registry `deps`. `add` returns `dependencies` and
+`installCommand` (also on `--dry-run`) and never auto-installs or edits
+`package.json`. Web `add button` is 4 files with `@radix-ui/react-slot`,
+`class-variance-authority`, `clsx`, `tailwind-merge`. See `docs/registry.md` and
 `docs/frameworks.md`.
 
 ## Workbench

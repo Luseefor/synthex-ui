@@ -89,6 +89,38 @@ function recordedLocalComponentNames(state: ComponentState | null): string[] {
   return names;
 }
 
+function normalizeUpdateRoot(request: string): string | null {
+  if (isUrlSpec(request)) return `url:${request}`;
+  const name = safeComponentName(request);
+  return name === null ? null : `local:${name}`;
+}
+
+/**
+ * Full update-all determination: empty input is full; otherwise full only when
+ * every recorded root is covered by the resolved requests. Explicitly listing
+ * ALL roots therefore prunes like update-all, while any proper subset retains
+ * unselected _shared files.
+ */
+function isFullUpdateRequests(
+  requestedLength: number,
+  resolved: readonly string[],
+  state: ComponentState | null,
+): boolean {
+  if (requestedLength === 0) return true;
+  if (state === null) return false;
+  const resolvedKeys = new Set<string>();
+  for (const request of resolved) {
+    const key = normalizeUpdateRoot(request);
+    if (key !== null) resolvedKeys.add(key);
+  }
+  for (const request of state.requests) {
+    const key = normalizeUpdateRoot(request);
+    if (key === null) return false;
+    if (!resolvedKeys.has(key)) return false;
+  }
+  return true;
+}
+
 function resolveUpdateRequests(requested: readonly string[], state: ComponentState | null, requireTracked: boolean): string[] {
   if (requested.length === 0) {
     if (state === null || state.requests.length === 0) {
@@ -131,11 +163,30 @@ async function prepareUpdates(requested: readonly string[], options: ComponentUp
   const incoming = new Map(plan.files.map((file) => [relativeComponentPath(cwd, file.destination), file]));
   const selected = new Set(plan.files.map((file) => file.component));
   for (const removed of plan.removedComponents ?? []) selected.add(removed);
+  const removedSet = new Set(plan.removedComponents ?? []);
   const requestedUrls = new Set(requests.filter((request) => isUrlSpec(request)));
+  // Shared-file retention: subset updates must not delete _shared files absent
+  // from the requested plan while other installed roots may still need them.
+  // The lean plan prunes _shared to the relative import closure for configured
+  // web/native (legacy null keeps whole-dir), so a button-only plan can omit
+  // dialog-only shared theme files. Full update-all — empty input or an
+  // explicit list covering every recorded root — prunes genuinely unused
+  // shared files with normal merge/backups. Retirement and remote rename
+  // convergence still delete on subset when explicitly requested.
+  const isFull = isFullUpdateRequests(requested.length, requests, snapshot.state);
   const paths = new Set(incoming.keys());
   const resolutions = new Set(options.resolved ?? []);
   for (const file of Object.values(snapshot.state?.files ?? {})) {
     if (selected.has(file.component)) {
+      if (
+        !isFull &&
+        file.component === "_shared" &&
+        !incoming.has(file.path) &&
+        !removedSet.has(file.component) &&
+        !(requestedUrls.size > 0 && [...requestedUrls].some((url) => file.source.startsWith(`${url}#`)))
+      ) {
+        continue;
+      }
       paths.add(file.path);
       continue;
     }
@@ -143,6 +194,17 @@ async function prepareUpdates(requested: readonly string[], options: ComponentUp
     // belong to the requested URL and must converge instead of orphaning.
     if (requestedUrls.size > 0 && [...requestedUrls].some((url) => file.source.startsWith(`${url}#`))) {
       paths.add(file.path);
+    }
+  }
+  // Removing the last shared reference yields a plan with no _shared files, so
+  // `selected` lacks "_shared" entirely. Full updates must still converge
+  // previously tracked _shared files (delete when clean, conflict when edited).
+  // Constrain to configured platforms to preserve legacy null behavior.
+  if (isFull && plan.platform !== null) {
+    for (const file of Object.values(snapshot.state?.files ?? {})) {
+      if (file.component === "_shared" && !paths.has(file.path)) {
+        paths.add(file.path);
+      }
     }
   }
   const files: PreparedFile[] = [];

@@ -1,9 +1,9 @@
 # Framework setup (Vite / Next / Expo)
 
-> Branch status (`ace/framework-onboarding`): `create --template` and `setup`
-> below describe the CLI source in this checkout. They are slated for an
-> upcoming `@luseefor/synthex-cli` release and are not yet in the published
-> `npx @luseefor/synthex-cli@latest` build. Run the CLI from source
+> Branch status (`ace/lean-component-installs`): `create --template` and `setup`
+> below describe the CLI source in this checkout. The lean `add` behavior in
+> “Own the source” is a forthcoming CLI release; implemented in source, not
+> yet published in `npx @luseefor/synthex-cli@latest`. Run the CLI from source
 > (`packages/cli`) to use them today.
 
 This is the single detailed reference for framework onboarding.
@@ -296,9 +296,12 @@ npx @luseefor/synthex-cli@latest add button --cwd apps/web
 ```
 
 - With `synthex-ui.json`, `add` selects the app platform: web files for
-  Vite/Next, native files for Expo, plus shared files. Expo uses native
-  barrels as the neutral `index.ts` entry so directory imports stay native.
-  Without config, legacy installs retain both platforms. Test files
+  Vite/Next, native files for Expo. Root and component files are retained,
+  as are non-`_shared` metadata dependency directories; only `_shared`
+  files are pruned to the relative import closure of the selected files.
+  Expo uses native barrels as the neutral `index.ts` entry so directory
+  imports stay native. Without config, legacy installs retain both
+  platforms and whole directories. Test files
   (`*.test.*`, `*.spec.*`, `__tests__`) are excluded.
 - Resolves transitive `registryDependencies`, preflights every destination
   before writing. Re-running with identical sources reports
@@ -308,19 +311,32 @@ npx @luseefor/synthex-cli@latest add button --cwd apps/web
   exists in `--cwd`; otherwise the legacy default `components/ui`.
 - Namespaces: `@synthex/<name>`, `@default/<name>`, bare `@<name>` accepted;
   other registries are rejected.
-- Prints an install hint for transitive `deps` in your package-manager
-  syntax (resolved from `--cwd` config/detection, e.g. `npm install …`,
-  `pnpm add …`, `yarn add …`, or `bun add …`); it can include native-only
-  packages, so filter it for web-only apps.
+- Dependency hints for configured installs come from the actual selected
+  files (including type imports; host `react`/`react-dom`/`react-native`
+  excluded). Unconfigured legacy installs keep the union of registry `deps`
+  for compatibility. `add` returns `dependencies: string[]` and
+  `installCommand: string | null` in its JSON, including on `--dry-run`;
+  it never auto-installs and never edits `package.json`. Run the printed
+  command yourself in your package-manager syntax (e.g. `npm install …`,
+  `pnpm add …`, `yarn add …`, `bun add …`).
 
-Copied native components use the copied theme context. For custom native
-themes, wrap owned components in `ThemeProvider` from
+  Example: web `add button` copies `button/button.shared.ts`,
+  `button/button.web.tsx`, `button/index.ts`, plus `_shared/variants.ts`
+  (4 files) and reports
+  `@radix-ui/react-slot`, `class-variance-authority`, `clsx`,
+  `tailwind-merge`. Full reference: [`docs/registry.md`](./registry.md).
+
+Copied native components use the copied theme context, which falls back to the
+default theme when no owned provider is present. Pruning does not copy the
+theme provider itself. For a custom native theme, first run `add _shared`
+(explicit `_shared` keeps the full platform shared pool), then wrap owned
+components in the owned `ThemeProvider` from
 `./components/ui/_shared/theme` (adjust for `componentsDir`). Package
 components continue using the package provider.
 
 ## Keep owned components updated (`diff` / `update`)
 
-> Forthcoming release (`ace/safe-component-updates`): `diff` and `update`
+> Forthcoming release: `diff` and `update`
 > below describe the CLI source in this checkout. They are slated for an
 > upcoming `@luseefor/synthex-cli` release and are not yet in the published
 > `npx @luseefor/synthex-cli@latest` build. Run the CLI from source
@@ -347,6 +363,11 @@ npx @luseefor/synthex-cli@latest update button --resolved components/ui/button/i
   resolved project-relative path via `--resolved` so the baseline advances
   past the conflict. See `docs/updating-components.md` for the end-to-end
   example, restore steps, and legacy-copy behavior.
+- Lean `_shared` retention: a subset `update button` keeps tracked `_shared`
+  paths it did not select (another root may still need them). A full update
+  (no args, or every recorded root listed) may prune unused tracked `_shared`
+  paths using the normal backup/conflict flow; a locally modified obsolete
+  shared file is kept as a conflict, never silently deleted.
 
 ## `setup` vs `init`
 

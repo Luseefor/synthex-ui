@@ -643,11 +643,7 @@ describe("platform-aware copy with ui config", () => {
     );
     expect(webContent).not.toContain("react-native");
 
-    const sharedThemeIndex = await readFile(
-      path.join(cwd, "src", "components", "ui", "_shared", "theme", "index.ts"),
-      "utf8",
-    );
-    expect(sharedThemeIndex).toContain("./ThemeProvider.web");
+    await expect(stat(path.join(cwd, "src/components/ui/_shared/theme/index.ts"))).rejects.toThrow();
   });
 
   it("expo config drops .web files and prefers native barrel", async () => {
@@ -670,12 +666,7 @@ describe("platform-aware copy with ui config", () => {
     expect(buttonIndex).not.toContain("webOnly");
     expect(buttonIndex).not.toContain("./button.web");
 
-    const themeIndex = await readFile(
-      path.join(cwd, "components", "ui", "_shared", "theme", "index.ts"),
-      "utf8",
-    );
-    expect(themeIndex).toContain("./ThemeProvider.native");
-    expect(themeIndex).not.toContain("./ThemeProvider.web");
+    await expect(stat(path.join(cwd, "components/ui/_shared/theme/index.ts"))).rejects.toThrow();
 
     const nativeContent = await readFile(
       path.join(cwd, "components", "ui", "button", "button.native.tsx"),
@@ -683,6 +674,17 @@ describe("platform-aware copy with ui config", () => {
     );
     expect(nativeContent).toContain("react-native");
     expect(nativeContent).not.toContain("@radix-ui");
+  });
+
+  it("explicit _shared preserves the platform theme provider and remaps native imports", async () => {
+    for (const native of [false, true]) {
+      const { registryRoot, cwd } = await setupPlatformRegistry();
+      if (native) await writeExpoConfig(cwd); else await writeViteConfig(cwd);
+      const result = await addComponents(["_shared"], { cwd, registryRoot });
+      const theme = await readFile(path.join(result.destinationRoot, "_shared/theme/index.ts"), "utf8");
+      expect(theme).toContain(native ? "./ThemeProvider.native" : "./ThemeProvider.web");
+      expect(result.files.some((file) => file.relativePath === `theme/ThemeProvider.${native ? "web" : "native"}.tsx`)).toBe(false);
+    }
   });
 
   it("expo second add is idempotent for native barrels", async () => {
@@ -1096,5 +1098,47 @@ describe("retired upstream components (allowRemoved)", () => {
     await expect(
       planComponents(["button"], { cwd: broken.cwd, registryRoot: broken.registryRoot, allowRemoved: ["button"] }),
     ).rejects.toThrow(/unknown component/i);
+  });
+});
+
+
+describe("configured lean installs", () => {
+  async function configured(framework: "vite" | "expo") {
+    const cwd = await createTempCwd();
+    await writeFile(path.join(cwd, "synthex-ui.json"), JSON.stringify({
+      version: 1, framework, packageManager: "npm", componentsDir: "components/ui",
+      css: framework === "expo" ? null : "synthex.css", provider: "components/synthex-provider.tsx",
+    }));
+    return cwd;
+  }
+
+  it("web Button plans just its public files and shared variants with exact deps", async () => {
+    const cwd = await configured("vite");
+    try {
+      const plan = await planComponents(["button"], { cwd });
+      expect(plan.files.map((file) => `${file.component}/${file.relativePath}`)).toEqual([
+        "button/button.shared.ts", "button/button.web.tsx", "button/index.ts", "_shared/variants.ts",
+      ]);
+      expect(plan.dependencies).toEqual([
+        "@radix-ui/react-slot", "class-variance-authority", "clsx", "tailwind-merge",
+      ]);
+      const manifest = await addComponents(["button"], { cwd, dryRun: true });
+      expect(manifest.dependencies).toEqual(plan.dependencies);
+      expect(manifest.installCommand).toBe("npm install @radix-ui/react-slot class-variance-authority clsx tailwind-merge");
+      await expect(stat(path.join(cwd, "components"))).rejects.toThrow();
+      await expect(stat(path.join(cwd, ".synthex"))).rejects.toThrow();
+    } finally { await rm(cwd, { recursive: true, force: true }); }
+  });
+
+  it("native Button retains its theme closure without web Radix or lucide", async () => {
+    const cwd = await configured("expo");
+    try {
+      const plan = await planComponents(["button"], { cwd });
+      expect(plan.files.some((file) => file.relativePath.includes(".web."))).toBe(false);
+      expect(plan.files.some((file) => file.component === "_shared" && file.relativePath === "theme/context.tsx")).toBe(true);
+      expect(plan.files.some((file) => file.relativePath === "theme/ThemeProvider.web.tsx")).toBe(false);
+      expect(plan.dependencies.some((dep) => dep.startsWith("@radix-ui/") || dep === "lucide-react")).toBe(false);
+      expect(plan.files.some((file) => file.component === "_shared" && file.relativePath.includes("ThemeProvider"))).toBe(false);
+    } finally { await rm(cwd, { recursive: true, force: true }); }
   });
 });
