@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -28,6 +28,7 @@ const packages = [
     requiredFiles: [
       "dist/index.js",
       "dist/index.d.ts",
+      "dist/THIRD_PARTY_NOTICES.md",
       "dist/assets/registry.json",
       "dist/assets/ui/_shared/variants.ts",
       "dist/assets/ui/button/button.web.tsx",
@@ -313,6 +314,48 @@ try {
     );
     assert(existsSync(path.join(scratchAdd, "components/ui/button")), `${cliPkg.name}: add output missing button`);
     assertNoTestFiles(path.join(scratchAdd, "components"));
+
+    // Exercise safe updates through the packed CLI, changing only its extracted registry.
+    const ownedButton = path.join(scratchAdd, "components/ui/button/button.web.tsx");
+    const bundledButton = path.join(extractedRoot, "dist/assets/ui/button/button.web.tsx");
+    const stateFile = path.join(scratchAdd, ".synthex/components.json");
+    const originalButton = readFileSync(ownedButton, "utf8");
+    const customizedButton = "// app customization\n" + originalButton;
+    writeFileSync(ownedButton, customizedButton);
+    writeFileSync(bundledButton, originalButton + "\n// registry revision\n");
+    const bundledRegistryPath = path.join(extractedRoot, "dist/assets/registry.json");
+    const bundledRegistry = JSON.parse(readFileSync(bundledRegistryPath, "utf8"));
+    bundledRegistry.version = "9.9.9";
+    writeFileSync(bundledRegistryPath, JSON.stringify(bundledRegistry));
+    const oldState = readFileSync(stateFile);
+    for (const args of [["diff", "button", "--json"], ["update", "button", "--dry-run", "--json"]]) {
+      r = runCapture("node", [cliEntry, ...args, "--cwd", scratchAdd], scratchAdd);
+      assert(r.status === 0, `packed preview failed: ${r.stderr || r.stdout}`);
+      const preview = extractJson(r.stdout);
+      assert(preview.files.some((f) => f.path.endsWith("button.web.tsx") && f.status === "merged"), "preview did not propose a clean merge");
+      assert(readFileSync(ownedButton, "utf8") === customizedButton, "preview changed owned bytes");
+      assert(readFileSync(stateFile).equals(oldState), "preview changed the recorded original");
+    }
+    r = runCapture("node", [cliEntry, "update", "button", "--json", "--cwd", scratchAdd], scratchAdd);
+    assert(r.status === 0, `packed update failed: ${r.stderr || r.stdout}`);
+    const updated = extractJson(r.stdout);
+    const mergedButton = readFileSync(ownedButton, "utf8");
+    assert(mergedButton.includes("// app customization") && mergedButton.includes("// registry revision"), "update lost local or incoming edits");
+    assert(readFileSync(path.join(updated.backupDir, "files/components/ui/button/button.web.tsx"), "utf8") === customizedButton, "update backup lost original bytes");
+    assert(readFileSync(path.join(updated.backupDir, "files/.synthex/components.json")).equals(oldState), "update did not back up prior state");
+    const conflictingLocal = mergedButton.replace("// registry revision", "// local same-line edit");
+    writeFileSync(ownedButton, conflictingLocal);
+    writeFileSync(bundledButton, readFileSync(bundledButton, "utf8").replace("// registry revision", "// incoming same-line edit"));
+    const mergedState = readFileSync(stateFile);
+    r = runCapture("node", [cliEntry, "update", "button", "--write-conflicts", "--json", "--cwd", scratchAdd], scratchAdd);
+    assert(r.status !== 0, "overlapping edits unexpectedly applied");
+    const conflict = extractJson(r.stdout);
+    assert(conflict.conflicts > 0 && conflict.conflictDir, "conflict files were not reported");
+    assert(readFileSync(ownedButton, "utf8") === conflictingLocal && readFileSync(stateFile).equals(mergedState), "conflict changed owned bytes or baseline");
+    assert(existsSync(path.join(conflict.conflictDir, "incoming/components/ui/button/button.web.tsx")), "missing incoming conflict version");
+    r = runCapture("node", [cliEntry, "update", "button", "--resolved", "components/ui/button/button.web.tsx", "--json", "--cwd", scratchAdd], scratchAdd);
+    assert(r.status === 0, `manual resolution failed: ${r.stderr || r.stdout}`);
+    assert(readFileSync(ownedButton, "utf8") === conflictingLocal, "accepting a resolution changed its bytes");
 
     r = runCapture("node", [cliEntry, "add", "button", "__unknown_component_xyz__", "--cwd", scratchFail], scratchFail);
     assert(r.status !== 0, `${cliPkg.name}: late unknown add should fail`);

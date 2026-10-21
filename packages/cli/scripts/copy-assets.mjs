@@ -2,6 +2,7 @@
 import { cp, mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const cliDir = resolve(here, "..");
@@ -20,6 +21,25 @@ const assetsDir = resolve(cliDir, "dist/assets");
 const registryDest = resolve(assetsDir, "registry.json");
 const uiDest = resolve(assetsDir, "ui");
 const uiManifestSrc = resolve(workspaceRoot, "packages/ui/package.json");
+const require = createRequire(import.meta.url);
+
+async function writeDiffLicenseNotices() {
+  const notices = [];
+  for (const [name, filename] of [["diff", "LICENSE"], ["node-diff3", "LICENSE.md"]]) {
+    let dir = dirname(require.resolve(name));
+    for (;;) {
+      const manifest = await readFile(join(dir, "package.json"), "utf8").then(JSON.parse).catch(() => null);
+      if (manifest?.name === name) {
+        notices.push(`# ${name} ${manifest.version}\n\n${await readFile(join(dir, filename), "utf8")}`);
+        break;
+      }
+      const parent = dirname(dir);
+      if (parent === dir) throw new Error(`Cannot locate the ${name} license for the CLI bundle.`);
+      dir = parent;
+    }
+  }
+  await writeFile(resolve(cliDir, "dist/THIRD_PARTY_NOTICES.md"), notices.join("\n\n---\n\n"));
+}
 
 const EXCLUDED_TEMPLATE_SEGMENTS = new Set([
   "node_modules",
@@ -187,6 +207,7 @@ async function main() {
   const uiVersion = await readUiManifestVersion();
 
   await mkdir(assetsDir, { recursive: true });
+  await writeDiffLicenseNotices();
 
   await cp(registrySrc, registryDest, { recursive: false });
   JSON.parse(await readFile(registryDest, "utf8"));

@@ -318,6 +318,36 @@ themes, wrap owned components in `ThemeProvider` from
 `./components/ui/_shared/theme` (adjust for `componentsDir`). Package
 components continue using the package provider.
 
+## Keep owned components updated (`diff` / `update`)
+
+> Forthcoming release (`ace/safe-component-updates`): `diff` and `update`
+> below describe the CLI source in this checkout. They are slated for an
+> upcoming `@luseefor/synthex-cli` release and are not yet in the published
+> `npx @luseefor/synthex-cli@latest` build. Run the CLI from source
+> (`packages/cli`) to use them today. Full reference:
+> [`docs/updating-components.md`](./updating-components.md).
+
+```sh
+npx @luseefor/synthex-cli@latest diff button --json
+npx @luseefor/synthex-cli@latest update --dry-run
+npx @luseefor/synthex-cli@latest update button --write-conflicts
+npx @luseefor/synthex-cli@latest update button --resolved components/ui/button/index.ts
+```
+
+- `add` records the installed original bytes, hash, and registry version in
+  `.synthex/components.json` (separate from layout-engine history).
+- `diff [component...] [--cwd] [--json]` is read-only (defaults to all
+  recorded installs). `update [component...] [--cwd] [--dry-run] [--json]
+  [--write-conflicts] [--resolved <file...>]` merges registry changes with a
+  three-way merge, preserves independent local edits, stops all applies on
+  any conflict, never writes markers, backs up successful runs under
+  `.synthex/backups/<uuid>`, and saves conflict sidecars under
+  `.synthex/conflicts/<uuid>` only on a real conflicting run.
+- After hand-merging from the `base`/`local`/`incoming` sidecars, pass each
+  resolved project-relative path via `--resolved` so the baseline advances
+  past the conflict. See `docs/updating-components.md` for the end-to-end
+  example, restore steps, and legacy-copy behavior.
+
 ## `setup` vs `init`
 
 - `setup` is framework onboarding: writes `synthex-ui.json` + CSS (web) +
