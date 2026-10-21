@@ -73,7 +73,9 @@ export interface DropdownMenuTriggerProps extends Omit<PressableProps, "style"> 
   readonly asChild?: boolean;
 }
 
-export const DropdownMenuTrigger = React.forwardRef<
+export const DropdownMenuTrigger: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DropdownMenuTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DropdownMenuTriggerProps
 >(({ children, onPress, style, asChild, testID, ...props }, ref) => {
@@ -128,7 +130,9 @@ export interface DropdownMenuContentProps extends Omit<ViewProps, "style">, Over
 }
 
 // Native renders in normal flow; side/align/sideOffset/alignOffset are accepted for API parity and ignored.
-export const DropdownMenuContent = React.forwardRef<
+export const DropdownMenuContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DropdownMenuContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   DropdownMenuContentProps
 >(({ align, alignOffset, side, sideOffset, style, testID, ...props }, ref) => {
@@ -168,7 +172,9 @@ export interface DropdownMenuLabelProps extends Omit<ViewProps, "style"> {
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
-export const DropdownMenuLabel = React.forwardRef<
+export const DropdownMenuLabel: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DropdownMenuLabelProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   DropdownMenuLabelProps
 >(({ children, style, textStyle, testID, ...props }, ref) => {
@@ -201,7 +207,9 @@ export interface DropdownMenuSeparatorProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const DropdownMenuSeparator = React.forwardRef<
+export const DropdownMenuSeparator: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DropdownMenuSeparatorProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   DropdownMenuSeparatorProps
 >(({ style, testID, ...props }, ref) => {
@@ -225,7 +233,9 @@ export interface DropdownMenuItemProps extends Omit<PressableProps, "style"> {
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
-export const DropdownMenuItem = React.forwardRef<
+export const DropdownMenuItem: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DropdownMenuItemProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DropdownMenuItemProps
 >(({ children, onPress, style, textStyle, testID, ...props }, ref) => {
@@ -298,7 +308,9 @@ export interface DropdownMenuSubTriggerProps extends Omit<PressableProps, "style
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
-export const DropdownMenuSubTrigger = React.forwardRef<
+export const DropdownMenuSubTrigger: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DropdownMenuSubTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DropdownMenuSubTriggerProps
 >(({ children, onPress, style, textStyle, testID, ...props }, ref) => {
@@ -356,7 +368,9 @@ export interface DropdownMenuSubContentProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const DropdownMenuSubContent = React.forwardRef<
+export const DropdownMenuSubContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DropdownMenuSubContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   DropdownMenuSubContentProps
 >(({ style, testID, ...props }, ref) => {
@@ -398,7 +412,9 @@ export interface DropdownMenuCheckboxItemProps extends Omit<PressableProps, "sty
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
-export const DropdownMenuCheckboxItem = React.forwardRef<
+export const DropdownMenuCheckboxItem: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DropdownMenuCheckboxItemProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DropdownMenuCheckboxItemProps
 >(({ children, checked, defaultChecked = false, onCheckedChange, onPress, style, textStyle, testID, ...props }, ref) => {
@@ -477,7 +493,9 @@ export interface DropdownMenuRadioItemProps extends Omit<PressableProps, "style"
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
-export const DropdownMenuRadioItem = React.forwardRef<
+export const DropdownMenuRadioItem: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DropdownMenuRadioItemProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DropdownMenuRadioItemProps
 >(({ children, onPress, style, textStyle, value, testID, ...props }, ref) => {
@@ -538,7 +556,9 @@ export interface DropdownMenuShortcutProps extends Omit<ViewProps, "style"> {
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
-export const DropdownMenuShortcut = React.forwardRef<React.ElementRef<typeof View>, DropdownMenuShortcutProps>(
+export const DropdownMenuShortcut: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DropdownMenuShortcutProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, DropdownMenuShortcutProps>(
   ({ children, style, textStyle, testID, ...props }, ref) => {
     const theme = useTheme();
 
@@ -572,7 +592,9 @@ export interface DropdownMenuArrowProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const DropdownMenuArrow = React.forwardRef<React.ElementRef<typeof View>, DropdownMenuArrowProps>(
+export const DropdownMenuArrow: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DropdownMenuArrowProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, DropdownMenuArrowProps>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 

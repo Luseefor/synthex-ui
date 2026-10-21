@@ -88,7 +88,9 @@ export interface CommandInputProps extends Omit<TextInputProps, "defaultValue" |
   readonly style?: StyleProp<TextStyle>;
 }
 
-export const CommandInput = React.forwardRef<React.ElementRef<typeof TextInput>, CommandInputProps>(
+export const CommandInput: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CommandInputProps> & React.RefAttributes<React.ElementRef<typeof TextInput>>
+> = React.forwardRef<React.ElementRef<typeof TextInput>, CommandInputProps>(
   ({ onChangeText, placeholder = "Search commands", style, ...props }, ref) => {
     const context = useCommandContext();
     const theme = useTheme();
@@ -137,7 +139,9 @@ export interface CommandListProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const CommandList = React.forwardRef<React.ElementRef<typeof ScrollView>, CommandListProps>(
+export const CommandList: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CommandListProps> & React.RefAttributes<React.ElementRef<typeof ScrollView>>
+> = React.forwardRef<React.ElementRef<typeof ScrollView>, CommandListProps>(
   ({ children, style, ...props }, ref) => (
     <ScrollView
       ref={ref}
@@ -157,7 +161,9 @@ export interface CommandEmptyProps extends Omit<ViewProps, "style"> {
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
-export const CommandEmpty = React.forwardRef<React.ElementRef<typeof View>, CommandEmptyProps>(
+export const CommandEmpty: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CommandEmptyProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, CommandEmptyProps>(
   ({ children = "No results found.", style, textStyle, ...props }, ref) => {
     const context = useCommandContext();
     const theme = useTheme();
@@ -194,7 +200,9 @@ export interface CommandGroupProps extends Omit<ViewProps, "style"> {
   readonly headingStyle?: StyleProp<TextStyle>;
 }
 
-export const CommandGroup = React.forwardRef<React.ElementRef<typeof View>, CommandGroupProps>(
+export const CommandGroup: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CommandGroupProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, CommandGroupProps>(
   ({ children, heading, headingStyle, style, ...props }, ref) => {
     const theme = useTheme();
 
@@ -236,7 +244,9 @@ export interface CommandItemProps
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
-export const CommandItem = React.forwardRef<React.ElementRef<typeof Pressable>, CommandItemProps>(
+export const CommandItem: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CommandItemProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<React.ElementRef<typeof Pressable>, CommandItemProps>(
   ({ children, keywords, onCommandSelect, onPress, style, textStyle, textValue, value, ...props }, ref) => {
     const context = useCommandContext();
     const theme = useTheme();

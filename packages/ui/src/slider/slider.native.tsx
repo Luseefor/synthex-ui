@@ -15,7 +15,9 @@ export interface SliderProps extends Omit<PressableProps, "disabled" | "style">,
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const Slider = React.forwardRef<React.ElementRef<typeof Pressable>, SliderProps>(
+export const Slider: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SliderProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<React.ElementRef<typeof Pressable>, SliderProps>(
   (
     {
       defaultValue = [50],

@@ -21,7 +21,9 @@ export interface CalendarProps extends Omit<ViewProps, "style">, CalendarSharedP
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const Calendar = React.forwardRef<React.ElementRef<typeof View>, CalendarProps>(
+export const Calendar: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CalendarProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, CalendarProps>(
   (
     {
       defaultMonth,

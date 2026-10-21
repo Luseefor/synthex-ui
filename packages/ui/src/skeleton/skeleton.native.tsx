@@ -8,7 +8,9 @@ export interface SkeletonProps extends Omit<ViewProps, "style">, SkeletonSharedP
   readonly testID?: string;
 }
 
-export const Skeleton = React.forwardRef<React.ElementRef<typeof View>, SkeletonProps>(
+export const Skeleton: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SkeletonProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, SkeletonProps>(
   ({ style, testID, variant, ...props }, ref) => {
     const theme = useTheme();
     const resolved = resolveSkeletonVariants({ variant });

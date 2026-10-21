@@ -61,7 +61,9 @@ export interface AccordionItemProps
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const AccordionItem = React.forwardRef<React.ElementRef<typeof View>, AccordionItemProps>(
+export const AccordionItem: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<AccordionItemProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, AccordionItemProps>(
   ({ children, disabled = false, style, testID, value, ...props }, ref) => {
     const theme = useTheme();
 
@@ -96,7 +98,9 @@ export interface AccordionTriggerProps extends Omit<PressableProps, "style"> {
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
-export const AccordionTrigger = React.forwardRef<
+export const AccordionTrigger: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<AccordionTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   AccordionTriggerProps
 >(({ children, disabled: triggerDisabled, onPress, style, testID, textStyle, ...props }, ref) => {
@@ -165,7 +169,9 @@ export interface AccordionContentProps extends Omit<ViewProps, "style"> {
   readonly testID?: string;
 }
 
-export const AccordionContent = React.forwardRef<
+export const AccordionContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<AccordionContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   AccordionContentProps
 >(({ children, style, testID, ...props }, ref) => {

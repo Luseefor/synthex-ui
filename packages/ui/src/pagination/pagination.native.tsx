@@ -18,7 +18,9 @@ export interface PaginationProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const Pagination = React.forwardRef<React.ElementRef<typeof View>, PaginationProps>(
+export const Pagination: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<PaginationProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, PaginationProps>(
   ({ style, ...props }, ref) => (
     <View ref={ref} accessible style={[{ width: "100%" }, style]} {...props} />
   ),
@@ -26,7 +28,9 @@ export const Pagination = React.forwardRef<React.ElementRef<typeof View>, Pagina
 
 Pagination.displayName = "Pagination";
 
-export const PaginationContent = React.forwardRef<
+export const PaginationContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<PaginationProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   PaginationProps
 >(({ style, ...props }, ref) => (
@@ -39,7 +43,9 @@ export const PaginationContent = React.forwardRef<
 
 PaginationContent.displayName = "PaginationContent";
 
-export const PaginationItem = React.forwardRef<React.ElementRef<typeof View>, PaginationProps>(
+export const PaginationItem: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<PaginationProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, PaginationProps>(
   ({ style, ...props }, ref) => <View ref={ref} style={style} {...props} />,
 );
 
@@ -53,7 +59,9 @@ export interface PaginationLinkProps
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
-export const PaginationLink = React.forwardRef<
+export const PaginationLink: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<PaginationLinkProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   PaginationLinkProps
 >(({ children, isActive, style, textStyle, ...props }, ref) => {
@@ -106,7 +114,9 @@ export const PaginationLink = React.forwardRef<
 
 PaginationLink.displayName = "PaginationLink";
 
-export const PaginationPrevious = React.forwardRef<
+export const PaginationPrevious: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<PaginationLinkProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   PaginationLinkProps
 >(({ children = "Previous", ...props }, ref) => (
@@ -118,7 +128,9 @@ export const PaginationPrevious = React.forwardRef<
 
 PaginationPrevious.displayName = "PaginationPrevious";
 
-export const PaginationNext = React.forwardRef<
+export const PaginationNext: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<PaginationLinkProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   PaginationLinkProps
 >(({ children = "Next", ...props }, ref) => (

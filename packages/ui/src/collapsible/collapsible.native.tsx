@@ -29,7 +29,9 @@ export interface CollapsibleTriggerProps extends Omit<PressableProps, "style"> {
   readonly testID?: string;
 }
 
-export const CollapsibleTrigger = React.forwardRef<React.ElementRef<typeof Pressable>, CollapsibleTriggerProps>(
+export const CollapsibleTrigger: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CollapsibleTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<React.ElementRef<typeof Pressable>, CollapsibleTriggerProps>(
   ({ children, onPress, style, asChild, testID, ...props }, ref) => {
     const context = useCollapsibleContext();
 
@@ -83,7 +85,9 @@ export interface CollapsibleContentProps extends Omit<ViewProps, "style"> {
   readonly testID?: string;
 }
 
-export const CollapsibleContent = React.forwardRef<React.ElementRef<typeof View>, CollapsibleContentProps>(
+export const CollapsibleContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CollapsibleContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, CollapsibleContentProps>(
   ({ children, forceMount = false, style, asChild, testID, ...props }, ref) => {
     const context = useCollapsibleContext();
     if (!context.open && !forceMount) {

@@ -45,7 +45,9 @@ export interface DrawerTriggerProps extends Omit<PressableProps, "style"> {
   readonly asChild?: boolean;
 }
 
-export const DrawerTrigger = React.forwardRef<
+export const DrawerTrigger: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DrawerTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DrawerTriggerProps
 >(({ children, onPress, style, asChild, testID, ...props }, ref) => {
@@ -91,7 +93,9 @@ export const DrawerTrigger = React.forwardRef<
 
 DrawerTrigger.displayName = "DrawerTrigger";
 
-export const DrawerClose = React.forwardRef<
+export const DrawerClose: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DrawerTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DrawerTriggerProps
 >(({ children, onPress, style, asChild, testID, ...props }, ref) => {
@@ -143,7 +147,9 @@ export interface DrawerContentProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const DrawerContent = React.forwardRef<React.ElementRef<typeof View>, DrawerContentProps>(
+export const DrawerContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DrawerContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, DrawerContentProps>(
   ({ children, dismissible = true, side = "bottom", style, testID, ...props }, ref) => {
     const context = useDialogContext();
     const theme = useTheme();
@@ -249,7 +255,9 @@ export interface DrawerSectionProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const DrawerHeader = React.forwardRef<React.ElementRef<typeof View>, DrawerSectionProps>(
+export const DrawerHeader: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DrawerSectionProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, DrawerSectionProps>(
   ({ style, testID, ...props }, ref) => (
     <View ref={ref} testID={testID ?? "drawer-header"} style={[{ gap: 8 }, style]} {...props} />
   ),
@@ -261,7 +269,9 @@ export interface DrawerTextProps extends Omit<TextProps, "style"> {
   readonly style?: StyleProp<TextStyle>;
 }
 
-export const DrawerTitle = React.forwardRef<React.ElementRef<typeof Text>, DrawerTextProps>(
+export const DrawerTitle: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DrawerTextProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, DrawerTextProps>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
@@ -287,7 +297,9 @@ export const DrawerTitle = React.forwardRef<React.ElementRef<typeof Text>, Drawe
 
 DrawerTitle.displayName = "DrawerTitle";
 
-export const DrawerDescription = React.forwardRef<
+export const DrawerDescription: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DrawerTextProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<
   React.ElementRef<typeof Text>,
   DrawerTextProps
 >(({ style, testID, ...props }, ref) => {
@@ -313,7 +325,9 @@ export const DrawerDescription = React.forwardRef<
 
 DrawerDescription.displayName = "DrawerDescription";
 
-export const DrawerFooter = React.forwardRef<React.ElementRef<typeof View>, DrawerSectionProps>(
+export const DrawerFooter: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DrawerSectionProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, DrawerSectionProps>(
   ({ style, testID, ...props }, ref) => (
     <View
       ref={ref}

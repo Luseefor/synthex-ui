@@ -69,8 +69,10 @@ ThemeProvider still synchronizes document-root tokens for portals using the
 existing last-effect behavior. Simultaneously mounted nested providers and
 outer updates can change the tokens used by body portals. Use a single global
 provider for a shared portal theme; independent nested portal themes remain a
-limitation. Native device accessibility and non-text/focus contrast across all
-components require the subsequent native and accessibility audits.
+limitation. See [native capabilities](./native-capabilities.md) and the
+[device validation checklist](./native-device-validation.md) for native source
+contracts and pending device checks. Native screen-reader behavior and
+non-text/focus contrast across all components remain unverified.
 
 ## Run the checks
 

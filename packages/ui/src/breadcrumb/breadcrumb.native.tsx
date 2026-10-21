@@ -9,12 +9,16 @@ export interface BreadcrumbProps extends Omit<ViewProps, "style"> {
   readonly testID?: string;
 }
 
-export const Breadcrumb = React.forwardRef<React.ElementRef<typeof View>, BreadcrumbProps>(
+export const Breadcrumb: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<BreadcrumbProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, BreadcrumbProps>(
   ({ children, style, testID, ...props }, ref) => <View ref={ref} testID={testID ?? "breadcrumb"} style={style} {...props}>{children}</View>,
 );
 Breadcrumb.displayName = "Breadcrumb";
 
-export const BreadcrumbList = React.forwardRef<React.ElementRef<typeof View>, BreadcrumbProps>(
+export const BreadcrumbList: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<BreadcrumbProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, BreadcrumbProps>(
   ({ children, style, testID, ...props }, ref) => (
     <View ref={ref} testID={testID ?? "breadcrumb-list"} style={[{ flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: 8 }, style]} {...props}>
       {children}
@@ -23,7 +27,9 @@ export const BreadcrumbList = React.forwardRef<React.ElementRef<typeof View>, Br
 );
 BreadcrumbList.displayName = "BreadcrumbList";
 
-export const BreadcrumbItem = React.forwardRef<React.ElementRef<typeof View>, BreadcrumbProps>(
+export const BreadcrumbItem: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<BreadcrumbProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, BreadcrumbProps>(
   ({ children, style, testID, ...props }, ref) => (
     <View ref={ref} testID={testID ?? "breadcrumb-item"} style={[{ flexDirection: "row", alignItems: "center", gap: 8 }, style]} {...props}>
       {children}
@@ -39,7 +45,9 @@ export interface BreadcrumbLinkProps extends Omit<PressableProps, "style">, Brea
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
-export const BreadcrumbLink = React.forwardRef<React.ElementRef<typeof Pressable>, BreadcrumbLinkProps>(
+export const BreadcrumbLink: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<BreadcrumbLinkProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<React.ElementRef<typeof Pressable>, BreadcrumbLinkProps>(
   ({ children, current = false, style, testID, textStyle, ...props }, ref) => {
     const theme = useTheme();
     return (
@@ -58,7 +66,9 @@ export interface BreadcrumbTextProps extends Omit<React.ComponentProps<typeof Te
   readonly testID?: string;
 }
 
-export const BreadcrumbPage = React.forwardRef<React.ElementRef<typeof Text>, BreadcrumbTextProps>(
+export const BreadcrumbPage: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<BreadcrumbTextProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, BreadcrumbTextProps>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
     return <Text ref={ref} testID={testID ?? "breadcrumb-page"} style={[{ color: theme.colors.foreground, fontSize: theme.typography.size.sm, fontWeight: theme.typography.weight.semibold }, style]} {...props} />;
@@ -66,7 +76,9 @@ export const BreadcrumbPage = React.forwardRef<React.ElementRef<typeof Text>, Br
 );
 BreadcrumbPage.displayName = "BreadcrumbPage";
 
-export const BreadcrumbSeparator = React.forwardRef<React.ElementRef<typeof Text>, BreadcrumbTextProps>(
+export const BreadcrumbSeparator: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<BreadcrumbTextProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, BreadcrumbTextProps>(
   ({ children = "›", style, testID, ...props }, ref) => {
     const theme = useTheme();
     return <Text ref={ref} testID={testID ?? "breadcrumb-separator"} style={[{ color: theme.colors.foregroundMuted, fontSize: theme.typography.size.sm }, style]} {...props}>{children}</Text>;
@@ -74,7 +86,9 @@ export const BreadcrumbSeparator = React.forwardRef<React.ElementRef<typeof Text
 );
 BreadcrumbSeparator.displayName = "BreadcrumbSeparator";
 
-export const BreadcrumbEllipsis = React.forwardRef<React.ElementRef<typeof Text>, BreadcrumbTextProps>(
+export const BreadcrumbEllipsis: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<BreadcrumbTextProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, BreadcrumbTextProps>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
     return <Text ref={ref} testID={testID ?? "breadcrumb-ellipsis"} style={[{ color: theme.colors.foregroundMuted, fontSize: theme.typography.size.sm, fontWeight: theme.typography.weight.semibold }, style]} {...props}>…</Text>;

@@ -20,7 +20,9 @@ const AlertVariantContext = React.createContext<AlertSharedProps["variant"] | un
   undefined,
 );
 
-export const Alert = React.forwardRef<React.ElementRef<typeof View>, AlertProps>(
+export const Alert: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<AlertProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, AlertProps>(
   ({ style, testID, variant, ...props }, ref) => {
     const theme = useTheme();
     const resolved = resolveAlertVariants({ variant });
@@ -70,7 +72,9 @@ export interface AlertTextProps extends Omit<TextProps, "style">, AlertSharedPro
   readonly testID?: string;
 }
 
-export const AlertTitle = React.forwardRef<React.ElementRef<typeof Text>, AlertTextProps>(
+export const AlertTitle: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<AlertTextProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, AlertTextProps>(
   ({ style, testID, variant, ...props }, ref) => {
     const theme = useTheme();
     const contextVariant = React.useContext(AlertVariantContext);
@@ -106,7 +110,9 @@ export const AlertTitle = React.forwardRef<React.ElementRef<typeof Text>, AlertT
 
 AlertTitle.displayName = "AlertTitle";
 
-export const AlertDescription = React.forwardRef<
+export const AlertDescription: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<AlertTextProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<
   React.ElementRef<typeof Text>,
   AlertTextProps
 >(({ style, testID, variant, ...props }, ref) => {

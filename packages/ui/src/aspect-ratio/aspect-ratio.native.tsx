@@ -8,7 +8,9 @@ export interface AspectRatioProps extends Omit<ViewProps, "style">, AspectRatioS
   readonly testID?: string;
 }
 
-export const AspectRatio = React.forwardRef<React.ElementRef<typeof View>, AspectRatioProps>(
+export const AspectRatio: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<AspectRatioProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, AspectRatioProps>(
   ({ children, ratio = 16 / 9, style, testID, ...props }, ref) => (
     <View ref={ref} testID={testID ?? "aspect-ratio"} style={[{ width: "100%", aspectRatio: ratio, overflow: "hidden" }, style]} {...props}>
       <View style={{ flex: 1 }}>{children}</View>

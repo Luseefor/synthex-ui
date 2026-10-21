@@ -19,7 +19,9 @@ export interface AlertDialogContentProps extends DialogContentProps {
   readonly hideClose?: boolean;
 }
 
-export const AlertDialogCancel = React.forwardRef<
+export const AlertDialogCancel: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ButtonProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   ButtonProps
 >(({ onPress, testID, variant = "outline", style, ...props }, ref) => {
@@ -40,7 +42,9 @@ export const AlertDialogCancel = React.forwardRef<
 });
 AlertDialogCancel.displayName = "AlertDialogCancel";
 
-export const AlertDialogAction = React.forwardRef<
+export const AlertDialogAction: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ButtonProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   ButtonProps
 >(({ onPress, testID, variant = "destructive", ...props }, ref) => {
@@ -60,7 +64,9 @@ export const AlertDialogAction = React.forwardRef<
 });
 AlertDialogAction.displayName = "AlertDialogAction";
 
-export const AlertDialogContent = React.forwardRef<React.ElementRef<typeof View>, AlertDialogContentProps>(
+export const AlertDialogContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<AlertDialogContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, AlertDialogContentProps>(
   ({ dismissible = false, hideClose = true, testID, ...props }, ref) => (
     <BaseContent
       ref={ref}

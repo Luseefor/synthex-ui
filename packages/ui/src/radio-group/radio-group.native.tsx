@@ -56,7 +56,9 @@ export interface RadioGroupItemProps
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
-export const RadioGroupItem = React.forwardRef<
+export const RadioGroupItem: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<RadioGroupItemProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   RadioGroupItemProps
 >(({ children, disabled: itemDisabled, onPress, style, textStyle, value, ...props }, ref) => {

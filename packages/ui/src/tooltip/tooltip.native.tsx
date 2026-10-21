@@ -56,7 +56,9 @@ export interface TooltipTriggerProps extends Omit<PressableProps, "style"> {
   readonly asChild?: boolean;
 }
 
-export const TooltipTrigger = React.forwardRef<
+export const TooltipTrigger: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<TooltipTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   TooltipTriggerProps
 >(({ children, onHoverIn, onHoverOut, onPressIn, onPressOut, style, asChild, testID, ...props }, ref) => {
@@ -115,7 +117,9 @@ export interface TooltipContentProps extends Omit<TextProps, "style">, OverlayPo
 }
 
 // Native renders in normal flow; side/align/sideOffset/alignOffset are accepted for API parity and ignored.
-export const TooltipContent = React.forwardRef<React.ElementRef<typeof Text>, TooltipContentProps>(
+export const TooltipContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<TooltipContentProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, TooltipContentProps>(
   ({ align, alignOffset, side, sideOffset, style, testID, ...props }, ref) => {
     const context = useTooltipContext();
     const theme = useTheme();

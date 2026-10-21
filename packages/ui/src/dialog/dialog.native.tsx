@@ -4,9 +4,9 @@ import {
   Pressable,
   Text,
   type GestureResponderEvent,
+  type ModalProps,
   type TextProps,
   View,
-  type ModalProps,
   type PressableProps,
   type StyleProp,
   type TextStyle,
@@ -21,6 +21,45 @@ import {
   useDialogController,
   type DialogSharedProps,
 } from "./dialog.shared";
+
+function mergeRefs<T>(...refs: Array<React.Ref<T | null> | undefined>) {
+  return (value: T | null) => {
+    const cleanups: Array<() => void> = [];
+    const voidCallbacks: Array<React.RefCallback<T | null>> = [];
+    const objects: Array<React.RefObject<T | null>> = [];
+    for (const ref of refs) {
+      if (typeof ref === "function") {
+        const cleanup = ref(value);
+        if (typeof cleanup === "function") {
+          cleanups.push(cleanup);
+        } else {
+          voidCallbacks.push(ref);
+        }
+      } else if (ref != null) {
+        ref.current = value;
+        objects.push(ref);
+      }
+    }
+    if (cleanups.length === 0 && objects.length === 0) {
+      return undefined;
+    }
+    return () => {
+      for (const callback of voidCallbacks) {
+        callback(null);
+      }
+      for (const ref of objects) {
+        ref.current = null;
+      }
+      for (const cleanup of cleanups) {
+        cleanup();
+      }
+    };
+  };
+}
+
+function getChildRef<T>(child: React.ReactElement): React.Ref<T> | undefined {
+  return (child.props as { readonly ref?: React.Ref<T> }).ref;
+}
 
 export interface DialogProps extends DialogSharedProps {
   readonly children: React.ReactNode;
@@ -40,18 +79,26 @@ export interface DialogTriggerProps extends Omit<PressableProps, "style"> {
   readonly asChild?: boolean;
 }
 
-export const DialogTrigger = React.forwardRef<
+export const DialogTrigger: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DialogTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DialogTriggerProps
->(({ children, onPress, style, asChild, testID, ...props }, ref) => {
+>(({ children, onPress, style, asChild, testID, disabled, accessibilityState, ...props }, ref) => {
   const context = useDialogContext();
 
   const handlePress = React.useCallback(
     (event: GestureResponderEvent) => {
-      context.setOpen(true);
+      if (disabled === true) {
+        return;
+      }
       onPress?.(event);
+      if (event.defaultPrevented) {
+        return;
+      }
+      context.setOpen(true);
     },
-    [context, onPress]
+    [context, disabled, onPress]
   );
 
   type AsChildProps = {
@@ -59,14 +106,42 @@ export const DialogTrigger = React.forwardRef<
     [key: string]: unknown;
   };
 
-  if (asChild && React.isValidElement<AsChildProps>(children)) {
-    return React.cloneElement(children, {
-      ref,
-      testID: (children.props as { testID?: string }).testID ?? testID ?? "dialog-trigger",
+  const childElement =
+    asChild && React.isValidElement<AsChildProps>(children) ? children : null;
+  const childRef = childElement ? getChildRef(childElement) : undefined;
+  const mergedRef = React.useMemo(
+    () => mergeRefs(ref, childRef),
+    [ref, childRef],
+  );
+
+  if (childElement) {
+    const childDisabled = (childElement.props as { readonly disabled?: boolean }).disabled;
+    const resolvedDisabled = disabled === true || childDisabled === true;
+    const childOnPress = childElement.props.onPress;
+    return React.cloneElement(childElement, {
+      ref: mergedRef,
+      testID: (childElement.props as { testID?: string }).testID ?? testID ?? "dialog-trigger",
+      disabled: resolvedDisabled,
+      accessibilityRole: childElement.props.accessibilityRole ?? "button",
       ...props,
-      onPress: (e: GestureResponderEvent) => {
-        handlePress(e);
-        children.props.onPress?.(e);
+      accessibilityState: {
+        ...(childElement.props.accessibilityState as PressableProps["accessibilityState"]),
+        ...accessibilityState,
+        disabled: resolvedDisabled,
+      },
+      onPress: (event: GestureResponderEvent) => {
+        if (resolvedDisabled) {
+          return;
+        }
+        childOnPress?.(event);
+        if (event.defaultPrevented) {
+          return;
+        }
+        onPress?.(event);
+        if (event.defaultPrevented) {
+          return;
+        }
+        context.setOpen(true);
       },
     });
   }
@@ -75,8 +150,11 @@ export const DialogTrigger = React.forwardRef<
     <Pressable
       ref={ref}
       onPress={handlePress}
+      accessibilityRole="button"
+      accessibilityState={{ ...accessibilityState, disabled: !!disabled }}
       style={style}
       testID={testID ?? "dialog-trigger"}
+      disabled={disabled}
       {...props}
     >
       {children}
@@ -92,18 +170,26 @@ export interface DialogCloseProps extends Omit<PressableProps, "style"> {
   readonly asChild?: boolean;
 }
 
-export const DialogClose = React.forwardRef<
+export const DialogClose: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DialogCloseProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DialogCloseProps
->(({ children, onPress, style, asChild, testID, ...props }, ref) => {
+>(({ children, onPress, style, asChild, testID, disabled, accessibilityState, ...props }, ref) => {
   const context = useDialogContext();
 
   const handlePress = React.useCallback(
     (event: GestureResponderEvent) => {
-      context.setOpen(false);
+      if (disabled === true) {
+        return;
+      }
       onPress?.(event);
+      if (event.defaultPrevented) {
+        return;
+      }
+      context.setOpen(false);
     },
-    [context, onPress]
+    [context, disabled, onPress]
   );
 
   type AsChildProps = {
@@ -111,14 +197,42 @@ export const DialogClose = React.forwardRef<
     [key: string]: unknown;
   };
 
-  if (asChild && React.isValidElement<AsChildProps>(children)) {
-    return React.cloneElement(children, {
-      ref,
-      testID: (children.props as { testID?: string }).testID ?? testID ?? "dialog-close",
+  const childElement =
+    asChild && React.isValidElement<AsChildProps>(children) ? children : null;
+  const childRef = childElement ? getChildRef(childElement) : undefined;
+  const mergedRef = React.useMemo(
+    () => mergeRefs(ref, childRef),
+    [ref, childRef],
+  );
+
+  if (childElement) {
+    const childDisabled = (childElement.props as { readonly disabled?: boolean }).disabled;
+    const resolvedDisabled = disabled === true || childDisabled === true;
+    const childOnPress = childElement.props.onPress;
+    return React.cloneElement(childElement, {
+      ref: mergedRef,
+      testID: (childElement.props as { testID?: string }).testID ?? testID ?? "dialog-close",
+      disabled: resolvedDisabled,
+      accessibilityRole: childElement.props.accessibilityRole ?? "button",
       ...props,
-      onPress: (e: GestureResponderEvent) => {
-        handlePress(e);
-        children.props.onPress?.(e);
+      accessibilityState: {
+        ...(childElement.props.accessibilityState as PressableProps["accessibilityState"]),
+        ...accessibilityState,
+        disabled: resolvedDisabled,
+      },
+      onPress: (event: GestureResponderEvent) => {
+        if (resolvedDisabled) {
+          return;
+        }
+        childOnPress?.(event);
+        if (event.defaultPrevented) {
+          return;
+        }
+        onPress?.(event);
+        if (event.defaultPrevented) {
+          return;
+        }
+        context.setOpen(false);
       },
     });
   }
@@ -127,8 +241,11 @@ export const DialogClose = React.forwardRef<
     <Pressable
       ref={ref}
       onPress={handlePress}
+      accessibilityRole="button"
+      accessibilityState={{ ...accessibilityState, disabled: !!disabled }}
       style={style}
       testID={testID ?? "dialog-close"}
+      disabled={disabled}
       {...props}
     >
       {children}
@@ -145,7 +262,9 @@ export interface DialogContentProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const DialogContent = React.forwardRef<React.ElementRef<typeof View>, DialogContentProps>(
+export const DialogContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DialogContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, DialogContentProps>(
   (
     {
       children,
@@ -161,6 +280,16 @@ export const DialogContent = React.forwardRef<React.ElementRef<typeof View>, Dia
   ) => {
     const context = useDialogContext();
     const theme = useTheme();
+    const { onRequestClose: callerOnRequestClose, ...restModalProps } = modalProps ?? {};
+    const handleRequestClose = React.useCallback(
+      (event: Parameters<NonNullable<ModalProps["onRequestClose"]>>[0]) => {
+        callerOnRequestClose?.(event);
+        if (dismissible) {
+          context.setOpen(false);
+        }
+      },
+      [callerOnRequestClose, context, dismissible],
+    );
 
     if (!context.open) {
       return null;
@@ -168,15 +297,11 @@ export const DialogContent = React.forwardRef<React.ElementRef<typeof View>, Dia
 
     return (
       <Modal
+        {...restModalProps}
         transparent
-        animationType="fade"
+        animationType={restModalProps.animationType ?? "fade"}
         visible={context.open}
-        onRequestClose={() => {
-          if (dismissible) {
-            context.setOpen(false);
-          }
-        }}
-        {...modalProps}
+        onRequestClose={handleRequestClose}
       >
         <Pressable
           testID="dialog-overlay"
@@ -256,7 +381,9 @@ export interface DialogSectionProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const DialogHeader = React.forwardRef<React.ElementRef<typeof View>, DialogSectionProps>(
+export const DialogHeader: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DialogSectionProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, DialogSectionProps>(
   ({ style, testID, ...props }, ref) => (
     <View ref={ref} testID={testID ?? "dialog-header"} style={[{ gap: 8 }, style]} {...props} />
   ),
@@ -268,7 +395,9 @@ export interface DialogTextProps extends Omit<TextProps, "style"> {
   readonly style?: StyleProp<TextStyle>;
 }
 
-export const DialogTitle = React.forwardRef<React.ElementRef<typeof Text>, DialogTextProps>(
+export const DialogTitle: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DialogTextProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, DialogTextProps>(
   ({ style, testID, accessibilityRole = "header", ...props }, ref) => {
     const theme = useTheme();
 
@@ -295,7 +424,9 @@ export const DialogTitle = React.forwardRef<React.ElementRef<typeof Text>, Dialo
 
 DialogTitle.displayName = "DialogTitle";
 
-export const DialogDescription = React.forwardRef<
+export const DialogDescription: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DialogTextProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<
   React.ElementRef<typeof Text>,
   DialogTextProps
 >(({ style, testID, ...props }, ref) => {
@@ -321,7 +452,9 @@ export const DialogDescription = React.forwardRef<
 
 DialogDescription.displayName = "DialogDescription";
 
-export const DialogFooter = React.forwardRef<React.ElementRef<typeof View>, DialogSectionProps>(
+export const DialogFooter: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DialogSectionProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, DialogSectionProps>(
   ({ style, testID, ...props }, ref) => (
     <View
       ref={ref}

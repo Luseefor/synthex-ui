@@ -12,15 +12,19 @@ import { resolveInputVariants, type InputSharedProps } from "./input.shared";
 export interface InputProps
   extends Omit<NativeTextInputProps, "style">,
     InputSharedProps {
+  readonly disabled?: boolean;
   readonly style?: StyleProp<TextStyle>;
 }
 
-export const Input = React.forwardRef<
+export const Input: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<InputProps> & React.RefAttributes<React.ElementRef<typeof NativeTextInput>>
+> = React.forwardRef<
   React.ElementRef<typeof NativeTextInput>,
   InputProps
->(({ invalid, style, uiSize, ...props }, ref) => {
+>(({ accessibilityState, disabled, editable, invalid, style, uiSize, ...props }, ref) => {
   const theme = useTheme();
   const resolved = resolveInputVariants({ invalid, uiSize });
+  const isDisabled = !!disabled;
 
   const inputStyle = React.useMemo<TextStyle>(() => {
     return {
@@ -34,6 +38,8 @@ export const Input = React.forwardRef<
   return (
     <NativeTextInput
       ref={ref}
+      accessibilityState={{ ...accessibilityState, disabled: isDisabled }}
+      editable={isDisabled ? false : editable}
       placeholderTextColor={theme.colors.foregroundMuted}
       style={[inputStyle, style]}
       {...props}

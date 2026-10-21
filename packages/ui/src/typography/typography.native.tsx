@@ -6,7 +6,9 @@ interface NativeTypographyProps extends Omit<TextProps, "style"> {
   readonly style?: StyleProp<TextStyle>;
 }
 
-export const H1 = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
+export const H1: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<NativeTypographyProps & { readonly testID?: string }> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
@@ -31,7 +33,9 @@ export const H1 = React.forwardRef<React.ElementRef<typeof Text>, NativeTypograp
 
 H1.displayName = "H1";
 
-export const H2 = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
+export const H2: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<NativeTypographyProps & { readonly testID?: string }> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
@@ -56,7 +60,9 @@ export const H2 = React.forwardRef<React.ElementRef<typeof Text>, NativeTypograp
 
 H2.displayName = "H2";
 
-export const H3 = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
+export const H3: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<NativeTypographyProps & { readonly testID?: string }> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
@@ -81,7 +87,9 @@ export const H3 = React.forwardRef<React.ElementRef<typeof Text>, NativeTypograp
 
 H3.displayName = "H3";
 
-export const Lead = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
+export const Lead: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<NativeTypographyProps & { readonly testID?: string }> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
@@ -105,7 +113,9 @@ export const Lead = React.forwardRef<React.ElementRef<typeof Text>, NativeTypogr
 
 Lead.displayName = "Lead";
 
-export const Muted = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
+export const Muted: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<NativeTypographyProps & { readonly testID?: string }> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
@@ -129,7 +139,9 @@ export const Muted = React.forwardRef<React.ElementRef<typeof Text>, NativeTypog
 
 Muted.displayName = "Muted";
 
-export const Small = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
+export const Small: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<NativeTypographyProps & { readonly testID?: string }> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
@@ -153,7 +165,9 @@ export const Small = React.forwardRef<React.ElementRef<typeof Text>, NativeTypog
 
 Small.displayName = "Small";
 
-export const H4 = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
+export const H4: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<NativeTypographyProps & { readonly testID?: string }> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
     return (
@@ -175,7 +189,9 @@ export const H4 = React.forwardRef<React.ElementRef<typeof Text>, NativeTypograp
   },
 );
 H4.displayName = "H4";
-export const P = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
+export const P: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<NativeTypographyProps & { readonly testID?: string }> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
     return (
@@ -197,7 +213,9 @@ export const P = React.forwardRef<React.ElementRef<typeof Text>, NativeTypograph
   },
 );
 P.displayName = "P";
-export const Blockquote = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
+export const Blockquote: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<NativeTypographyProps & { readonly testID?: string }> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
     return (
@@ -222,7 +240,9 @@ export const Blockquote = React.forwardRef<React.ElementRef<typeof Text>, Native
   },
 );
 Blockquote.displayName = "Blockquote";
-export const Code = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
+export const Code: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<NativeTypographyProps & { readonly testID?: string }> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
     return (
@@ -246,7 +266,9 @@ export const Code = React.forwardRef<React.ElementRef<typeof Text>, NativeTypogr
   },
 );
 Code.displayName = "Code";
-export const Large = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
+export const Large: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<NativeTypographyProps & { readonly testID?: string }> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, NativeTypographyProps & { readonly testID?: string }>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
     return (

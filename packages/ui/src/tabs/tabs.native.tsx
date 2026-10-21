@@ -62,7 +62,9 @@ export interface TabsListProps extends Omit<ViewProps, "style"> {
   readonly testID?: string;
 }
 
-export const TabsList = React.forwardRef<React.ElementRef<typeof View>, TabsListProps>(
+export const TabsList: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<TabsListProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, TabsListProps>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
@@ -100,10 +102,12 @@ export interface TabsTriggerProps
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
-export const TabsTrigger = React.forwardRef<
+export const TabsTrigger: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<TabsTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   TabsTriggerProps
->(({ children, disabled, style, testID, textStyle, value, ...props }, ref) => {
+>(({ children, disabled, onPress, accessibilityState, style, testID, textStyle, value, ...props }, ref) => {
   const context = useTabsContext();
   const theme = useTheme();
   const isActive = context.value === value;
@@ -131,9 +135,12 @@ export const TabsTrigger = React.forwardRef<
       ref={ref}
       testID={testID ?? "tabs-trigger"}
       accessibilityRole="tab"
-      accessibilityState={{ disabled: disabled || undefined, selected: isActive }}
+      accessibilityState={{ ...accessibilityState, disabled: !!disabled, selected: isActive }}
       disabled={disabled}
-      onPress={() => {
+      onPress={(event) => {
+        if (disabled) return;
+        onPress?.(event);
+        if (event.defaultPrevented) return;
         context.setValue(value);
       }}
       style={({ pressed }) => [
@@ -167,7 +174,9 @@ export interface TabsContentProps extends Omit<ViewProps, "style">, TabsContentS
   readonly testID?: string;
 }
 
-export const TabsContent = React.forwardRef<
+export const TabsContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<TabsContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   TabsContentProps
 >(({ children, forceMount, style, testID, value, ...props }, ref) => {
