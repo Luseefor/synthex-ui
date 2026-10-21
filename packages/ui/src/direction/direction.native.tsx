@@ -1,13 +1,8 @@
 import * as React from "react";
 import { View } from "react-native";
-import type { DirectionContextType, DirectionMode, DirectionProviderSharedProps } from "./direction.shared";
+import type { DirectionMode, DirectionProviderSharedProps } from "./direction.shared";
 import { useControllableState } from "../hooks/useControllableState";
-
-const DirectionContext = React.createContext<DirectionContextType>({
-  dir: "ltr",
-  setDir: () => { },
-  toggleDir: () => { },
-});
+import { NativeDirectionContext as DirectionContext } from "../_shared/direction-context.native";
 
 export interface DirectionProviderProps extends DirectionProviderSharedProps { }
 

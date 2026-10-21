@@ -15,6 +15,11 @@ import { useControllableState } from "../hooks/useControllableState";
 import { CheckIcon, ChevronRightIcon } from "../icons/index.native";
 import type { OverlayPositionProps } from "../_shared/positioning";
 import {
+  NativeOverlayContent,
+  NativeOverlayProvider,
+  useNativeOverlayTriggerRef,
+} from "../_shared/overlay.native";
+import {
   DropdownMenuProvider,
   useDropdownMenuContext,
   useDropdownMenuController,
@@ -30,6 +35,32 @@ import {
   type DropdownMenuSharedProps,
   type DropdownMenuSubSharedProps,
 } from "./dropdown-menu.shared";
+
+function getChildRef<T>(child: React.ReactElement): React.Ref<T> | undefined {
+  return (child.props as { readonly ref?: React.Ref<T> }).ref;
+}
+
+type ComposedTriggerStyle = PressableProps["style"];
+
+function composeTriggerStyle(
+  parent: StyleProp<ViewStyle> | undefined,
+  child: unknown,
+): ComposedTriggerStyle {
+  if (typeof child === "function") {
+    if (parent == null) {
+      return child as ComposedTriggerStyle;
+    }
+    const childFn = child as (state: { pressed: boolean }) => StyleProp<ViewStyle>;
+    return (state: { pressed: boolean }) => [parent, childFn(state)];
+  }
+  if (parent == null) {
+    return child as ComposedTriggerStyle;
+  }
+  if (child == null) {
+    return parent as ComposedTriggerStyle;
+  }
+  return [parent, child as StyleProp<ViewStyle>];
+}
 
 export interface DropdownMenuProps
   extends Omit<ViewProps, "children" | "style">,
@@ -55,15 +86,17 @@ export function DropdownMenu({
   const controller = useDropdownMenuController({ defaultOpen, onOpenChange, open });
 
   return (
-    <DropdownMenuProvider value={controller}>
-      <View
-        testID={testID ?? "dropdown-menu"}
-        style={[{ position: "relative" }, dir ? { direction: dir } : null, style]}
-        {...props}
-      >
-        {children}
-      </View>
-    </DropdownMenuProvider>
+    <NativeOverlayProvider dir={dir}>
+      <DropdownMenuProvider value={controller}>
+        <View
+          testID={testID ?? "dropdown-menu"}
+          style={[{ position: "relative" }, dir ? { direction: dir } : null, style]}
+          {...props}
+        >
+          {children}
+        </View>
+      </DropdownMenuProvider>
+    </NativeOverlayProvider>
   );
 }
 
@@ -78,42 +111,87 @@ export const DropdownMenuTrigger: React.ForwardRefExoticComponent<
 > = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DropdownMenuTriggerProps
->(({ children, onPress, style, asChild, testID, ...props }, ref) => {
+>(({ children, onPress, style, asChild, testID, disabled, accessibilityState, accessibilityRole, ...props }, ref) => {
   const context = useDropdownMenuContext();
-
-  const handlePress = React.useCallback(
-    (event: GestureResponderEvent) => {
-      context.setOpen(!context.open);
-      onPress?.(event);
-    },
-    [context, onPress]
-  );
 
   type AsChildProps = {
     onPress?: ((event: GestureResponderEvent) => void) | null;
     [key: string]: unknown;
   };
 
-  if (asChild && React.isValidElement<AsChildProps>(children)) {
-    return React.cloneElement(children, {
-      ref,
+  const childElement =
+    asChild && React.isValidElement<AsChildProps>(children) ? children : null;
+  const childRef = childElement
+    ? getChildRef<React.ElementRef<typeof View>>(childElement)
+    : undefined;
+  const mergedRef = useNativeOverlayTriggerRef(
+    ref as React.Ref<React.ElementRef<typeof View>> | undefined,
+    childRef,
+  );
+
+  const handlePress = React.useCallback(
+    (event: GestureResponderEvent) => {
+      if (disabled === true) {
+        return;
+      }
+      onPress?.(event);
+      if ((event as { defaultPrevented?: boolean }).defaultPrevented) {
+        return;
+      }
+      context.setOpen(!context.open);
+    },
+    [context, disabled, onPress]
+  );
+
+  if (childElement) {
+    const childDisabled = (childElement.props as { readonly disabled?: boolean }).disabled;
+    const resolvedDisabled = disabled === true || childDisabled === true;
+    const childOnPress = childElement.props.onPress as
+      | ((event: GestureResponderEvent) => void)
+      | undefined;
+    const childTestID = (childElement.props as { testID?: string }).testID;
+    const childStyle = (childElement.props as { style?: PressableProps["style"] }).style;
+    const childAccessibilityState = (childElement.props as { accessibilityState?: PressableProps["accessibilityState"] }).accessibilityState;
+    const childRole = (childElement.props as { accessibilityRole?: PressableProps["accessibilityRole"] }).accessibilityRole;
+    return React.cloneElement(childElement, {
+      ref: mergedRef,
+      testID: childTestID ?? testID ?? "dropdown-menu-trigger",
+      disabled: resolvedDisabled,
+      collapsable: false,
+      accessibilityRole: accessibilityRole ?? childRole ?? "button",
       ...props,
-      testID: testID ?? "dropdown-menu-trigger",
-      accessibilityRole: "button",
-      accessibilityState: { expanded: context.open },
-      onPress: (e: GestureResponderEvent) => {
-        handlePress(e);
-        children.props.onPress?.(e);
+      accessibilityState: {
+        ...childAccessibilityState,
+        ...accessibilityState,
+        expanded: context.open,
+        disabled: resolvedDisabled,
+      },
+      style: composeTriggerStyle(style, childStyle),
+      onPress: (event: GestureResponderEvent) => {
+        if (resolvedDisabled) {
+          return;
+        }
+        childOnPress?.(event);
+        if ((event as { defaultPrevented?: boolean }).defaultPrevented) {
+          return;
+        }
+        onPress?.(event);
+        if ((event as { defaultPrevented?: boolean }).defaultPrevented) {
+          return;
+        }
+        context.setOpen(!context.open);
       },
     });
   }
 
   return (
     <Pressable
-      ref={ref}
+      ref={mergedRef as unknown as React.Ref<React.ElementRef<typeof Pressable>>}
       testID={testID ?? "dropdown-menu-trigger"}
-      accessibilityRole="button"
-      accessibilityState={{ expanded: context.open }}
+      accessibilityRole={accessibilityRole ?? "button"}
+      accessibilityState={{ ...accessibilityState, expanded: context.open, disabled: !!disabled }}
+      disabled={disabled}
+      collapsable={false}
       onPress={handlePress}
       style={style}
       {...props}
@@ -129,7 +207,6 @@ export interface DropdownMenuContentProps extends Omit<ViewProps, "style">, Over
   readonly style?: StyleProp<ViewStyle>;
 }
 
-// Native renders in normal flow; side/align/sideOffset/alignOffset are accepted for API parity and ignored.
 export const DropdownMenuContent: React.ForwardRefExoticComponent<
   React.PropsWithoutRef<DropdownMenuContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
 > = React.forwardRef<
@@ -139,17 +216,18 @@ export const DropdownMenuContent: React.ForwardRefExoticComponent<
   const context = useDropdownMenuContext();
   const theme = useTheme();
 
-  if (!context.open) {
-    return null;
-  }
-
   return (
-    <View
+    <NativeOverlayContent
       ref={ref}
+      open={context.open}
+      onDismiss={() => context.setOpen(false)}
+      side={side}
+      align={align}
+      sideOffset={sideOffset}
+      alignOffset={alignOffset}
       testID={testID ?? "dropdown-menu-content"}
       style={[
         {
-          marginTop: 8,
           minWidth: 224,
           borderWidth: 1,
           borderColor: theme.colors.border,
@@ -238,7 +316,7 @@ export const DropdownMenuItem: React.ForwardRefExoticComponent<
 > = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DropdownMenuItemProps
->(({ children, onPress, style, textStyle, testID, ...props }, ref) => {
+>(({ children, onPress, style, textStyle, testID, disabled, ...props }, ref) => {
   const context = useDropdownMenuContext();
   const theme = useTheme();
 
@@ -247,8 +325,15 @@ export const DropdownMenuItem: React.ForwardRefExoticComponent<
       ref={ref}
       testID={testID ?? "dropdown-menu-item"}
       accessibilityRole="button"
+      disabled={disabled}
       onPress={(event) => {
+        if (disabled === true) {
+          return;
+        }
         onPress?.(event);
+        if ((event as { defaultPrevented?: boolean }).defaultPrevented) {
+          return;
+        }
         context.setOpen(false);
       }}
       style={({ pressed }) => [

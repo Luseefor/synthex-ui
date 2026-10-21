@@ -9,8 +9,13 @@
       "internal": true,
       "files": [
         "a11y.web.tsx",
+        "direction-context.native.ts",
         "field-control.native.ts",
         "field-control.web.ts",
+        "overlay.native.test.tsx",
+        "overlay.native.tsx",
+        "positioning.native.test.ts",
+        "positioning.native.ts",
         "positioning.ts",
         "positioning.web.ts",
         "slot.web.tsx",
@@ -351,6 +356,7 @@
       "internal": false,
       "files": [
         "combobox.native.tsx",
+        "combobox.overlay.native.test.tsx",
         "combobox.shared.tsx",
         "combobox.web.tsx",
         "index.native.ts",
@@ -584,6 +590,7 @@
         "react-native"
       ],
       "registryDependencies": [
+        "_shared",
         "hooks"
       ]
     },
@@ -617,6 +624,7 @@
       "files": [
         "dropdown-menu-extras.test.tsx",
         "dropdown-menu.native.tsx",
+        "dropdown-menu.overlay.native.test.tsx",
         "dropdown-menu.shared.tsx",
         "dropdown-menu.web.tsx",
         "index.native.ts",
@@ -872,6 +880,7 @@
         "index.native.ts",
         "index.ts",
         "popover.native.tsx",
+        "popover.overlay.native.test.tsx",
         "popover.shared.tsx",
         "popover.web.tsx"
       ],
@@ -975,6 +984,7 @@
         "select.contract.native.test.tsx",
         "select.native.test.tsx",
         "select.native.tsx",
+        "select.overlay.native.test.tsx",
         "select.shared.tsx",
         "select.web.tsx"
       ],

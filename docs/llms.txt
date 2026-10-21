@@ -1,6 +1,6 @@
 # Synthex UI, llms.txt
 
-> Branch status (`ace/native-capabilities`): `create --template`, `setup`,
+> Branch status (`ace/native-overlays`): `create --template`, `setup`,
 > and the lean `add` below describe the CLI source in this checkout. Forthcoming
 > CLI release; implemented in source, not yet published in
 > `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
@@ -167,3 +167,4 @@ No full web/native API parity or full a11y certification claimed.
 Component behavior and verification: `docs/component-contracts.md` covers refs, controlled/default values, native form submit/reset, FormControl ARIA associations, Radix direction context, theme text contrast, and Node SSR/Chromium hydration checks. Scope and nested-portal/custom-theme limitations are explicit; no universal accessibility certification is claimed.
 
 Native coverage: `docs/native-capabilities.md` lists implementation shapes, ignored props, and gaps by family. `docs/native-device-validation.md` describes the fixture and pending VoiceOver/TalkBack/device checks. After building UI, `bun run native:check` installs the local packed UI in an isolated Expo app, typechecks native subpaths, and exports iOS + Android bundles. These are not simulator or device passes.
+Native Select/DropdownMenu/Popover/Combobox content uses a shared anchored transparent Modal, measured trigger placement, side/align offsets, RTL start/end, viewport flip/clamp, scroll limits, keyboard avoidance, and outside/system dismissal. SelectTrigger asChild composes child/parent handlers and refs. Native overlays always modal (modal=false does not opt out); no custom initial focus/containment/restoration or desktop keyboard navigation is implemented. Other native overlay families and dropdown submenus retain their documented limitations.
