@@ -33,7 +33,7 @@ See [device validation](./native-device-validation.md) for a runnable packed Exp
   `dist/<family>/index.native.js`, and every native graph is transitively web-file-free and
   DOM-package-free (no runtime `@radix/*`, `cmdk`, `embla`, `recharts`, `sonner`, `vaul`,
   `react-dom`, …). This checks export shape and source imports. It does not execute Metro or a device.
-- **Metro export:** `bun run native:check` installs the local UI tarball in an isolated Expo app, typechecks native subpath imports, and exports iOS + Android bundles. The fixture also imports the native root (including chart). This verifies packed module resolution and bundle generation, not device behavior.
+- **Metro export:** `bun run native:check` installs the local UI tarball in an isolated Expo app, copies four overlays and direction using the local CLI tarball, typechecks native subpath imports and the copied implementations, and exports iOS + Android bundles. The fixture also imports the native root (including chart). This verifies packed module resolution, source compatibility and bundle generation, not device behavior.
 - **Pending real-device evidence:** everything under “Device checklist” below — none of it
   has been run in this stage.
 
@@ -208,6 +208,7 @@ via `NativeOverlayProvider`/`NativeDirectionContext`. Each remaining listed prop
 bun --filter synthex-ui typecheck
 bun --filter synthex-ui test
 bun --filter synthex-ui build
+bun --filter '@luseefor/synthex-cli' build
 bun run native:check
 ```
 

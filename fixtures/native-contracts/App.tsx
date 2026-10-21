@@ -13,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "synthex-ui/popover";
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList, ComboboxTrigger, ComboboxValue } from "synthex-ui/combobox";
 import { ThemeProvider, useTheme } from "synthex-ui/theme";
 import { BarChart, DirectionProvider } from "synthex-ui/native";
+import OwnedOverlays from "./OwnedOverlays";
 
 export default function App() {
   const [dark, setDark] = React.useState(false);
@@ -50,6 +51,7 @@ function Contracts({ dark, setDark, rtl, setRtl }: { dark: boolean; setDark: (va
     <ScrollView testID="native-contracts" keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 24, paddingTop: 64, gap: 20 }}>
       <Text accessibilityRole="header" style={{ ...headingStyle, fontSize: 26 }}>Synthex native contracts</Text>
       <Text style={labelStyle}>Interactive fixture. Bundle success does not verify device behavior.</Text>
+      <OwnedOverlays />
 
       <View style={{ gap: 10 }}>
         <Text accessibilityRole="header" style={headingStyle}>Theme and actions</Text>

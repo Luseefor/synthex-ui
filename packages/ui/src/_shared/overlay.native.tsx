@@ -166,7 +166,7 @@ export const NativeOverlayContent: React.ForwardRefExoticComponent<
         supportedOrientations={["portrait", "portrait-upside-down", "landscape-left", "landscape-right"]}
         onRequestClose={dismiss} onShow={measure} testID={testID + "-modal"}>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"} testID={testID + "-keyboard-avoider"}>
-          <Pressable style={StyleSheet.absoluteFillObject} accessible={false} importantForAccessibility="no"
+          <Pressable style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }} accessible={false} importantForAccessibility="no"
             testID={testID + "-overlay"} onPress={dismiss} />
           <SafeAreaView style={{ flex: 1 }} pointerEvents="box-none">
             <View ref={rootRef} collapsable={false} pointerEvents="box-none" style={{ flex: 1, direction: dir }}

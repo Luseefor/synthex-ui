@@ -3,7 +3,9 @@
 Scope: branch `ace/native-overlays` (unreleased source in this checkout). The source tests use
 mocked React Native hosts plus pure geometry tests. The `native:check` gate installs
 the packed UI in an isolated Expo app, typechecks its native subpath imports,
-and exports iOS and Android bundles. No step runs a native app.
+adds owned overlays using the packed CLI, compiles their implementation files
+against the consumer's React Native types, and exports iOS and Android bundles.
+No step runs a native app.
 The generated type-only consumer also checks every exported native forwarded
 component's packed ref declaration against its host instance type under the
 Expo starter's React Native types.
@@ -14,6 +16,7 @@ From the repository root:
 
 ```sh
 bun --filter synthex-ui build
+bun --filter '@luseefor/synthex-cli' build
 bun run native:check
 ```
 
@@ -26,9 +29,12 @@ cd <printed-app-directory>
 npm start
 ```
 
-The fixture source is [App.tsx](../fixtures/native-contracts/App.tsx); dependencies
+The fixture sources are [App.tsx](../fixtures/native-contracts/App.tsx) and
+[OwnedOverlays.tsx](../fixtures/native-contracts/OwnedOverlays.tsx); dependencies
 come from the Expo starter, with only the scratch app's `synthex-ui` dependency
 replaced by a local tarball. The checkout's dependency files are not changed.
+The copied-overlay fixture imports the generated local component barrels. This
+checks implementation APIs under RN 0.88 as well as the package's ref declarations.
 Without `--keep`, the scratch directory is removed on success or failure.
 With `--keep`, remove the printed scratch directory after review.
 

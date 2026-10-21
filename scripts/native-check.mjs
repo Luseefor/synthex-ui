@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,12 +9,13 @@ import { generateNativeRefFixture } from "./native-ref-fixture.mjs";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
 if (args.includes("--help")) {
-  console.log("Usage: node scripts/native-check.mjs [--keep]\nBuild UI first. Packs local UI, installs an isolated Expo fixture, typechecks and exports iOS + Android. --keep preserves the app for device testing.");
+  console.log("Usage: node scripts/native-check.mjs [--keep]\nBuild UI and CLI first. Packs both, installs an isolated Expo fixture, typechecks packaged and copied native sources, and exports iOS + Android. --keep preserves the app for device testing.");
   process.exit(0);
 }
 if (args.some(arg => arg !== "--keep")) throw new Error("Unknown argument. Use --help.");
 const keep = args.includes("--keep");
 if (!existsSync(path.join(root, "packages/ui/dist/index.native.js"))) throw new Error("Build synthex-ui before running native:check.");
+if (!existsSync(path.join(root, "packages/cli/dist/index.js"))) throw new Error("Build the CLI before running native:check.");
 
 function run(command, parameters, cwd, timeout = 600000) {
   const result = spawnSync(command, parameters, { cwd, encoding: "utf8", timeout,
@@ -44,6 +45,18 @@ try {
   cpSync(path.join(root, "templates/native"), app, { recursive: true,
     filter: source => !["node_modules", ".expo", ".git", "dist", "build", "package-lock.json", "bun.lock", "pnpm-lock.yaml", "yarn.lock"].includes(path.basename(source)) && !source.endsWith(".tsbuildinfo") });
   cpSync(path.join(root, "fixtures/native-contracts/App.tsx"), path.join(app, "App.tsx"));
+  cpSync(path.join(root, "fixtures/native-contracts/OwnedOverlays.tsx"), path.join(app, "OwnedOverlays.tsx"));
+  // Compile copied implementation files against the consumer's RN version too:
+  // declaration-only checks cannot catch removed APIs in implementation bodies.
+  const cliPack = JSON.parse(run("npm", ["pack", "--json", "--pack-destination", scratch], path.join(root, "packages/cli")));
+  const cliTarball = path.join(scratch, cliPack[0].filename);
+  if (!existsSync(cliTarball)) throw new Error("Missing packed CLI tarball.");
+  const cliExtract = path.join(scratch, "cli");
+  mkdirSync(cliExtract);
+  run("tar", ["-xzf", cliTarball, "-C", cliExtract], scratch);
+  const cli = path.join(cliExtract, "package/dist/index.js");
+  run("node", [cli, "setup", "--cwd", app, "--framework", "expo", "--package-manager", "npm"], app);
+  run("node", [cli, "add", "select", "dropdown-menu", "popover", "combobox", "direction", "--cwd", app], app);
   const refs = generateNativeRefFixture(root);
   writeFileSync(path.join(app, "native-ref-contracts.ts"), refs.source);
   const manifestPath = path.join(app, "package.json");
@@ -59,7 +72,7 @@ try {
   if (installedManifest.version !== pack[0].version) throw new Error("Installed UI version differs from the tarball.");
   console.log("Packed UI installed: " + installedManifest.version + "; React Native " + JSON.parse(readFileSync(path.join(app, "node_modules/react-native/package.json"), "utf8")).version);
   run("npm", ["run", "typecheck"], app);
-  console.log("Native contracts typecheck passed (" + refs.count + " forwarded ref declarations).");
+  console.log("Native contracts typecheck passed (" + refs.count + " forwarded ref declarations and four copied overlay implementations).");
   for (const platform of ["ios", "android"]) {
     const output = path.join("dist", platform);
     run("node", ["node_modules/expo/bin/cli", "export", "--platform", platform, "--output-dir", output], app);
