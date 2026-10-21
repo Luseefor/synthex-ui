@@ -100,7 +100,7 @@ export const Button = React.forwardRef<React.ElementRef<typeof Pressable>, Butto
           color: theme.colors.foreground,
         },
         destructive: {
-          color: theme.colors.foregroundOnBrand,
+          color: theme.colors.foregroundOnDestructive ?? theme.colors.foregroundOnBrand,
         },
         ghost: {
           color: theme.colors.foreground,

@@ -153,6 +153,10 @@ function resolveLocal(fromFile: string, spec: string): string | null {
   return null;
 }
 
+// Aggregate and per-component exports revisit the same shared source files.
+// Cache only AST extraction; every graph still checks every edge independently.
+const parsedModules = new Map<string, { text: string; references: NativeSpecifier[] }>();
+
 function collectNativeGraph(entry: string): { visited: string[]; leaks: string[] } {
   const visited = new Set<string>();
   const leaks: string[] = [];
@@ -172,7 +176,12 @@ function collectNativeGraph(entry: string): { visited: string[]; leaks: string[]
     if (path.basename(file).includes(".web.")) {
       leaks.push(`web-file-in-native-graph:${file}`);
     }
-    for (const { spec, typeOnly } of extractModuleSpecifiers(file, text)) {
+    let parsed = parsedModules.get(file);
+    if (parsed?.text !== text) {
+      parsed = { text, references: extractModuleSpecifiers(file, text) };
+      parsedModules.set(file, parsed);
+    }
+    for (const { spec, typeOnly } of parsed.references) {
       if (spec.includes(".web")) {
         leaks.push(`${file} -> ${spec}`);
       }

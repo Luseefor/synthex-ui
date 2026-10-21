@@ -32,7 +32,7 @@ describe("createTheme", () => {
 
     expect(theme.colors.background).toBe(darkTheme.colors.background);
     expect(theme.colors.surface).toBe(darkTheme.colors.surface);
-    expect(theme.colors.primary).toBe("#f43f5e");
-    expect(theme.colors.ring).toBe("#f43f5e");
+    expect(theme.colors.primary).toBe("#e11d48");
+    expect(theme.colors.ring).toBe("#e11d48");
   });
 });

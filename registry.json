@@ -18,6 +18,7 @@
         "theme/createTheme.test.ts",
         "theme/createTheme.ts",
         "theme/index.ts",
+        "theme/themeContrastSsr.test.tsx",
         "theme/ThemeProvider.native.tsx",
         "theme/ThemeProvider.web.tsx",
         "tokens/colors.ts",
@@ -45,6 +46,7 @@
       "dir": "packages/ui/src/accordion",
       "internal": false,
       "files": [
+        "accordion.keyboard.test.tsx",
         "accordion.native.tsx",
         "accordion.shared.tsx",
         "accordion.web.tsx",
@@ -192,6 +194,7 @@
         "button.native.test.tsx",
         "button.native.tsx",
         "button.shared.ts",
+        "button.web.test.tsx",
         "button.web.tsx",
         "index.native.ts",
         "index.ts"
@@ -301,6 +304,7 @@
       "dir": "packages/ui/src/checkbox",
       "internal": false,
       "files": [
+        "checkbox.contract.web.test.tsx",
         "checkbox.native.tsx",
         "checkbox.shared.ts",
         "checkbox.web.tsx",
@@ -571,6 +575,7 @@
         "direction.web.tsx"
       ],
       "deps": [
+        "@radix-ui/react-direction",
         "react",
         "react-native"
       ],
@@ -629,6 +634,7 @@
       "dir": "packages/ui/src/form",
       "internal": false,
       "files": [
+        "form.contract.web.test.tsx",
         "form.native.tsx",
         "form.shared.tsx",
         "form.web.test.tsx",
@@ -719,6 +725,7 @@
       "files": [
         "index.native.ts",
         "index.ts",
+        "input.contract.web.test.tsx",
         "input.native.tsx",
         "input.shared.ts",
         "input.web.tsx"
@@ -918,6 +925,7 @@
       "files": [
         "index.native.ts",
         "index.ts",
+        "radio-group.direction.test.tsx",
         "radio-group.native.tsx",
         "radio-group.shared.tsx",
         "radio-group.web.tsx"
@@ -1083,6 +1091,7 @@
       "files": [
         "index.native.ts",
         "index.ts",
+        "switch.contract.web.test.tsx",
         "switch.native.tsx",
         "switch.shared.ts",
         "switch.web.tsx"
@@ -1149,6 +1158,7 @@
       "files": [
         "index.native.ts",
         "index.ts",
+        "tabs.direction.test.tsx",
         "tabs.native.tsx",
         "tabs.shared.ts",
         "tabs.web.tsx"
@@ -1169,6 +1179,7 @@
       "files": [
         "index.native.ts",
         "index.ts",
+        "textarea.contract.web.test.tsx",
         "textarea.native.tsx",
         "textarea.shared.ts",
         "textarea.web.tsx"

@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@import "synthex-ui/styles.css";
+@source "../../../ui/src";
+
+main { max-width: 48rem; margin: auto; padding: 2rem; display: grid; gap: 2rem; }
+section, form { display: grid; gap: .75rem; }
+label { display: flex; align-items: center; gap: .5rem; }
+h1 { font-size: 1.5rem; font-weight: 600; }
+h2 { font-size: 1.125rem; font-weight: 600; }

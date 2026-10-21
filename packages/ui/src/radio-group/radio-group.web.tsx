@@ -34,7 +34,7 @@ const RadioGroupItem = React.forwardRef<
     ref={ref}
     data-slot="radio-group-item"
     className={cn(
-      "inline-flex items-center gap-3 rounded-md px-1 py-1 text-left text-sm font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+      "inline-flex items-center gap-3 rounded-md px-1 py-1 text-start text-sm font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
       className,
     )}
     {...props}

@@ -27,8 +27,17 @@ export function ThemeProvider({
 
   // Sync theme to document root so portalled components (Sheet, Dialog, etc.)
   // rendered via createPortal to document.body inherit the correct mode and tokens.
-  // Save/restore previous values so nested providers and StrictMode remounts
-  // don't wipe an outer provider's tokens on cleanup.
+  // Save/restore previous values so StrictMode remounts and sequential
+  // inner-provider unmounts restore the outer provider's tokens.
+  // Render itself never reads document/window (SSR-safe): all DOM access
+  // lives in this effect.
+  // Known limitation (documented, not fixed here): document-root sync is
+  // last-effect-wins, so simultaneously-mounted nested providers resolve to
+  // the outer tokens on the root (child passive effects run before parent
+  // effects on mount), and an outer update while an inner provider is
+  // mounted overwrites the inner root tokens. Innermost ThemeContext still
+  // applies to non-portalled content; root sync remains best-effort for
+  // portals. A stacked owner registry would be needed to change this.
   useEffect(() => {
     if (typeof document === "undefined") {
       return;

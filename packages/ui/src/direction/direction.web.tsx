@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Provider as RadixDirectionProvider } from "@radix-ui/react-direction";
 import type { DirectionContextType, DirectionMode, DirectionProviderSharedProps } from "./direction.shared";
 import { useControllableState } from "../hooks/useControllableState";
 
@@ -25,9 +26,11 @@ export function DirectionProvider({ children, dir: dirProp, onDirChange: onDirCh
 
   return (
     <DirectionContext.Provider value={value}>
-      <div dir={dir} className="min-h-full">
-        {children}
-      </div>
+      <RadixDirectionProvider dir={dir}>
+        <div dir={dir} className="min-h-full">
+          {children}
+        </div>
+      </RadixDirectionProvider>
     </DirectionContext.Provider>
   );
 }

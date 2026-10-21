@@ -6,6 +6,101 @@ import { space } from "../tokens/space";
 import { typography } from "../tokens/typography";
 import type { AccentPresetName, DeepPartial, SynthexTheme, ThemeMode } from "../types";
 
+/**
+ * WCAG 2.2 contrast (https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum):
+ * normal text >= 4.5:1, computed from sRGB relative luminance.
+ */
+
+export const BRAND_LIGHT_TEXT = "#fafafa";
+export const BRAND_DARK_TEXT = "#09090b";
+export const MIN_NORMAL_CONTRAST = 4.5;
+
+function srgbChannelToLinear(channel: number): number {
+  return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+}
+
+function parseHexColor(hex: string): readonly [number, number, number] | null {
+  const match = /^#([0-9a-fA-F]{6})$/.exec(hex.trim());
+  if (!match) {
+    return null;
+  }
+  const value = match[1];
+  if (value === undefined) {
+    return null;
+  }
+  return [
+    parseInt(value.slice(0, 2), 16) / 255,
+    parseInt(value.slice(2, 4), 16) / 255,
+    parseInt(value.slice(4, 6), 16) / 255,
+  ];
+}
+
+/** sRGB relative luminance per WCAG. Non-hex colors return NaN. */
+export function relativeLuminance(color: string): number {
+  const rgb = parseHexColor(color);
+  if (!rgb) {
+    return NaN;
+  }
+  const [r, g, b] = rgb;
+  return (
+    0.2126 * srgbChannelToLinear(r) +
+    0.7152 * srgbChannelToLinear(g) +
+    0.0722 * srgbChannelToLinear(b)
+  );
+}
+
+/** WCAG contrast ratio. Returns NaN when either color is non-hex. */
+export function contrastRatio(foreground: string, background: string): number {
+  const fg = relativeLuminance(foreground);
+  const bg = relativeLuminance(background);
+  if (!Number.isFinite(fg) || !Number.isFinite(bg)) {
+    return NaN;
+  }
+  const lighter = Math.max(fg, bg);
+  const darker = Math.min(fg, bg);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+/**
+ * Pick one fixed brand text (light #fafafa or dark #09090b) that passes
+ * >= 4.5:1 on BOTH primary and primaryHover. Backgrounds straddling the
+ * threshold (e.g. violet #8b5cf6/#7c3aed, rose #f43f5e/#e11d48) admit no
+ * single passing text, so built-in presets below are shaded so one fixed
+ * text passes both; custom colors fall back to the higher of the two minima.
+ */
+export function pickAccessibleBrandText(
+  primary: string,
+  primaryHover: string,
+  lightText: string = BRAND_LIGHT_TEXT,
+  darkText: string = BRAND_DARK_TEXT,
+): string {
+  const lightMin = Math.min(
+    contrastRatio(lightText, primary),
+    contrastRatio(lightText, primaryHover),
+  );
+  const darkMin = Math.min(
+    contrastRatio(darkText, primary),
+    contrastRatio(darkText, primaryHover),
+  );
+  const lightPasses = lightMin >= MIN_NORMAL_CONTRAST;
+  const darkPasses = darkMin >= MIN_NORMAL_CONTRAST;
+  if (lightPasses && !darkPasses) {
+    return lightText;
+  }
+  if (darkPasses && !lightPasses) {
+    return darkText;
+  }
+  return lightMin >= darkMin ? lightText : darkText;
+}
+
+/** Accessible on-destructive text; falls back to computed brand pick. */
+export function pickAccessibleOnDestructiveText(
+  destructive: string,
+  destructiveHover: string,
+): string {
+  return pickAccessibleBrandText(destructive, destructiveHover);
+}
+
 export const lightTheme: SynthexTheme = {
   mode: "light",
   colors,
@@ -34,7 +129,11 @@ export const darkTheme: SynthexTheme = {
     // ── Text ──────────────────────────────────────────────
     foreground: "#fafafa",           // zinc-50
     foregroundMuted: "#a1a1aa",      // zinc-400
-    foregroundOnBrand: "#fafafa",    // zinc-50
+    // Dark brand text: white #fafafa fails on bright dark-mode primaries
+    // (e.g. blue-500 #3b82f6 is 3.52:1); #09090b passes (>=5.4:1).
+    foregroundOnBrand: "#09090b",    // zinc-950 (accessible on dark primaries)
+    // Black passes on dark destructive pair (#ef4444/#f87171: 5.29/7.19:1).
+    foregroundOnDestructive: "#09090b",
     // ── Borders ───────────────────────────────────────────
     border: "#27272a",               // zinc-800
     borderStrong: "#3f3f46",         // zinc-700
@@ -107,10 +206,13 @@ export const accentPresets: Record<
     swatch: "#8b5cf6",
     theme: {
       colors: {
-        primary: "#8b5cf6",          // violet-500
-        primaryHover: "#7c3aed",     // violet-600
+        // Darkened one shade: #8b5cf6 with #fafafa is 4.06:1 (fails) and
+        // shares no single passing text with hover #7c3aed (straddle).
+        // #7c3aed/#6d28d9 with #fafafa are 5.46/6.81:1 (pass).
+        primary: "#7c3aed",          // violet-600
+        primaryHover: "#6d28d9",     // violet-700
         primaryMuted: "#f5f3ff",     // violet-50
-        ring: "#8b5cf6",
+        ring: "#7c3aed",
       },
     },
   },
@@ -131,10 +233,13 @@ export const accentPresets: Record<
     swatch: "#f43f5e",
     theme: {
       colors: {
-        primary: "#f43f5e",          // rose-500
-        primaryHover: "#e11d48",     // rose-600
+        // Darkened one shade: #f43f5e with #fafafa is 3.52:1 (fails) and
+        // straddles hover #e11d48 (white 4.50 / dark 4.24).
+        // #e11d48/#be123c with #fafafa are 4.50/6.02:1 (pass).
+        primary: "#e11d48",          // rose-600
+        primaryHover: "#be123c",     // rose-700
         primaryMuted: "#fff1f2",     // rose-50
-        ring: "#f43f5e",
+        ring: "#e11d48",
       },
     },
   },
@@ -252,16 +357,80 @@ export function createTheme(
   const accentTheme = resolveAccentPreset(options?.accentPreset, options?.mode ?? baseTheme.mode);
 
   if (!accentTheme && !overrides) {
-    return baseTheme;
+    return ensureAccessibleBrandText(baseTheme, undefined);
   }
 
   const themedBase = accentTheme ? mergeTheme(baseTheme, accentTheme) : baseTheme;
 
   if (!overrides) {
-    return themedBase;
+    return ensureAccessibleBrandText(themedBase, undefined);
   }
 
-  return mergeTheme(themedBase, overrides);
+  const merged = mergeTheme(themedBase, overrides);
+  // Custom override precedence: explicitly set foregroundOnBrand /
+  // foregroundOnDestructive win. This also covers the synthex.shared.ts
+  // resolveThemeAccentTheme path, which arrives here as explicit theme
+  // colors rather than accentPreset.
+  return ensureAccessibleBrandText(
+    merged,
+    overrides.colors?.foregroundOnBrand,
+    overrides.colors?.foregroundOnDestructive,
+  );
+}
+
+/**
+ * After all merges, choose one fixed brand text passing >= 4.5:1 on both
+ * primary and primaryHover, unless the caller explicitly set
+ * foregroundOnBrand (explicit wins, even if it fails). Same rule applies
+ * to foregroundOnDestructive against the destructive pair.
+ */
+function ensureAccessibleBrandText(
+  theme: SynthexTheme,
+  explicitForegroundOnBrand: string | undefined,
+  explicitForegroundOnDestructive: string | undefined = undefined,
+): SynthexTheme {
+  let colors = theme.colors;
+  if (explicitForegroundOnBrand === undefined &&
+      Number.isFinite(relativeLuminance(colors.primary)) &&
+      Number.isFinite(relativeLuminance(colors.primaryHover))) {
+    const accessible = pickAccessibleBrandText(colors.primary, colors.primaryHover);
+    if (accessible !== colors.foregroundOnBrand) {
+      colors = { ...colors, foregroundOnBrand: accessible };
+    }
+  }
+  if (explicitForegroundOnDestructive === undefined &&
+      Number.isFinite(relativeLuminance(colors.destructive)) &&
+      Number.isFinite(relativeLuminance(colors.destructiveHover))) {
+    const accessible = pickAccessibleOnDestructiveText(
+      colors.destructive,
+      colors.destructiveHover,
+    );
+    if (accessible !== colors.foregroundOnDestructive) {
+      colors = { ...colors, foregroundOnDestructive: accessible };
+    }
+  }
+  if (colors === theme.colors) {
+    return theme;
+  }
+  return { ...theme, colors };
+}
+
+/** On-destructive text: explicit optional field wins, else computed fallback. */
+export function resolveForegroundOnDestructive(theme: SynthexTheme): string {
+  if (
+    typeof theme.colors.foregroundOnDestructive === "string" &&
+    theme.colors.foregroundOnDestructive.length > 0
+  ) {
+    return theme.colors.foregroundOnDestructive;
+  }
+  if (!Number.isFinite(relativeLuminance(theme.colors.destructive)) ||
+      !Number.isFinite(relativeLuminance(theme.colors.destructiveHover))) {
+    return theme.colors.foregroundOnBrand;
+  }
+  return pickAccessibleOnDestructiveText(
+    theme.colors.destructive,
+    theme.colors.destructiveHover,
+  );
 }
 
 export function themeToCssVariables(theme: SynthexTheme): Record<string, string> {
@@ -276,6 +445,7 @@ export function themeToCssVariables(theme: SynthexTheme): Record<string, string>
     "--sx-color-foreground": theme.colors.foreground,
     "--sx-color-foreground-muted": theme.colors.foregroundMuted,
     "--sx-color-foreground-on-brand": theme.colors.foregroundOnBrand,
+    "--sx-color-foreground-on-destructive": resolveForegroundOnDestructive(theme),
     "--sx-color-border": theme.colors.border,
     "--sx-color-border-strong": theme.colors.borderStrong,
     "--sx-color-primary": theme.colors.primary,
