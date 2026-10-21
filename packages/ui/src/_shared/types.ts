@@ -21,6 +21,8 @@ export interface ColorScale {
   readonly foreground: string;
   readonly foregroundMuted: string;
   readonly foregroundOnBrand: string;
+  /** Text on destructive fills; optional for older custom themes. */
+  readonly foregroundOnDestructive?: string;
   readonly border: string;
   readonly borderStrong: string;
   readonly primary: string;

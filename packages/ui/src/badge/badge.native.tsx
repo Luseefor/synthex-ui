@@ -48,7 +48,7 @@ export function Badge({
     color: {
       default: theme.colors.foregroundOnBrand,
       secondary: theme.colors.foreground,
-      destructive: theme.colors.foregroundOnBrand,
+      destructive: theme.colors.foregroundOnDestructive ?? theme.colors.foregroundOnBrand,
       outline: theme.colors.foreground,
     }[resolved.variant],
     fontFamily: theme.typography.family.sans,

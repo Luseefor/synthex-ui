@@ -50,7 +50,9 @@ const Checkbox = React.forwardRef<
         defaultChecked={typeof defaultChecked === "boolean" ? defaultChecked : undefined}
         onCheckedChange={(next) => {
           if (managesIndeterminate) {
-            setUncontrolledState(next === "indeterminate" ? true : next);
+            // Preserve "indeterminate" so a native form reset that restores the
+            // initial mixed state does not drift to checked.
+            setUncontrolledState(next);
           }
 
           if (next !== "indeterminate") {

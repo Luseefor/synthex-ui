@@ -2,7 +2,7 @@
 
 Web + React Native components from one API, plus an optional dockable workbench engine.
 
-> Branch status (`ace/lean-component-installs`): `create --template`, `setup`,
+> Branch status (`ace/component-contracts`): `create --template`, `setup`,
 > and the lean `add` below describe the CLI source in this checkout. Forthcoming
 > CLI release; implemented in source, not yet published in
 > `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
@@ -113,6 +113,12 @@ On native, import from `synthex-ui/native`.
 9 accents: `blue`, `emerald`, `violet`, `amber`, `rose`, `steel`, `stone`, `bronze`, `mulberry`.
 
 [Live preview](https://synthex-ui.rijan.sh)
+
+## Component behavior
+
+[Component contracts](./docs/component-contracts.md) describe tested ref,
+controlled-state, form, keyboard, RTL, contrast, and server-rendering behavior,
+including custom-theme and nested-portal limitations.
 
 ## Own the source (optional)
 

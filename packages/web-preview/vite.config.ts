@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import { contractFixtureDev } from "./e2e/fixtures/contracts.plugin.ts";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath, URL } from "node:url";
@@ -51,7 +52,7 @@ export default defineConfig(({ command }) => {
   }
 
   return {
-    plugins: [react(), tailwindcss(), githubDashboardDev()],
+    plugins: [react(), tailwindcss(), githubDashboardDev(), contractFixtureDev()],
     build: {
       rollupOptions: {
         output: {

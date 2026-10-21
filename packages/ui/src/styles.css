@@ -18,8 +18,9 @@
 
   /* Text */
   --sx-color-foreground: #09090b;
-  --sx-color-foreground-muted: #71717a;
+  --sx-color-foreground-muted: #52525b;
   --sx-color-foreground-on-brand: #fafafa;
+  --sx-color-foreground-on-destructive: #fafafa;
 
   /* Borders */
   --sx-color-border: #e4e4e7;
@@ -36,8 +37,8 @@
   --sx-color-secondary-muted: #fafafa;
 
   /* Destructive */
-  --sx-color-destructive: #ef4444;
-  --sx-color-destructive-hover: #dc2626;
+  --sx-color-destructive: #dc2626;
+  --sx-color-destructive-hover: #b91c1c;
   --sx-color-destructive-muted: #fef2f2;
 
   /* Accent */
@@ -118,7 +119,7 @@
   --accent: var(--sx-color-accent);
   --accent-foreground: var(--sx-color-foreground);
   --destructive: var(--sx-color-destructive);
-  --destructive-foreground: var(--sx-color-foreground-on-brand);
+  --destructive-foreground: var(--sx-color-foreground-on-destructive);
   --border: var(--sx-color-border);
   --input: var(--sx-color-border);
   --ring: var(--sx-color-ring);
@@ -153,7 +154,7 @@
   --color-accent: var(--sx-color-accent);
   --color-accent-foreground: var(--sx-color-foreground);
   --color-destructive: var(--sx-color-destructive);
-  --color-destructive-foreground: var(--sx-color-foreground-on-brand);
+  --color-destructive-foreground: var(--sx-color-foreground-on-destructive);
   --color-border: var(--sx-color-border);
   --color-input: var(--sx-color-border);
   --color-ring: var(--sx-color-ring);
@@ -459,7 +460,8 @@
   /* Text */
   --sx-color-foreground: #fafafa;
   --sx-color-foreground-muted: #a1a1aa;
-  --sx-color-foreground-on-brand: #fafafa;
+  --sx-color-foreground-on-brand: #09090b;
+  --sx-color-foreground-on-destructive: #09090b;
 
   /* Borders */
   --sx-color-border: #27272a;
@@ -507,7 +509,8 @@
     --sx-color-surface-raised: #27272a;
     --sx-color-foreground: #fafafa;
     --sx-color-foreground-muted: #a1a1aa;
-    --sx-color-foreground-on-brand: #fafafa;
+    --sx-color-foreground-on-brand: #09090b;
+    --sx-color-foreground-on-destructive: #09090b;
     --sx-color-border: #27272a;
     --sx-color-border-strong: #3f3f46;
     --sx-color-primary: #3b82f6;
@@ -566,52 +569,60 @@
   }
 }
 
-/* ── Reset ──────────────────────────────────────────────── */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+/* ── Reset ────────────────────────────────────────────────
+   Layered (not unlayered): unlayered author CSS beats Tailwind's layered
+   utilities in the cascade, so an unlayered `button { color: inherit }`
+   overrode text-primary-foreground / text-destructive-foreground on real
+   <button> elements (badge <span>s were unaffected). Inside @layer base,
+   semantic utilities override the base rules.
+   The explicit `color: inherit` on form controls is dropped: `color`
+   inherits by default, and Tailwind preflight + utilities own the rest. */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
-html,
-body,
-#root {
-  min-height: 100%;
-  width: 100%;
-  margin: 0;
-}
+  html,
+  body,
+  #root {
+    min-height: 100%;
+    width: 100%;
+    margin: 0;
+  }
 
-body {
-  min-height: 100vh;
-  background: var(--sx-color-background);
-  color: var(--sx-color-foreground);
-  font-family: var(--sx-font-family-sans);
-  font-size: var(--sx-font-size-sm);
-  line-height: var(--sx-line-height-normal);
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+  body {
+    min-height: 100vh;
+    background: var(--sx-color-background);
+    color: var(--sx-color-foreground);
+    font-family: var(--sx-font-family-sans);
+    font-size: var(--sx-font-size-sm);
+    line-height: var(--sx-line-height-normal);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-button,
-input,
-textarea,
-select {
-  font: inherit;
-  color: inherit;
-}
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 
-code,
-pre {
-  font-family: var(--sx-font-family-mono);
-}
+  code,
+  pre {
+    font-family: var(--sx-font-family-mono);
+  }
 
-[data-synthex-theme="web"] {
-  min-width: 0;
-  min-height: 0;
+  [data-synthex-theme="web"] {
+    min-width: 0;
+    min-height: 0;
+  }
 }

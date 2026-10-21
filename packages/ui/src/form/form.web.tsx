@@ -36,6 +36,10 @@ const FormFieldContext = React.createContext<FormFieldContextValue | null>(null)
 
 type FormItemContextValue = {
   readonly id: string;
+  readonly descriptionMounted: boolean;
+  readonly messageMounted: boolean;
+  readonly setDescriptionMounted: (mounted: boolean) => void;
+  readonly setMessageMounted: (mounted: boolean) => void;
 };
 
 const FormItemContext = React.createContext<FormItemContextValue | null>(null);
@@ -139,7 +143,9 @@ export function useFormField() {
   }
 
   const error: React.ReactNode = rhfError?.message ?? fieldContext.error;
-  const describedBy = [formDescriptionId, error ? formMessageId : null]
+  const hasDescription = Boolean(fieldContext.description) || itemContext.descriptionMounted;
+  const hasMessage = Boolean(error) || itemContext.messageMounted;
+  const describedBy = [hasDescription ? formDescriptionId : null, hasMessage ? formMessageId : null]
     .filter(Boolean)
     .join(" ");
 
@@ -161,9 +167,12 @@ export interface FormItemProps extends React.ComponentPropsWithoutRef<"div"> {}
 const FormItem = React.forwardRef<HTMLDivElement, FormItemProps>(
   ({ children, className, ...props }, ref) => {
     const id = React.useId();
+    const [descriptionMounted, setDescriptionMounted] = React.useState(false);
+    const [messageMounted, setMessageMounted] = React.useState(false);
+    const context = React.useMemo(() => ({ id, descriptionMounted, messageMounted, setDescriptionMounted, setMessageMounted }), [id, descriptionMounted, messageMounted]);
 
     return (
-      <FormItemContext.Provider value={React.useMemo(() => ({ id }), [id])}>
+      <FormItemContext.Provider value={context}>
         <div ref={ref} data-slot="form-item" className={cn("space-y-2", className)} {...props}>
           {children}
         </div>
@@ -196,18 +205,43 @@ FormLabel.displayName = "FormLabel";
 const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot> & { readonly required?: boolean }
->(({ ...props }, ref) => {
-  const { error, formDescriptionId, formItemId, formMessageId, required } = useFormField();
+>((props, ref) => {
+  const { error, formItemId, required, describedBy: generated } = useFormField();
+  const {
+    "aria-describedby": userDescribedBy,
+    "aria-invalid": userInvalid,
+    "aria-required": userRequiredAttr,
+    id: userId,
+    required: userRequiredProp,
+    ...rest
+  } = props;
+
+  const hasError = Boolean(error);
+  const tokens: string[] = [];
+  for (const source of [generated, userDescribedBy]) {
+    if (typeof source !== "string") {
+      continue;
+    }
+    for (const token of source.trim().split(/\s+/)) {
+      if (token && !tokens.includes(token)) {
+        tokens.push(token);
+      }
+    }
+  }
+  const describedBy = tokens.length > 0 ? tokens.join(" ") : undefined;
+  const isRequired = userRequiredProp ?? required;
+  const ariaRequired = userRequiredAttr ?? (isRequired ? true : undefined);
 
   return (
     <Slot
       ref={ref}
       data-slot="form-control"
-      id={formItemId}
-      aria-describedby={!error ? formDescriptionId : `${formDescriptionId} ${formMessageId}`}
-      aria-invalid={Boolean(error) || undefined}
-      required={required || undefined}
-      {...props}
+      id={userId ?? formItemId}
+      aria-describedby={describedBy}
+      aria-invalid={userInvalid ?? (hasError ? true : undefined)}
+      aria-required={ariaRequired}
+      {...(userRequiredProp !== undefined || isRequired ? { required: isRequired } : {})}
+      {...rest}
     />
   );
 });
@@ -220,6 +254,12 @@ const FormDescription = React.forwardRef<
 >(({ children, className, ...props }, ref) => {
   const { description, formDescriptionId } = useFormField();
   const content = children ?? description;
+  const item = React.useContext(FormItemContext)!;
+  const present = Boolean(content);
+  React.useEffect(() => {
+    item.setDescriptionMounted(present);
+    return () => item.setDescriptionMounted(false);
+  }, [item.setDescriptionMounted, present]);
 
   if (!content) {
     return null;
@@ -246,6 +286,12 @@ const FormMessage = React.forwardRef<
 >(({ children, className, ...props }, ref) => {
   const { error, formMessageId } = useFormField();
   const content = error ?? children;
+  const item = React.useContext(FormItemContext)!;
+  const present = Boolean(content);
+  React.useEffect(() => {
+    item.setMessageMounted(present);
+    return () => item.setMessageMounted(false);
+  }, [item.setMessageMounted, present]);
 
   if (!content) {
     return null;

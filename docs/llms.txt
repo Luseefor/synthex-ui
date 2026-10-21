@@ -163,3 +163,5 @@ subpaths with `react-native` conditions.
 Start with these docs. `docs/getting-started.md`, `docs/frameworks.md`, `docs/theming.md`, `docs/styling.md`,
 `docs/workbench.md`.
 No full web/native API parity or full a11y certification claimed.
+
+Component behavior and verification: `docs/component-contracts.md` covers refs, controlled/default values, native form submit/reset, FormControl ARIA associations, Radix direction context, theme text contrast, and Node SSR/Chromium hydration checks. Scope and nested-portal/custom-theme limitations are explicit; no universal accessibility certification is claimed.
