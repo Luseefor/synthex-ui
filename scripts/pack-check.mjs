@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -24,7 +25,14 @@ const packages = [
   {
     name: "@luseefor/synthex-cli",
     dir: path.join(rootDir, "packages/cli"),
-    requiredFiles: ["dist/index.js", "dist/index.d.ts"],
+    requiredFiles: [
+      "dist/index.js",
+      "dist/index.d.ts",
+      "dist/assets/registry.json",
+      "dist/assets/ui/_shared/variants.ts",
+      "dist/assets/ui/button/button.web.tsx",
+      "dist/assets/templates/starter/package.json",
+    ],
   },
 ];
 
@@ -33,6 +41,7 @@ function run(command, args, cwd) {
     cwd,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
+    timeout: 120000,
   });
 
   if (result.status !== 0) {
@@ -42,34 +51,292 @@ function run(command, args, cwd) {
   return result.stdout.trim();
 }
 
+function runCapture(command, args, cwd) {
+  const result = spawnSync(command, args, {
+    cwd,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+    timeout: 60000,
+  });
+  return {
+    status: result.status ?? 1,
+    stdout: result.stdout ?? "",
+    stderr: result.stderr ?? "",
+  };
+}
+
 function assert(condition, message) {
   if (!condition) {
     throw new Error(message);
   }
 }
 
-for (const pkg of packages) {
-  const output = run("npm", ["pack", "--json"], pkg.dir);
-  const entries = JSON.parse(output);
-  const packEntry = Array.isArray(entries) ? entries[0] : entries;
+function collectExportTargets(pkgJson) {
+  const out = [];
+  function walk(node) {
+    if (typeof node === "string") {
+      if (node.startsWith("./")) out.push(node.slice(2));
+      return;
+    }
+    if (Array.isArray(node)) {
+      for (const v of node) walk(v);
+      return;
+    }
+    if (node !== null && typeof node === "object") {
+      for (const v of Object.values(node)) walk(v);
+    }
+  }
+  function normalizeTopField(value) {
+    if (typeof value !== "string") return null;
+    if (value.startsWith("./")) return value.slice(2);
+    if (value.startsWith("/") || value.startsWith(".") || /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)) return null;
+    return value;
+  }
+  function walkTop(node) {
+    if (typeof node === "string") {
+      const norm = normalizeTopField(node);
+      if (norm !== null) out.push(norm);
+      return;
+    }
+    if (Array.isArray(node)) {
+      for (const v of node) walkTop(v);
+      return;
+    }
+    if (node !== null && typeof node === "object") {
+      for (const v of Object.values(node)) walkTop(v);
+    }
+  }
+  if (pkgJson.exports) walk(pkgJson.exports);
+  for (const key of ["main", "module", "types", "typings"]) {
+    if (pkgJson[key] !== undefined) walkTop(pkgJson[key]);
+  }
+  if (pkgJson.bin) walkTop(pkgJson.bin);
+  return [...new Set(out)];
+}
 
-  assert(packEntry, `${pkg.name}: npm pack produced no metadata`);
-  const files = new Set((packEntry.files ?? []).map((file) => file.path));
+function leakReason(file, pkgName) {
+  const posix = file.split("\\").join("/");
+  const segments = posix.split("/");
+  const basename = segments[segments.length - 1];
+  const isCli = pkgName === "@luseefor/synthex-cli";
+  const isStarter = posix.startsWith("dist/assets/templates/starter/");
+  const isUiPayload = posix.startsWith("dist/assets/ui/");
 
+  if (segments.includes("__tests__") || segments.includes("__snapshots__")) {
+    return `leaked test directory ${file}`;
+  }
+  if (segments.includes("tests") || segments.includes("test") || segments.includes("spec") || segments.includes("specs")) {
+    return `leaked test/spec directory ${file}`;
+  }
+  if (/\.test\./.test(basename) || /\.spec\./.test(basename)) {
+    return `leaked test artifact ${file}`;
+  }
+  if (posix.includes("vitest")) {
+    return `leaked vitest file ${file}`;
+  }
+  if (!isStarter) {
+    const lower = basename.toLowerCase();
+    const devPrefixes = [
+      "vitest.config.",
+      "vitest.setup.",
+      "jest.config.",
+      "jest.setup.",
+      "playwright.config.",
+      "cypress.config.",
+      "eslint.config.",
+      ".eslintrc",
+      "babel.config.",
+      ".babelrc",
+    ];
+    if (devPrefixes.some((p) => lower.startsWith(p))) {
+      return `leaked dev config ${file}`;
+    }
+    if (basename === "tsconfig.json" || basename === "tsconfig.build.json") {
+      return `leaked tsconfig ${file}`;
+    }
+  }
+  if (isCli) {
+    if (posix === "src" || posix.startsWith("src/")) {
+      return `leaked source file ${file}`;
+    }
+    if (!isUiPayload && !isStarter) {
+      if (posix.endsWith(".tsx") || posix.endsWith(".jsx")) {
+        return `leaked source file ${file}`;
+      }
+      if (posix.endsWith(".ts") && !posix.endsWith(".d.ts")) {
+        return `leaked source file ${file}`;
+      }
+    }
+  } else {
+    if (posix === "src" || posix.startsWith("src/") || posix.includes("/src/")) {
+      return `leaked source file ${file}`;
+    }
+  }
+  return null;
+}
+
+function extractJson(output) {
+  const start = output.indexOf("{");
+  const end = output.lastIndexOf("}");
+  assert(start !== -1 && end !== -1 && end > start, `expected JSON object in output: ${output.slice(0, 300)}`);
+  try {
+    return JSON.parse(output.slice(start, end + 1));
+  } catch (error) {
+    throw new Error(`invalid JSON in CLI output: ${(error instanceof Error ? error.message : String(error))}`);
+  }
+}
+
+function listFilesRecursive(dir) {
+  const found = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      found.push(...listFilesRecursive(full));
+    } else if (entry.isFile()) {
+      found.push(full);
+    }
+  }
+  return found;
+}
+
+function assertNoTestFiles(root) {
+  if (!existsSync(root)) return;
+  for (const full of listFilesRecursive(root)) {
+    const rel = path.relative(root, full).split(path.sep).join("/");
+    const base = path.basename(full);
+    assert(!rel.split("/").includes("__tests__"), `test leak in output: ${rel}`);
+    assert(!/\.test\./.test(base), `test leak in output: ${rel}`);
+    assert(!/\.spec\./.test(base), `spec leak in output: ${rel}`);
+  }
+}
+
+function checkPackedList(pkg, files) {
   for (const requiredFile of pkg.requiredFiles) {
     assert(files.has(requiredFile), `${pkg.name}: missing packed file ${requiredFile}`);
   }
-
-  for (const file of files) {
-    assert(!file.includes("/src/"), `${pkg.name}: packed leaked source file ${file}`);
-    assert(!file.includes("__tests__"), `${pkg.name}: packed leaked test file ${file}`);
-    assert(!file.includes("vitest"), `${pkg.name}: packed leaked vitest file ${file}`);
-    assert(!file.includes(".test."), `${pkg.name}: packed leaked test artifact ${file}`);
+  const pkgJson = JSON.parse(readFileSync(path.join(pkg.dir, "package.json"), "utf8"));
+  for (const target of collectExportTargets(pkgJson)) {
+    assert(files.has(target), `${pkg.name}: missing export target ${target}`);
   }
-
-  const tarballPath = path.join(pkg.dir, packEntry.filename);
-  rmSync(tarballPath, { force: true });
-  console.log(`npm pack check passed for ${pkg.name}`);
+  for (const file of files) {
+    const reason = leakReason(file, pkg.name);
+    assert(reason === null, `${pkg.name}: ${reason}`);
+  }
+  if (pkg.name === "@luseefor/synthex-cli") {
+    assert([...files].some((f) => f.startsWith("dist/assets/ui/")), `${pkg.name}: missing dist/assets/ui payload`);
+    assert(
+      [...files].some((f) => f.startsWith("dist/assets/templates/starter/")),
+      `${pkg.name}: missing dist/assets/templates/starter payload`,
+    );
+  }
 }
 
-console.log("All npm pack smoke checks passed.");
+const packTemps = [];
+function trackTemp(dir) {
+  packTemps.push(dir);
+  return dir;
+}
+
+try {
+  for (const pkg of packages) {
+    const packTmp = trackTemp(mkdtempSync(path.join(os.tmpdir(), "synthex-pack-")));
+    try {
+      const output = run("npm", ["pack", "--json", "--pack-destination", packTmp], pkg.dir);
+      const entries = JSON.parse(output);
+      const packEntry = Array.isArray(entries) ? entries[0] : entries;
+      assert(packEntry, `${pkg.name}: npm pack produced no metadata`);
+      const files = new Set((packEntry.files ?? []).map((file) => file.path));
+      checkPackedList(pkg, files);
+      console.log(`npm pack check passed for ${pkg.name}`);
+    } finally {
+      rmSync(packTmp, { recursive: true, force: true });
+      packTemps.splice(packTemps.indexOf(packTmp), 1);
+    }
+  }
+
+  const cliPkg = packages.find((p) => p.name === "@luseefor/synthex-cli");
+  const cliPackTmp = trackTemp(mkdtempSync(path.join(os.tmpdir(), "synthex-cli-pack-")));
+  const extractTmp = trackTemp(mkdtempSync(path.join(os.tmpdir(), "synthex-cli-extract-")));
+  const scratchHelp = trackTemp(mkdtempSync(path.join(os.tmpdir(), "synthex-cli-help-")));
+  const scratchAdd = trackTemp(mkdtempSync(path.join(os.tmpdir(), "synthex-cli-add-")));
+  const scratchFail = trackTemp(mkdtempSync(path.join(os.tmpdir(), "synthex-cli-fail-")));
+  const scratchCreate = trackTemp(mkdtempSync(path.join(os.tmpdir(), "synthex-cli-create-")));
+  try {
+    const output = run("npm", ["pack", "--json", "--pack-destination", cliPackTmp], cliPkg.dir);
+    const entries = JSON.parse(output);
+    const packEntry = Array.isArray(entries) ? entries[0] : entries;
+    const tarball = path.join(cliPackTmp, packEntry.filename);
+    assert(existsSync(tarball), `${cliPkg.name}: missing tarball ${tarball}`);
+    run("tar", ["-xzf", tarball, "-C", extractTmp], rootDir);
+    const extractedRoot = path.join(extractTmp, "package");
+    assert(!extractedRoot.startsWith(rootDir), `${cliPkg.name}: extraction not isolated`);
+    const cliEntry = path.join(extractedRoot, "dist/index.js");
+    assert(existsSync(cliEntry), `${cliPkg.name}: missing extracted dist/index.js`);
+    assert(existsSync(path.join(extractedRoot, "dist/assets/ui")), `${cliPkg.name}: missing bundled dist/assets/ui`);
+    assert(existsSync(path.join(extractedRoot, "dist/assets/registry.json")), `${cliPkg.name}: missing bundled registry.json`);
+    assert(
+      existsSync(path.join(extractedRoot, "dist/assets/templates/starter")),
+      `${cliPkg.name}: missing bundled starter template`,
+    );
+
+    let r = runCapture("node", [cliEntry, "--help"], scratchHelp);
+    assert(r.status === 0, `${cliPkg.name}: --help failed: ${r.stderr || r.stdout}`);
+    assert(/synthex|usage|add|list|create/i.test(`${r.stdout}${r.stderr}`), `${cliPkg.name}: --help output unexpected`);
+
+    r = runCapture("node", [cliEntry, "list"], scratchHelp);
+    assert(r.status === 0, `${cliPkg.name}: list failed: ${r.stderr || r.stdout}`);
+    assert(r.stdout.includes("button"), `${cliPkg.name}: list missing button`);
+
+    r = runCapture("node", [cliEntry, "add", "button", "--dry-run", "--cwd", scratchAdd], scratchAdd);
+    assert(r.status === 0, `${cliPkg.name}: add button --dry-run failed: ${r.stderr || r.stdout}`);
+    const manifest = extractJson(r.stdout);
+    const manifestFiles = manifest.files ?? [];
+    assert(Array.isArray(manifestFiles) && manifestFiles.length > 0, `${cliPkg.name}: dry-run manifest empty`);
+    const dests = manifestFiles.map((f) => `${f.component ?? ""}/${f.relativePath ?? ""} ${f.destination ?? ""}`);
+    assert(
+      dests.some((d) => d.replace(/\\/g, "/").includes("_shared/variants.ts")),
+      `${cliPkg.name}: dry-run missing _shared/variants.ts`,
+    );
+    assert(
+      !dests.some((d) => /\.test\.|\.spec\.|__tests__/.test(d)),
+      `${cliPkg.name}: dry-run leaked tests`,
+    );
+    assert(!existsSync(path.join(scratchAdd, "components")), `${cliPkg.name}: dry-run wrote files`);
+
+    r = runCapture("node", [cliEntry, "add", "button", "--cwd", scratchAdd], scratchAdd);
+    assert(r.status === 0, `${cliPkg.name}: add button failed: ${r.stderr || r.stdout}`);
+    assert(
+      existsSync(path.join(scratchAdd, "components/ui/_shared/variants.ts")),
+      `${cliPkg.name}: add output missing _shared/variants.ts`,
+    );
+    assert(existsSync(path.join(scratchAdd, "components/ui/button")), `${cliPkg.name}: add output missing button`);
+    assertNoTestFiles(path.join(scratchAdd, "components"));
+
+    r = runCapture("node", [cliEntry, "add", "button", "__unknown_component_xyz__", "--cwd", scratchFail], scratchFail);
+    assert(r.status !== 0, `${cliPkg.name}: late unknown add should fail`);
+    assert(/Unknown component/i.test(`${r.stdout}${r.stderr}`), `${cliPkg.name}: unknown error unclear`);
+    assert(!existsSync(path.join(scratchFail, "components")), `${cliPkg.name}: failed add wrote files`);
+
+    r = runCapture("node", [cliEntry, "create", "my-starter", "--cwd", scratchCreate], scratchCreate);
+    assert(r.status === 0, `${cliPkg.name}: create failed: ${r.stderr || r.stdout}`);
+    const destPkgPath = path.join(scratchCreate, "my-starter/package.json");
+    assert(existsSync(destPkgPath), `${cliPkg.name}: create missing package.json`);
+    const destPkg = JSON.parse(readFileSync(destPkgPath, "utf8"));
+    assert(destPkg.name === "my-starter", `${cliPkg.name}: create did not rewrite name`);
+    assert(existsSync(path.join(scratchCreate, "my-starter/src/App.tsx")), `${cliPkg.name}: create missing App.tsx`);
+
+    console.log(`npm pack check passed for ${cliPkg.name} CLI functional gate`);
+  } finally {
+    for (const dir of [scratchCreate, scratchFail, scratchAdd, scratchHelp, extractTmp, cliPackTmp]) {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
+  console.log("All npm pack smoke checks passed.");
+} finally {
+  for (const dir of [...packTemps]) {
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {}
+  }
+}

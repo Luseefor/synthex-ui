@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 import { Command, CommanderError } from "commander";
 import { registerAddCommand } from "./commands/add";
@@ -40,8 +40,13 @@ async function main(): Promise<void> {
     await program.parseAsync(process.argv);
   } catch (error) {
     if (error instanceof CommanderError) {
+      const code = Number(error.exitCode);
+      if (code === 0) {
+        process.exitCode = 0;
+        return;
+      }
       logger.error(error.message);
-      process.exitCode = Number(error.exitCode) || 1;
+      process.exitCode = Number.isFinite(code) && code !== 0 ? code : 1;
       return;
     }
 

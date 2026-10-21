@@ -157,6 +157,10 @@
   --color-border: var(--sx-color-border);
   --color-input: var(--sx-color-border);
   --color-ring: var(--sx-color-ring);
+  --radius-sm: var(--sx-radius-sm);
+  --radius-md: var(--sx-radius-md);
+  --radius-lg: var(--sx-radius-lg);
+  --radius-xl: var(--sx-radius-xl);
 }
 
 /* ── Keyframe Animations ───────────────────────────────── */

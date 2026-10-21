@@ -23,7 +23,7 @@
     "commander": "^15.0.0"
   },
   "scripts": {
-    "build": "rm -rf ./dist && npx tsc -p tsconfig.build.json",
+    "build": "rm -rf ./dist && npx tsc -p tsconfig.build.json --emitDeclarationOnly && bun build ./src/index.ts --target=node --outfile=./dist/index.js && node ./scripts/copy-assets.mjs && chmod +x ./dist/index.js",
     "dev": "bun --watch run ./src/index.ts test",
     "typecheck": "npx tsc -p tsconfig.json --noEmit",
     "test": "vitest run"

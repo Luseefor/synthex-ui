@@ -1,10 +1,16 @@
 import { readdir } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import type { Command } from "commander";
+import {
+  getDefaultRegistryJsonPath as resolveDefaultRegistryJsonPath,
+  getDefaultRegistryRoot as resolveDefaultRegistryRoot,
+} from "../utils/assets";
 
 export function getDefaultRegistryRoot(): string {
-  return resolve(dirname(fileURLToPath(import.meta.url)), "../../../ui/src");
+  return resolveDefaultRegistryRoot();
+}
+
+export function getDefaultRegistryJsonPath(): string {
+  return resolveDefaultRegistryJsonPath();
 }
 
 // Mirrors scripts/generate-registry.mjs: infrastructure dirs stay in

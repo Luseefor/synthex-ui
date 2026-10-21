@@ -4,7 +4,7 @@
 /* Theme tokens resolve from synthex-ui/styles.css (the --sx-* surface).
    Kept here too so the Tailwind compiler registers them in this build:
    @theme blocks only take effect in files the compiler processes. */
-@theme {
+@theme inline {
   --color-background: var(--sx-color-background);
   --color-foreground: var(--sx-color-foreground);
   --color-card: var(--sx-color-surface);
@@ -24,6 +24,10 @@
   --color-border: var(--sx-color-border);
   --color-input: var(--sx-color-border);
   --color-ring: var(--sx-color-ring);
+  --radius-sm: var(--sx-radius-sm);
+  --radius-md: var(--sx-radius-md);
+  --radius-lg: var(--sx-radius-lg);
+  --radius-xl: var(--sx-radius-xl);
 }
 
 :root {

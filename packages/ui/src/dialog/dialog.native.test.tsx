@@ -125,3 +125,76 @@ describe("Dialog (native testID parity)", () => {
     ).toBe(0);
   });
 });
+
+describe("Dialog (native accessibility)", () => {
+  it("labels the built-in close button for screen readers", () => {
+    const tree = renderOpenDialog();
+    const closeButtons = tree.root.findAllByProps({ testID: "dialog-close" });
+    const builtIn = closeButtons.find(
+      (node) => node.props.accessibilityLabel === "Close dialog",
+    );
+    expect(builtIn).toBeTruthy();
+    expect(builtIn!.props.accessibilityRole).toBe("button");
+  });
+
+  it("exposes modal semantics on content without unsupported roles", () => {
+    const tree = renderOpenDialog();
+    const content = tree.root.findByProps({ testID: "dialog-content" });
+    expect(content.props.accessibilityViewIsModal).toBe(true);
+    expect(content.props.accessibilityRole).not.toBe("dialog");
+    expect(content.props.accessible).not.toBe(true);
+  });
+
+  it("announces the title as a header by default", () => {
+    const tree = renderOpenDialog();
+    const title = tree.root.findByProps({ testID: "dialog-title" });
+    expect(title.props.accessibilityRole).toBe("header");
+  });
+
+  it("preserves consumer accessibility overrides", () => {
+    let tree: TestRenderer.ReactTestRenderer | undefined;
+    TestRenderer.act(() => {
+      tree = TestRenderer.create(
+        <Dialog defaultOpen>
+          <DialogContent
+            testID="dialog-content"
+            accessibilityLabel="Custom dialog"
+            accessibilityViewIsModal={false}
+          >
+            <DialogTitle accessibilityRole="none">Title</DialogTitle>
+          </DialogContent>
+        </Dialog>,
+      );
+    });
+    const content = tree!.root.findByProps({ testID: "dialog-content" });
+    expect(content.props.accessibilityLabel).toBe("Custom dialog");
+    expect(content.props.accessibilityViewIsModal).toBe(false);
+    const title = tree!.root.findByProps({ testID: "dialog-title" });
+    expect(title.props.accessibilityRole).toBe("none");
+  });
+
+  it("closes the dialog when the built-in close button is pressed", () => {
+    const onOpenChange = vi.fn();
+    let tree: TestRenderer.ReactTestRenderer | undefined;
+    TestRenderer.act(() => {
+      tree = TestRenderer.create(
+        <Dialog defaultOpen onOpenChange={onOpenChange}>
+          <DialogContent>
+            <DialogTitle>Title</DialogTitle>
+          </DialogContent>
+        </Dialog>,
+      );
+    });
+    const builtIn = tree!.root
+      .findAllByProps({ testID: "dialog-close" })
+      .find((node) => node.props.accessibilityLabel === "Close dialog");
+    expect(builtIn).toBeTruthy();
+    TestRenderer.act(() => {
+      builtIn!.props.onPress();
+    });
+    expect(
+      tree!.root.findAllByProps({ testID: "dialog-content" }).length,
+    ).toBe(0);
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+});

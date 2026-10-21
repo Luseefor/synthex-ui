@@ -1,25 +1,38 @@
 # Synthex UI, llms.txt
 
-Versioned web + native component system. Every component ships
-`.web.tsx` + `.native.tsx` + `.shared.ts` under `packages/ui/src/*`.
+> Branch status (`ace/better-than-shadcn`): CLI notes below describe this
+> checkout (bundled `dist/assets` registry + starter, transitive `add`,
+> namespace fix, native subpaths). Not published release facts.
+
+Component sources live under `packages/ui/src/*`. Each component ships
+`.web.*` + `.native.*`, plus a shared file (`.shared.ts`/`shared.ts`) where
+present; simple components such as `label` and `table` have none.
 
 ## Install
 
 ```bash
-npm install synthex-ui
+npx @luseefor/synthex-cli@latest create my-app
+npm install synthex-ui # existing app
 npm install synthex-ui @luseefor/synthex-core @luseefor/synthex-react-web # workbench engine
 ```
 
-```ts
-import "synthex-ui/styles.css"; // once, at app root
-```
+CLI binary is `synthex` (package `@luseefor/synthex-cli`):
+`npx @luseefor/synthex-cli@latest list|add|create|migrate|validate`.
 
-Tailwind must scan the built output:
+Tailwind v4 setup: `tailwindcss` + `@tailwindcss/vite` installed, Vite plugin
+registered, then this local CSS entry (order matters):
 
 ```css
 @import "tailwindcss";
-@source "../../node_modules/synthex-ui/dist";
+@import "synthex-ui/styles.css";
+@source "../node_modules/synthex-ui/dist";
 ```
+
+```ts
+import "./styles.css"; // once, at app entry
+```
+
+Point `@source` at installed `synthex-ui/dist` relative to your CSS file.
 
 ## Theme
 
@@ -33,8 +46,9 @@ import { ThemeProvider } from "synthex-ui/theme";
 
 - `mode`: `"light" | "dark"` (default `"light"`). Dark mode also works via
   `data-theme="dark"` ancestor or `prefers-color-scheme` without a provider.
-- Programmatic tokens: `createTheme`, `themeToCssVariables`, 9 accents,
-  `resolveAccentPreset`, 4 accents in the preview (steel, stone, bronze, mulberry).
+- Programmatic tokens: `createTheme`, `themeToCssVariables`,
+  `resolveAccentPreset`; 9 accents (`blue emerald violet amber rose steel
+  stone bronze mulberry`; last four have dark overrides).
 - RTL: `DirectionProvider` (`synthex-ui/components`, also `direction.web/native`)
   renders `div[dir]` on web / `View style={{ direction }}` on native.
   Uncontrolled by default; `dir` + `onDirChange` make it controlled,
@@ -45,23 +59,36 @@ import { ThemeProvider } from "synthex-ui/theme";
 `@luseefor/synthex-core` (layout reducer, engine, validation, command
 registry, store, serialization) + `@luseefor/synthex-react-web`
 (`LayoutRenderer`, `SplitView`, `TabView`, `useSynthex`).
+`useSynthex(engine)` returns the current `LayoutNode`.
 
 ```tsx
+import { createLayoutEngine } from "@luseefor/synthex-core";
 import { LayoutRenderer, useSynthex } from "@luseefor/synthex-react-web";
 
-const synthex = useSynthex({ layout: initialLayout });
-<LayoutRenderer layout={synthex.layout} renderPanel={(panel) => <YourPanel panel={panel} />} />;
+const engine = createLayoutEngine({ id: "editor", type: "panel", panelType: "editor", title: "Editor" });
+
+export function Workbench() {
+  const layout = useSynthex(engine);
+  return <LayoutRenderer layout={layout} onAction={(action) => { engine.dispatch(action); }} />;
+}
 ```
 
 ## CLI (`synthex`, packages/cli)
 
-The CLI runs `init`, `layout:create`, `layout:add-panel <panelId>`,
-`layout:split <nodeId> <horizontal|vertical>`, `layout:print`, `undo`,
-`redo`, `run <file>`, `history`, `validate`, `test`.
+`init`, `create`, `add`, `list`, `migrate`, `validate`, `layout:*`,
+`undo`/`redo`, `run`, `history`.
 
-`synthex add <component>` and `synthex list` (shadcn-style copy from
-`packages/ui/src/*` plus dep install) are planned. I have not built them yet.
-See `docs/synthex-vs-shadcn.md`.
+`add` copies both platform sources (`.web.*` + `.native.*`, plus the shared
+file where present), excludes test files
+(no `.test`/`.spec`/`__tests__`) into `components/ui/<name>/`, resolves
+transitive `registryDependencies`, preflights before writing, supports
+`--dry-run`/`--overwrite`/`--cwd`. Re-running with identical sources reports
+`skipped-existing`; only changed files refuse without `--overwrite`.
+Namespaces: `@synthex/<name>`,
+`@default/<name>`, `@<name>` (= default) accepted; others rejected.
+Remote `https:`/`data:` JSON `{ name, files }` also accepted.
+Dependency hints print `bun add …` and can include native-only packages;
+filter for web-only apps. See `docs/synthex-vs-shadcn.md`.
 
 ## Components (`synthex-ui/components`)
 
@@ -74,7 +101,7 @@ Tabs, Accordion, Collapsible, Carousel, Pagination, Breadcrumb, Table, DataTable
 Overlays: Dialog, AlertDialog, Drawer, Sheet, Popover, HoverCard, Tooltip,
 DropdownMenu, ContextMenu, Menubar, NavigationMenu, Toast/Toaster/Sonner.
 Feedback: Alert, Badge, Avatar, Progress, Skeleton, Empty, Item, Calendar,
-DatePicker, Chart (Area/Bar/Line + container/legend/tooltip).
+DatePicker, Chart (Area/Bar/Line + container/legend/tooltip; web uses recharts).
 Providers: ThemeProvider, DirectionProvider (+`useDirection`).
 App blocks (`synthex.web`): AssistantChatPanel, CadenceBarChart,
 ContactSplitForm, DungeonHUDShell, ExperienceTimeline,
@@ -83,6 +110,8 @@ ThemeAccentSwitcher, TimelineRow.
 Typography: H1, H2, H3, Lead, Muted, Small.
 
 Import from these subpaths. `components`, `blocks` (alias of `dist/synthex/index`; same app blocks as bundled in `components`, no move), `primitives`, `layout`, `hooks`, `icons`,
-`theme`, `styles.css`, `web`, `native`.
+`theme`, `styles.css`, `web`, `native`, plus per-component `button`-style
+subpaths with `react-native` conditions.
 Start with these docs. `docs/getting-started.md`, `docs/theming.md`, `docs/styling.md`,
 `docs/workbench.md`, `docs/synthex-vs-shadcn.md`.
+No full web/native API parity or full a11y certification claimed.
