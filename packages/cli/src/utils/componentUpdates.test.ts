@@ -706,3 +706,22 @@ describe("retired upstream components", () => {
     expect((await readStateRaw(cwd))?.equals(stateBefore!)).toBe(true);
   });
 });
+
+
+describe("registry origin changes", () => {
+  it("replaces superseded request origins after an explicit re-install", async () => {
+    const { cwd, registryRoot } = await setupFixture(stdComponents());
+    await addComponents(["button", "card"], { cwd, registryRoot });
+    const url = "https://example.com/replacement-button.json";
+    let content = "export const Button = 'remote v1';\n";
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ name: "button", files: { "button.tsx": content } }), { status: 200 })));
+    await addComponents([url], { cwd, registryRoot, overwrite: true });
+    expect((await readState(cwd)).requests).toEqual(["card", url]);
+    content = "export const Button = 'remote v2';\n";
+    const result = await updateComponents([], { cwd, registryRoot });
+    expect(result.conflicts).toBe(0);
+    expect(await readFile(proj(cwd, "components/ui/button/button.tsx"), "utf8")).toBe(content);
+    expect(await readFile(proj(cwd, "components/ui/card/card.tsx"), "utf8")).toContain("'v1'");
+    expect((await readState(cwd)).requests).toEqual(["card", url]);
+  });
+});

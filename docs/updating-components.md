@@ -27,7 +27,7 @@ On every `add` (including `add --overwrite`), the CLI writes
 - `destinationRoot`: project-relative destination (for example
   `components/ui` or `src/components/ui`).
 - `platform`: `"web"`, `"native"`, or `null` (legacy no-config install).
-- `requests`: the exact specs you installed (`button`, `@synthex/button`,
+- `requests`: the active root specs you installed (`button`, `@synthex/button`,
   or a full `https:`/`data:` URL for remote components).
 - `files`: one entry per installed file (`path`, `component`, `source`,
   `registryVersion`, `base`, `sha256`), where `base` is the installed
@@ -47,7 +47,9 @@ tracked in `requests` and each file's `source` (`<url>#<path>`), so updates
 re-fetch the same URL.
 
 `add --overwrite` also goes through the backup transaction below before
-writing, same as `update`.
+writing, same as `update`. An explicit re-install from a different registry
+replaces the superseded origin for that component, while retaining unrelated
+requests; update-all then fetches the active source.
 
 ## `diff`: read-only preview
 
