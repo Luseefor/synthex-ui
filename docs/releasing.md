@@ -16,4 +16,8 @@ Manual fallback (no versioning, gates first, stops on first failure):
 - `node ./scripts/publish-packages.mjs --dry-run` (no npm auth needed)
 - `node ./scripts/publish-packages.mjs` (runs `npm whoami`, then publishes)
 
+The publication dry run still checks npm version availability. Apply the
+Changesets version bumps first; npm refuses even a dry run of a version that
+has already been published.
+
 Release commits use the maintainer git identity, not a bot account.
