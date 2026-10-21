@@ -1,8 +1,8 @@
-import { mkdtemp, mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi, afterEach } from "vitest";
-import { addComponents, isRegistrySpec, isUrlSpec, parseRegistryReference } from "./add";
+import { addComponents, isRegistrySpec, isUrlSpec, parseRegistryReference, planComponents } from "./add";
 import { listAvailableComponents } from "./list";
 
 async function createFakeRegistry(): Promise<string> {
@@ -886,5 +886,215 @@ describe("platform-aware copy with ui config", () => {
     expect(indexContent).toContain('"./with-native.native"');
     expect(indexContent).toContain('"./without-native.web"');
     expect(indexContent).not.toContain('"./with-native.web"');
+  });
+});
+
+describe("planComponents (read-only)", () => {
+  it("returns upstream bytes and registry version when destination is locally edited", async () => {
+    const { registryRoot, cwd } = await setupRegistryWithMetadata([
+      { name: "button", files: { "index.ts": "good\n" }, registryDependencies: [] },
+    ]);
+    await writeFile(
+      path.join(registryRoot, "registry.json"),
+      JSON.stringify({
+        version: "9.9.9",
+        components: [{ name: "button", deps: [], registryDependencies: [] }],
+      }),
+    );
+    await mkdir(path.join(cwd, "components", "ui", "button"), { recursive: true });
+    await writeFile(path.join(cwd, "components", "ui", "button", "index.ts"), "user-edited\n");
+
+    const plan = await planComponents(["button"], { cwd, registryRoot });
+
+    expect(plan.cwd).toBe(path.resolve(cwd));
+    expect(plan.destinationRoot).toBe(path.join(path.resolve(cwd), "components", "ui"));
+    expect(plan.platform).toBe(null);
+    expect(plan.files).toHaveLength(1);
+    const file = plan.files[0];
+    expect(file?.component).toBe("button");
+    expect(file?.relativePath).toBe("index.ts");
+    expect(Buffer.isBuffer(file?.content)).toBe(true);
+    expect(file?.content.toString("utf8")).toBe("good\n");
+    expect(file?.registryVersion).toBe("9.9.9");
+    await expect(readFile(path.join(cwd, "components", "ui", "button", "index.ts"), "utf8")).resolves.toBe(
+      "user-edited\n",
+    );
+  });
+
+  it("returns null registryVersion when registry.json has no version", async () => {
+    const { registryRoot, cwd } = await setupRegistryWithMetadata([
+      { name: "button", files: { "index.ts": "good\n" }, registryDependencies: [] },
+    ]);
+
+    const plan = await planComponents(["button"], { cwd, registryRoot });
+
+    expect(plan.files[0]?.registryVersion).toBe(null);
+    await expect(stat(path.join(cwd, "components"))).rejects.toThrow();
+  });
+
+  it("returns transformed native index bytes without writing", async () => {
+    const { registryRoot, cwd } = await setupRegistryWithMetadata([
+      {
+        name: "button",
+        files: {
+          "index.ts": 'export { Button } from "./button.web";\nexport const webOnly = 1;\n',
+          "index.native.ts": 'export { Button } from "./button.native";\nexport const nativeOnly = 1;\n',
+          "button.native.tsx": "export const N = 1;\n",
+        },
+        registryDependencies: [],
+      },
+    ]);
+    await writeFile(
+      path.join(cwd, "synthex-ui.json"),
+      JSON.stringify({
+        version: 1,
+        framework: "expo",
+        packageManager: "npm",
+        componentsDir: "components/ui",
+        css: null,
+        provider: "components/synthex-provider.tsx",
+      }),
+    );
+
+    const plan = await planComponents(["button"], { cwd, registryRoot });
+
+    expect(plan.platform).toBe("native");
+    const byRel = new Map(plan.files.map((f) => [f.relativePath, f.content.toString("utf8")]));
+    expect(byRel.get("index.ts")).toContain("nativeOnly");
+    expect(byRel.get("index.ts")).not.toContain("webOnly");
+    expect(byRel.get("index.native.ts")).toContain("nativeOnly");
+    expect(plan.files.every((f) => Buffer.isBuffer(f.content))).toBe(true);
+    expect(plan.files.every((f) => f.registryVersion === null)).toBe(true);
+    await expect(stat(path.join(cwd, "components"))).rejects.toThrow();
+  });
+
+  it("returns remote bytes with null version and writes nothing", async () => {
+    const registryRoot = await createFakeRegistry();
+    const cwd = await createTempCwd();
+    const remote = { name: "remote-btn", files: { "index.ts": "remote-good\n" } };
+    const url = `data:application/json,${encodeURIComponent(JSON.stringify(remote))}`;
+
+    const plan = await planComponents([url], { cwd, registryRoot });
+
+    expect(plan.files).toHaveLength(1);
+    expect(plan.files[0]?.component).toBe("remote-btn");
+    expect(plan.files[0]?.content.toString("utf8")).toBe("remote-good\n");
+    expect(plan.files[0]?.registryVersion).toBe(null);
+    expect(plan.files[0]?.source).toBe(`${url}#index.ts`);
+    await expect(stat(path.join(cwd, "components"))).rejects.toThrow();
+  });
+
+  it("performs no filesystem writes for a dry plan", async () => {
+    const registryRoot = await createFakeRegistry();
+    const cwd = await createTempCwd();
+
+    const plan = await planComponents(["button"], { cwd, registryRoot });
+
+    expect(plan.files.length).toBeGreaterThan(0);
+    await expect(stat(path.join(cwd, "components"))).rejects.toThrow();
+  });
+
+  it("resolves default registry metadata without registryRoot", async () => {
+    const cwd = await createTempCwd();
+
+    const plan = await planComponents(["button"], { cwd });
+
+    const keys = new Set(plan.files.map((f) => `${f.component}/${f.relativePath}`));
+    expect([...keys].some((k) => k.startsWith("button/"))).toBe(true);
+    expect(keys.has("_shared/variants.ts")).toBe(true);
+    const localFiles = plan.files.filter((f) => f.component === "button" || f.component === "_shared");
+    expect(localFiles.length).toBeGreaterThan(0);
+    for (const f of localFiles) {
+      expect(typeof f.registryVersion).toBe("string");
+      expect((f.registryVersion as string).length).toBeGreaterThan(0);
+    }
+    await expect(stat(path.join(cwd, "components"))).rejects.toThrow();
+  });
+});
+
+describe("retired upstream components (allowRemoved)", () => {
+  async function retireLocal(registryRoot: string, comp: string): Promise<void> {
+    await rm(path.join(registryRoot, comp), { recursive: true, force: true });
+    const raw = await readFile(path.join(registryRoot, "registry.json"), "utf8");
+    const meta = JSON.parse(raw) as { components?: { name?: unknown }[] };
+    meta.components = (meta.components ?? []).filter((entry) => entry?.name !== comp);
+    await writeFile(path.join(registryRoot, "registry.json"), JSON.stringify(meta));
+  }
+
+  it("retires a tracked name explicitly dropped from valid metadata", async () => {
+    const { registryRoot, cwd } = await setupRegistryWithMetadata([
+      { name: "button", files: { "button.tsx": "v1\n" } },
+      { name: "card", files: { "card.tsx": "v1\n" } },
+    ]);
+    await retireLocal(registryRoot, "button");
+    const plan = await planComponents(["button", "card"], {
+      cwd,
+      registryRoot,
+      allowRemoved: ["button"],
+    });
+    expect(plan.removedComponents).toEqual(["button"]);
+    expect(plan.files.map((f) => f.component).sort()).toEqual(["card"]);
+  });
+
+  it("plans normally with empty removedComponents when nothing is retired", async () => {
+    const { registryRoot, cwd } = await setupRegistryWithMetadata([
+      { name: "button", files: { "button.tsx": "v1\n" } },
+    ]);
+    const plan = await planComponents(["button"], { cwd, registryRoot, allowRemoved: ["button"] });
+    expect(plan.removedComponents).toEqual([]);
+    expect(plan.files).toHaveLength(1);
+  });
+
+  it("still throws for missing names without allowRemoved", async () => {
+    const { registryRoot, cwd } = await setupRegistryWithMetadata([
+      { name: "card", files: { "card.tsx": "v1\n" } },
+    ]);
+    await retireLocal(registryRoot, "card");
+    await expect(planComponents(["card"], { cwd, registryRoot })).rejects.toThrow(/unknown component/i);
+    await expect(
+      planComponents(["card"], { cwd, registryRoot, allowRemoved: ["button"] }),
+    ).rejects.toThrow(/unknown component/i);
+    await expect(addComponents(["card"], { cwd, registryRoot })).rejects.toThrow(/unknown component/i);
+  });
+
+  it("fails closed when metadata still advertises the missing name", async () => {
+    const { registryRoot, cwd } = await setupRegistryWithMetadata([
+      { name: "button", files: { "button.tsx": "v1\n" } },
+    ]);
+    await rm(path.join(registryRoot, "button"), { recursive: true, force: true });
+    await expect(
+      planComponents(["button"], { cwd, registryRoot, allowRemoved: ["button"] }),
+    ).rejects.toThrow(/unknown component/i);
+  });
+
+  it("fails closed when another entry still depends on the missing name", async () => {
+    const { registryRoot, cwd } = await setupRegistryWithMetadata([
+      { name: "button", files: { "button.tsx": "v1\n" } },
+      { name: "card", files: { "card.tsx": "v1\n" }, registryDependencies: ["button"] },
+    ]);
+    await retireLocal(registryRoot, "button");
+    await expect(
+      planComponents(["card"], { cwd, registryRoot, allowRemoved: ["card", "button"] }),
+    ).rejects.toThrow(/unknown component/i);
+  });
+
+  it("fails closed when metadata is missing or malformed", async () => {
+    const { registryRoot, cwd } = await setupRegistryWithMetadata([
+      { name: "button", files: { "button.tsx": "v1\n" } },
+    ]);
+    await rm(path.join(registryRoot, "button"), { recursive: true, force: true });
+    await rm(path.join(registryRoot, "registry.json"), { force: true });
+    await expect(
+      planComponents(["button"], { cwd, registryRoot, allowRemoved: ["button"] }),
+    ).rejects.toThrow(/unknown component/i);
+
+    const broken = await setupRegistryWithMetadata([
+      { name: "button", files: { "button.tsx": "v1\n" } },
+    ]);
+    await rm(path.join(broken.registryRoot, "button"), { recursive: true, force: true });
+    await writeFile(path.join(broken.registryRoot, "registry.json"), "{nope");
+    await expect(
+      planComponents(["button"], { cwd: broken.cwd, registryRoot: broken.registryRoot, allowRemoved: ["button"] }),
+    ).rejects.toThrow(/unknown component/i);
   });
 });

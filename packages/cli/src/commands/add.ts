@@ -1,4 +1,4 @@
-import { copyFile, mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
+import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import type { Command } from "commander";
 import { CliError } from "../utils/errors";
@@ -9,6 +9,10 @@ import { readUiConfig } from "../utils/uiConfig";
 import type { UiConfig } from "../utils/uiConfig";
 import { detectPackageManager, getInstallCommand } from "../utils/project";
 import type { PackageManager } from "../utils/project";
+import type { ComponentPlan, ComponentMutation, RegistryComponentFile } from "../utils/componentTypes";
+import { assertSafeComponentPath, readComponentStateSnapshot, serializeComponentState } from "../utils/componentState";
+import { relativeComponentPath, stateForComponentInstall } from "../utils/componentInstall";
+import { applyComponentTransaction } from "../utils/componentTransaction";
 
 export { getDefaultRegistryJsonPath } from "../utils/assets";
 
@@ -29,6 +33,7 @@ export interface AddManifest {
   readonly destinationRoot: string;
   readonly dryRun: boolean;
   readonly overwrite: boolean;
+  readonly backupDir: string | null;
   readonly files: readonly AddFileEntry[];
 }
 
@@ -38,6 +43,20 @@ export interface AddComponentsOptions {
   readonly dryRun?: boolean;
   readonly registryRoot?: string;
   readonly packageManager?: PackageManager;
+}
+
+export interface PlanComponentsOptions {
+  readonly cwd?: string;
+  readonly registryRoot?: string;
+  readonly packageManager?: PackageManager;
+  /**
+   * Local component names the caller already tracks. A missing name is
+   * retired (skipped, reported via `removedComponents`) only when a valid
+   * loaded registry explicitly no longer lists it and no remaining entry
+   * still depends on it. Anything else fails closed. Never set for fresh
+   * installs: `add` must keep throwing for unknown components.
+   */
+  readonly allowRemoved?: readonly string[];
 }
 
 interface ResolvedAddOptions {
@@ -322,62 +341,29 @@ function expandLocalComponents(
   return ordered;
 }
 
-interface LocalWrite {
-  readonly component: string;
-  readonly relativePath: string;
-  readonly source: string;
-  readonly destination: string;
-  readonly exists: boolean;
-  readonly transformedContent?: string;
-}
-
-interface RemoteWrite {
-  readonly component: string;
-  readonly relativePath: string;
-  readonly source: string;
-  readonly destination: string;
-  readonly content: string;
-  readonly exists: boolean;
-}
-
-export async function addComponents(
+/**
+ * Build a read-only component plan with upstream bytes.
+ *
+ * Never touches the destination tree: no existence checks, no conflict
+ * errors based on destination content, no writes, no install hints.
+ * Returns upstream bytes even when the destination has local edits.
+ */
+export async function planComponents(
   components: readonly string[],
-  options: AddComponentsOptions = {},
-): Promise<AddManifest> {
+  options: PlanComponentsOptions = {},
+): Promise<ComponentPlan> {
   if (components.length === 0) {
     throw new CliError('Specify at least one component. Run "synthex list" to see available components.');
   }
 
   const cwd = path.resolve(options.cwd ?? process.cwd());
-  const overwrite = options.overwrite ?? false;
-  const dryRun = options.dryRun ?? false;
   const registryRoot = options.registryRoot ?? getDefaultRegistryRoot();
 
   const uiConfig = await readUiConfig(cwd);
-
   const destinationRoot =
     uiConfig === null ? path.join(cwd, "components", "ui") : path.join(cwd, ...uiConfig.componentsDir.split("/"));
-
-  let packageManager: PackageManager;
-  if (options.packageManager !== undefined) {
-    packageManager = await detectPackageManager(cwd, options.packageManager);
-  } else if (uiConfig !== null) {
-    packageManager = uiConfig.packageManager;
-  } else {
-    packageManager = await detectPackageManager(cwd);
-  }
-
-  const resolved: ResolvedAddOptions = {
-    cwd,
-    overwrite,
-    dryRun,
-    registryRoot,
-    packageManager,
-  };
-
   const platform = getCopyPlatform(uiConfig);
 
-  // Phase 1: parse every spec before touching the filesystem for writes.
   const requestedLocals: string[] = [];
   const remoteUrls: string[] = [];
   for (const spec of components) {
@@ -393,35 +379,16 @@ export async function addComponents(
     requestedLocals.push(spec);
   }
 
-  // Phase 2: resolve transitive local closure (cycle-safe, deduped).
-  // Custom registryRoot uses only its own metadata; absent metadata means
-  // copy requested dirs as-is without borrowing the default registry.
   const isCustomRegistryRoot = options.registryRoot !== undefined;
   let expandedLocals: string[] = [];
   let registry: RegistryDepFile | null = null;
   if (requestedLocals.length > 0) {
-    registry = await loadRegistryForCopyScoped(resolved.registryRoot, isCustomRegistryRoot, requestedLocals);
+    registry = await loadRegistryForCopyScoped(registryRoot, isCustomRegistryRoot, requestedLocals);
     expandedLocals = expandLocalComponents(requestedLocals, registry);
   }
+  const registryVersion = getValidatedRegistryVersion(registry);
 
-  // Phase 3: preflight every file (existence + conflicts) before any writes.
-  const conflicts: string[] = [];
-  const conflictSet = new Set<string>();
   const seenSources = new Map<string, string>();
-  type PlanEntry =
-    | { readonly kind: "skip"; readonly entry: AddFileEntry }
-    | { readonly kind: "local"; readonly write: LocalWrite }
-    | { readonly kind: "remote"; readonly write: RemoteWrite };
-  const plan: PlanEntry[] = [];
-  const dryRunFiles: AddFileEntry[] = [];
-
-  function recordConflict(destination: string): void {
-    if (!conflictSet.has(destination)) {
-      conflictSet.add(destination);
-      conflicts.push(destination);
-    }
-  }
-
   function claimDestination(destination: string, source: string): boolean {
     const prev = seenSources.get(destination);
     if (prev === undefined) {
@@ -436,21 +403,54 @@ export async function addComponents(
     );
   }
 
+  const files: RegistryComponentFile[] = [];
+
+  // A tracked name counts as intentionally retired only when valid registry
+  // metadata explicitly drops it: the registry loaded, it no longer lists
+  // the name, and no remaining entry still depends on it. Missing metadata,
+  // a still-advertised name, unreadable dirs (EACCES), or a missing
+  // transitive dependency all fail closed below.
+  const allowRemoved = new Set(options.allowRemoved ?? []);
+  const registryByName = buildRegistryMap(registry);
+  function isRetiredUpstream(name: string): boolean {
+    if (!allowRemoved.has(name)) return false;
+    if (registry === null) return false;
+    if (registryByName.has(name)) return false;
+    for (const entry of registryByName.values()) {
+      if (entry.registryDependencies?.includes(name)) return false;
+    }
+    return true;
+  }
+
+  const removed: string[] = [];
+  const activeLocals: string[] = [];
   for (const name of expandedLocals) {
-    const sourceDir = path.join(resolved.registryRoot, name);
+    const sourceDir = path.join(registryRoot, name);
     let stats: Awaited<ReturnType<typeof stat>> | null = null;
     try {
       stats = await stat(sourceDir);
-    } catch {
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException | null)?.code;
+      if (code !== "ENOENT" && code !== "ENOTDIR") {
+        throw new CliError(`Cannot inspect component "${name}": ${(error as Error)?.message ?? String(error)}.`, 1, {
+          component: name,
+          code,
+        });
+      }
       stats = null;
     }
     if (stats === null || !stats.isDirectory()) {
+      if (stats === null && isRetiredUpstream(name)) {
+        removed.push(name);
+        continue;
+      }
       throw new CliError(`Unknown component "${name}". Run "synthex list" to see available components.`);
     }
+    activeLocals.push(name);
   }
 
-  for (const component of expandedLocals) {
-    const sourceDir = path.join(resolved.registryRoot, component);
+  for (const component of activeLocals) {
+    const sourceDir = path.join(registryRoot, component);
     const collected = await collectRelativeFiles(sourceDir);
     const relativePaths = collected.filter((relativePath) => {
       if (isExcludedTestPath(relativePath)) {
@@ -470,77 +470,20 @@ export async function addComponents(
     const pathSet = new Set(relativePaths);
     const nativeKeys = platform === "native" ? buildNativeKeySet(relativePaths) : new Set<string>();
 
-    async function planLocalFile(
-      source: string,
-      relativePath: string,
-      destination: string,
-    ): Promise<void> {
+    async function planLocalFile(source: string, relativePath: string, destination: string): Promise<void> {
       if (!claimDestination(destination, source)) {
         return;
       }
-      const exists = await pathExists(destination);
-      let transformedContent: string | undefined;
+      let content: Buffer;
       if (platform === "native") {
-        try {
-          const raw = await readFile(source, "utf8");
-          const transformed = remapWebImportsWithSiblings(raw, relativePath, nativeKeys);
-          if (transformed !== raw) {
-            transformedContent = transformed;
-          }
-        } catch {
-          transformedContent = undefined;
-        }
+        const rawBuf = await readFile(source);
+        const rawText = (rawBuf as Buffer).toString("utf8");
+        const transformed = remapWebImportsWithSiblings(rawText, relativePath, nativeKeys);
+        content = transformed !== rawText ? Buffer.from(transformed, "utf8") : (rawBuf as Buffer);
+      } else {
+        content = (await readFile(source)) as Buffer;
       }
-      if (exists) {
-        const identical =
-          transformedContent !== undefined
-            ? await isRemoteContentIdentical(transformedContent, destination)
-            : await isLocalFileIdentical(source, destination);
-        if (identical) {
-          if (resolved.dryRun) {
-            dryRunFiles.push({
-              component,
-              relativePath,
-              source,
-              destination,
-              status: "skipped-existing",
-            });
-          } else {
-            plan.push({
-              kind: "skip",
-              entry: { component, relativePath, source, destination, status: "skipped-existing" },
-            });
-          }
-          return;
-        }
-        if (!resolved.overwrite) {
-          recordConflict(destination);
-          return;
-        }
-        if (resolved.dryRun) {
-          dryRunFiles.push({
-            component,
-            relativePath,
-            source,
-            destination,
-            status: "planned",
-          });
-          return;
-        }
-      } else if (resolved.dryRun) {
-        dryRunFiles.push({
-          component,
-          relativePath,
-          source,
-          destination,
-          status: "planned",
-        });
-        return;
-      }
-      plan.push({
-        kind: "local",
-        write: { component, relativePath, source, destination, exists, transformedContent },
-      });
+      files.push({ component, relativePath, source, destination, content, registryVersion });
     }
 
     for (const relativePath of relativePaths) {
@@ -601,59 +544,19 @@ export async function addComponents(
     const remoteNativeKeys =
       platform === "native" ? buildNativeKeySet(sanitizedEntries.map((e) => e.relativePath)) : new Set<string>();
 
-    async function planRemoteFile(relativePath: string, content: string): Promise<void> {
+    async function planRemoteFile(relativePath: string, contentText: string): Promise<void> {
       const source = `${remote.url}#${relativePath}`;
       const destination = path.join(destinationRoot, remote.component, relativePath);
       if (!claimDestination(destination, source)) {
         return;
       }
-      const exists = await pathExists(destination);
-      if (exists) {
-        const identical = await isRemoteContentIdentical(content, destination);
-        if (identical) {
-          if (resolved.dryRun) {
-            dryRunFiles.push({
-              component: remote.component,
-              relativePath,
-              source,
-              destination,
-              status: "skipped-existing",
-            });
-          } else {
-            plan.push({
-              kind: "skip",
-              entry: { component: remote.component, relativePath, source, destination, status: "skipped-existing" },
-            });
-          }
-          return;
-        }
-        if (!resolved.overwrite) {
-          recordConflict(destination);
-          return;
-        }
-        if (resolved.dryRun) {
-          dryRunFiles.push({
-            component: remote.component,
-            relativePath,
-            source,
-            destination,
-            status: "planned",
-          });
-          return;
-        }
-      } else if (resolved.dryRun) {
-        dryRunFiles.push({
-          component: remote.component,
-          relativePath,
-          source,
-          destination,
-          status: "planned",
-        });
-        return;
-      }
-      plan.push({
-        kind: "remote",
-        write: { component: remote.component, relativePath, source, destination, content, exists },
+      files.push({
+        component: remote.component,
+        relativePath,
+        source,
+        destination,
+        content: Buffer.from(contentText, "utf8"),
+        registryVersion: null,
       });
     }
 
@@ -667,9 +570,7 @@ export async function addComponents(
         continue;
       }
       const content =
-        platform === "native"
-          ? remapWebImportsWithSiblings(rawContent, relativePath, remoteNativeKeys)
-          : rawContent;
+        platform === "native" ? remapWebImportsWithSiblings(rawContent, relativePath, remoteNativeKeys) : rawContent;
       await planRemoteFile(relativePath, content);
       kept += 1;
       if (platform === "native" && isNativeBarrelFile(relativePath)) {
@@ -685,60 +586,110 @@ export async function addComponents(
     }
   }
 
-  if (conflicts.length > 0) {
-    throw new CliError(
-      `Refusing to overwrite ${conflicts.length} existing file(s). Re-run with --overwrite.`,
-      1,
-      { files: conflicts },
-    );
+  return { cwd, destinationRoot, platform, files, removedComponents: removed };
+}
+
+export async function addComponents(
+  components: readonly string[],
+  options: AddComponentsOptions = {},
+): Promise<AddManifest> {
+  if (components.length === 0) {
+    throw new CliError('Specify at least one component. Run "synthex list" to see available components.');
   }
 
-  if (resolved.dryRun) {
-    return {
-      components: [...components],
-      cwd: resolved.cwd,
-      destinationRoot,
-      dryRun: resolved.dryRun,
-      overwrite: resolved.overwrite,
-      files: dryRunFiles,
-    };
+  const cwd = path.resolve(options.cwd ?? process.cwd());
+  const overwrite = options.overwrite ?? false;
+  const dryRun = options.dryRun ?? false;
+  const registryRoot = options.registryRoot ?? getDefaultRegistryRoot();
+
+  const uiConfig = await readUiConfig(cwd);
+
+  let packageManager: PackageManager;
+  if (options.packageManager !== undefined) {
+    packageManager = await detectPackageManager(cwd, options.packageManager);
+  } else if (uiConfig !== null) {
+    packageManager = uiConfig.packageManager;
+  } else {
+    packageManager = await detectPackageManager(cwd);
   }
 
-  // Phase 4: all preflight passed, now write in plan order.
-  const files: AddFileEntry[] = [];
-  for (const entry of plan) {
-    if (entry.kind === "skip") {
-      files.push(entry.entry);
-      continue;
-    }
-    if (entry.kind === "local") {
-      const write = entry.write;
-      await mkdir(path.dirname(write.destination), { recursive: true });
-      if (write.transformedContent !== undefined) {
-        await writeFile(write.destination, write.transformedContent, "utf8");
-      } else {
-        await copyFile(write.source, write.destination);
+  const resolved: ResolvedAddOptions = {
+    cwd,
+    overwrite,
+    dryRun,
+    registryRoot,
+    packageManager,
+  };
+
+  // Shared read-only plan: source parsing, transitive closure, platform
+  // filtering, transformed native barrels, remote JSON, sanitized paths,
+  // collision checks, and custom registry scope. No destination reads.
+  const componentPlan: ComponentPlan = await planComponents(components, {
+    cwd: resolved.cwd,
+    registryRoot: options.registryRoot,
+    packageManager: resolved.packageManager,
+  });
+  const destinationRoot = componentPlan.destinationRoot;
+
+  // Reload scoped metadata for install hints (read-only, no writes).
+  // Plan already validated specs and registryDependencies, so this only
+  // affects hints and never introduces new pre-write failures.
+  let registry: RegistryDepFile | null = null;
+  {
+    const requestedForHints: string[] = [];
+    for (const spec of components) {
+      if (isUrlSpec(spec)) {
+        continue;
       }
-      files.push({
-        component: write.component,
-        relativePath: write.relativePath,
-        source: write.source,
-        destination: write.destination,
-        status: write.exists ? "overwritten" : "written",
-      });
-      continue;
+      if (isRegistrySpec(spec)) {
+        requestedForHints.push(resolveLocalComponentName(spec));
+        continue;
+      }
+      requestedForHints.push(spec);
     }
-    const write = entry.write;
-    await mkdir(path.dirname(write.destination), { recursive: true });
-    await writeFile(write.destination, write.content, "utf8");
-    files.push({
-      component: write.component,
-      relativePath: write.relativePath,
-      source: write.source,
-      destination: write.destination,
-      status: write.exists ? "overwritten" : "written",
-    });
+    if (requestedForHints.length > 0) {
+      const isCustomRegistryRoot = options.registryRoot !== undefined;
+      registry = await loadRegistryForCopyScoped(
+        resolved.registryRoot,
+        isCustomRegistryRoot,
+        requestedForHints,
+      );
+    }
   }
+
+  const snapshot = await readComponentStateSnapshot(cwd);
+  const nextState = stateForComponentInstall(componentPlan, components, snapshot.state);
+  const files: AddFileEntry[] = [];
+  const mutations: ComponentMutation[] = [];
+  const conflicts: string[] = [];
+  for (const file of componentPlan.files) {
+    const relativePath = relativeComponentPath(cwd, file.destination);
+    const target = await assertSafeComponentPath(cwd, relativePath);
+    let current: Buffer | null = null;
+    try {
+      current = await readFile(target);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+    const identical = current !== null && current.equals(file.content);
+    if (current !== null && !identical && !overwrite) conflicts.push(file.destination);
+    files.push({
+      component: file.component,
+      relativePath: file.relativePath,
+      source: file.source,
+      destination: file.destination,
+      status: identical ? "skipped-existing" : dryRun ? "planned" : current === null ? "written" : "overwritten",
+    });
+    mutations.push({ path: relativePath, content: file.content, expected: current });
+  }
+  if (conflicts.length > 0) {
+    throw new CliError(`Refusing to overwrite ${conflicts.length} existing file(s). Re-run with --overwrite.`, 1, { files: conflicts });
+  }
+  if (dryRun) {
+    return { components: [...components], cwd, destinationRoot, dryRun, overwrite, backupDir: null, files };
+  }
+  mutations.push({ path: ".synthex/components.json", content: serializeComponentState(nextState), expected: snapshot.raw });
+  const transaction = await applyComponentTransaction(cwd, mutations);
 
   await maybeLogInstallHint(components, resolved, registry);
 
@@ -748,6 +699,7 @@ export async function addComponents(
     destinationRoot,
     dryRun: resolved.dryRun,
     overwrite: resolved.overwrite,
+    backupDir: transaction.backupDir,
     files,
   };
 }
@@ -794,39 +746,6 @@ async function collectRelativeFiles(dir: string, base: string = dir): Promise<st
   }
 
   return files.sort((a, b) => a.localeCompare(b));
-}
-
-async function pathExists(target: string): Promise<boolean> {
-  try {
-    await stat(target);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-async function isLocalFileIdentical(source: string, destination: string): Promise<boolean> {
-  try {
-    const [a, b] = await Promise.all([readFile(source), readFile(destination)]);
-    if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {
-      return false;
-    }
-    return (a as Buffer).equals(b as Buffer);
-  } catch {
-    return false;
-  }
-}
-
-async function isRemoteContentIdentical(content: string, destination: string): Promise<boolean> {
-  try {
-    const destBuf = await readFile(destination);
-    if (!Buffer.isBuffer(destBuf)) {
-      return false;
-    }
-    return (destBuf as Buffer).equals(Buffer.from(content, "utf8"));
-  } catch {
-    return false;
-  }
 }
 
 async function fetchRemoteManifest(url: string): Promise<{ name: string | null; files: Record<string, string> }> {
@@ -951,7 +870,13 @@ export interface RegistryDepEntry {
 }
 
 export interface RegistryDepFile {
+  readonly version?: unknown;
   readonly components?: readonly RegistryDepEntry[];
+}
+
+function getValidatedRegistryVersion(registry: RegistryDepFile | null | undefined): string | null {
+  const version = (registry as { readonly version?: unknown } | null | undefined)?.version;
+  return typeof version === "string" && version.length > 0 ? version : null;
 }
 
 export function collectInstallDeps(

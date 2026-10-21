@@ -4,6 +4,8 @@ import { Command, CommanderError } from "commander";
 import { registerAddCommand } from "./commands/add";
 import { registerApplyCommand } from "./commands/apply";
 import { registerCreateCommand } from "./commands/create";
+import { registerDiffCommand } from "./commands/diff";
+import { registerUpdateCommand } from "./commands/update";
 import { registerInitCommand } from "./commands/init";
 import { registerLayoutCommands } from "./commands/layout";
 import { registerListCommand } from "./commands/list";
@@ -28,6 +30,8 @@ async function main(): Promise<void> {
   registerAddCommand(program);
   registerApplyCommand(program);
   registerCreateCommand(program);
+  registerDiffCommand(program);
+  registerUpdateCommand(program);
   registerInitCommand(program);
   registerSetupCommand(program);
   registerLayoutCommands(program);

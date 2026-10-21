@@ -119,6 +119,19 @@ Dependency hints print an install command in your package-manager syntax
 (resolved from `--cwd` config/detection) and can include native-only packages;
 filter for web-only apps.
 
+`diff` previews registry changes read-only (`diff [component...] [--cwd]
+[--json]`, defaults to all recorded installs); `update` merges them
+(`update [component...] [--cwd] [--dry-run] [--json] [--write-conflicts]
+[--resolved <file...>]`), preserving independent local edits, stopping all
+applies on any conflict, never writing markers, backing up successful runs
+under `.synthex/backups/<uuid>`, saving `base`/`local`/`incoming` sidecars
+under `.synthex/conflicts/<uuid>` only on a real conflicting run, and
+advancing the `.synthex/components.json` baseline (original bytes + hash +
+registry version, distinct from layout-engine history) so a manual
+resolution accepted via `--resolved` does not re-conflict. Forthcoming
+release (CLI source in this checkout, not yet in published `npx ...@latest`).
+Full reference: `docs/updating-components.md`.
+
 ## Components (`synthex-ui/components`)
 
 Form: Button, Input, InputOTP, Label, Textarea, Checkbox, RadioGroup,

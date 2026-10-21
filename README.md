@@ -195,3 +195,12 @@ No full web/native API parity or full a11y certification is claimed.
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+### Safe component updates (upcoming CLI release)
+
+The CLI records installed originals in `.synthex/components.json`. Preview with
+`synthex diff button`, then use `synthex update button --dry-run` before applying
+`synthex update button`. Independent edits merge; conflicting edits require
+manual review, and applied changes have backups. See
+[updating components](./docs/updating-components.md) for conflict resolution,
+legacy copies, and recovery.
