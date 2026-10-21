@@ -15,15 +15,19 @@ import {
 export interface TextareaProps
   extends Omit<NativeTextInputProps, "style">,
     TextareaSharedProps {
+  readonly disabled?: boolean;
   readonly style?: StyleProp<TextStyle>;
 }
 
-export const Textarea = React.forwardRef<
+export const Textarea: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<TextareaProps> & React.RefAttributes<React.ElementRef<typeof NativeTextInput>>
+> = React.forwardRef<
   React.ElementRef<typeof NativeTextInput>,
   TextareaProps
->(({ invalid, style, uiSize, ...props }, ref) => {
+>(({ accessibilityState, disabled, editable, invalid, style, uiSize, ...props }, ref) => {
   const theme = useTheme();
   const resolved = resolveTextareaVariants({ invalid, uiSize });
+  const isDisabled = !!disabled;
 
   const textareaStyle = React.useMemo<TextStyle>(() => {
     return {
@@ -39,6 +43,8 @@ export const Textarea = React.forwardRef<
   return (
     <NativeTextInput
       ref={ref}
+      accessibilityState={{ ...accessibilityState, disabled: isDisabled }}
+      editable={isDisabled ? false : editable}
       multiline
       placeholderTextColor={theme.colors.foregroundMuted}
       style={[textareaStyle, style]}

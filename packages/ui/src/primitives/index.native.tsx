@@ -29,7 +29,9 @@ export interface BoxProps extends Omit<ViewProps, "style">, BoxStyleProps {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const Box = React.forwardRef<React.ElementRef<typeof View>, BoxProps>(
+export const Box: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<BoxProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, BoxProps>(
   ({ style, ...props }, ref) => {
     const theme = useTheme();
     const boxStyle = toNativeViewStyle(createBoxStyle(theme, props));
@@ -44,7 +46,9 @@ export interface TextProps extends Omit<NativeTextProps, "style">, TextStyleProp
   readonly style?: StyleProp<TextStyle>;
 }
 
-export const Text = React.forwardRef<React.ElementRef<typeof NativeText>, TextProps>(
+export const Text: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<TextProps> & React.RefAttributes<React.ElementRef<typeof NativeText>>
+> = React.forwardRef<React.ElementRef<typeof NativeText>, TextProps>(
   ({ style, ...props }, ref) => {
     const theme = useTheme();
     const textStyle = createTextStyle(theme, props);
@@ -57,7 +61,9 @@ Text.displayName = "Text";
 
 export interface StackProps extends Omit<BoxProps, "direction"> { }
 
-export const Stack = React.forwardRef<React.ElementRef<typeof View>, StackProps>((props, ref) => (
+export const Stack: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<StackProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, StackProps>((props, ref) => (
   <Box ref={ref} direction="column" {...props} />
 ));
 
@@ -65,7 +71,9 @@ Stack.displayName = "Stack";
 
 export interface InlineProps extends Omit<BoxProps, "direction"> { }
 
-export const Inline = React.forwardRef<React.ElementRef<typeof View>, InlineProps>((props, ref) => (
+export const Inline: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<InlineProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, InlineProps>((props, ref) => (
   <Box ref={ref} direction="row" {...props} />
 ));
 
@@ -76,7 +84,9 @@ export interface GridProps extends Omit<BoxProps, "direction" | "wrap"> {
   readonly minItemWidth?: DimensionValue;
 }
 
-export const Grid = React.forwardRef<React.ElementRef<typeof View>, GridProps>(
+export const Grid: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<GridProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, GridProps>(
   ({ children, columns = 2, gap, minItemWidth, style, ...props }, ref) => {
     const theme = useTheme();
     const resolvedGap = resolveSpace(theme, gap) ?? 0;
@@ -117,7 +127,9 @@ export interface SurfaceProps extends Omit<ViewProps, "style">, SurfaceStyleProp
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const Surface = React.forwardRef<React.ElementRef<typeof View>, SurfaceProps>(
+export const Surface: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SurfaceProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, SurfaceProps>(
   ({ style, ...props }, ref) => {
     const theme = useTheme();
     const surfaceStyle = toNativeViewStyle(createSurfaceStyle(theme, props));
@@ -132,7 +144,9 @@ export interface PressablePrimitiveProps extends Omit<PressableProps, "style">, 
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const PressablePrimitive = React.forwardRef<
+export const PressablePrimitive: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<PressablePrimitiveProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   PressablePrimitiveProps
 >(({ style, ...props }, ref) => {
@@ -161,7 +175,9 @@ export interface ScrollAreaProps extends Omit<ScrollViewProps, "style">, Omit<Bo
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const ScrollArea = React.forwardRef<React.ElementRef<typeof ScrollView>, ScrollAreaProps>(
+export const ScrollArea: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ScrollAreaProps> & React.RefAttributes<React.ElementRef<typeof ScrollView>>
+> = React.forwardRef<React.ElementRef<typeof ScrollView>, ScrollAreaProps>(
   ({ contentContainerStyle, style, ...props }, ref) => {
     const theme = useTheme();
     const boxStyle = toNativeViewStyle(createBoxStyle(theme, props));

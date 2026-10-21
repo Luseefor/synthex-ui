@@ -44,3 +44,7 @@ jobs:
 
       - name: Standalone owned Button gate (${{ matrix.template }})
         run: node scripts/lean-install-check.mjs --template ${{ matrix.template }}
+
+      - name: Native contracts packed consumer (iOS and Android bundles)
+        if: matrix.template == 'expo'
+        run: node scripts/native-check.mjs

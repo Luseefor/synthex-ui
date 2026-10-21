@@ -8,7 +8,9 @@ export interface ProgressProps extends Omit<ViewProps, "style">, ProgressSharedP
   readonly testID?: string;
 }
 
-export const Progress = React.forwardRef<React.ElementRef<typeof View>, ProgressProps>(
+export const Progress: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ProgressProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, ProgressProps>(
   ({ max = 100, size, style, testID, value = 0, ...props }, ref) => {
     const theme = useTheme();
     const resolved = resolveProgressVariants({ size });

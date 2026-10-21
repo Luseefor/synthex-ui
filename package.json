@@ -24,7 +24,8 @@
     "test:scripts": "node --test scripts/*.test.mjs",
     "publish:public": "node ./scripts/publish-packages.mjs",
     "release:check": "node ./scripts/release-check.mjs",
-    "onboarding:check": "node ./scripts/onboarding-check.mjs"
+    "onboarding:check": "node ./scripts/onboarding-check.mjs",
+    "native:check": "node ./scripts/native-check.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",

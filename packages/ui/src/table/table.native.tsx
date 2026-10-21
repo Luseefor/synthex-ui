@@ -27,7 +27,9 @@ export interface TableProps extends Omit<ScrollViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const Table = React.forwardRef<React.ElementRef<typeof ScrollView>, TableProps>(
+export const Table: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<TableProps> & React.RefAttributes<React.ElementRef<typeof ScrollView>>
+> = React.forwardRef<React.ElementRef<typeof ScrollView>, TableProps>(
   ({ children, horizontal = true, style, ...props }, ref) => (
     <ScrollView ref={ref} horizontal={horizontal} style={style} {...props}>
       <View>{children}</View>
@@ -41,19 +43,25 @@ export interface TableSectionProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const TableHeader = React.forwardRef<React.ElementRef<typeof View>, TableSectionProps>(
+export const TableHeader: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<TableSectionProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, TableSectionProps>(
   ({ style, ...props }, ref) => <View ref={ref} style={style} {...props} />,
 );
 
 TableHeader.displayName = "TableHeader";
 
-export const TableBody = React.forwardRef<React.ElementRef<typeof View>, TableSectionProps>(
+export const TableBody: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<TableSectionProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, TableSectionProps>(
   ({ style, ...props }, ref) => <View ref={ref} style={style} {...props} />,
 );
 
 TableBody.displayName = "TableBody";
 
-export const TableFooter = React.forwardRef<React.ElementRef<typeof View>, TableSectionProps>(
+export const TableFooter: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<TableSectionProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, TableSectionProps>(
   ({ style, ...props }, ref) => {
     const theme = useTheme();
 
@@ -74,7 +82,9 @@ export const TableFooter = React.forwardRef<React.ElementRef<typeof View>, Table
 
 TableFooter.displayName = "TableFooter";
 
-export const TableRow = React.forwardRef<React.ElementRef<typeof View>, TableSectionProps>(
+export const TableRow: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<TableSectionProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, TableSectionProps>(
   ({ style, ...props }, ref) => {
     const theme = useTheme();
 
@@ -102,7 +112,9 @@ export interface TableTextCellProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const TableHead = React.forwardRef<React.ElementRef<typeof View>, TableTextCellProps>(
+export const TableHead: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<TableTextCellProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, TableTextCellProps>(
   ({ children, style, ...props }, ref) => {
     const theme = useTheme();
 
@@ -127,7 +139,9 @@ export const TableHead = React.forwardRef<React.ElementRef<typeof View>, TableTe
 
 TableHead.displayName = "TableHead";
 
-export const TableCell = React.forwardRef<React.ElementRef<typeof View>, TableTextCellProps>(
+export const TableCell: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<TableTextCellProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, TableTextCellProps>(
   ({ children, style, ...props }, ref) => {
     const theme = useTheme();
 
@@ -153,7 +167,9 @@ export interface TableCaptionProps extends Omit<TextProps, "style"> {
   readonly style?: StyleProp<TextStyle>;
 }
 
-export const TableCaption = React.forwardRef<React.ElementRef<typeof Text>, TableCaptionProps>(
+export const TableCaption: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<TableCaptionProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, TableCaptionProps>(
   ({ style, ...props }, ref) => {
     const theme = useTheme();
 

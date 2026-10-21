@@ -114,7 +114,9 @@ export interface ThemeAccentSwitcherProps
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const ThemeAccentSwitcher = React.forwardRef<
+export const ThemeAccentSwitcher: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ThemeAccentSwitcherProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   ThemeAccentSwitcherProps
 >(
@@ -456,7 +458,9 @@ export interface AssistantChatPanelProps
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const AssistantChatPanel = React.forwardRef<
+export const AssistantChatPanel: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<AssistantChatPanelProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   AssistantChatPanelProps
 >(
@@ -710,7 +714,9 @@ export interface FloatingAssistantLauncherProps
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const FloatingAssistantLauncher = React.forwardRef<
+export const FloatingAssistantLauncher: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<FloatingAssistantLauncherProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   FloatingAssistantLauncherProps
 >(
@@ -971,7 +977,9 @@ export interface CadenceBarChartProps
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const CadenceBarChart = React.forwardRef<
+export const CadenceBarChart: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CadenceBarChartProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   CadenceBarChartProps
 >(
@@ -1051,7 +1059,9 @@ export interface MarqueeProps extends Omit<ViewProps, keyof MarqueeSharedProps>,
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const Marquee = React.forwardRef<React.ElementRef<typeof View>, MarqueeProps>(
+export const Marquee: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<MarqueeProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, MarqueeProps>(
   ({ items, speed = "normal", style, ...props }, ref) => {
     const theme = useTheme();
     const reducedMotion = useReducedMotion();
@@ -1172,7 +1182,9 @@ export interface KPIStatGridProps
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const KPIStatGrid = React.forwardRef<React.ElementRef<typeof View>, KPIStatGridProps>(
+export const KPIStatGrid: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<KPIStatGridProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, KPIStatGridProps>(
   ({ columns = 2, stats, style, ...props }, ref) => {
     const theme = useTheme();
     const reducedMotion = useReducedMotion();
@@ -1256,7 +1268,9 @@ export interface TimelineRowProps
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const TimelineRow = React.forwardRef<React.ElementRef<typeof View>, TimelineRowProps>(
+export const TimelineRow: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<TimelineRowProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, TimelineRowProps>(
   ({ date, organization, style, summary, tags, title, ...props }, ref) => {
     const theme = useTheme();
     const reducedMotion = useReducedMotion();
@@ -1403,7 +1417,9 @@ export interface ExperienceTimelineProps
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const ExperienceTimeline = React.forwardRef<
+export const ExperienceTimeline: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ExperienceTimelineProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   ExperienceTimelineProps
 >(({ description, entries, style, title = "Experience", ...props }, ref) => {
@@ -1445,7 +1461,9 @@ export interface ProjectCaseRowProps
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const ProjectCaseRow = React.forwardRef<React.ElementRef<typeof View>, ProjectCaseRowProps>(
+export const ProjectCaseRow: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ProjectCaseRowProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, ProjectCaseRowProps>(
   ({ category, ctaLabel = "Read case", href, index, metrics, style, summary, title, ...props }, ref) => {
     const theme = useTheme();
     const reducedMotion = useReducedMotion();
@@ -1575,7 +1593,9 @@ export interface ContactSplitFormProps
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const ContactSplitForm = React.forwardRef<
+export const ContactSplitForm: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ContactSplitFormProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   ContactSplitFormProps
 >(
@@ -1738,7 +1758,9 @@ export interface DungeonHUDShellProps
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const DungeonHUDShell = React.forwardRef<React.ElementRef<typeof View>, DungeonHUDShellProps>(
+export const DungeonHUDShell: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<DungeonHUDShellProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, DungeonHUDShellProps>(
   ({ actions, children, footer, metrics, mission, sidebar, style, title, ...props }, ref) => {
     const theme = useTheme();
     const reducedMotion = useReducedMotion();

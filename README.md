@@ -2,7 +2,7 @@
 
 Web + React Native components from one API, plus an optional dockable workbench engine.
 
-> Branch status (`ace/component-contracts`): `create --template`, `setup`,
+> Branch status (`ace/native-capabilities`): `create --template`, `setup`,
 > and the lean `add` below describe the CLI source in this checkout. Forthcoming
 > CLI release; implemented in source, not yet published in
 > `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
@@ -119,6 +119,10 @@ On native, import from `synthex-ui/native`.
 [Component contracts](./docs/component-contracts.md) describe tested ref,
 controlled-state, form, keyboard, RTL, contrast, and server-rendering behavior,
 including custom-theme and nested-portal limitations.
+
+[Native capabilities](./docs/native-capabilities.md) lists implementation differences
+and remaining gaps. [Native device validation](./docs/native-device-validation.md)
+provides a packed Expo fixture, iOS/Android bundle checks, and a pending device checklist.
 
 ## Own the source (optional)
 

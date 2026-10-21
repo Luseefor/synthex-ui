@@ -63,7 +63,9 @@ export interface NavigationMenuListProps extends Omit<ViewProps, "style"> {
   readonly testID?: string;
 }
 
-export const NavigationMenuList = React.forwardRef<
+export const NavigationMenuList: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<NavigationMenuListProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   NavigationMenuListProps
 >(({ style, testID, ...props }, ref) => {
@@ -101,7 +103,9 @@ export interface NavigationMenuItemProps
   readonly testID?: string;
 }
 
-export const NavigationMenuItem = React.forwardRef<
+export const NavigationMenuItem: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<NavigationMenuItemProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   NavigationMenuItemProps
 >(({ children, style, testID, value, ...props }, ref) => (
@@ -122,7 +126,9 @@ export interface NavigationMenuTriggerProps extends Omit<PressableProps, "style"
   readonly testID?: string;
 }
 
-export const NavigationMenuTrigger = React.forwardRef<
+export const NavigationMenuTrigger: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<NavigationMenuTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   NavigationMenuTriggerProps
 >(({ children, onPress, style, textStyle, asChild, testID, ...props }, ref) => {
@@ -185,7 +191,9 @@ export interface NavigationMenuLinkProps extends Omit<PressableProps, "style"> {
   readonly testID?: string;
 }
 
-export const NavigationMenuLink = React.forwardRef<
+export const NavigationMenuLink: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<NavigationMenuLinkProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   NavigationMenuLinkProps
 >(({ children, style, textStyle, asChild, testID, ...props }, ref) => {
@@ -235,7 +243,9 @@ export interface NavigationMenuContentProps extends Omit<ViewProps, "style"> {
   readonly testID?: string;
 }
 
-export const NavigationMenuContent = React.forwardRef<
+export const NavigationMenuContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<NavigationMenuContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   NavigationMenuContentProps
 >(({ children, style, testID, ...props }, ref) => {
@@ -272,7 +282,9 @@ export const NavigationMenuContent = React.forwardRef<
 NavigationMenuContent.displayName = "NavigationMenuContent";
 
 // Web-only viewport container; on native content renders inline. Provided for API parity.
-export const NavigationMenuViewport = React.forwardRef<
+export const NavigationMenuViewport: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<Omit<ViewProps, "style"> & { readonly style?: StyleProp<ViewStyle>; readonly testID?: string }> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   Omit<ViewProps, "style"> & { readonly style?: StyleProp<ViewStyle>; readonly testID?: string }
 >(({ style, testID, ...props }, ref) => (

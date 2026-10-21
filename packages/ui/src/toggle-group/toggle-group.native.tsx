@@ -65,7 +65,9 @@ export interface ToggleGroupItemProps extends React.ComponentPropsWithoutRef<typ
   readonly value: string;
 }
 
-export const ToggleGroupItem = React.forwardRef<React.ElementRef<typeof Toggle>, ToggleGroupItemProps>(
+export const ToggleGroupItem: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ToggleGroupItemProps> & React.RefAttributes<React.ElementRef<typeof Toggle>>
+> = React.forwardRef<React.ElementRef<typeof Toggle>, ToggleGroupItemProps>(
   ({ disabled: itemDisabled, onPressedChange, pressed, size: itemSize, value, variant: itemVariant, ...props }, ref) => {
     const context = useToggleGroupContext();
     const isPressed = pressed ?? context.isPressed(value);

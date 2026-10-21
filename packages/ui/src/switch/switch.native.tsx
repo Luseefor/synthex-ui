@@ -17,9 +17,12 @@ export interface SwitchProps
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const Switch = React.forwardRef<React.ElementRef<typeof Pressable>, SwitchProps>(
+export const Switch: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SwitchProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<React.ElementRef<typeof Pressable>, SwitchProps>(
   (
     {
+      accessibilityState,
       checked,
       defaultChecked = false,
       disabled,
@@ -47,12 +50,16 @@ export const Switch = React.forwardRef<React.ElementRef<typeof Pressable>, Switc
       <Pressable
         ref={ref}
         accessibilityRole="switch"
-        accessibilityState={{ checked: !!currentChecked, disabled: !!disabled }}
+        accessibilityState={{ ...accessibilityState, checked: !!currentChecked, disabled: !!disabled }}
         disabled={disabled}
         onPress={(event) => {
+          if (disabled) {
+            return;
+          }
+
           onPress?.(event);
 
-          if (disabled || event.defaultPrevented) {
+          if (event.defaultPrevented) {
             return;
           }
 

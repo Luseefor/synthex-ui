@@ -83,7 +83,9 @@ export interface ComboboxTriggerProps extends Omit<PressableProps, "style"> {
   readonly testID?: string;
 }
 
-export const ComboboxTrigger = React.forwardRef<
+export const ComboboxTrigger: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ComboboxTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   ComboboxTriggerProps
 >(({ children, onPress, style, testID, ...props }, ref) => {
@@ -134,7 +136,9 @@ export interface ComboboxValueProps {
   readonly testID?: string;
 }
 
-export const ComboboxValue = React.forwardRef<React.ElementRef<typeof Text>, ComboboxValueProps>(
+export const ComboboxValue: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ComboboxValueProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, ComboboxValueProps>(
   ({ children, style, testID }, ref) => {
     const context = useComboboxContext();
     const theme = useTheme();
@@ -173,7 +177,9 @@ export interface ComboboxContentProps extends Omit<ViewProps, "style"> {
   readonly testID?: string;
 }
 
-export const ComboboxContent = React.forwardRef<
+export const ComboboxContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ComboboxContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   ComboboxContentProps
 >(({ style, testID, ...props }, ref) => {
@@ -210,7 +216,9 @@ export interface ComboboxInputProps extends Omit<TextInputProps, "defaultValue" 
   readonly testID?: string;
 }
 
-export const ComboboxInput = React.forwardRef<
+export const ComboboxInput: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ComboboxInputProps> & React.RefAttributes<React.ElementRef<typeof TextInput>>
+> = React.forwardRef<
   React.ElementRef<typeof TextInput>,
   ComboboxInputProps
 >(({ onChangeText, placeholder = "Search options", style, testID, ...props }, ref) => {
@@ -262,7 +270,9 @@ export interface ComboboxListProps extends Omit<ViewProps, "style"> {
   readonly testID?: string;
 }
 
-export const ComboboxList = React.forwardRef<React.ElementRef<typeof ScrollView>, ComboboxListProps>(
+export const ComboboxList: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ComboboxListProps> & React.RefAttributes<React.ElementRef<typeof ScrollView>>
+> = React.forwardRef<React.ElementRef<typeof ScrollView>, ComboboxListProps>(
   ({ children, style, testID, ...props }, ref) => (
     <ScrollView
       ref={ref}
@@ -284,7 +294,9 @@ export interface ComboboxEmptyProps extends Omit<ViewProps, "style"> {
   readonly testID?: string;
 }
 
-export const ComboboxEmpty = React.forwardRef<React.ElementRef<typeof View>, ComboboxEmptyProps>(
+export const ComboboxEmpty: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ComboboxEmptyProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, ComboboxEmptyProps>(
   ({ children = "No results found.", style, textStyle, testID, ...props }, ref) => {
     const context = useComboboxContext();
     const theme = useTheme();
@@ -324,7 +336,9 @@ export interface ComboboxItemProps
   readonly testID?: string;
 }
 
-export const ComboboxItem = React.forwardRef<React.ElementRef<typeof Pressable>, ComboboxItemProps>(
+export const ComboboxItem: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ComboboxItemProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<React.ElementRef<typeof Pressable>, ComboboxItemProps>(
   ({ children, keywords, onPress, style, textStyle, textValue, testID, value, ...props }, ref) => {
     const context = useComboboxContext();
     const theme = useTheme();

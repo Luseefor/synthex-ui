@@ -53,7 +53,9 @@ export interface PopoverTriggerProps extends Omit<PressableProps, "style"> {
   readonly asChild?: boolean;
 }
 
-export const PopoverTrigger = React.forwardRef<
+export const PopoverTrigger: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<PopoverTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   PopoverTriggerProps
 >(({ children, onPress, style, asChild, testID, ...props }, ref) => {
@@ -104,7 +106,9 @@ export interface PopoverContentProps extends Omit<ViewProps, "style">, OverlayPo
 }
 
 // Native renders in normal flow; side/align/sideOffset/alignOffset are accepted for API parity and ignored.
-export const PopoverContent = React.forwardRef<
+export const PopoverContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<PopoverContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   PopoverContentProps
 >(({ align, alignOffset, side, sideOffset, style, testID, ...props }, ref) => {

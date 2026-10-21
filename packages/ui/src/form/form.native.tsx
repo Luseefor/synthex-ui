@@ -21,7 +21,9 @@ export interface FormProps extends ViewProps {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const Form = React.forwardRef<React.ElementRef<typeof View>, FormProps>(
+export const Form: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<FormProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, FormProps>(
   ({ children, style, ...props }, ref) => (
     <View ref={ref} style={[{ gap: 24 }, style]} {...props}>
       {children}
@@ -39,7 +41,9 @@ export interface FormItemProps extends Omit<ViewProps, "children">, FormItemShar
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const FormItem = React.forwardRef<React.ElementRef<typeof View>, FormItemProps>(
+export const FormItem: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<FormItemProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, FormItemProps>(
   ({ children, style, ...props }, ref) => {
     const id = React.useId();
 
@@ -55,7 +59,9 @@ export const FormItem = React.forwardRef<React.ElementRef<typeof View>, FormItem
 
 FormItem.displayName = "FormItem";
 
-export const FormLabel = React.forwardRef<
+export const FormLabel: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<React.ComponentPropsWithoutRef<typeof Label>> & React.RefAttributes<React.ElementRef<typeof NativeText>>
+> = React.forwardRef<
   React.ElementRef<typeof NativeText>,
   React.ComponentPropsWithoutRef<typeof Label>
 >(({ style, ...props }, ref) => {
@@ -73,7 +79,9 @@ export const FormLabel = React.forwardRef<
 
 FormLabel.displayName = "FormLabel";
 
-export const FormControl = React.forwardRef<
+export const FormControl: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<Omit<ViewProps, "children"> & { readonly children: React.ReactElement<any> }> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   Omit<ViewProps, "children"> & { readonly children: React.ReactElement<any> }
 >(({ children, style, ...props }, ref) => {

@@ -11,7 +11,9 @@ export interface LabelProps extends NativeTextProps {
   readonly style?: StyleProp<TextStyle>;
 }
 
-export const Label = React.forwardRef<React.ElementRef<typeof NativeText>, LabelProps>(
+export const Label: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<LabelProps> & React.RefAttributes<React.ElementRef<typeof NativeText>>
+> = React.forwardRef<React.ElementRef<typeof NativeText>, LabelProps>(
   ({ style, ...props }, ref) => {
     const theme = useTheme();
 

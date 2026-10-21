@@ -30,7 +30,9 @@ export interface InputOTPGroupProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const InputOTPGroup = React.forwardRef<React.ElementRef<typeof View>, InputOTPGroupProps>(
+export const InputOTPGroup: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<InputOTPGroupProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, InputOTPGroupProps>(
   ({ children, style, ...props }, ref) => (
     <View ref={ref} style={[{ flexDirection: "row", alignItems: "center", gap: 8 }, style]} {...props}>
       {children}
@@ -45,7 +47,9 @@ export interface InputOTPSlotProps extends Omit<React.ComponentProps<typeof Text
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
-export const InputOTPSlot = React.forwardRef<React.ElementRef<typeof TextInput>, InputOTPSlotProps>(
+export const InputOTPSlot: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<InputOTPSlotProps> & React.RefAttributes<React.ElementRef<typeof TextInput>>
+> = React.forwardRef<React.ElementRef<typeof TextInput>, InputOTPSlotProps>(
   ({ index, style, textStyle, ...props }, ref) => {
     const context = useInputOTPContext();
     const theme = useTheme();
@@ -80,7 +84,9 @@ export const InputOTPSlot = React.forwardRef<React.ElementRef<typeof TextInput>,
 );
 InputOTPSlot.displayName = "InputOTPSlot";
 
-export const InputOTPSeparator = React.forwardRef<React.ElementRef<typeof Text>, React.ComponentProps<typeof Text>>(
+export const InputOTPSeparator: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<React.ComponentProps<typeof Text>> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, React.ComponentProps<typeof Text>>(
   ({ children = "—", style, ...props }, ref) => {
     const theme = useTheme();
     return (

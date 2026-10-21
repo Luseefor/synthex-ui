@@ -1,6 +1,6 @@
 # Synthex UI, llms.txt
 
-> Branch status (`ace/lean-component-installs`): `create --template`, `setup`,
+> Branch status (`ace/native-capabilities`): `create --template`, `setup`,
 > and the lean `add` below describe the CLI source in this checkout. Forthcoming
 > CLI release; implemented in source, not yet published in
 > `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
@@ -165,3 +165,5 @@ Start with these docs. `docs/getting-started.md`, `docs/frameworks.md`, `docs/th
 No full web/native API parity or full a11y certification claimed.
 
 Component behavior and verification: `docs/component-contracts.md` covers refs, controlled/default values, native form submit/reset, FormControl ARIA associations, Radix direction context, theme text contrast, and Node SSR/Chromium hydration checks. Scope and nested-portal/custom-theme limitations are explicit; no universal accessibility certification is claimed.
+
+Native coverage: `docs/native-capabilities.md` lists implementation shapes, ignored props, and gaps by family. `docs/native-device-validation.md` describes the fixture and pending VoiceOver/TalkBack/device checks. After building UI, `bun run native:check` installs the local packed UI in an isolated Expo app, typechecks native subpaths, and exports iOS + Android bundles. These are not simulator or device passes.

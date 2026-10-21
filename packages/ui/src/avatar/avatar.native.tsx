@@ -24,7 +24,9 @@ export interface AvatarProps extends Omit<ViewProps, "style">, AvatarSharedProps
   readonly testID?: string;
 }
 
-export const Avatar = React.forwardRef<React.ElementRef<typeof View>, AvatarProps>(
+export const Avatar: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<AvatarProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, AvatarProps>(
   ({ children, size, style, testID, ...props }, ref) => {
     const theme = useTheme();
     const [imageStatus, setImageStatus] = React.useState<"idle" | "loading" | "loaded" | "error">(
@@ -72,7 +74,9 @@ export interface AvatarImageProps extends Omit<ImageProps, "source"> {
   readonly testID?: string;
 }
 
-export const AvatarImage = React.forwardRef<React.ElementRef<typeof Image>, AvatarImageProps>(
+export const AvatarImage: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<AvatarImageProps> & React.RefAttributes<React.ElementRef<typeof Image>>
+> = React.forwardRef<React.ElementRef<typeof Image>, AvatarImageProps>(
   ({ onError, onLoad, style, testID, ...props }, ref) => {
     const { setImageStatus } = useAvatarContext();
 
@@ -104,7 +108,9 @@ export interface AvatarFallbackProps
   readonly testID?: string;
 }
 
-export const AvatarFallback = React.forwardRef<
+export const AvatarFallback: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<AvatarFallbackProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<
   React.ElementRef<typeof Text>,
   AvatarFallbackProps
 >(({ size, style, testID, ...props }, ref) => {

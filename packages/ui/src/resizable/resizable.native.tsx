@@ -26,7 +26,9 @@ export interface ResizableHandleProps
   readonly testID?: string;
 }
 
-export const ResizablePanel = React.forwardRef<React.ElementRef<typeof View>, ResizablePanelProps>(
+export const ResizablePanel: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ResizablePanelProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, ResizablePanelProps>(
   ({ children, defaultSize, minSize = 15, style, testID, ...props }, ref) => {
     const { __direction, __size, ...viewProps } = props as ResizablePanelProps & InternalPanelProps;
     const theme = useTheme();
@@ -57,7 +59,9 @@ export const ResizablePanel = React.forwardRef<React.ElementRef<typeof View>, Re
 
 ResizablePanel.displayName = "ResizablePanel";
 
-export const ResizableHandle = React.forwardRef<React.ElementRef<typeof Pressable>, ResizableHandleProps>(
+export const ResizableHandle: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ResizableHandleProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<React.ElementRef<typeof Pressable>, ResizableHandleProps>(
   ({ style, testID, withHandle = true, ...props }, ref) => {
     const theme = useTheme();
     const handleStyle: ViewStyle = {
@@ -93,7 +97,9 @@ export const ResizableHandle = React.forwardRef<React.ElementRef<typeof Pressabl
 
 ResizableHandle.displayName = "ResizableHandle";
 
-export const ResizablePanelGroup = React.forwardRef<React.ElementRef<typeof View>, ResizablePanelGroupProps>(
+export const ResizablePanelGroup: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ResizablePanelGroupProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, ResizablePanelGroupProps>(
   ({ children, direction, style, testID, ...props }, ref) => {
     const theme = useTheme();
     const childArray = React.Children.toArray(children).filter(React.isValidElement) as Array<

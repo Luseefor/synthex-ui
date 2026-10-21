@@ -191,6 +191,7 @@
       "dir": "packages/ui/src/button",
       "internal": false,
       "files": [
+        "button.contract.native.test.tsx",
         "button.native.test.tsx",
         "button.native.tsx",
         "button.shared.ts",
@@ -283,6 +284,7 @@
       "internal": false,
       "files": [
         "chart-compat.test.tsx",
+        "chart.geometry.native.test.tsx",
         "chart.native.test.tsx",
         "chart.native.tsx",
         "chart.shared.ts",
@@ -304,6 +306,7 @@
       "dir": "packages/ui/src/checkbox",
       "internal": false,
       "files": [
+        "checkbox.contract.native.test.tsx",
         "checkbox.contract.web.test.tsx",
         "checkbox.native.tsx",
         "checkbox.shared.ts",
@@ -547,6 +550,7 @@
       "internal": false,
       "files": [
         "dialog-a11y.test.tsx",
+        "dialog.contract.native.test.tsx",
         "dialog.native.test.tsx",
         "dialog.native.tsx",
         "dialog.shared.tsx",
@@ -725,6 +729,7 @@
       "files": [
         "index.native.ts",
         "index.ts",
+        "input.contract.native.test.tsx",
         "input.contract.web.test.tsx",
         "input.native.tsx",
         "input.shared.ts",
@@ -967,6 +972,7 @@
         "index.native.ts",
         "index.ts",
         "select-extras.test.tsx",
+        "select.contract.native.test.tsx",
         "select.native.test.tsx",
         "select.native.tsx",
         "select.shared.tsx",
@@ -1091,6 +1097,7 @@
       "files": [
         "index.native.ts",
         "index.ts",
+        "switch.contract.native.test.tsx",
         "switch.contract.web.test.tsx",
         "switch.native.tsx",
         "switch.shared.ts",
@@ -1158,6 +1165,7 @@
       "files": [
         "index.native.ts",
         "index.ts",
+        "tabs.contract.native.test.tsx",
         "tabs.direction.test.tsx",
         "tabs.native.tsx",
         "tabs.shared.ts",
@@ -1179,6 +1187,7 @@
       "files": [
         "index.native.ts",
         "index.ts",
+        "textarea.contract.native.test.tsx",
         "textarea.contract.web.test.tsx",
         "textarea.native.tsx",
         "textarea.shared.ts",

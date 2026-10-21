@@ -14,6 +14,35 @@ import type {
 const DEFAULT_SERIES_COLORS = ["#2563eb", "#0f766e", "#7c3aed", "#d97706"];
 const SVG_WIDTH = 640;
 
+// Shared category geometry. Line/area points, bars, and axis labels all use
+// these point-scale centers so the families stay aligned.
+const PLOT_LEFT = 40;
+const PLOT_WIDTH = SVG_WIDTH - 64;
+const BAR_SLOT_FRACTION = 0.62;
+// Caps small-n bar groups so edge groups stay inside the 640 viewBox while
+// centered (edge centers sit 40 / 24 units from the left / right edges).
+const MAX_BAR_GROUP_WIDTH = 48;
+const SINGLE_CATEGORY_GROUP_WIDTH = 72;
+const BAR_GAP = 6;
+
+function getCategoryStep(count: number): number {
+  return count > 1 ? PLOT_WIDTH / (count - 1) : PLOT_WIDTH;
+}
+
+function getCategoryCenter(index: number, count: number): number {
+  if (count <= 1) {
+    return PLOT_LEFT;
+  }
+  return PLOT_LEFT + index * getCategoryStep(count);
+}
+
+function getBarGroupWidth(count: number): number {
+  if (count <= 1) {
+    return SINGLE_CATEGORY_GROUP_WIDTH;
+  }
+  return Math.min(getCategoryStep(count) * BAR_SLOT_FRACTION, MAX_BAR_GROUP_WIDTH);
+}
+
 export interface ChartContainerProps extends ChartContainerSharedProps {
   readonly style?: StyleProp<ViewStyle>;
   readonly testID?: string;
@@ -226,10 +255,13 @@ export function BarChart({ ariaLabel, height = 240, series, testID }: BarChartPr
   const theme = useTheme();
   const points = getSeriesPoints(series, height);
   const labels = series[0]?.data.map((entry) => entry.label) ?? [];
-  const plotWidth = SVG_WIDTH - 64;
-  const step = labels.length > 0 ? plotWidth / labels.length : plotWidth;
-  const barGroupWidth = step * 0.62;
-  const barWidth = series.length > 0 ? barGroupWidth / series.length : barGroupWidth;
+  const barGroupWidth = getBarGroupWidth(labels.length);
+  const barCount = series.length;
+  const slotWidth = barCount > 0 ? barGroupWidth / barCount : barGroupWidth;
+  // Bars leave a gap while slots fit; in dense charts slots are narrower
+  // than the gap, so bars fill their slot instead of overflowing it.
+  const barVisualWidth = slotWidth > BAR_GAP ? slotWidth - BAR_GAP : slotWidth;
+  const barInset = (slotWidth - barVisualWidth) / 2;
   const baseline = height - 28;
 
   return (
@@ -241,10 +273,18 @@ export function BarChart({ ariaLabel, height = 240, series, testID }: BarChartPr
             <Rect
               key={`${entry.key}-${point.label}`}
               fill={resolveSeriesColor(series[seriesIndex]!, seriesIndex)}
-              height={Math.max(baseline - point.y, 8)}
+              height={Math.max(baseline - point.y, 0)}
               rx={8}
-              width={Math.max(barWidth - 6, 10)}
-              x={48 + pointIndex * step + seriesIndex * barWidth}
+              width={barVisualWidth}
+              // Each bar group shares the category center used by line/area
+              // points and axis labels; each bar is centered in its slot so
+              // groups stay centered and non-overlapping at any density.
+              x={
+                getCategoryCenter(pointIndex, labels.length) -
+                barGroupWidth / 2 +
+                seriesIndex * slotWidth +
+                barInset
+              }
               y={point.y}
             />
           )),
@@ -290,8 +330,6 @@ function ChartAxisLabels({
   series: readonly ChartSeries[];
 }) {
   const labels = series[0]?.data.map((entry) => entry.label) ?? [];
-  const plotWidth = SVG_WIDTH - 64;
-  const step = labels.length > 1 ? plotWidth / (labels.length - 1) : plotWidth;
 
   return (
     <>
@@ -301,7 +339,8 @@ function ChartAxisLabels({
           fontSize="12"
           key={label}
           textAnchor="middle"
-          x={40 + index * step}
+          // Same centers as line/area points and bar groups.
+          x={getCategoryCenter(index, labels.length)}
           y={height - 6}
         >
           {label}
@@ -314,9 +353,11 @@ function ChartAxisLabels({
 function getSeriesPoints(series: readonly ChartSeries[], height: number) {
   const values = series.flatMap((entry) => entry.data.map((datum) => datum.value));
   const maxValue = values.length > 0 ? Math.max(...values) : 1;
+  // A zero or negative maximum would divide by zero or invert the scale, so
+  // fall back to 1. All-zero series then sit flat on the baseline; positive
+  // data is unaffected.
+  const scaleMax = maxValue > 0 ? maxValue : 1;
   const labels = series[0]?.data.map((entry) => entry.label) ?? [];
-  const plotWidth = SVG_WIDTH - 64;
-  const step = labels.length > 1 ? plotWidth / (labels.length - 1) : plotWidth;
   const baseline = height - 28;
   const minY = 20;
   const plotHeight = baseline - minY;
@@ -325,8 +366,9 @@ function getSeriesPoints(series: readonly ChartSeries[], height: number) {
     key: entry.key,
     points: entry.data.map((datum, index) => ({
       label: datum.label,
-      x: 40 + index * step,
-      y: baseline - (datum.value / maxValue) * plotHeight,
+      // Shared helper keeps bars and labels aligned on these centers.
+      x: getCategoryCenter(index, labels.length),
+      y: baseline - (datum.value / scaleMax) * plotHeight,
     })),
   }));
 }

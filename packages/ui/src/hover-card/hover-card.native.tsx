@@ -58,7 +58,9 @@ export interface HoverCardTriggerProps extends Omit<PressableProps, "style"> {
   readonly asChild?: boolean;
 }
 
-export const HoverCardTrigger = React.forwardRef<
+export const HoverCardTrigger: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<HoverCardTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   HoverCardTriggerProps
 >(({ children, onPress, style, asChild, testID, ...props }, ref) => {
@@ -111,7 +113,9 @@ export interface HoverCardContentProps extends Omit<ViewProps, "style">, Overlay
 }
 
 // Native renders in normal flow; side/align/sideOffset/alignOffset are accepted for API parity and ignored.
-export const HoverCardContent = React.forwardRef<
+export const HoverCardContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<HoverCardContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   HoverCardContentProps
 >(({ align, alignOffset, side, sideOffset, style, testID, ...props }, ref) => {

@@ -80,7 +80,9 @@ export interface ContextMenuTriggerProps extends Omit<PressableProps, "style"> {
   readonly testID?: string;
 }
 
-export const ContextMenuTrigger = React.forwardRef<
+export const ContextMenuTrigger: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ContextMenuTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   ContextMenuTriggerProps
 >(({ children, onLongPress, style, asChild, testID, ...props }, ref) => {
@@ -128,7 +130,9 @@ export interface ContextMenuContentProps extends Omit<ViewProps, "style">, Overl
 }
 
 // Native renders in normal flow; side/align/sideOffset/alignOffset are accepted for API parity and ignored.
-export const ContextMenuContent = React.forwardRef<
+export const ContextMenuContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ContextMenuContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   ContextMenuContentProps
 >(({ align, alignOffset, side, sideOffset, style, testID, ...props }, ref) => {
@@ -173,7 +177,9 @@ export interface ContextMenuLabelProps extends Omit<ViewProps, "style"> {
   readonly testID?: string;
 }
 
-export const ContextMenuLabel = React.forwardRef<
+export const ContextMenuLabel: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ContextMenuLabelProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   ContextMenuLabelProps
 >(({ children, style, textStyle, testID, ...props }, ref) => {
@@ -207,7 +213,9 @@ export interface ContextMenuSeparatorProps extends Omit<ViewProps, "style"> {
   readonly testID?: string;
 }
 
-export const ContextMenuSeparator = React.forwardRef<
+export const ContextMenuSeparator: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ContextMenuSeparatorProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   ContextMenuSeparatorProps
 >(({ style, testID, ...props }, ref) => {
@@ -232,7 +240,9 @@ export interface ContextMenuItemProps extends Omit<PressableProps, "style"> {
   readonly testID?: string;
 }
 
-export const ContextMenuItem = React.forwardRef<
+export const ContextMenuItem: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ContextMenuItemProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   ContextMenuItemProps
 >(({ children, onPress, style, textStyle, testID, ...props }, ref) => {
@@ -289,21 +299,27 @@ export function ContextMenuSub({ testID, ...props }: ContextMenuSubProps) {
 }
 
 export type ContextMenuSubTriggerProps = BaseMenuSubTriggerProps & { readonly testID?: string };
-export const ContextMenuSubTrigger = React.forwardRef<
+export const ContextMenuSubTrigger: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ContextMenuSubTriggerProps> & React.RefAttributes<React.ElementRef<typeof BaseMenuSubTrigger>>
+> = React.forwardRef<
   React.ElementRef<typeof BaseMenuSubTrigger>,
   ContextMenuSubTriggerProps
 >(({ testID, ...props }, ref) => <BaseMenuSubTrigger ref={ref} testID={testID ?? "context-menu-sub-trigger"} {...props} />);
 ContextMenuSubTrigger.displayName = "ContextMenuSubTrigger";
 
 export type ContextMenuSubContentProps = BaseMenuSubContentProps & { readonly testID?: string };
-export const ContextMenuSubContent = React.forwardRef<
+export const ContextMenuSubContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ContextMenuSubContentProps> & React.RefAttributes<React.ElementRef<typeof BaseMenuSubContent>>
+> = React.forwardRef<
   React.ElementRef<typeof BaseMenuSubContent>,
   ContextMenuSubContentProps
 >(({ testID, ...props }, ref) => <BaseMenuSubContent ref={ref} testID={testID ?? "context-menu-sub-content"} {...props} />);
 ContextMenuSubContent.displayName = "ContextMenuSubContent";
 
 export type ContextMenuCheckboxItemProps = BaseMenuCheckboxItemProps & { readonly testID?: string };
-export const ContextMenuCheckboxItem = React.forwardRef<
+export const ContextMenuCheckboxItem: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ContextMenuCheckboxItemProps> & React.RefAttributes<React.ElementRef<typeof BaseMenuCheckboxItem>>
+> = React.forwardRef<
   React.ElementRef<typeof BaseMenuCheckboxItem>,
   ContextMenuCheckboxItemProps
 >(({ testID, ...props }, ref) => <BaseMenuCheckboxItem ref={ref} testID={testID ?? "context-menu-checkbox-item"} {...props} />);
@@ -315,21 +331,27 @@ export function ContextMenuRadioGroup({ testID, ...props }: ContextMenuRadioGrou
 }
 
 export type ContextMenuRadioItemProps = BaseMenuRadioItemProps & { readonly testID?: string };
-export const ContextMenuRadioItem = React.forwardRef<
+export const ContextMenuRadioItem: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ContextMenuRadioItemProps> & React.RefAttributes<React.ElementRef<typeof BaseMenuRadioItem>>
+> = React.forwardRef<
   React.ElementRef<typeof BaseMenuRadioItem>,
   ContextMenuRadioItemProps
 >(({ testID, ...props }, ref) => <BaseMenuRadioItem ref={ref} testID={testID ?? "context-menu-radio-item"} {...props} />);
 ContextMenuRadioItem.displayName = "ContextMenuRadioItem";
 
 export type ContextMenuShortcutProps = BaseMenuShortcutProps & { readonly testID?: string };
-export const ContextMenuShortcut = React.forwardRef<
+export const ContextMenuShortcut: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ContextMenuShortcutProps> & React.RefAttributes<React.ElementRef<typeof BaseMenuShortcut>>
+> = React.forwardRef<
   React.ElementRef<typeof BaseMenuShortcut>,
   ContextMenuShortcutProps
 >(({ testID, ...props }, ref) => <BaseMenuShortcut ref={ref} testID={testID ?? "context-menu-shortcut"} {...props} />);
 ContextMenuShortcut.displayName = "ContextMenuShortcut";
 
 export type ContextMenuArrowProps = BaseMenuArrowProps & { readonly testID?: string };
-export const ContextMenuArrow = React.forwardRef<
+export const ContextMenuArrow: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ContextMenuArrowProps> & React.RefAttributes<React.ElementRef<typeof BaseMenuArrow>>
+> = React.forwardRef<
   React.ElementRef<typeof BaseMenuArrow>,
   ContextMenuArrowProps
 >(({ testID, ...props }, ref) => <BaseMenuArrow ref={ref} testID={testID ?? "context-menu-arrow"} {...props} />);

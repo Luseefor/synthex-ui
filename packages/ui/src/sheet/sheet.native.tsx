@@ -39,7 +39,9 @@ export interface SheetTriggerProps extends Omit<PressableProps, "style"> {
   readonly asChild?: boolean;
 }
 
-export const SheetTrigger = React.forwardRef<
+export const SheetTrigger: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SheetTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   SheetTriggerProps
 >(({ children, onPress, style, asChild, testID, ...props }, ref) => {
@@ -85,7 +87,9 @@ export const SheetTrigger = React.forwardRef<
 
 SheetTrigger.displayName = "SheetTrigger";
 
-export const SheetClose = React.forwardRef<
+export const SheetClose: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SheetTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   SheetTriggerProps
 >(({ children, onPress, style, asChild, testID, ...props }, ref) => {
@@ -137,7 +141,9 @@ export interface SheetContentProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const SheetContent = React.forwardRef<React.ElementRef<typeof View>, SheetContentProps>(
+export const SheetContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SheetContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, SheetContentProps>(
   ({ children, dismissible = true, side = "right", style, testID, ...props }, ref) => {
     const context = useSheetContext();
     const theme = useTheme();
@@ -232,7 +238,9 @@ export interface SheetSectionProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const SheetHeader = React.forwardRef<React.ElementRef<typeof View>, SheetSectionProps>(
+export const SheetHeader: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SheetSectionProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, SheetSectionProps>(
   ({ style, testID, ...props }, ref) => (
     <View ref={ref} testID={testID ?? "sheet-header"} style={[{ gap: 8 }, style]} {...props} />
   ),
@@ -244,7 +252,9 @@ export interface SheetTextProps extends Omit<TextProps, "style"> {
   readonly style?: StyleProp<TextStyle>;
 }
 
-export const SheetTitle = React.forwardRef<React.ElementRef<typeof Text>, SheetTextProps>(
+export const SheetTitle: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SheetTextProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, SheetTextProps>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
@@ -270,7 +280,9 @@ export const SheetTitle = React.forwardRef<React.ElementRef<typeof Text>, SheetT
 
 SheetTitle.displayName = "SheetTitle";
 
-export const SheetDescription = React.forwardRef<
+export const SheetDescription: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SheetTextProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<
   React.ElementRef<typeof Text>,
   SheetTextProps
 >(({ style, testID, ...props }, ref) => {
@@ -296,7 +308,9 @@ export const SheetDescription = React.forwardRef<
 
 SheetDescription.displayName = "SheetDescription";
 
-export const SheetFooter = React.forwardRef<React.ElementRef<typeof View>, SheetSectionProps>(
+export const SheetFooter: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SheetSectionProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, SheetSectionProps>(
   ({ style, testID, ...props }, ref) => (
     <View
       ref={ref}

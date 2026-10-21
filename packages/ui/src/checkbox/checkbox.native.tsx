@@ -22,9 +22,12 @@ export interface CheckboxProps
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const Checkbox = React.forwardRef<React.ElementRef<typeof Pressable>, CheckboxProps>(
+export const Checkbox: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CheckboxProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<React.ElementRef<typeof Pressable>, CheckboxProps>(
   (
     {
+      accessibilityState,
       checked,
       defaultChecked = false,
       disabled,
@@ -79,14 +82,19 @@ export const Checkbox = React.forwardRef<React.ElementRef<typeof Pressable>, Che
         ref={ref}
         accessibilityRole="checkbox"
         accessibilityState={{
+          ...accessibilityState,
           checked: isIndeterminate ? "mixed" : isChecked,
           disabled: !!disabled,
         }}
         disabled={disabled}
         onPress={(event) => {
+          if (disabled) {
+            return;
+          }
+
           onPress?.(event);
 
-          if (disabled || event.defaultPrevented) {
+          if (event.defaultPrevented) {
             return;
           }
 

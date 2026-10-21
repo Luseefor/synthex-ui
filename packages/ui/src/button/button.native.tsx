@@ -19,8 +19,24 @@ export interface ButtonProps
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
-export const Button = React.forwardRef<React.ElementRef<typeof Pressable>, ButtonProps>(
-  ({ asChild, children, disabled, size, style, textStyle, variant, ...props }, ref) => {
+export const Button: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ButtonProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<React.ElementRef<typeof Pressable>, ButtonProps>(
+  (
+    {
+      asChild,
+      accessibilityState,
+      children,
+      disabled,
+      onPress,
+      size,
+      style,
+      textStyle,
+      variant,
+      ...props
+    },
+    ref,
+  ) => {
     const theme = useTheme();
     const resolved = resolveButtonVariants({ size, variant });
 
@@ -154,26 +170,66 @@ export const Button = React.forwardRef<React.ElementRef<typeof Pressable>, Butto
     }, [resolved.size, resolved.variant, theme]);
 
     type AsChildProps = {
+      accessibilityState?: PressableProps["accessibilityState"];
       children?: React.ReactNode;
+      disabled?: boolean;
       style?: StyleProp<ViewStyle>;
       [key: string]: unknown;
     };
 
-    if (asChild && React.isValidElement<AsChildProps>(children)) {
-      const childOnPress = children.props.onPress as
+    const childElement =
+      asChild && React.isValidElement<AsChildProps>(children) ? children : null;
+    // React 19: ref lives on props. Never read `element.ref` (warns).
+    const childRef = (
+      childElement?.props as { ref?: React.Ref<React.ElementRef<typeof Pressable>> } | undefined
+    )?.ref;
+    const mergedRef = React.useCallback(
+      (node: React.ElementRef<typeof Pressable> | null) => {
+        const cleanups = [childRef, ref].map((target) => {
+          if (typeof target === "function") {
+            const cleanup = target(node);
+            return typeof cleanup === "function" ? cleanup : () => { target(null); };
+          }
+          if (target) {
+            target.current = node;
+            return () => { target.current = null; };
+          }
+          return undefined;
+        });
+        return () => { for (const cleanup of cleanups) cleanup?.(); };
+      },
+      [childRef, ref],
+    );
+
+    if (childElement) {
+      const childOnPress = childElement.props.onPress as
         | ((event: Parameters<NonNullable<PressableProps["onPress"]>>[0]) => void)
         | undefined;
-      const parentOnPress = props.onPress;
-      return React.cloneElement(children, {
-        ref,
+      const childAccessibilityState = childElement.props.accessibilityState as
+        | PressableProps["accessibilityState"]
+        | undefined;
+      const isDisabled = !!disabled || !!childElement.props.disabled;
+      return React.cloneElement(childElement, {
+        ref: mergedRef,
         accessibilityRole: "button",
-        disabled,
+        disabled: isDisabled,
         ...props,
-        onPress: (event: Parameters<NonNullable<PressableProps["onPress"]>>[0]) => {
-          parentOnPress?.(event);
-          childOnPress?.(event);
+        accessibilityState: {
+          ...childAccessibilityState,
+          ...accessibilityState,
+          disabled: isDisabled,
         },
-        style: [styles.container, disabled && styles.disabled, style, children.props.style],
+        onPress: (event: Parameters<NonNullable<PressableProps["onPress"]>>[0]) => {
+          if (isDisabled) {
+            return;
+          }
+          childOnPress?.(event);
+          if (event.defaultPrevented) {
+            return;
+          }
+          onPress?.(event);
+        },
+        style: [styles.container, isDisabled && styles.disabled, style, childElement.props.style],
       });
     }
 
@@ -181,7 +237,14 @@ export const Button = React.forwardRef<React.ElementRef<typeof Pressable>, Butto
       <Pressable
         ref={ref}
         accessibilityRole="button"
+        accessibilityState={{ ...accessibilityState, disabled: !!disabled }}
         disabled={disabled}
+        onPress={(event) => {
+          if (disabled) {
+            return;
+          }
+          onPress?.(event);
+        }}
         style={({ pressed }) => [
           ...styles.container,
           pressed && styles.pressed,

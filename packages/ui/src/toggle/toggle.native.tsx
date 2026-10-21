@@ -20,7 +20,9 @@ export interface ToggleProps
   readonly asChild?: boolean;
 }
 
-export const Toggle = React.forwardRef<React.ElementRef<typeof Pressable>, ToggleProps>(
+export const Toggle: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<ToggleProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<React.ElementRef<typeof Pressable>, ToggleProps>(
   (
     {
       asChild,

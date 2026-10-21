@@ -21,6 +21,8 @@ import {
   type SelectSharedProps,
 } from "./select.shared";
 
+const NativeSelectDisabledContext = React.createContext(false);
+
 export interface SelectProps
   extends Omit<ViewProps, "style">,
     SelectSharedProps {
@@ -49,7 +51,6 @@ export function Select({
   ...props
 }: SelectProps) {
   void dir;
-  void disabled;
   void name;
   void required;
   const controller = useSelectController({
@@ -64,10 +65,12 @@ export function Select({
 
   return (
     <SelectProvider value={controller}>
+      <NativeSelectDisabledContext.Provider value={!!disabled}>
       {/* testID mirrors web `data-slot="select"` for parity. */}
       <View testID={testID ?? "select"} style={style} {...props}>
         {children}
       </View>
+      </NativeSelectDisabledContext.Provider>
     </SelectProvider>
   );
 }
@@ -78,11 +81,15 @@ export interface SelectTriggerProps extends Omit<PressableProps, "style"> {
   readonly asChild?: boolean;
 }
 
-export const SelectTrigger = React.forwardRef<
+export const SelectTrigger: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SelectTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   SelectTriggerProps
->(({ children, onPress, style, asChild, testID, ...props }, ref) => {
+>(({ children, onPress, style, asChild, testID, disabled, accessibilityState, ...props }, ref) => {
   const context = useSelectContext();
+  const rootDisabled = React.useContext(NativeSelectDisabledContext);
+  const isDisabled = rootDisabled || !!disabled;
   void asChild;
   const theme = useTheme();
 
@@ -91,10 +98,13 @@ export const SelectTrigger = React.forwardRef<
       ref={ref}
       testID={testID ?? "select-trigger"}
       accessibilityRole="button"
-      accessibilityState={{ expanded: context.open }}
+      accessibilityState={{ ...accessibilityState, expanded: context.open, disabled: isDisabled }}
+      disabled={isDisabled}
       onPress={(event) => {
-        context.setOpen(!context.open);
+        if (isDisabled) return;
         onPress?.(event);
+        if (event.defaultPrevented) return;
+        context.setOpen(!context.open);
       }}
       style={({ pressed }) => [
         {
@@ -124,7 +134,9 @@ export interface SelectValueProps extends Omit<TextProps, "style"> {
   readonly placeholder?: string;
 }
 
-export const SelectValue = React.forwardRef<React.ElementRef<typeof Text>, SelectValueProps>(
+export const SelectValue: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SelectValueProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, SelectValueProps>(
   ({ children, placeholder: valuePlaceholder, style, testID, ...props }, ref) => {
     const context = useSelectContext();
     const theme = useTheme();
@@ -169,7 +181,9 @@ export interface SelectContentProps extends Omit<ViewProps, "style"> {
   readonly alignOffset?: number;
 }
 
-export const SelectContent = React.forwardRef<
+export const SelectContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SelectContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   SelectContentProps
 >(({ style, position, side, align, sideOffset, alignOffset, testID, ...props }, ref) => {
@@ -216,9 +230,13 @@ export interface SelectItemProps
   readonly textStyle?: StyleProp<TextStyle>;
 }
 
-export const SelectItem = React.forwardRef<React.ElementRef<typeof Pressable>, SelectItemProps>(
-  ({ children, onPress, style, textStyle, textValue, testID, value, ...props }, ref) => {
+export const SelectItem: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SelectItemProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<React.ElementRef<typeof Pressable>, SelectItemProps>(
+  ({ children, onPress, style, textStyle, textValue, testID, value, disabled, accessibilityState, ...props }, ref) => {
     const context = useSelectContext();
+    const rootDisabled = React.useContext(NativeSelectDisabledContext);
+    const isDisabled = rootDisabled || !!disabled;
     const theme = useTheme();
     const active = context.value === value;
     const label =
@@ -234,11 +252,14 @@ export const SelectItem = React.forwardRef<React.ElementRef<typeof Pressable>, S
         ref={ref}
         testID={testID ?? "select-item"}
         accessibilityRole="button"
-        accessibilityState={{ selected: active }}
+        accessibilityState={{ ...accessibilityState, selected: active, disabled: isDisabled }}
+        disabled={isDisabled}
         onPress={(event) => {
+          if (isDisabled) return;
+          onPress?.(event);
+          if (event.defaultPrevented) return;
           context.setValue(value);
           context.setOpen(false);
-          onPress?.(event);
         }}
         style={({ pressed }) => [
           {
@@ -284,7 +305,9 @@ export interface SelectGroupProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const SelectGroup = React.forwardRef<React.ElementRef<typeof View>, SelectGroupProps>(
+export const SelectGroup: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SelectGroupProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, SelectGroupProps>(
   ({ style, testID, ...props }, ref) => (
     <View ref={ref} testID={testID ?? "select-group"} style={style} {...props} />
   ),
@@ -296,7 +319,9 @@ export interface SelectLabelProps extends Omit<TextProps, "style"> {
   readonly style?: StyleProp<TextStyle>;
 }
 
-export const SelectLabel = React.forwardRef<React.ElementRef<typeof Text>, SelectLabelProps>(
+export const SelectLabel: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SelectLabelProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, SelectLabelProps>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
@@ -329,7 +354,9 @@ export interface SelectSeparatorProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const SelectSeparator = React.forwardRef<
+export const SelectSeparator: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SelectSeparatorProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<
   React.ElementRef<typeof View>,
   SelectSeparatorProps
 >(({ style, testID, ...props }, ref) => {
@@ -360,7 +387,9 @@ export interface SelectScrollButtonProps extends Omit<PressableProps, "style"> {
   readonly scrollAmount?: number;
 }
 
-export const SelectScrollUpButton = React.forwardRef<
+export const SelectScrollUpButton: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SelectScrollButtonProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   SelectScrollButtonProps
 >(({ onPress, style, scrollAmount, testID, ...props }, ref) => {
@@ -384,7 +413,9 @@ export const SelectScrollUpButton = React.forwardRef<
 
 SelectScrollUpButton.displayName = "SelectScrollUpButton";
 
-export const SelectScrollDownButton = React.forwardRef<
+export const SelectScrollDownButton: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SelectScrollButtonProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
+> = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   SelectScrollButtonProps
 >(({ onPress, style, scrollAmount, testID, ...props }, ref) => {
@@ -410,7 +441,9 @@ export interface SelectArrowProps extends Omit<ViewProps, "style"> {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-export const SelectArrow = React.forwardRef<React.ElementRef<typeof View>, SelectArrowProps>(
+export const SelectArrow: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<SelectArrowProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, SelectArrowProps>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 

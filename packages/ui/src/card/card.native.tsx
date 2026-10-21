@@ -16,7 +16,9 @@ export interface CardProps extends Omit<ViewProps, "style">, CardVariantProps {
   readonly testID?: string;
 }
 
-export const Card = React.forwardRef<React.ElementRef<typeof View>, CardProps>(
+export const Card: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CardProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, CardProps>(
   ({ style, testID, variant, ...props }, ref) => {
     const theme = useTheme();
     const resolved = resolveCardVariants({ variant });
@@ -86,7 +88,9 @@ export interface CardSectionProps extends Omit<ViewProps, "style"> {
   readonly testID?: string;
 }
 
-export const CardHeader = React.forwardRef<React.ElementRef<typeof View>, CardSectionProps>(
+export const CardHeader: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CardSectionProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, CardSectionProps>(
   ({ style, testID, ...props }, ref) => (
     <View
       ref={ref}
@@ -112,7 +116,9 @@ export interface CardTextProps extends Omit<TextProps, "style"> {
   readonly testID?: string;
 }
 
-export const CardTitle = React.forwardRef<React.ElementRef<typeof Text>, CardTextProps>(
+export const CardTitle: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CardTextProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, CardTextProps>(
   ({ style, testID, ...props }, ref) => {
     const theme = useTheme();
 
@@ -138,7 +144,9 @@ export const CardTitle = React.forwardRef<React.ElementRef<typeof Text>, CardTex
 
 CardTitle.displayName = "CardTitle";
 
-export const CardDescription = React.forwardRef<React.ElementRef<typeof Text>, CardTextProps>(
+export const CardDescription: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CardTextProps> & React.RefAttributes<React.ElementRef<typeof Text>>
+> = React.forwardRef<React.ElementRef<typeof Text>, CardTextProps>(
   ({ style, testID, ...props }, ref) => {
     // testID mirrors web `data-slot="card-description"`.
     const theme = useTheme();
@@ -163,7 +171,9 @@ export const CardDescription = React.forwardRef<React.ElementRef<typeof Text>, C
 
 CardDescription.displayName = "CardDescription";
 
-export const CardContent = React.forwardRef<React.ElementRef<typeof View>, CardSectionProps>(
+export const CardContent: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CardSectionProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, CardSectionProps>(
   ({ style, testID, ...props }, ref) => (
     <View
       ref={ref}
@@ -182,7 +192,9 @@ export const CardContent = React.forwardRef<React.ElementRef<typeof View>, CardS
 
 CardContent.displayName = "CardContent";
 
-export const CardFooter = React.forwardRef<React.ElementRef<typeof View>, CardSectionProps>(
+export const CardFooter: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CardSectionProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, CardSectionProps>(
   ({ style, testID, ...props }, ref) => (
     <View
       ref={ref}
@@ -205,7 +217,9 @@ export const CardFooter = React.forwardRef<React.ElementRef<typeof View>, CardSe
 CardFooter.displayName = "CardFooter";
 
 
-export const CardAction = React.forwardRef<React.ElementRef<typeof View>, CardSectionProps>(
+export const CardAction: React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<CardSectionProps> & React.RefAttributes<React.ElementRef<typeof View>>
+> = React.forwardRef<React.ElementRef<typeof View>, CardSectionProps>(
   ({ style, testID, ...props }, ref) => (
     <View ref={ref} testID={testID ?? "card-action"} style={[{ alignSelf: "flex-end" }, style]} {...props} />
   ),
