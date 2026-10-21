@@ -1,0 +1,43 @@
+name: Onboarding
+
+on:
+  workflow_call:
+
+jobs:
+  onboarding:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        template: [vite, next, expo]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.3"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build core prerequisite
+        run: bun --filter '@luseefor/synthex-core' build
+
+      - name: Build UI prerequisite
+        run: bun --filter synthex-ui build
+
+      - name: Build CLI prerequisite
+        run: bun --filter '@luseefor/synthex-cli' build
+
+      - name: Onboarding tarball consumer gate (${{ matrix.template }})
+        run: node scripts/onboarding-check.mjs --template ${{ matrix.template }}

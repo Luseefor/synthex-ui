@@ -146,7 +146,7 @@ function checkPackage(pkg, { publicPackage }) {
     const lowerRelativePath = relativePath.toLowerCase();
     const isCliInstallPayload = pkg.name === "@luseefor/synthex-cli" && (
       relativePath.startsWith("dist/assets/ui/") ||
-      relativePath.startsWith("dist/assets/templates/starter/")
+      /^dist\/assets\/templates\/(starter|next|native)\//.test(relativePath)
     );
 
     assert(isCliInstallPayload || !relativePath.includes("/src/"), `${pkg.name}: leaked source artifact ${relativePath}`);

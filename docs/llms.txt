@@ -1,8 +1,9 @@
 # Synthex UI, llms.txt
 
-> Branch status (`ace/better-than-shadcn`): CLI notes below describe this
-> checkout (bundled `dist/assets` registry + starter, transitive `add`,
-> namespace fix, native subpaths). Not published release facts.
+> Branch status (`ace/framework-onboarding`): `create --template` and `setup`
+> below describe the CLI source in this checkout. Slated for an upcoming
+> `@luseefor/synthex-cli` release; not yet in the published
+> `npx @luseefor/synthex-cli@latest` build. See `docs/frameworks.md`.
 
 Component sources live under `packages/ui/src/*`. Each component ships
 `.web.*` + `.native.*`, plus a shared file (`.shared.ts`/`shared.ts`) where
@@ -12,15 +13,37 @@ present; simple components such as `label` and `table` have none.
 
 ```bash
 npx @luseefor/synthex-cli@latest create my-app
-npm install synthex-ui # existing app
+npx @luseefor/synthex-cli@latest create my-app --template next
+npx @luseefor/synthex-cli@latest create my-app --template expo
+npx @luseefor/synthex-cli@latest setup --dry-run
+npx @luseefor/synthex-cli@latest setup
+npx @luseefor/synthex-cli@latest setup --cwd apps/web
+npm install synthex-ui # existing app, first manual step printed by setup
+npm install -D tailwindcss @tailwindcss/vite # Vite web, second step (Next: tailwindcss @tailwindcss/postcss postcss)
 npm install synthex-ui @luseefor/synthex-core @luseefor/synthex-react-web # workbench engine
 ```
 
 CLI binary is `synthex` (package `@luseefor/synthex-cli`):
 `npx @luseefor/synthex-cli@latest list|add|create|migrate|validate`.
+`create` takes `--template vite|next|expo` (default `vite`),
+`--package-manager npm|pnpm|yarn|bun`, `--cwd`, `--dry-run`; it copies the
+starter without installing deps (run `dev` for Vite/Next, `start` for Expo). `setup` takes `--cwd`, `--framework
+vite|next|expo` (else detected from `vite`/`next`/`expo` deps),
+`--package-manager`, `--dry-run`; it writes `synthex-ui.json` + CSS (web)
++ provider wrapper, prints install + manual wiring steps, and never edits
+`vite.config.ts`/`postcss.config.mjs`/`layout.tsx`/`App.tsx` or installs
+deps. Dry-run reports `planned`/`skipped-existing` and refuses on changed
+conflicts like a real run, without writing. `init` is legacy layout-engine config, not framework onboarding.
+Web `installCommands` are two lines: `synthex-ui`, plus Tailwind dev deps
+(Vite: `tailwindcss @tailwindcss/vite`; Next: `tailwindcss
+@tailwindcss/postcss postcss`) in your manager's syntax. Expo second line is
+First install `synthex-ui lucide-react-native`; the second install is
+SDK-aware and aligns React DOM with Expo's React version: `npx expo install react-native-svg react-dom --npm`
+(pnpm: `pnpm exec expo install react-native-svg react-dom --pnpm`; yarn:
+`yarn expo install react-native-svg react-dom --yarn`; bun:
+`bunx expo install react-native-svg react-dom --bun`).
 
-Tailwind v4 setup: `tailwindcss` + `@tailwindcss/vite` installed, Vite plugin
-registered, then this local CSS entry (order matters):
+Tailwind v4 CSS entry written by `setup` (order matters):
 
 ```css
 @import "tailwindcss";
@@ -29,10 +52,14 @@ registered, then this local CSS entry (order matters):
 ```
 
 ```ts
-import "./styles.css"; // once, at app entry
+import "./synthex.css"; // once, at app entry (path setup wrote)
 ```
 
-Point `@source` at installed `synthex-ui/dist` relative to your CSS file.
+Point `@source` at installed `synthex-ui/dist` relative to your CSS file;
+workspaces keep a second line for the root install. Next imports the CSS
+from the root layout (recommended) and renders the `"use client"`
+provider; Expo uses no CSS and its generated provider imports theming from
+`synthex-ui/native`.
 
 ## Theme
 
@@ -75,20 +102,22 @@ export function Workbench() {
 
 ## CLI (`synthex`, packages/cli)
 
-`init`, `create`, `add`, `list`, `migrate`, `validate`, `layout:*`,
+`init`, `create`, `setup`, `add`, `list`, `migrate`, `validate`, `layout:*`,
 `undo`/`redo`, `run`, `history`.
 
 `add` copies both platform sources (`.web.*` + `.native.*`, plus the shared
 file where present), excludes test files
-(no `.test`/`.spec`/`__tests__`) into `components/ui/<name>/`, resolves
+(no `.test`/`.spec`/`__tests__`) into `componentsDir` from
+`synthex-ui.json` when present (else legacy `components/ui`), resolves
 transitive `registryDependencies`, preflights before writing, supports
 `--dry-run`/`--overwrite`/`--cwd`. Re-running with identical sources reports
 `skipped-existing`; only changed files refuse without `--overwrite`.
 Namespaces: `@synthex/<name>`,
 `@default/<name>`, `@<name>` (= default) accepted; others rejected.
 Remote `https:`/`data:` JSON `{ name, files }` also accepted.
-Dependency hints print `bun add …` and can include native-only packages;
-filter for web-only apps. See `docs/synthex-vs-shadcn.md`.
+Dependency hints print an install command in your package-manager syntax
+(resolved from `--cwd` config/detection) and can include native-only packages;
+filter for web-only apps.
 
 ## Components (`synthex-ui/components`)
 
@@ -112,6 +141,6 @@ Typography: H1, H2, H3, Lead, Muted, Small.
 Import from these subpaths. `components`, `blocks` (alias of `dist/synthex/index`; same app blocks as bundled in `components`, no move), `primitives`, `layout`, `hooks`, `icons`,
 `theme`, `styles.css`, `web`, `native`, plus per-component `button`-style
 subpaths with `react-native` conditions.
-Start with these docs. `docs/getting-started.md`, `docs/theming.md`, `docs/styling.md`,
-`docs/workbench.md`, `docs/synthex-vs-shadcn.md`.
+Start with these docs. `docs/getting-started.md`, `docs/frameworks.md`, `docs/theming.md`, `docs/styling.md`,
+`docs/workbench.md`.
 No full web/native API parity or full a11y certification claimed.

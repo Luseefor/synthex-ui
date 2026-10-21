@@ -10,6 +10,7 @@ import { registerListCommand } from "./commands/list";
 import { registerMigrateCommand } from "./commands/migrate";
 import { registerRedoCommand } from "./commands/redo";
 import { registerRuntimeCommands } from "./commands/run";
+import { registerSetupCommand } from "./commands/setup";
 import { registerUndoCommand } from "./commands/undo";
 import { registerValidateCommand } from "./commands/validate";
 import { toCliError } from "./utils/errors";
@@ -28,6 +29,7 @@ async function main(): Promise<void> {
   registerApplyCommand(program);
   registerCreateCommand(program);
   registerInitCommand(program);
+  registerSetupCommand(program);
   registerLayoutCommands(program);
   registerListCommand(program);
   registerMigrateCommand(program);

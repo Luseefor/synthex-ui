@@ -23,7 +23,8 @@
     "test": "bun --filter synthex-ui --filter '@luseefor/synthex-react-web' --filter '@luseefor/synthex-core' --filter '@luseefor/synthex-cli' test && bun run test:scripts",
     "test:scripts": "node --test scripts/*.test.mjs",
     "publish:public": "node ./scripts/publish-packages.mjs",
-    "release:check": "node ./scripts/release-check.mjs"
+    "release:check": "node ./scripts/release-check.mjs",
+    "onboarding:check": "node ./scripts/onboarding-check.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",

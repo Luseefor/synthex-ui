@@ -9,12 +9,47 @@ const workspaceRoot = resolve(cliDir, "../..");
 
 const registrySrc = resolve(workspaceRoot, "registry.json");
 const uiSrc = resolve(workspaceRoot, "packages/ui/src");
-const starterSrc = resolve(workspaceRoot, "templates/starter");
+
+const templateSources = [
+  { label: "starter", dir: "starter", src: resolve(workspaceRoot, "templates/starter") },
+  { label: "next", dir: "next", src: resolve(workspaceRoot, "templates/next") },
+  { label: "native", dir: "native", src: resolve(workspaceRoot, "templates/native") },
+];
 
 const assetsDir = resolve(cliDir, "dist/assets");
 const registryDest = resolve(assetsDir, "registry.json");
 const uiDest = resolve(assetsDir, "ui");
-const starterDest = resolve(assetsDir, "templates/starter");
+const uiManifestSrc = resolve(workspaceRoot, "packages/ui/package.json");
+
+const EXCLUDED_TEMPLATE_SEGMENTS = new Set([
+  "node_modules",
+  ".next",
+  ".expo",
+  ".git",
+  ".turbo",
+  "dist",
+  "build",
+  "out",
+  "coverage",
+]);
+const EXCLUDED_TEMPLATE_FILES = new Set(["package-lock.json", "pnpm-lock.yaml", "yarn.lock", "bun.lock", "bun.lockb"]);
+const EXCLUDED_TEMPLATE_SUFFIXES = [".tsbuildinfo"];
+
+export function isExcludedTemplatePath(source, root) {
+  const relative = source.startsWith(root) ? source.slice(root.length) : source;
+  const segments = relative.split(sep).filter((part) => part.length > 0);
+  for (const segment of segments) {
+    if (EXCLUDED_TEMPLATE_SEGMENTS.has(segment) || EXCLUDED_TEMPLATE_FILES.has(segment)) {
+      return true;
+    }
+    for (const suffix of EXCLUDED_TEMPLATE_SUFFIXES) {
+      if (segment.endsWith(suffix)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
 function isExcludedUiPath(source) {
   const relative = source.startsWith(uiSrc) ? source.slice(uiSrc.length) : source;
@@ -94,10 +129,62 @@ async function rewriteAssetRegistry() {
   await writeFile(registryDest, `${JSON.stringify(data, null, 2)}\n`, "utf8");
 }
 
+export async function readUiManifestVersion(manifestPath = uiManifestSrc) {
+  let raw;
+  try {
+    raw = await readFile(manifestPath, "utf8");
+  } catch {
+    throw new Error(`Required UI manifest not found for CLI assets (ui-manifest): ${manifestPath}`);
+  }
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    throw new Error(`UI manifest is invalid JSON: ${manifestPath}.`);
+  }
+  const version = data && typeof data === "object" ? data.version : undefined;
+  if (typeof version !== "string" || version.length === 0) {
+    throw new Error(`UI manifest is missing a version: ${manifestPath}.`);
+  }
+  return version;
+}
+
+export async function pinBundledTemplateUiVersion(templateDest, uiVersion) {
+  const packagePath = join(templateDest, "package.json");
+  let raw;
+  try {
+    raw = await readFile(packagePath, "utf8");
+  } catch {
+    throw new Error(`Bundled template is missing package.json (expected at "${packagePath}").`);
+  }
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    throw new Error(`Bundled template package.json is invalid JSON (at "${packagePath}").`);
+  }
+  const scopes = [data?.dependencies, data?.devDependencies].filter(
+    (scope) => scope && typeof scope === "object",
+  );
+  const hasUiDep = scopes.some((scope) => typeof scope["synthex-ui"] === "string");
+  if (!hasUiDep) {
+    throw new Error(`Bundled template package.json is missing the synthex-ui dependency (at "${packagePath}").`);
+  }
+  for (const scope of scopes) {
+    if (typeof scope["synthex-ui"] === "string") {
+      scope["synthex-ui"] = `^${uiVersion}`;
+    }
+  }
+  await writeFile(packagePath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
+}
+
 async function main() {
   await assertSource(registrySrc, "registry");
   await assertSource(uiSrc, "ui");
-  await assertSource(starterSrc, "starter");
+  for (const template of templateSources) {
+    await assertSource(template.src, template.label);
+  }
+  const uiVersion = await readUiManifestVersion();
 
   await mkdir(assetsDir, { recursive: true });
 
@@ -111,12 +198,22 @@ async function main() {
 
   await rewriteAssetRegistry();
 
-  await cp(starterSrc, starterDest, { recursive: true });
+  for (const template of templateSources) {
+    const dest = resolve(assetsDir, "templates", template.dir);
+    await cp(template.src, dest, {
+      recursive: true,
+      filter: (src) => !isExcludedTemplatePath(src, template.src),
+    });
+    await pinBundledTemplateUiVersion(dest, uiVersion);
+  }
 }
 
-try {
-  await main();
-} catch (error) {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
+const entry = process.argv[1] ? resolve(process.argv[1]) : "";
+if (entry === fileURLToPath(import.meta.url)) {
+  try {
+    await main();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    process.exitCode = 1;
+  }
 }

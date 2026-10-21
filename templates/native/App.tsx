@@ -1,13 +1,7 @@
 import * as React from "react";
 import { ScrollView, Text, View } from "react-native";
 import {
-  Badge,
   Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -16,37 +10,40 @@ import {
   ThemeProvider,
 } from "synthex-ui/native";
 
-// Static showcase: Button + Badge + Card + Dialog (Modal-backed on RN).
-// DialogContent renders an RN Modal (transparent, fade) instead of the
-// web Portal + Overlay. See dialog.native.tsx vs dialog.web.tsx.
+// Starter screen: Button + Dialog inside ThemeProvider.
+// The bundler resolves `synthex-ui/native` through the `react-native`
+// export condition; DialogContent renders an RN Modal (transparent, fade).
 export default function App() {
+  const [count, setCount] = React.useState(0);
+
   return (
     <ThemeProvider>
       <ScrollView contentContainerStyle={{ padding: 24, gap: 16 }}>
         <View style={{ gap: 8 }}>
-          <Text style={{ fontSize: 22, fontWeight: "700" }}>Synthex Native Demo</Text>
-          <Badge testID="badge">moat: shared variants</Badge>
+          <Text style={{ fontSize: 22, fontWeight: "700" }}>
+            Synthex Expo Starter
+          </Text>
+          <Text>Pressed {count} times</Text>
         </View>
-        <Card testID="card">
-          <CardHeader testID="card-header">
-            <CardTitle testID="card-title">Same API, native render</CardTitle>
-            <CardDescription>Card uses theme tokens, not CSS.</CardDescription>
-          </CardHeader>
-          <CardContent testID="card-content">
-            <Button testID="button-primary">Primary action</Button>
-            <Button testID="button-secondary" variant="secondary">
-              Secondary
-            </Button>
-          </CardContent>
-        </Card>
+        <Button testID="button-primary" onPress={() => setCount((c) => c + 1)}>
+          Primary action
+        </Button>
+        <Button
+          testID="button-secondary"
+          variant="secondary"
+          onPress={() => setCount(0)}
+        >
+          Reset
+        </Button>
         <Dialog>
           <DialogTrigger testID="dialog-trigger">
             <Text>Open dialog</Text>
           </DialogTrigger>
           <DialogContent testID="dialog-content">
-            <DialogTitle testID="dialog-title">Modal dialog</DialogTitle>
+            <DialogTitle testID="dialog-title">Native dialog</DialogTitle>
             <DialogDescription testID="dialog-description">
-              Native DialogContent is an RN Modal. Dismiss via overlay or close.
+              Native DialogContent renders inside an RN Modal. Dismiss via the
+              overlay or the close control.
             </DialogDescription>
           </DialogContent>
         </Dialog>

@@ -8,7 +8,7 @@ import { logger } from "../utils/logger";
 export function registerInitCommand(program: Command): void {
   program
     .command("init")
-    .description("Initialize a Synthex project in the current directory.")
+    .description("Initialize the Synthex layout engine (use setup for UI components).")
     .action(async () => {
       const fileManager = createFileManager();
       const defaultLayout = createDefaultLayout();

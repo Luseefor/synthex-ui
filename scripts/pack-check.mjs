@@ -32,6 +32,8 @@ const packages = [
       "dist/assets/ui/_shared/variants.ts",
       "dist/assets/ui/button/button.web.tsx",
       "dist/assets/templates/starter/package.json",
+      "dist/assets/templates/next/package.json",
+      "dist/assets/templates/native/package.json",
     ],
   },
 ];
@@ -119,7 +121,7 @@ function leakReason(file, pkgName) {
   const segments = posix.split("/");
   const basename = segments[segments.length - 1];
   const isCli = pkgName === "@luseefor/synthex-cli";
-  const isStarter = posix.startsWith("dist/assets/templates/starter/");
+  const isStarter = /^dist\/assets\/templates\/(starter|next|native)\//.test(posix);
   const isUiPayload = posix.startsWith("dist/assets/ui/");
 
   if (segments.includes("__tests__") || segments.includes("__snapshots__")) {
@@ -324,6 +326,27 @@ try {
     const destPkg = JSON.parse(readFileSync(destPkgPath, "utf8"));
     assert(destPkg.name === "my-starter", `${cliPkg.name}: create did not rewrite name`);
     assert(existsSync(path.join(scratchCreate, "my-starter/src/App.tsx")), `${cliPkg.name}: create missing App.tsx`);
+
+    const uiVersion = JSON.parse(readFileSync(path.join(rootDir, "packages/ui/package.json"), "utf8")).version;
+    for (const template of ["vite", "next", "expo"]) {
+      const appName = `starter-${template}`;
+      r = runCapture("node", [cliEntry, "create", appName, "--template", template, "--cwd", scratchCreate], scratchCreate);
+      assert(r.status === 0, `${template}: packed create failed: ${r.stderr || r.stdout}`);
+      const appDir = path.join(scratchCreate, appName);
+      const appPkg = JSON.parse(readFileSync(path.join(appDir, "package.json"), "utf8"));
+      assert(appPkg.dependencies["synthex-ui"] === `^${uiVersion}`, `${template}: stale UI version in bundled template`);
+      r = runCapture("node", [cliEntry, "setup", "--cwd", appDir, "--dry-run", "--package-manager", "npm"], appDir);
+      assert(r.status === 0, `${template}: packed setup failed: ${r.stderr || r.stdout}`);
+      const setup = extractJson(r.stdout);
+      assert(setup.framework === template, `${template}: setup detected wrong framework`);
+      assert(!existsSync(path.join(appDir, "synthex-ui.json")), `${template}: setup dry-run wrote config`);
+      r = runCapture("node", [cliEntry, "setup", "--cwd", appDir, "--package-manager", "npm"], appDir);
+      assert(r.status === 0, `${template}: setup failed: ${r.stderr || r.stdout}`);
+      r = runCapture("node", [cliEntry, "add", "button", "--cwd", appDir], appDir);
+      assert(r.status === 0, `${template}: configured add failed: ${r.stderr || r.stdout}`);
+      const config = JSON.parse(readFileSync(path.join(appDir, "synthex-ui.json"), "utf8"));
+      assert(existsSync(path.join(appDir, config.componentsDir, template === "expo" ? "button/button.native.tsx" : "button/button.web.tsx")), `${template}: add ignored configured componentsDir`);
+    }
 
     console.log(`npm pack check passed for ${cliPkg.name} CLI functional gate`);
   } finally {

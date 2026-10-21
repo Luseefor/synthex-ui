@@ -5,6 +5,10 @@ import { CliError } from "../utils/errors";
 import { logger } from "../utils/logger";
 import { getDefaultRegistryRoot } from "./list";
 import { getDefaultRegistryJsonPath } from "../utils/assets";
+import { readUiConfig } from "../utils/uiConfig";
+import type { UiConfig } from "../utils/uiConfig";
+import { detectPackageManager, getInstallCommand } from "../utils/project";
+import type { PackageManager } from "../utils/project";
 
 export { getDefaultRegistryJsonPath } from "../utils/assets";
 
@@ -33,6 +37,7 @@ export interface AddComponentsOptions {
   readonly overwrite?: boolean;
   readonly dryRun?: boolean;
   readonly registryRoot?: string;
+  readonly packageManager?: PackageManager;
 }
 
 interface ResolvedAddOptions {
@@ -40,12 +45,14 @@ interface ResolvedAddOptions {
   overwrite: boolean;
   dryRun: boolean;
   registryRoot: string;
+  packageManager: PackageManager;
 }
 
 interface AddCommandCliOptions {
   cwd?: string;
   overwrite?: boolean;
   dryRun?: boolean;
+  packageManager?: string;
 }
 
 export interface RegistryReference {
@@ -119,6 +126,84 @@ function isExcludedTestPath(relativePath: string): boolean {
     return true;
   }
   return false;
+}
+
+function isNativeFile(relativePath: string): boolean {
+  const normalized = relativePath.split(path.sep).join("/");
+  const base = normalized.split("/").pop() ?? normalized;
+  return /\.native\.[^/.]+$/.test(base);
+}
+
+function isWebFile(relativePath: string): boolean {
+  const normalized = relativePath.split(path.sep).join("/");
+  const base = normalized.split("/").pop() ?? normalized;
+  return /\.web\.[^/.]+$/.test(base);
+}
+
+type CopyPlatform = "web" | "native";
+
+function getCopyPlatform(uiConfig: UiConfig | null): CopyPlatform | null {
+  if (uiConfig === null) {
+    return null;
+  }
+  if (uiConfig.framework === "expo") {
+    return "native";
+  }
+  return "web";
+}
+
+function buildNativeKeySet(relativePaths: Iterable<string>): Set<string> {
+  const keys = new Set<string>();
+  for (const rp of relativePaths) {
+    if (!isNativeFile(rp)) {
+      continue;
+    }
+    const posix = rp.split(path.sep).join("/");
+    const slash = posix.lastIndexOf("/");
+    const dir = slash === -1 ? "" : posix.slice(0, slash);
+    const base = slash === -1 ? posix : posix.slice(slash + 1);
+    const m = base.match(/^(.*)\.native\.[^/.]+$/);
+    if (!m) {
+      continue;
+    }
+    keys.add(dir === "" ? (m[1] as string) : `${dir}/${m[1] as string}`);
+  }
+  return keys;
+}
+
+function remapWebImportsWithSiblings(
+  content: string,
+  currentRelativePath: string,
+  nativeKeys: Set<string>,
+): string {
+  if (nativeKeys.size === 0) {
+    return content;
+  }
+  const posixCurrent = currentRelativePath.split(path.sep).join("/");
+  const slash = posixCurrent.lastIndexOf("/");
+  const posixDir = slash === -1 ? "" : posixCurrent.slice(0, slash);
+  return content.replace(/(["'])(\.\.?\/[^"']+?)\.web\1/g, (match, quote: string, spec: string) => {
+    const resolved = path.posix.normalize(posixDir === "" ? (spec as string) : `${posixDir}/${spec as string}`);
+    if (nativeKeys.has(resolved)) {
+      return `${quote}${spec}.native${quote}`;
+    }
+    return match;
+  });
+}
+
+function isNeutralIndexFile(relativePath: string): boolean {
+  return path.basename(relativePath) === "index.ts";
+}
+
+function isNativeBarrelFile(relativePath: string): boolean {
+  return path.basename(relativePath) === "index.native.ts";
+}
+
+function remappedNativeBarrel(relativePath: string): string | null {
+  if (path.basename(relativePath) !== "index.native.ts") {
+    return null;
+  }
+  return path.join(path.dirname(relativePath), "index.ts");
 }
 
 function getRegistryCandidates(registryRoot: string): string[] {
@@ -243,6 +328,7 @@ interface LocalWrite {
   readonly source: string;
   readonly destination: string;
   readonly exists: boolean;
+  readonly transformedContent?: string;
 }
 
 interface RemoteWrite {
@@ -262,14 +348,34 @@ export async function addComponents(
     throw new CliError('Specify at least one component. Run "synthex list" to see available components.');
   }
 
+  const cwd = path.resolve(options.cwd ?? process.cwd());
+  const overwrite = options.overwrite ?? false;
+  const dryRun = options.dryRun ?? false;
+  const registryRoot = options.registryRoot ?? getDefaultRegistryRoot();
+
+  const uiConfig = await readUiConfig(cwd);
+
+  const destinationRoot =
+    uiConfig === null ? path.join(cwd, "components", "ui") : path.join(cwd, ...uiConfig.componentsDir.split("/"));
+
+  let packageManager: PackageManager;
+  if (options.packageManager !== undefined) {
+    packageManager = await detectPackageManager(cwd, options.packageManager);
+  } else if (uiConfig !== null) {
+    packageManager = uiConfig.packageManager;
+  } else {
+    packageManager = await detectPackageManager(cwd);
+  }
+
   const resolved: ResolvedAddOptions = {
-    cwd: path.resolve(options.cwd ?? process.cwd()),
-    overwrite: options.overwrite ?? false,
-    dryRun: options.dryRun ?? false,
-    registryRoot: options.registryRoot ?? getDefaultRegistryRoot(),
+    cwd,
+    overwrite,
+    dryRun,
+    registryRoot,
+    packageManager,
   };
 
-  const destinationRoot = path.join(resolved.cwd, "components", "ui");
+  const platform = getCopyPlatform(uiConfig);
 
   // Phase 1: parse every spec before touching the filesystem for writes.
   const requestedLocals: string[] = [];
@@ -345,44 +451,116 @@ export async function addComponents(
 
   for (const component of expandedLocals) {
     const sourceDir = path.join(resolved.registryRoot, component);
-    const relativePaths = (await collectRelativeFiles(sourceDir)).filter(
-      (relativePath) => !isExcludedTestPath(relativePath),
-    );
+    const collected = await collectRelativeFiles(sourceDir);
+    const relativePaths = collected.filter((relativePath) => {
+      if (isExcludedTestPath(relativePath)) {
+        return false;
+      }
+      if (platform === "web" && isNativeFile(relativePath)) {
+        return false;
+      }
+      if (platform === "native" && isWebFile(relativePath)) {
+        return false;
+      }
+      return true;
+    });
     if (relativePaths.length === 0) {
       throw new CliError(`Component "${component}" has no files to copy.`);
     }
-    for (const relativePath of relativePaths) {
-      const source = path.join(sourceDir, relativePath);
-      const destination = path.join(destinationRoot, component, relativePath);
+    const pathSet = new Set(relativePaths);
+    const nativeKeys = platform === "native" ? buildNativeKeySet(relativePaths) : new Set<string>();
+
+    async function planLocalFile(
+      source: string,
+      relativePath: string,
+      destination: string,
+    ): Promise<void> {
       if (!claimDestination(destination, source)) {
-        continue;
+        return;
       }
       const exists = await pathExists(destination);
-      if (resolved.dryRun) {
+      let transformedContent: string | undefined;
+      if (platform === "native") {
+        try {
+          const raw = await readFile(source, "utf8");
+          const transformed = remapWebImportsWithSiblings(raw, relativePath, nativeKeys);
+          if (transformed !== raw) {
+            transformedContent = transformed;
+          }
+        } catch {
+          transformedContent = undefined;
+        }
+      }
+      if (exists) {
+        const identical =
+          transformedContent !== undefined
+            ? await isRemoteContentIdentical(transformedContent, destination)
+            : await isLocalFileIdentical(source, destination);
+        if (identical) {
+          if (resolved.dryRun) {
+            dryRunFiles.push({
+              component,
+              relativePath,
+              source,
+              destination,
+              status: "skipped-existing",
+            });
+          } else {
+            plan.push({
+              kind: "skip",
+              entry: { component, relativePath, source, destination, status: "skipped-existing" },
+            });
+          }
+          return;
+        }
+        if (!resolved.overwrite) {
+          recordConflict(destination);
+          return;
+        }
+        if (resolved.dryRun) {
+          dryRunFiles.push({
+            component,
+            relativePath,
+            source,
+            destination,
+            status: "planned",
+          });
+          return;
+        }
+      } else if (resolved.dryRun) {
         dryRunFiles.push({
           component,
           relativePath,
           source,
           destination,
-          status: exists && !resolved.overwrite ? "skipped-existing" : "planned",
+          status: "planned",
         });
+        return;
+      }
+      plan.push({
+        kind: "local",
+        write: { component, relativePath, source, destination, exists, transformedContent },
+      });
+    }
+
+    for (const relativePath of relativePaths) {
+      if (
+        platform === "native" &&
+        isNeutralIndexFile(relativePath) &&
+        pathSet.has(path.join(path.dirname(relativePath), "index.native.ts"))
+      ) {
         continue;
       }
-      if (exists) {
-        const identical = await isLocalFileIdentical(source, destination);
-        if (identical) {
-          plan.push({
-            kind: "skip",
-            entry: { component, relativePath, source, destination, status: "skipped-existing" },
-          });
-          continue;
-        }
-        if (!resolved.overwrite) {
-          recordConflict(destination);
-          continue;
+      const source = path.join(sourceDir, relativePath);
+      const destination = path.join(destinationRoot, component, relativePath);
+      await planLocalFile(source, relativePath, destination);
+      if (platform === "native" && isNativeBarrelFile(relativePath)) {
+        const remapped = remappedNativeBarrel(relativePath);
+        if (remapped !== null) {
+          const remappedDestination = path.join(destinationRoot, component, remapped);
+          await planLocalFile(source, remapped, remappedDestination);
         }
       }
-      plan.push({ kind: "local", write: { component, relativePath, source, destination, exists } });
     }
   }
 
@@ -405,46 +583,109 @@ export async function addComponents(
   }
 
   for (const remote of fetchedRemotes) {
-    for (const [rawPath, content] of Object.entries(remote.files)) {
+    const sanitizedEntries: Array<{ relativePath: string; rawContent: string }> = [];
+    for (const [rawPath, rawContent] of Object.entries(remote.files)) {
       const relativePath = sanitizeRelativePath(rawPath);
+      if (platform === "web" && isNativeFile(relativePath)) {
+        continue;
+      }
+      if (platform === "native" && isWebFile(relativePath)) {
+        continue;
+      }
+      sanitizedEntries.push({ relativePath, rawContent });
+    }
+    if (sanitizedEntries.length === 0) {
+      throw new CliError(`Remote component from "${remote.url}" has no files to copy.`);
+    }
+    const remoteSet = new Set(sanitizedEntries.map((e) => e.relativePath));
+    const remoteNativeKeys =
+      platform === "native" ? buildNativeKeySet(sanitizedEntries.map((e) => e.relativePath)) : new Set<string>();
+
+    async function planRemoteFile(relativePath: string, content: string): Promise<void> {
       const source = `${remote.url}#${relativePath}`;
       const destination = path.join(destinationRoot, remote.component, relativePath);
       if (!claimDestination(destination, source)) {
-        continue;
+        return;
       }
       const exists = await pathExists(destination);
-      if (resolved.dryRun) {
+      if (exists) {
+        const identical = await isRemoteContentIdentical(content, destination);
+        if (identical) {
+          if (resolved.dryRun) {
+            dryRunFiles.push({
+              component: remote.component,
+              relativePath,
+              source,
+              destination,
+              status: "skipped-existing",
+            });
+          } else {
+            plan.push({
+              kind: "skip",
+              entry: { component: remote.component, relativePath, source, destination, status: "skipped-existing" },
+            });
+          }
+          return;
+        }
+        if (!resolved.overwrite) {
+          recordConflict(destination);
+          return;
+        }
+        if (resolved.dryRun) {
+          dryRunFiles.push({
+            component: remote.component,
+            relativePath,
+            source,
+            destination,
+            status: "planned",
+          });
+          return;
+        }
+      } else if (resolved.dryRun) {
         dryRunFiles.push({
           component: remote.component,
           relativePath,
           source,
           destination,
-          status: exists && !resolved.overwrite ? "skipped-existing" : "planned",
+          status: "planned",
         });
-        continue;
-      }
-      if (exists) {
-        const identical = await isRemoteContentIdentical(content, destination);
-        if (identical) {
-          plan.push({
-            kind: "skip",
-            entry: { component: remote.component, relativePath, source, destination, status: "skipped-existing" },
-          });
-          continue;
-        }
-        if (!resolved.overwrite) {
-          recordConflict(destination);
-          continue;
-        }
+        return;
       }
       plan.push({
         kind: "remote",
         write: { component: remote.component, relativePath, source, destination, content, exists },
       });
     }
+
+    let kept = 0;
+    for (const { relativePath, rawContent } of sanitizedEntries) {
+      if (
+        platform === "native" &&
+        isNeutralIndexFile(relativePath) &&
+        remoteSet.has(path.join(path.dirname(relativePath), "index.native.ts"))
+      ) {
+        continue;
+      }
+      const content =
+        platform === "native"
+          ? remapWebImportsWithSiblings(rawContent, relativePath, remoteNativeKeys)
+          : rawContent;
+      await planRemoteFile(relativePath, content);
+      kept += 1;
+      if (platform === "native" && isNativeBarrelFile(relativePath)) {
+        const remapped = remappedNativeBarrel(relativePath);
+        if (remapped !== null) {
+          await planRemoteFile(remapped, content);
+          kept += 1;
+        }
+      }
+    }
+    if (kept === 0) {
+      throw new CliError(`Remote component from "${remote.url}" has no files to copy.`);
+    }
   }
 
-  if (!resolved.dryRun && conflicts.length > 0) {
+  if (conflicts.length > 0) {
     throw new CliError(
       `Refusing to overwrite ${conflicts.length} existing file(s). Re-run with --overwrite.`,
       1,
@@ -473,7 +714,11 @@ export async function addComponents(
     if (entry.kind === "local") {
       const write = entry.write;
       await mkdir(path.dirname(write.destination), { recursive: true });
-      await copyFile(write.source, write.destination);
+      if (write.transformedContent !== undefined) {
+        await writeFile(write.destination, write.transformedContent, "utf8");
+      } else {
+        await copyFile(write.source, write.destination);
+      }
       files.push({
         component: write.component,
         relativePath: write.relativePath,
@@ -515,11 +760,13 @@ export function registerAddCommand(program: Command): void {
     .option("--cwd <dir>", "Target project directory")
     .option("--overwrite", "Overwrite existing files", false)
     .option("--dry-run", "List files without writing", false)
+    .option("--package-manager <manager>", "Package manager (npm|pnpm|yarn|bun)")
     .action(async (componentInput: string[], cliOptions: AddCommandCliOptions) => {
       const manifest = await addComponents(componentInput, {
         cwd: cliOptions.cwd,
         overwrite: cliOptions.overwrite,
         dryRun: cliOptions.dryRun,
+        packageManager: cliOptions.packageManager as PackageManager | undefined,
       });
 
       process.stdout.write(`${JSON.stringify(manifest, null, 2)}\n`);
@@ -800,7 +1047,7 @@ async function maybeLogInstallHint(
     if (deps.length === 0) {
       return;
     }
-    logger.info(`bun add ${deps.join(" ")}`);
+    logger.info(getInstallCommand(resolved.packageManager, deps));
   } catch {
     return;
   }

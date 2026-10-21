@@ -1,20 +1,35 @@
 # Getting started
 
-> Branch status: `create`, bundled registry/starter, transitive `add`, native
-> subpaths, and the Tailwind starter describe `ace/better-than-shadcn`.
-> Verify with the gates in `docs/synthex-vs-shadcn.md`.
+> Branch status (`ace/framework-onboarding`): `create --template` and `setup`
+> below describe the CLI source in this checkout. They are slated for an
+> upcoming `@luseefor/synthex-cli` release and are not yet in the published
+> `npx @luseefor/synthex-cli@latest` build. See `docs/frameworks.md` for the
+> per-framework reference.
 
 ## Option A: scaffold with the CLI
 
 ```sh
 npx @luseefor/synthex-cli@latest create my-app
-cd my-app
-npm install
-npm run dev
+npx @luseefor/synthex-cli@latest create my-app --template next
+npx @luseefor/synthex-cli@latest create my-app --template expo
 ```
 
-This copies `templates/starter` (Vite + React + Tailwind v4 +
-`@tailwindcss/vite`, CSS entry already wired, package renamed to `my-app`).
+`--template vite|next|expo` defaults to `vite`.
+`--package-manager npm|pnpm|yarn|bun` overrides detection.
+`--cwd <dir>` sets the parent directory; `--dry-run` previews files.
+`create` copies the starter and renames `package.json[name]`; it does not
+install dependencies. Then:
+
+```sh
+cd my-app
+npm install
+npm run dev # Vite / Next
+npm start # Expo (expo start)
+```
+
+(Use your manager's syntax: `pnpm install` / `pnpm dev` / `pnpm start`,
+`yarn install` / `yarn dev` / `yarn start`, `bun install` /
+`bun run dev` / `bun run start`.)
 
 For the layout engine:
 
@@ -22,36 +37,49 @@ For the layout engine:
 npm install @luseefor/synthex-core @luseefor/synthex-react-web
 ```
 
-## Option B: existing Vite + Tailwind v4 app
+## Option B: wire an existing app with `setup`
 
 ```sh
-npm install synthex-ui
-npm install -D tailwindcss @tailwindcss/vite
+npx @luseefor/synthex-cli@latest setup --dry-run
+npx @luseefor/synthex-cli@latest setup
+npx @luseefor/synthex-cli@latest setup --cwd apps/web
 ```
 
-Register the plugin (`vite.config.ts`):
+Without `--framework`, `setup` detects the framework from `dependencies` /
+`devDependencies` (`expo`, `next`, or `vite`); config files alone are not
+enough. `--package-manager npm|pnpm|yarn|bun` overrides detection.
 
-```ts
-import tailwindcss from "@tailwindcss/vite";
+`setup` writes `synthex-ui.json` + a CSS entry (web only) + a
+`ThemeProvider`-based provider wrapper, then prints install and
+manual-wiring steps. It does not install dependencies and does not edit
+`vite.config.ts`, `postcss.config.mjs`, `app/layout.tsx`, `src/main.tsx`,
+or `App.tsx`; you run the printed install and wire the entry point by hand.
+Next requires the App Router (`app/` or `src/app/`); Expo writes no CSS and
+imports from `synthex-ui/native`. Full details in `docs/frameworks.md`.
 
-export default { plugins: [tailwindcss()] };
-```
+Manual wiring after `setup` (short version):
 
-Wire the CSS entry. Both `@import` lines must be in CSS, in this order:
+- Vite: run both printed installs (`synthex-ui` plus
+  `tailwindcss @tailwindcss/vite` as dev dependencies), keep
+  `@tailwindcss/vite` in `vite.config.ts`, import the generated
+  `synthex.css` once from your app entry, wrap your root with the generated
+  `SynthexProvider`.
+- Next: run both printed installs (`synthex-ui` plus
+  `tailwindcss @tailwindcss/postcss postcss` as dev dependencies), keep
+  `@tailwindcss/postcss` in `postcss.config.mjs`, import `./synthex.css`
+  from the root layout (recommended), render the `"use client"`
+  `SynthexProvider` around children.
+- Expo: run `npm install synthex-ui lucide-react-native` plus the SDK-aware
+  `npx expo install react-native-svg react-dom --npm` (pnpm: `pnpm exec expo install
+  react-native-svg --pnpm`; yarn: `yarn expo install react-native-svg react-dom
+  --yarn`; bun: `bunx expo install react-native-svg react-dom --bun`; never a plain
+  package-manager add), wrap `App.tsx` with the
+  generated `SynthexProvider` (which imports theming from
+  `synthex-ui/native`). No CSS on native.
 
-```css
-@import "tailwindcss";
-@import "synthex-ui/styles.css";
-
-@source "../node_modules/synthex-ui/dist";
-```
-
-Point `@source` at the installed `synthex-ui/dist` relative to that CSS file.
-Then import that local file once at app entry:
-
-```ts
-import "./styles.css";
-```
+`init` is the legacy layout-engine command (writes `layout.json` and
+engine config). It does not set up a framework; use `setup` for
+Vite/Next/Expo apps.
 
 ## ThemeProvider
 
@@ -91,6 +119,8 @@ function Demo() {
 }
 ```
 
+On native, import from `synthex-ui/native` instead.
+
 ## Own the source with `add`
 
 ```sh
@@ -107,9 +137,12 @@ npx @luseefor/synthex-cli@latest add button --overwrite
   before writing. Re-running with identical sources reports
   `skipped-existing`; only changed files refuse without `--overwrite`, so no
   partial copies.
+- Destination is `componentsDir` from `synthex-ui.json` when that config
+  exists in `--cwd`, otherwise the legacy default `components/ui`.
 - Namespaces: `@synthex/<name>`, `@default/<name>`, bare `@<name>` accepted;
   other registries are rejected.
-- Prints a `bun add …` hint from transitive `deps`; it can include native-only
+- Prints an install hint for transitive `deps` in your package-manager
+  syntax (resolved from `--cwd` config/detection); it can include native-only
   packages, so filter it for web-only apps.
 
 ## Dark mode
