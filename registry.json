@@ -48,6 +48,7 @@
         "accordion.native.tsx",
         "accordion.shared.tsx",
         "accordion.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -68,6 +69,7 @@
         "alert.native.tsx",
         "alert.shared.ts",
         "alert.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -87,6 +89,7 @@
         "alert-dialog.native.tsx",
         "alert-dialog.shared.ts",
         "alert-dialog.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -108,6 +111,7 @@
         "aspect-ratio.native.tsx",
         "aspect-ratio.shared.ts",
         "aspect-ratio.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -125,6 +129,7 @@
         "avatar.native.tsx",
         "avatar.shared.tsx",
         "avatar.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -145,6 +150,7 @@
         "badge.native.tsx",
         "badge.shared.ts",
         "badge.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -165,6 +171,7 @@
         "breadcrumb.native.tsx",
         "breadcrumb.shared.ts",
         "breadcrumb.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -186,6 +193,7 @@
         "button.native.tsx",
         "button.shared.ts",
         "button.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -207,6 +215,7 @@
         "calendar.native.tsx",
         "calendar.shared.ts",
         "calendar.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -229,6 +238,7 @@
         "card.native.tsx",
         "card.shared.ts",
         "card.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -249,6 +259,7 @@
         "carousel.native.tsx",
         "carousel.shared.tsx",
         "carousel.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -293,6 +304,7 @@
         "checkbox.native.tsx",
         "checkbox.shared.ts",
         "checkbox.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -314,6 +326,7 @@
         "collapsible.native.tsx",
         "collapsible.shared.tsx",
         "collapsible.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -333,6 +346,7 @@
         "combobox.native.tsx",
         "combobox.shared.tsx",
         "combobox.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -354,6 +368,7 @@
         "command.native.tsx",
         "command.shared.tsx",
         "command.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -442,6 +457,7 @@
         "context-menu.native.tsx",
         "context-menu.shared.tsx",
         "context-menu.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -506,6 +522,7 @@
         "date-picker.native.tsx",
         "date-picker.shared.ts",
         "date-picker.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -530,6 +547,7 @@
         "dialog.native.tsx",
         "dialog.shared.tsx",
         "dialog.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -568,6 +586,7 @@
         "drawer.native.tsx",
         "drawer.shared.ts",
         "drawer.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -591,6 +610,7 @@
         "dropdown-menu.native.tsx",
         "dropdown-menu.shared.tsx",
         "dropdown-menu.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -613,6 +633,7 @@
         "form.shared.tsx",
         "form.web.test.tsx",
         "form.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -659,6 +680,7 @@
         "hover-card.native.tsx",
         "hover-card.shared.tsx",
         "hover-card.web.tsx",
+        "index.native.ts",
         "index.ts"
       ],
       "deps": [
@@ -695,6 +717,7 @@
       "dir": "packages/ui/src/input",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "input.native.tsx",
         "input.shared.ts",
@@ -713,6 +736,7 @@
       "dir": "packages/ui/src/input-otp",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "input-otp.native.tsx",
         "input-otp.shared.tsx",
@@ -734,6 +758,7 @@
       "dir": "packages/ui/src/label",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "label.native.tsx",
         "label.web.tsx"
@@ -770,6 +795,7 @@
       "dir": "packages/ui/src/menubar",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "menubar.native.tsx",
         "menubar.shared.ts",
@@ -791,6 +817,7 @@
       "dir": "packages/ui/src/navigation-menu",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "navigation-menu.native.tsx",
         "navigation-menu.shared.tsx",
@@ -810,6 +837,7 @@
       "dir": "packages/ui/src/pagination",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "pagination.native.tsx",
         "pagination.shared.ts",
@@ -829,6 +857,7 @@
       "dir": "packages/ui/src/popover",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "popover.native.tsx",
         "popover.shared.tsx",
@@ -866,6 +895,7 @@
       "dir": "packages/ui/src/progress",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "progress.native.tsx",
         "progress.shared.ts",
@@ -886,6 +916,7 @@
       "dir": "packages/ui/src/radio-group",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "radio-group.native.tsx",
         "radio-group.shared.tsx",
@@ -905,6 +936,7 @@
       "dir": "packages/ui/src/resizable",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "resizable.native.tsx",
         "resizable.shared.ts",
@@ -924,6 +956,7 @@
       "dir": "packages/ui/src/select",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "select-extras.test.tsx",
         "select.native.test.tsx",
@@ -946,6 +979,7 @@
       "dir": "packages/ui/src/separator",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "separator.native.tsx",
         "separator.shared.ts",
@@ -965,6 +999,7 @@
       "dir": "packages/ui/src/sheet",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "sheet.native.tsx",
         "sheet.shared.ts",
@@ -1005,6 +1040,7 @@
       "dir": "packages/ui/src/skeleton",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "skeleton.native.tsx",
         "skeleton.shared.ts",
@@ -1024,6 +1060,7 @@
       "dir": "packages/ui/src/slider",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "slider.native.tsx",
         "slider.shared.ts",
@@ -1044,6 +1081,7 @@
       "dir": "packages/ui/src/switch",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "switch.native.tsx",
         "switch.shared.ts",
@@ -1064,6 +1102,7 @@
       "dir": "packages/ui/src/synthex",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "synthex.native.tsx",
         "synthex.shared.ts",
@@ -1090,6 +1129,7 @@
       "dir": "packages/ui/src/table",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "table.native.tsx",
         "table.web.tsx"
@@ -1107,6 +1147,7 @@
       "dir": "packages/ui/src/tabs",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "tabs.native.tsx",
         "tabs.shared.ts",
@@ -1126,6 +1167,7 @@
       "dir": "packages/ui/src/textarea",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "textarea.native.tsx",
         "textarea.shared.ts",
@@ -1158,6 +1200,7 @@
       "dir": "packages/ui/src/toast",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "toast.native.test.tsx",
         "toast.native.tsx",
@@ -1182,6 +1225,7 @@
       "dir": "packages/ui/src/toggle",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "toggle.native.tsx",
         "toggle.shared.ts",
@@ -1203,6 +1247,7 @@
       "dir": "packages/ui/src/toggle-group",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "toggle-group.native.tsx",
         "toggle-group.shared.tsx",
@@ -1225,6 +1270,7 @@
       "dir": "packages/ui/src/tooltip",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "tooltip.native.tsx",
         "tooltip.shared.tsx",
@@ -1244,6 +1290,7 @@
       "dir": "packages/ui/src/typography",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "typography.native.tsx",
         "typography.shared.ts",
@@ -1262,6 +1309,7 @@
       "dir": "packages/ui/src/utilities",
       "internal": false,
       "files": [
+        "index.native.ts",
         "index.ts",
         "utilities.native.tsx",
         "utilities.web.tsx"

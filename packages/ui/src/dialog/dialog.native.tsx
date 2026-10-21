@@ -146,7 +146,19 @@ export interface DialogContentProps extends Omit<ViewProps, "style"> {
 }
 
 export const DialogContent = React.forwardRef<React.ElementRef<typeof View>, DialogContentProps>(
-  ({ children, dismissible = true, hideClose = false, modalProps, style, testID, ...props }, ref) => {
+  (
+    {
+      children,
+      dismissible = true,
+      hideClose = false,
+      modalProps,
+      style,
+      testID,
+      accessibilityViewIsModal = true,
+      ...props
+    },
+    ref,
+  ) => {
     const context = useDialogContext();
     const theme = useTheme();
 
@@ -192,6 +204,7 @@ export const DialogContent = React.forwardRef<React.ElementRef<typeof View>, Dia
             <View
               ref={ref}
               testID={testID ?? "dialog-content"}
+              accessibilityViewIsModal={accessibilityViewIsModal}
               style={[
                 {
                   borderWidth: 1,
@@ -208,6 +221,7 @@ export const DialogContent = React.forwardRef<React.ElementRef<typeof View>, Dia
               {!hideClose ? (
                 <Pressable
                   accessibilityRole="button"
+                  accessibilityLabel="Close dialog"
                   testID="dialog-close"
                   onPress={() => context.setOpen(false)}
                   style={{
@@ -255,13 +269,14 @@ export interface DialogTextProps extends Omit<TextProps, "style"> {
 }
 
 export const DialogTitle = React.forwardRef<React.ElementRef<typeof Text>, DialogTextProps>(
-  ({ style, testID, ...props }, ref) => {
+  ({ style, testID, accessibilityRole = "header", ...props }, ref) => {
     const theme = useTheme();
 
     return (
       <Text
         ref={ref}
         testID={testID ?? "dialog-title"}
+        accessibilityRole={accessibilityRole}
         style={[
           {
             color: theme.colors.foreground,

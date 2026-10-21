@@ -9,44 +9,65 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "react-native": {
+        "types": "./dist/index.native.d.ts",
+        "default": "./dist/index.native.js"
+      },
       "types": "./dist/index.d.ts",
-      "react-native": "./dist/index.native.js",
       "import": "./dist/index.web.js",
       "default": "./dist/index.web.js"
     },
     "./components": {
+      "react-native": {
+        "types": "./dist/components/index.native.d.ts",
+        "default": "./dist/components/index.native.js"
+      },
       "types": "./dist/components/index.d.ts",
-      "react-native": "./dist/components/index.native.js",
       "import": "./dist/components/index.web.js",
       "default": "./dist/components/index.web.js"
     },
     "./primitives": {
+      "react-native": {
+        "types": "./dist/primitives/index.native.d.ts",
+        "default": "./dist/primitives/index.native.js"
+      },
       "types": "./dist/primitives/index.d.ts",
-      "react-native": "./dist/primitives/index.native.js",
       "import": "./dist/primitives/index.web.js",
       "default": "./dist/primitives/index.web.js"
     },
     "./layout": {
+      "react-native": {
+        "types": "./dist/layout/index.native.d.ts",
+        "default": "./dist/layout/index.native.js"
+      },
       "types": "./dist/layout/index.d.ts",
-      "react-native": "./dist/layout/index.native.js",
       "import": "./dist/layout/index.web.js",
       "default": "./dist/layout/index.web.js"
     },
     "./hooks": {
+      "react-native": {
+        "types": "./dist/hooks/index.native.d.ts",
+        "default": "./dist/hooks/index.native.js"
+      },
       "types": "./dist/hooks/index.d.ts",
-      "react-native": "./dist/hooks/index.native.js",
       "import": "./dist/hooks/index.web.js",
       "default": "./dist/hooks/index.web.js"
     },
     "./icons": {
+      "react-native": {
+        "types": "./dist/icons/index.native.d.ts",
+        "default": "./dist/icons/index.native.js"
+      },
       "types": "./dist/icons/index.d.ts",
-      "react-native": "./dist/icons/index.native.js",
       "import": "./dist/icons/index.web.js",
       "default": "./dist/icons/index.web.js"
     },
     "./theme": {
+      "react-native": {
+        "types": "./dist/theme/index.native.d.ts",
+        "default": "./dist/theme/index.native.js"
+      },
       "types": "./dist/theme/index.d.ts",
-      "react-native": "./dist/theme/index.native.js",
       "import": "./dist/theme/index.web.js",
       "default": "./dist/theme/index.web.js"
     },
@@ -68,296 +89,443 @@
       "default": "./dist/index.native.js"
     },
     "./accordion": {
+      "react-native": {
+        "types": "./dist/accordion/index.native.d.ts",
+        "default": "./dist/accordion/index.native.js"
+      },
       "types": "./dist/accordion/index.d.ts",
-      "react-native": "./dist/accordion/index.js",
       "import": "./dist/accordion/index.js",
       "default": "./dist/accordion/index.js"
     },
     "./alert": {
+      "react-native": {
+        "types": "./dist/alert/index.native.d.ts",
+        "default": "./dist/alert/index.native.js"
+      },
       "types": "./dist/alert/index.d.ts",
-      "react-native": "./dist/alert/index.js",
       "import": "./dist/alert/index.js",
       "default": "./dist/alert/index.js"
     },
     "./alert-dialog": {
+      "react-native": {
+        "types": "./dist/alert-dialog/index.native.d.ts",
+        "default": "./dist/alert-dialog/index.native.js"
+      },
       "types": "./dist/alert-dialog/index.d.ts",
-      "react-native": "./dist/alert-dialog/index.js",
       "import": "./dist/alert-dialog/index.js",
       "default": "./dist/alert-dialog/index.js"
     },
     "./aspect-ratio": {
+      "react-native": {
+        "types": "./dist/aspect-ratio/index.native.d.ts",
+        "default": "./dist/aspect-ratio/index.native.js"
+      },
       "types": "./dist/aspect-ratio/index.d.ts",
-      "react-native": "./dist/aspect-ratio/index.js",
       "import": "./dist/aspect-ratio/index.js",
       "default": "./dist/aspect-ratio/index.js"
     },
     "./avatar": {
+      "react-native": {
+        "types": "./dist/avatar/index.native.d.ts",
+        "default": "./dist/avatar/index.native.js"
+      },
       "types": "./dist/avatar/index.d.ts",
-      "react-native": "./dist/avatar/index.js",
       "import": "./dist/avatar/index.js",
       "default": "./dist/avatar/index.js"
     },
     "./badge": {
+      "react-native": {
+        "types": "./dist/badge/index.native.d.ts",
+        "default": "./dist/badge/index.native.js"
+      },
       "types": "./dist/badge/index.d.ts",
-      "react-native": "./dist/badge/index.js",
       "import": "./dist/badge/index.js",
       "default": "./dist/badge/index.js"
     },
     "./breadcrumb": {
+      "react-native": {
+        "types": "./dist/breadcrumb/index.native.d.ts",
+        "default": "./dist/breadcrumb/index.native.js"
+      },
       "types": "./dist/breadcrumb/index.d.ts",
-      "react-native": "./dist/breadcrumb/index.js",
       "import": "./dist/breadcrumb/index.js",
       "default": "./dist/breadcrumb/index.js"
     },
     "./button": {
+      "react-native": {
+        "types": "./dist/button/index.native.d.ts",
+        "default": "./dist/button/index.native.js"
+      },
       "types": "./dist/button/index.d.ts",
-      "react-native": "./dist/button/index.js",
       "import": "./dist/button/index.js",
       "default": "./dist/button/index.js"
     },
     "./calendar": {
+      "react-native": {
+        "types": "./dist/calendar/index.native.d.ts",
+        "default": "./dist/calendar/index.native.js"
+      },
       "types": "./dist/calendar/index.d.ts",
-      "react-native": "./dist/calendar/index.js",
       "import": "./dist/calendar/index.js",
       "default": "./dist/calendar/index.js"
     },
     "./card": {
+      "react-native": {
+        "types": "./dist/card/index.native.d.ts",
+        "default": "./dist/card/index.native.js"
+      },
       "types": "./dist/card/index.d.ts",
-      "react-native": "./dist/card/index.js",
       "import": "./dist/card/index.js",
       "default": "./dist/card/index.js"
     },
     "./carousel": {
+      "react-native": {
+        "types": "./dist/carousel/index.native.d.ts",
+        "default": "./dist/carousel/index.native.js"
+      },
       "types": "./dist/carousel/index.d.ts",
-      "react-native": "./dist/carousel/index.js",
       "import": "./dist/carousel/index.js",
       "default": "./dist/carousel/index.js"
     },
     "./checkbox": {
+      "react-native": {
+        "types": "./dist/checkbox/index.native.d.ts",
+        "default": "./dist/checkbox/index.native.js"
+      },
       "types": "./dist/checkbox/index.d.ts",
-      "react-native": "./dist/checkbox/index.js",
       "import": "./dist/checkbox/index.js",
       "default": "./dist/checkbox/index.js"
     },
     "./collapsible": {
+      "react-native": {
+        "types": "./dist/collapsible/index.native.d.ts",
+        "default": "./dist/collapsible/index.native.js"
+      },
       "types": "./dist/collapsible/index.d.ts",
-      "react-native": "./dist/collapsible/index.js",
       "import": "./dist/collapsible/index.js",
       "default": "./dist/collapsible/index.js"
     },
     "./combobox": {
+      "react-native": {
+        "types": "./dist/combobox/index.native.d.ts",
+        "default": "./dist/combobox/index.native.js"
+      },
       "types": "./dist/combobox/index.d.ts",
-      "react-native": "./dist/combobox/index.js",
       "import": "./dist/combobox/index.js",
       "default": "./dist/combobox/index.js"
     },
     "./command": {
+      "react-native": {
+        "types": "./dist/command/index.native.d.ts",
+        "default": "./dist/command/index.native.js"
+      },
       "types": "./dist/command/index.d.ts",
-      "react-native": "./dist/command/index.js",
       "import": "./dist/command/index.js",
       "default": "./dist/command/index.js"
     },
     "./context-menu": {
+      "react-native": {
+        "types": "./dist/context-menu/index.native.d.ts",
+        "default": "./dist/context-menu/index.native.js"
+      },
       "types": "./dist/context-menu/index.d.ts",
-      "react-native": "./dist/context-menu/index.js",
       "import": "./dist/context-menu/index.js",
       "default": "./dist/context-menu/index.js"
     },
     "./dashboard": {
+      "react-native": {
+        "types": "./dist/dashboard/index.native.d.ts",
+        "default": "./dist/dashboard/index.native.js"
+      },
       "types": "./dist/dashboard/index.d.ts",
-      "react-native": "./dist/dashboard/index.native.js",
       "import": "./dist/dashboard/index.js",
       "default": "./dist/dashboard/index.js"
     },
     "./date-picker": {
+      "react-native": {
+        "types": "./dist/date-picker/index.native.d.ts",
+        "default": "./dist/date-picker/index.native.js"
+      },
       "types": "./dist/date-picker/index.d.ts",
-      "react-native": "./dist/date-picker/index.js",
       "import": "./dist/date-picker/index.js",
       "default": "./dist/date-picker/index.js"
     },
     "./dialog": {
+      "react-native": {
+        "types": "./dist/dialog/index.native.d.ts",
+        "default": "./dist/dialog/index.native.js"
+      },
       "types": "./dist/dialog/index.d.ts",
-      "react-native": "./dist/dialog/index.js",
       "import": "./dist/dialog/index.js",
       "default": "./dist/dialog/index.js"
     },
     "./drawer": {
+      "react-native": {
+        "types": "./dist/drawer/index.native.d.ts",
+        "default": "./dist/drawer/index.native.js"
+      },
       "types": "./dist/drawer/index.d.ts",
-      "react-native": "./dist/drawer/index.js",
       "import": "./dist/drawer/index.js",
       "default": "./dist/drawer/index.js"
     },
     "./dropdown-menu": {
+      "react-native": {
+        "types": "./dist/dropdown-menu/index.native.d.ts",
+        "default": "./dist/dropdown-menu/index.native.js"
+      },
       "types": "./dist/dropdown-menu/index.d.ts",
-      "react-native": "./dist/dropdown-menu/index.js",
       "import": "./dist/dropdown-menu/index.js",
       "default": "./dist/dropdown-menu/index.js"
     },
     "./form": {
+      "react-native": {
+        "types": "./dist/form/index.native.d.ts",
+        "default": "./dist/form/index.native.js"
+      },
       "types": "./dist/form/index.d.ts",
-      "react-native": "./dist/form/index.js",
       "import": "./dist/form/index.js",
       "default": "./dist/form/index.js"
     },
     "./hover-card": {
+      "react-native": {
+        "types": "./dist/hover-card/index.native.d.ts",
+        "default": "./dist/hover-card/index.native.js"
+      },
       "types": "./dist/hover-card/index.d.ts",
-      "react-native": "./dist/hover-card/index.js",
       "import": "./dist/hover-card/index.js",
       "default": "./dist/hover-card/index.js"
     },
     "./input": {
+      "react-native": {
+        "types": "./dist/input/index.native.d.ts",
+        "default": "./dist/input/index.native.js"
+      },
       "types": "./dist/input/index.d.ts",
-      "react-native": "./dist/input/index.js",
       "import": "./dist/input/index.js",
       "default": "./dist/input/index.js"
     },
     "./input-otp": {
+      "react-native": {
+        "types": "./dist/input-otp/index.native.d.ts",
+        "default": "./dist/input-otp/index.native.js"
+      },
       "types": "./dist/input-otp/index.d.ts",
-      "react-native": "./dist/input-otp/index.js",
       "import": "./dist/input-otp/index.js",
       "default": "./dist/input-otp/index.js"
     },
     "./label": {
+      "react-native": {
+        "types": "./dist/label/index.native.d.ts",
+        "default": "./dist/label/index.native.js"
+      },
       "types": "./dist/label/index.d.ts",
-      "react-native": "./dist/label/index.js",
       "import": "./dist/label/index.js",
       "default": "./dist/label/index.js"
     },
     "./menubar": {
+      "react-native": {
+        "types": "./dist/menubar/index.native.d.ts",
+        "default": "./dist/menubar/index.native.js"
+      },
       "types": "./dist/menubar/index.d.ts",
-      "react-native": "./dist/menubar/index.js",
       "import": "./dist/menubar/index.js",
       "default": "./dist/menubar/index.js"
     },
     "./navigation-menu": {
+      "react-native": {
+        "types": "./dist/navigation-menu/index.native.d.ts",
+        "default": "./dist/navigation-menu/index.native.js"
+      },
       "types": "./dist/navigation-menu/index.d.ts",
-      "react-native": "./dist/navigation-menu/index.js",
       "import": "./dist/navigation-menu/index.js",
       "default": "./dist/navigation-menu/index.js"
     },
     "./pagination": {
+      "react-native": {
+        "types": "./dist/pagination/index.native.d.ts",
+        "default": "./dist/pagination/index.native.js"
+      },
       "types": "./dist/pagination/index.d.ts",
-      "react-native": "./dist/pagination/index.js",
       "import": "./dist/pagination/index.js",
       "default": "./dist/pagination/index.js"
     },
     "./popover": {
+      "react-native": {
+        "types": "./dist/popover/index.native.d.ts",
+        "default": "./dist/popover/index.native.js"
+      },
       "types": "./dist/popover/index.d.ts",
-      "react-native": "./dist/popover/index.js",
       "import": "./dist/popover/index.js",
       "default": "./dist/popover/index.js"
     },
     "./progress": {
+      "react-native": {
+        "types": "./dist/progress/index.native.d.ts",
+        "default": "./dist/progress/index.native.js"
+      },
       "types": "./dist/progress/index.d.ts",
-      "react-native": "./dist/progress/index.js",
       "import": "./dist/progress/index.js",
       "default": "./dist/progress/index.js"
     },
     "./radio-group": {
+      "react-native": {
+        "types": "./dist/radio-group/index.native.d.ts",
+        "default": "./dist/radio-group/index.native.js"
+      },
       "types": "./dist/radio-group/index.d.ts",
-      "react-native": "./dist/radio-group/index.js",
       "import": "./dist/radio-group/index.js",
       "default": "./dist/radio-group/index.js"
     },
     "./resizable": {
+      "react-native": {
+        "types": "./dist/resizable/index.native.d.ts",
+        "default": "./dist/resizable/index.native.js"
+      },
       "types": "./dist/resizable/index.d.ts",
-      "react-native": "./dist/resizable/index.js",
       "import": "./dist/resizable/index.js",
       "default": "./dist/resizable/index.js"
     },
     "./select": {
+      "react-native": {
+        "types": "./dist/select/index.native.d.ts",
+        "default": "./dist/select/index.native.js"
+      },
       "types": "./dist/select/index.d.ts",
-      "react-native": "./dist/select/index.js",
       "import": "./dist/select/index.js",
       "default": "./dist/select/index.js"
     },
     "./separator": {
+      "react-native": {
+        "types": "./dist/separator/index.native.d.ts",
+        "default": "./dist/separator/index.native.js"
+      },
       "types": "./dist/separator/index.d.ts",
-      "react-native": "./dist/separator/index.js",
       "import": "./dist/separator/index.js",
       "default": "./dist/separator/index.js"
     },
     "./sheet": {
+      "react-native": {
+        "types": "./dist/sheet/index.native.d.ts",
+        "default": "./dist/sheet/index.native.js"
+      },
       "types": "./dist/sheet/index.d.ts",
-      "react-native": "./dist/sheet/index.js",
       "import": "./dist/sheet/index.js",
       "default": "./dist/sheet/index.js"
     },
     "./skeleton": {
+      "react-native": {
+        "types": "./dist/skeleton/index.native.d.ts",
+        "default": "./dist/skeleton/index.native.js"
+      },
       "types": "./dist/skeleton/index.d.ts",
-      "react-native": "./dist/skeleton/index.js",
       "import": "./dist/skeleton/index.js",
       "default": "./dist/skeleton/index.js"
     },
     "./slider": {
+      "react-native": {
+        "types": "./dist/slider/index.native.d.ts",
+        "default": "./dist/slider/index.native.js"
+      },
       "types": "./dist/slider/index.d.ts",
-      "react-native": "./dist/slider/index.js",
       "import": "./dist/slider/index.js",
       "default": "./dist/slider/index.js"
     },
     "./switch": {
+      "react-native": {
+        "types": "./dist/switch/index.native.d.ts",
+        "default": "./dist/switch/index.native.js"
+      },
       "types": "./dist/switch/index.d.ts",
-      "react-native": "./dist/switch/index.js",
       "import": "./dist/switch/index.js",
       "default": "./dist/switch/index.js"
     },
     "./synthex": {
+      "react-native": {
+        "types": "./dist/synthex/index.native.d.ts",
+        "default": "./dist/synthex/index.native.js"
+      },
       "types": "./dist/synthex/index.d.ts",
-      "react-native": "./dist/synthex/index.js",
       "import": "./dist/synthex/index.js",
       "default": "./dist/synthex/index.js"
     },
     "./table": {
+      "react-native": {
+        "types": "./dist/table/index.native.d.ts",
+        "default": "./dist/table/index.native.js"
+      },
       "types": "./dist/table/index.d.ts",
-      "react-native": "./dist/table/index.js",
       "import": "./dist/table/index.js",
       "default": "./dist/table/index.js"
     },
     "./tabs": {
+      "react-native": {
+        "types": "./dist/tabs/index.native.d.ts",
+        "default": "./dist/tabs/index.native.js"
+      },
       "types": "./dist/tabs/index.d.ts",
-      "react-native": "./dist/tabs/index.js",
       "import": "./dist/tabs/index.js",
       "default": "./dist/tabs/index.js"
     },
     "./textarea": {
+      "react-native": {
+        "types": "./dist/textarea/index.native.d.ts",
+        "default": "./dist/textarea/index.native.js"
+      },
       "types": "./dist/textarea/index.d.ts",
-      "react-native": "./dist/textarea/index.js",
       "import": "./dist/textarea/index.js",
       "default": "./dist/textarea/index.js"
     },
     "./toast": {
+      "react-native": {
+        "types": "./dist/toast/index.native.d.ts",
+        "default": "./dist/toast/index.native.js"
+      },
       "types": "./dist/toast/index.d.ts",
-      "react-native": "./dist/toast/index.js",
       "import": "./dist/toast/index.js",
       "default": "./dist/toast/index.js"
     },
     "./toggle": {
+      "react-native": {
+        "types": "./dist/toggle/index.native.d.ts",
+        "default": "./dist/toggle/index.native.js"
+      },
       "types": "./dist/toggle/index.d.ts",
-      "react-native": "./dist/toggle/index.js",
       "import": "./dist/toggle/index.js",
       "default": "./dist/toggle/index.js"
     },
     "./toggle-group": {
+      "react-native": {
+        "types": "./dist/toggle-group/index.native.d.ts",
+        "default": "./dist/toggle-group/index.native.js"
+      },
       "types": "./dist/toggle-group/index.d.ts",
-      "react-native": "./dist/toggle-group/index.js",
       "import": "./dist/toggle-group/index.js",
       "default": "./dist/toggle-group/index.js"
     },
     "./tooltip": {
+      "react-native": {
+        "types": "./dist/tooltip/index.native.d.ts",
+        "default": "./dist/tooltip/index.native.js"
+      },
       "types": "./dist/tooltip/index.d.ts",
-      "react-native": "./dist/tooltip/index.js",
       "import": "./dist/tooltip/index.js",
       "default": "./dist/tooltip/index.js"
     },
     "./typography": {
+      "react-native": {
+        "types": "./dist/typography/index.native.d.ts",
+        "default": "./dist/typography/index.native.js"
+      },
       "types": "./dist/typography/index.d.ts",
-      "react-native": "./dist/typography/index.js",
       "import": "./dist/typography/index.js",
       "default": "./dist/typography/index.js"
     },
     "./utilities": {
+      "react-native": {
+        "types": "./dist/utilities/index.native.d.ts",
+        "default": "./dist/utilities/index.native.js"
+      },
       "types": "./dist/utilities/index.d.ts",
-      "react-native": "./dist/utilities/index.js",
       "import": "./dist/utilities/index.js",
       "default": "./dist/utilities/index.js"
     }

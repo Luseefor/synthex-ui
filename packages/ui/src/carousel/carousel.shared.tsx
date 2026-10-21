@@ -1,5 +1,5 @@
 import * as React from "react";
-import useEmblaCarousel from "embla-carousel-react";
+import type useEmblaCarousel from "embla-carousel-react";
 
 export type CarouselApi = NonNullable<ReturnType<typeof useEmblaCarousel>[1]> | undefined;
 export type CarouselOptions = NonNullable<Parameters<typeof useEmblaCarousel>[0]>;

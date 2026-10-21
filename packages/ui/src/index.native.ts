@@ -4,7 +4,7 @@ export * from "./layout/index.native";
 export * from "./hooks/index.native";
 export * from "./icons/index.native";
 export * from "./theme/index.native";
-export * from "./dashboard";
+export * from "./dashboard/index.native";
 export {
   cn,
   cva,

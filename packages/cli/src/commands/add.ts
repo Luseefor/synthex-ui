@@ -1,10 +1,12 @@
 import { copyFile, mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { Command } from "commander";
 import { CliError } from "../utils/errors";
 import { logger } from "../utils/logger";
 import { getDefaultRegistryRoot } from "./list";
+import { getDefaultRegistryJsonPath } from "../utils/assets";
+
+export { getDefaultRegistryJsonPath } from "../utils/assets";
 
 export type AddFileStatus = "written" | "overwritten" | "planned" | "skipped-existing";
 
@@ -89,6 +91,169 @@ export function parseRegistryReference(spec: string): RegistryReference {
   return { registry, component };
 }
 
+const SUPPORTED_LOCAL_REGISTRIES: ReadonlySet<string> = new Set(["synthex", "default"]);
+
+function assertSupportedRegistry(ref: RegistryReference, spec: string): void {
+  if (!SUPPORTED_LOCAL_REGISTRIES.has(ref.registry)) {
+    throw new CliError(
+      `Unsupported registry "${ref.registry}" in "${spec}". Only "@synthex/<name>", "@default/<name>" and "@<name>" are supported.`,
+    );
+  }
+}
+
+function resolveLocalComponentName(spec: string): string {
+  const ref = parseRegistryReference(spec);
+  assertSupportedRegistry(ref, spec);
+  return ref.component;
+}
+
+function isExcludedTestPath(relativePath: string): boolean {
+  const normalized = relativePath.split(path.sep).join("/");
+  if (normalized.includes("__tests__")) {
+    return true;
+  }
+  if (/\.test\.[^/]+$/.test(normalized)) {
+    return true;
+  }
+  if (/\.spec\.[^/]+$/.test(normalized)) {
+    return true;
+  }
+  return false;
+}
+
+function getRegistryCandidates(registryRoot: string): string[] {
+  const candidates = [
+    path.join(registryRoot, "registry.json"),
+    getDefaultRegistryJsonPath(),
+    path.resolve(registryRoot, "../../../registry.json"),
+  ];
+  return candidates.filter((candidate, index, all) => all.indexOf(candidate) === index);
+}
+
+function registryBelongsToRoot(
+  registry: RegistryDepFile | null | undefined,
+  candidateDir: string,
+  registryRoot: string,
+  requested: readonly string[],
+): boolean {
+  const byName = buildRegistryMap(registry);
+  let hasDirInfo = false;
+  for (const name of requested) {
+    const entry = byName.get(name) as unknown as { dir?: unknown } | undefined;
+    const dir = entry?.dir;
+    if (typeof dir === "string") {
+      hasDirInfo = true;
+      const resolvedEntry = path.resolve(candidateDir, dir);
+      const relToRoot = path.relative(registryRoot, resolvedEntry);
+      if (relToRoot !== "" && (relToRoot.startsWith("..") || path.isAbsolute(relToRoot))) {
+        return false;
+      }
+    }
+  }
+  return hasDirInfo;
+}
+
+async function loadRegistryForCopyScoped(
+  registryRoot: string,
+  isCustomRoot: boolean,
+  requested: readonly string[],
+): Promise<RegistryDepFile | null> {
+  if (!isCustomRoot) {
+    for (const candidate of getRegistryCandidates(registryRoot)) {
+      const parsed = await readRegistryFile(candidate);
+      if (parsed !== null) {
+        return parsed;
+      }
+    }
+    return null;
+  }
+  const adjacent = path.join(registryRoot, "registry.json");
+  const adjacentParsed = await readRegistryFile(adjacent);
+  if (adjacentParsed !== null) {
+    return adjacentParsed;
+  }
+  const parentCandidate = path.resolve(registryRoot, "../../../registry.json");
+  if (parentCandidate === adjacent) {
+    return null;
+  }
+  const parentParsed = await readRegistryFile(parentCandidate);
+  if (parentParsed === null) {
+    return null;
+  }
+  const candidateDir = path.dirname(parentCandidate);
+  const rel = path.relative(candidateDir, registryRoot);
+  if (rel === "" || rel.startsWith("..") || path.isAbsolute(rel)) {
+    return null;
+  }
+  if (!registryBelongsToRoot(parentParsed, candidateDir, registryRoot, requested)) {
+    return null;
+  }
+  return parentParsed;
+}
+
+function buildRegistryMap(registry: RegistryDepFile | null | undefined): Map<string, RegistryDepEntry> {
+  const byName = new Map<string, RegistryDepEntry>();
+  const components = registry?.components;
+  if (!components) {
+    return byName;
+  }
+  for (const entry of components) {
+    if (entry !== null && typeof entry === "object" && typeof entry.name === "string") {
+      byName.set(entry.name, entry);
+    }
+  }
+  return byName;
+}
+
+function expandLocalComponents(
+  requested: readonly string[],
+  registry: RegistryDepFile | null | undefined,
+): string[] {
+  const byName = buildRegistryMap(registry);
+  const ordered: string[] = [];
+  const visited = new Set<string>();
+  const queue: string[] = [...requested];
+  while (queue.length > 0) {
+    const name = queue.shift();
+    if (name === undefined || visited.has(name)) {
+      continue;
+    }
+    visited.add(name);
+    ordered.push(name);
+    const entry = byName.get(name);
+    if (entry === undefined) {
+      continue;
+    }
+    for (const dep of entry.registryDependencies ?? []) {
+      if (typeof dep !== "string") {
+        throw new CliError(`Invalid registryDependency for "${name}". Expected string.`);
+      }
+      validateComponentName(dep);
+      if (!visited.has(dep)) {
+        queue.push(dep);
+      }
+    }
+  }
+  return ordered;
+}
+
+interface LocalWrite {
+  readonly component: string;
+  readonly relativePath: string;
+  readonly source: string;
+  readonly destination: string;
+  readonly exists: boolean;
+}
+
+interface RemoteWrite {
+  readonly component: string;
+  readonly relativePath: string;
+  readonly source: string;
+  readonly destination: string;
+  readonly content: string;
+  readonly exists: boolean;
+}
+
 export async function addComponents(
   components: readonly string[],
   options: AddComponentsOptions = {},
@@ -105,25 +270,181 @@ export async function addComponents(
   };
 
   const destinationRoot = path.join(resolved.cwd, "components", "ui");
-  const files: AddFileEntry[] = [];
-  const conflicts: string[] = [];
 
+  // Phase 1: parse every spec before touching the filesystem for writes.
+  const requestedLocals: string[] = [];
+  const remoteUrls: string[] = [];
   for (const spec of components) {
     if (isUrlSpec(spec)) {
-      await addRemoteUrl(spec, resolved, destinationRoot, files, conflicts);
+      remoteUrls.push(spec);
       continue;
     }
-
     if (isRegistrySpec(spec)) {
-      const ref = parseRegistryReference(spec);
-      await addLocalComponent(ref.component, resolved, destinationRoot, files, conflicts);
+      requestedLocals.push(resolveLocalComponentName(spec));
       continue;
     }
-
-    await addLocalComponent(spec, resolved, destinationRoot, files, conflicts);
+    validateComponentName(spec);
+    requestedLocals.push(spec);
   }
 
-  if (conflicts.length > 0) {
+  // Phase 2: resolve transitive local closure (cycle-safe, deduped).
+  // Custom registryRoot uses only its own metadata; absent metadata means
+  // copy requested dirs as-is without borrowing the default registry.
+  const isCustomRegistryRoot = options.registryRoot !== undefined;
+  let expandedLocals: string[] = [];
+  let registry: RegistryDepFile | null = null;
+  if (requestedLocals.length > 0) {
+    registry = await loadRegistryForCopyScoped(resolved.registryRoot, isCustomRegistryRoot, requestedLocals);
+    expandedLocals = expandLocalComponents(requestedLocals, registry);
+  }
+
+  // Phase 3: preflight every file (existence + conflicts) before any writes.
+  const conflicts: string[] = [];
+  const conflictSet = new Set<string>();
+  const seenSources = new Map<string, string>();
+  type PlanEntry =
+    | { readonly kind: "skip"; readonly entry: AddFileEntry }
+    | { readonly kind: "local"; readonly write: LocalWrite }
+    | { readonly kind: "remote"; readonly write: RemoteWrite };
+  const plan: PlanEntry[] = [];
+  const dryRunFiles: AddFileEntry[] = [];
+
+  function recordConflict(destination: string): void {
+    if (!conflictSet.has(destination)) {
+      conflictSet.add(destination);
+      conflicts.push(destination);
+    }
+  }
+
+  function claimDestination(destination: string, source: string): boolean {
+    const prev = seenSources.get(destination);
+    if (prev === undefined) {
+      seenSources.set(destination, source);
+      return true;
+    }
+    if (prev === source) {
+      return false;
+    }
+    throw new CliError(
+      `Conflicting sources for "${destination}". Two distinct sources claim the same file; resolve the duplicate request.`,
+    );
+  }
+
+  for (const name of expandedLocals) {
+    const sourceDir = path.join(resolved.registryRoot, name);
+    let stats: Awaited<ReturnType<typeof stat>> | null = null;
+    try {
+      stats = await stat(sourceDir);
+    } catch {
+      stats = null;
+    }
+    if (stats === null || !stats.isDirectory()) {
+      throw new CliError(`Unknown component "${name}". Run "synthex list" to see available components.`);
+    }
+  }
+
+  for (const component of expandedLocals) {
+    const sourceDir = path.join(resolved.registryRoot, component);
+    const relativePaths = (await collectRelativeFiles(sourceDir)).filter(
+      (relativePath) => !isExcludedTestPath(relativePath),
+    );
+    if (relativePaths.length === 0) {
+      throw new CliError(`Component "${component}" has no files to copy.`);
+    }
+    for (const relativePath of relativePaths) {
+      const source = path.join(sourceDir, relativePath);
+      const destination = path.join(destinationRoot, component, relativePath);
+      if (!claimDestination(destination, source)) {
+        continue;
+      }
+      const exists = await pathExists(destination);
+      if (resolved.dryRun) {
+        dryRunFiles.push({
+          component,
+          relativePath,
+          source,
+          destination,
+          status: exists && !resolved.overwrite ? "skipped-existing" : "planned",
+        });
+        continue;
+      }
+      if (exists) {
+        const identical = await isLocalFileIdentical(source, destination);
+        if (identical) {
+          plan.push({
+            kind: "skip",
+            entry: { component, relativePath, source, destination, status: "skipped-existing" },
+          });
+          continue;
+        }
+        if (!resolved.overwrite) {
+          recordConflict(destination);
+          continue;
+        }
+      }
+      plan.push({ kind: "local", write: { component, relativePath, source, destination, exists } });
+    }
+  }
+
+  interface FetchedRemote {
+    readonly url: string;
+    readonly component: string;
+    readonly files: Record<string, string>;
+  }
+
+  const fetchedRemotes: FetchedRemote[] = [];
+  for (const url of remoteUrls) {
+    const manifest = await fetchRemoteManifest(url);
+    const component = manifest.name ?? deriveComponentNameFromUrl(url) ?? "remote";
+    validateComponentName(component);
+    const entries = Object.entries(manifest.files);
+    if (entries.length === 0) {
+      throw new CliError(`Remote component from "${url}" has no files to copy.`);
+    }
+    fetchedRemotes.push({ url, component, files: manifest.files });
+  }
+
+  for (const remote of fetchedRemotes) {
+    for (const [rawPath, content] of Object.entries(remote.files)) {
+      const relativePath = sanitizeRelativePath(rawPath);
+      const source = `${remote.url}#${relativePath}`;
+      const destination = path.join(destinationRoot, remote.component, relativePath);
+      if (!claimDestination(destination, source)) {
+        continue;
+      }
+      const exists = await pathExists(destination);
+      if (resolved.dryRun) {
+        dryRunFiles.push({
+          component: remote.component,
+          relativePath,
+          source,
+          destination,
+          status: exists && !resolved.overwrite ? "skipped-existing" : "planned",
+        });
+        continue;
+      }
+      if (exists) {
+        const identical = await isRemoteContentIdentical(content, destination);
+        if (identical) {
+          plan.push({
+            kind: "skip",
+            entry: { component: remote.component, relativePath, source, destination, status: "skipped-existing" },
+          });
+          continue;
+        }
+        if (!resolved.overwrite) {
+          recordConflict(destination);
+          continue;
+        }
+      }
+      plan.push({
+        kind: "remote",
+        write: { component: remote.component, relativePath, source, destination, content, exists },
+      });
+    }
+  }
+
+  if (!resolved.dryRun && conflicts.length > 0) {
     throw new CliError(
       `Refusing to overwrite ${conflicts.length} existing file(s). Re-run with --overwrite.`,
       1,
@@ -131,7 +452,50 @@ export async function addComponents(
     );
   }
 
-  await maybeLogInstallHint(components, resolved);
+  if (resolved.dryRun) {
+    return {
+      components: [...components],
+      cwd: resolved.cwd,
+      destinationRoot,
+      dryRun: resolved.dryRun,
+      overwrite: resolved.overwrite,
+      files: dryRunFiles,
+    };
+  }
+
+  // Phase 4: all preflight passed, now write in plan order.
+  const files: AddFileEntry[] = [];
+  for (const entry of plan) {
+    if (entry.kind === "skip") {
+      files.push(entry.entry);
+      continue;
+    }
+    if (entry.kind === "local") {
+      const write = entry.write;
+      await mkdir(path.dirname(write.destination), { recursive: true });
+      await copyFile(write.source, write.destination);
+      files.push({
+        component: write.component,
+        relativePath: write.relativePath,
+        source: write.source,
+        destination: write.destination,
+        status: write.exists ? "overwritten" : "written",
+      });
+      continue;
+    }
+    const write = entry.write;
+    await mkdir(path.dirname(write.destination), { recursive: true });
+    await writeFile(write.destination, write.content, "utf8");
+    files.push({
+      component: write.component,
+      relativePath: write.relativePath,
+      source: write.source,
+      destination: write.destination,
+      status: write.exists ? "overwritten" : "written",
+    });
+  }
+
+  await maybeLogInstallHint(components, resolved, registry);
 
   return {
     components: [...components],
@@ -168,104 +532,53 @@ export function registerAddCommand(program: Command): void {
     });
 }
 
-async function addLocalComponent(
-  component: string,
-  resolved: ResolvedAddOptions,
-  destinationRoot: string,
-  files: AddFileEntry[],
-  conflicts: string[],
-): Promise<void> {
-  validateComponentName(component);
-  const sourceDir = path.join(resolved.registryRoot, component);
-  await assertComponentDir(sourceDir, component);
+async function collectRelativeFiles(dir: string, base: string = dir): Promise<string[]> {
+  const entries = await readdir(dir, { withFileTypes: true });
+  const files: string[] = [];
 
-  const relativePaths = await collectRelativeFiles(sourceDir);
-
-  if (relativePaths.length === 0) {
-    throw new CliError(`Component "${component}" has no files to copy.`);
+  const sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
+  for (const entry of sorted) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await collectRelativeFiles(fullPath, base)));
+    } else if (entry.isFile()) {
+      files.push(path.relative(base, fullPath));
+    }
   }
 
-  for (const relativePath of relativePaths) {
-    const source = path.join(sourceDir, relativePath);
-    const destination = path.join(destinationRoot, component, relativePath);
-    const exists = await pathExists(destination);
+  return files.sort((a, b) => a.localeCompare(b));
+}
 
-    if (resolved.dryRun) {
-      files.push({
-        component,
-        relativePath,
-        source,
-        destination,
-        status: exists && !resolved.overwrite ? "skipped-existing" : "planned",
-      });
-      continue;
-    }
-
-    if (exists && !resolved.overwrite) {
-      conflicts.push(destination);
-      continue;
-    }
-
-    await mkdir(path.dirname(destination), { recursive: true });
-    await copyFile(source, destination);
-    files.push({
-      component,
-      relativePath,
-      source,
-      destination,
-      status: exists ? "overwritten" : "written",
-    });
+async function pathExists(target: string): Promise<boolean> {
+  try {
+    await stat(target);
+    return true;
+  } catch {
+    return false;
   }
 }
 
-async function addRemoteUrl(
-  url: string,
-  resolved: ResolvedAddOptions,
-  destinationRoot: string,
-  files: AddFileEntry[],
-  conflicts: string[],
-): Promise<void> {
-  const manifest = await fetchRemoteManifest(url);
-  const component = manifest.name ?? deriveComponentNameFromUrl(url) ?? "remote";
-  validateComponentName(component);
-
-  const entries = Object.entries(manifest.files);
-
-  if (entries.length === 0) {
-    throw new CliError(`Remote component from "${url}" has no files to copy.`);
+async function isLocalFileIdentical(source: string, destination: string): Promise<boolean> {
+  try {
+    const [a, b] = await Promise.all([readFile(source), readFile(destination)]);
+    if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {
+      return false;
+    }
+    return (a as Buffer).equals(b as Buffer);
+  } catch {
+    return false;
   }
+}
 
-  for (const [rawPath, content] of entries) {
-    const relativePath = sanitizeRelativePath(rawPath);
-    const source = `${url}#${relativePath}`;
-    const destination = path.join(destinationRoot, component, relativePath);
-    const exists = await pathExists(destination);
-
-    if (resolved.dryRun) {
-      files.push({
-        component,
-        relativePath,
-        source,
-        destination,
-        status: exists && !resolved.overwrite ? "skipped-existing" : "planned",
-      });
-      continue;
+async function isRemoteContentIdentical(content: string, destination: string): Promise<boolean> {
+  try {
+    const destBuf = await readFile(destination);
+    if (!Buffer.isBuffer(destBuf)) {
+      return false;
     }
-
-    if (exists && !resolved.overwrite) {
-      conflicts.push(destination);
-      continue;
-    }
-
-    await mkdir(path.dirname(destination), { recursive: true });
-    await writeFile(destination, content, "utf8");
-    files.push({
-      component,
-      relativePath,
-      source,
-      destination,
-      status: exists ? "overwritten" : "written",
-    });
+    return (destBuf as Buffer).equals(Buffer.from(content, "utf8"));
+  } catch {
+    return false;
   }
 }
 
@@ -382,46 +695,6 @@ function validateComponentName(component: string): void {
   }
 }
 
-async function assertComponentDir(sourceDir: string, component: string): Promise<void> {
-  let stats: Awaited<ReturnType<typeof stat>> | null = null;
-
-  try {
-    stats = await stat(sourceDir);
-  } catch {
-    stats = null;
-  }
-
-  if (stats === null || !stats.isDirectory()) {
-    throw new CliError(`Unknown component "${component}". Run "synthex list" to see available components.`);
-  }
-}
-
-async function collectRelativeFiles(dir: string, base: string = dir): Promise<string[]> {
-  const entries = await readdir(dir, { withFileTypes: true });
-  const files: string[] = [];
-
-  const sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
-  for (const entry of sorted) {
-    const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...(await collectRelativeFiles(fullPath, base)));
-    } else if (entry.isFile()) {
-      files.push(path.relative(base, fullPath));
-    }
-  }
-
-  return files.sort((a, b) => a.localeCompare(b));
-}
-
-async function pathExists(target: string): Promise<boolean> {
-  try {
-    await stat(target);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 const PEER_DEPS: ReadonlySet<string> = new Set(["react", "react-dom", "react-native"]);
 
 export interface RegistryDepEntry {
@@ -432,10 +705,6 @@ export interface RegistryDepEntry {
 
 export interface RegistryDepFile {
   readonly components?: readonly RegistryDepEntry[];
-}
-
-export function getDefaultRegistryJsonPath(): string {
-  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../registry.json");
 }
 
 export function collectInstallDeps(
@@ -511,7 +780,11 @@ async function readRegistryFile(filePath: string): Promise<RegistryDepFile | nul
   }
 }
 
-async function maybeLogInstallHint(specs: readonly string[], resolved: ResolvedAddOptions): Promise<void> {
+async function maybeLogInstallHint(
+  specs: readonly string[],
+  resolved: ResolvedAddOptions,
+  registry: RegistryDepFile | null,
+): Promise<void> {
   if (resolved.dryRun) {
     return;
   }
@@ -519,19 +792,6 @@ async function maybeLogInstallHint(specs: readonly string[], resolved: ResolvedA
     const names = resolveRequestedComponentNames(specs);
     if (names.length === 0) {
       return;
-    }
-    const candidates = [
-      path.join(resolved.registryRoot, "registry.json"),
-      path.resolve(resolved.registryRoot, "../../../registry.json"),
-      getDefaultRegistryJsonPath(),
-    ].filter((candidate, index, all) => all.indexOf(candidate) === index);
-    let registry: RegistryDepFile | null = null;
-    for (const candidate of candidates) {
-      const parsed = await readRegistryFile(candidate);
-      if (parsed !== null) {
-        registry = parsed;
-        break;
-      }
     }
     if (registry === null) {
       return;

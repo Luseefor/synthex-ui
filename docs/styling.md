@@ -2,57 +2,66 @@
 
 ## CSS import strategy
 
-Synthex UI ships a single CSS file that must be imported once at your app root:
+Put both imports in your local CSS entry (order matters), then import that
+local file once at app entry:
 
-```ts
-import "synthex-ui/styles.css";
+```css
+@import "tailwindcss";
+@import "synthex-ui/styles.css";
+
+@source "../node_modules/synthex-ui/dist";
 ```
 
-This file provides:
-- All `--sx-*` CSS custom properties (colors, space, typography, radius, shadows, motion)
-- Complete dark theme overrides via `[data-theme="dark"]`
-- Auto dark mode via `prefers-color-scheme: dark`
-- `prefers-reduced-motion` support
-- A minimal CSS reset (box-sizing, body defaults)
+```ts
+import "./styles.css";
+```
+
+This provides `--sx-*` custom properties, shadcn-name aliases, dark mode,
+`prefers-reduced-motion` handling, and a minimal reset. Order matters:
+Tailwind first, then the token surface, then `@source`.
+
+## Tailwind requirement
+
+Components emit Tailwind utilities (e.g. `inline-flex`,
+`rounded-[var(--sx-radius-md)]`, `bg-primary`, `text-muted-foreground`).
+Your app must include Tailwind and scan the built library:
+
+1. `npm install -D tailwindcss @tailwindcss/vite`
+2. Register `@tailwindcss/vite` in `vite.config.ts`.
+3. Add the `@source` line above, pointed at the installed
+   `synthex-ui/dist` relative to your CSS file
+   (the starter uses `@source "../node_modules/synthex-ui/dist"`).
+
+The starter (`templates/starter`) already does all three on this branch.
+Without the Tailwind plugin and `@source`, component classes generate no CSS.
 
 ## Tailwind companion (`tailwind.css`)
 
-For the Tailwind `data-[...]` variants the components emit, import this optional plain-CSS fallback after `styles.css`:
-`import "synthex-ui/tailwind.css";`
-It provides the `sx-fade-up` and `sx-pop-in` keyframes, accordion open and close height animation, floating-surface entrances keyed on `data-side` and `data-align`, and a block that turns off motion for `prefers-reduced-motion`. `styles.css` does not include these keyframes.
+Optional plain-CSS fallback, imported after `styles.css`:
 
-## Tailwind CSS requirement
-
-Synthex UI components use Tailwind utility classes internally. Your consuming app must include Tailwind and scan the library:
-
-```css
-/* your main CSS file */
-@import "tailwindcss";
-@source "../../node_modules/synthex-ui/dist";
+```ts
+import "synthex-ui/tailwind.css";
 ```
 
-### Why Tailwind?
-
-Components reference Tailwind utilities (e.g., `inline-flex`, `rounded-[var(--sx-radius-md)]`) for styling. Tailwind's JIT compiler resolves these classes at build time. Without Tailwind, component styles won't render.
+It covers keyframes and floating-surface entrances keyed on `data-side` /
+`data-align`, plus accordion open/close height animation, with
+`prefers-reduced-motion` disabled. `styles.css` carries the token surface;
+check which animation entry your component path needs before adding this.
 
 ## The `cn()` helper
 
-Synthex UI exports `cn()`, powered by `clsx` plus `tailwind-merge` with no extra install, for composing class names:
+`cn(...inputs: ClassValue[]): string`, powered by `clsx` + `tailwind-merge`:
 
 ```tsx
 import { cn } from "synthex-ui";
 
-cn("flex gap-4", isActive && "bg-blue-50", className); // string
-cn("p-4", "px-2"); // -> "p-4 px-2" (conflict resolved)
+cn("flex gap-4", isActive && "bg-blue-50", className);
+cn("p-4", "px-2");
 ```
 
-The signature is `function cn(...inputs: ClassValue[]): string`, where `ClassValue` comes from `clsx`.
-
-It matches shadcn `cn`. It uses the same `clsx` plus `tailwind-merge` mix, so existing call sites work unchanged. If you already use shadcn, this feels familiar.
+Same input contract as the shadcn `cn` helper, so existing call sites transfer.
 
 ## CSS custom properties
-
-You can use all tokens as CSS custom properties in your own CSS:
 
 ```css
 .my-card {
@@ -60,25 +69,33 @@ You can use all tokens as CSS custom properties in your own CSS:
   border: 1px solid var(--sx-color-border);
   border-radius: var(--sx-radius-lg);
   padding: var(--sx-space-lg);
-  transition: all var(--sx-motion-fast) var(--sx-easing-standard);
 }
 ```
 
+Full token list: `packages/ui/src/styles.css` and
+`packages/ui/src/_shared/tokens/*`. Durations in TS tokens are numbers
+(milliseconds); CSS exposes `ms` values plus `--sx-easing-standard` and
+`--sx-easing-emphasized`.
+
 ## Web vs native
 
-Components have separate web and native implementations:
-
 | Subpath | Platform |
-|---------|----------|
+|---|---|
 | `synthex-ui/web` | React DOM only |
 | `synthex-ui/native` | React Native only |
-| `synthex-ui/components` | Auto-resolved via package.json `exports` conditions |
+| `synthex-ui/components` | Auto-resolved via `exports` conditions |
+| `synthex-ui/button` (etc.) | Per-component subpaths with nested `react-native` runtime + `.d.ts` conditions (`packages/ui/package.json`) |
 
-The `react-native` condition in `package.json` ensures bundlers like Metro select the `.native.js` entry.
+The `react-native` condition selects `.native.js` runtimes and `.native.d.ts`
+types under Metro. `add` copies both platform sources plus the shared file
+where present; see `docs/registry.md`.
 
-## Chart shadcn compat (no recharts)
+## Charts
 
-Charts stay hand-rolled SVG with no `recharts` dependency. Only API names match shadcn:
+Web charts render through `recharts` (`packages/ui/src/chart/chart.web.tsx`);
+the native chart path is theme-driven and ignores web-only config plumbing.
+Shared API names (`ChartContainer`, `ChartLegendContent`, `ChartStyle`,
+`ChartTooltipContent`) match shadcn's config shape:
 
 ```tsx
 import { ChartContainer, ChartLegendContent, ChartStyle, ChartTooltipContent } from "synthex-ui";
@@ -86,13 +103,12 @@ import { ChartContainer, ChartLegendContent, ChartStyle, ChartTooltipContent } f
 const config = { visitors: { label: "Visitors", color: "#2563eb" } };
 
 <ChartContainer config={config} id="traffic">
-  <ChartStyle id="traffic" config={config} />
-  {/* LineChart / AreaChart / BarChart */}
+  <ChartStyle id={config} config={config} />
   <ChartTooltipContent indicator="dashed" labelKey="visitors" config={config} items={[]} />
   <ChartLegendContent series={[]} />
 </ChartContainer>;
 ```
 
-- `config` maps series keys to `{ label, color }`. On web colors become `--color-<key>` vars, inline on `ChartContainer` and scoped via `ChartStyle`.
-- `ChartTooltipContent` supports `indicator?: "dot" | "line" | "dashed"` and `labelKey`. It falls back to `config[labelKey].label` when `label` is absent.
-- On native the code accepts `config` and `ChartStyle` for parity and ignores them. It uses theme colors directly.
+`config` maps series keys to `{ label, color }`; web exposes
+`--color-<key>` vars. Native accepts `config`/`ChartStyle` for signature
+parity and renders from theme colors.

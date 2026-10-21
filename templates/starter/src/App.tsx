@@ -1,4 +1,4 @@
-import { Button } from "synthex-ui/components";
+import { Button } from "synthex-ui/button";
 import { ThemeProvider } from "synthex-ui/theme";
 
 export default function App() {

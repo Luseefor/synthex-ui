@@ -71,6 +71,22 @@ function walkFiles(dir, files = []) {
   return files;
 }
 
+function checkExportTarget(packageName, packageDir, target, label) {
+  if (typeof target === "string") {
+    checkTargetExists(packageName, packageDir, target, label);
+    return;
+  }
+
+  if (typeof target !== "object" || target === null || Array.isArray(target)) {
+    failures.push(`${packageName}: unsupported export target for ${label}`);
+    return;
+  }
+
+  for (const [condition, value] of Object.entries(target)) {
+    checkExportTarget(packageName, packageDir, value, `${label} (${condition})`);
+  }
+}
+
 function checkExportMap(packageName, packageDir, exportsMap) {
   for (const [exportKey, exportValue] of Object.entries(exportsMap ?? {})) {
     if (typeof exportValue === "string") {
@@ -83,21 +99,7 @@ function checkExportMap(packageName, packageDir, exportsMap) {
       continue;
     }
 
-    for (const [condition, target] of Object.entries(exportValue)) {
-      if (typeof target !== "string") {
-        failures.push(
-          `${packageName}: unsupported export target for ${exportKey} (${condition})`,
-        );
-        continue;
-      }
-
-      checkTargetExists(
-        packageName,
-        packageDir,
-        target,
-        `export ${exportKey} (${condition})`,
-      );
-    }
+    checkExportTarget(packageName, packageDir, exportValue, `export ${exportKey}`);
   }
 }
 
@@ -142,8 +144,12 @@ function checkPackage(pkg, { publicPackage }) {
   for (const filePath of walkFiles(distDir)) {
     const relativePath = path.relative(pkg.dir, filePath).replaceAll(path.sep, "/");
     const lowerRelativePath = relativePath.toLowerCase();
+    const isCliInstallPayload = pkg.name === "@luseefor/synthex-cli" && (
+      relativePath.startsWith("dist/assets/ui/") ||
+      relativePath.startsWith("dist/assets/templates/starter/")
+    );
 
-    assert(!relativePath.includes("/src/"), `${pkg.name}: leaked source artifact ${relativePath}`);
+    assert(isCliInstallPayload || !relativePath.includes("/src/"), `${pkg.name}: leaked source artifact ${relativePath}`);
     assert(!lowerRelativePath.includes("vitest"), `${pkg.name}: leaked vitest artifact ${relativePath}`);
     assert(!relativePath.includes("__tests__"), `${pkg.name}: leaked test artifact ${relativePath}`);
     assert(!lowerRelativePath.includes(".test."), `${pkg.name}: leaked test file ${relativePath}`);

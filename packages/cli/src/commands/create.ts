@@ -1,12 +1,12 @@
 import { copyFile, mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import type { Command } from "commander";
 import { CliError } from "../utils/errors";
 import { logger } from "../utils/logger";
+import { getDefaultStarterRoot as resolveDefaultStarterRoot } from "../utils/assets";
 
 export function getDefaultStarterRoot(): string {
-  return resolve(dirname(fileURLToPath(import.meta.url)), "../../../../templates/starter");
+  return resolveDefaultStarterRoot();
 }
 
 export interface CreateProjectOptions {
