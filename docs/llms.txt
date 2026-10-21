@@ -1,13 +1,15 @@
 # Synthex UI, llms.txt
 
-> Branch status (`ace/framework-onboarding`): `create --template` and `setup`
-> below describe the CLI source in this checkout. Slated for an upcoming
-> `@luseefor/synthex-cli` release; not yet in the published
-> `npx @luseefor/synthex-cli@latest` build. See `docs/frameworks.md`.
+> Branch status (`ace/lean-component-installs`): `create --template`, `setup`,
+> and the lean `add` below describe the CLI source in this checkout. Forthcoming
+> CLI release; implemented in source, not yet published in
+> `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
 
-Component sources live under `packages/ui/src/*`. Each component ships
-`.web.*` + `.native.*`, plus a shared file (`.shared.ts`/`shared.ts`) where
-present; simple components such as `label` and `table` have none.
+Component sources live under `packages/ui/src/*`. With `synthex-ui.json`,
+`add` copies web files for Vite/Next and native files for Expo (legacy
+installs without config keep both platforms). Only `_shared` files are
+pruned to the relative import closure; simple components such as `label`
+and `table` have no shared file.
 
 ## Install
 
@@ -105,8 +107,7 @@ export function Workbench() {
 `init`, `create`, `setup`, `add`, `list`, `migrate`, `validate`, `layout:*`,
 `undo`/`redo`, `run`, `history`.
 
-`add` copies both platform sources (`.web.*` + `.native.*`, plus the shared
-file where present), excludes test files
+`add` copies the platform-selected files, excludes test files
 (no `.test`/`.spec`/`__tests__`) into `componentsDir` from
 `synthex-ui.json` when present (else legacy `components/ui`), resolves
 transitive `registryDependencies`, preflights before writing, supports
@@ -115,9 +116,14 @@ transitive `registryDependencies`, preflights before writing, supports
 Namespaces: `@synthex/<name>`,
 `@default/<name>`, `@<name>` (= default) accepted; others rejected.
 Remote `https:`/`data:` JSON `{ name, files }` also accepted.
-Dependency hints print an install command in your package-manager syntax
-(resolved from `--cwd` config/detection) and can include native-only packages;
-filter for web-only apps.
+Configured dependency hints come from the actual selected files (including
+type imports; host `react`/`react-dom`/`react-native` excluded); legacy
+unconfigured installs keep the union of registry `deps`. `add` returns
+`dependencies` + `installCommand` (null when empty, also on `--dry-run`)
+and never auto-installs or edits `package.json`. Web `add button` is 4
+files (`button/button.shared.ts`, `button/button.web.tsx`,
+`button/index.ts`, `_shared/variants.ts`) with `@radix-ui/react-slot`,
+`class-variance-authority`, `clsx`, `tailwind-merge`.
 
 `diff` previews registry changes read-only (`diff [component...] [--cwd]
 [--json]`, defaults to all recorded installs); `update` merges them

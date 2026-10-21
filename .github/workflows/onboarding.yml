@@ -41,3 +41,6 @@ jobs:
 
       - name: Onboarding tarball consumer gate (${{ matrix.template }})
         run: node scripts/onboarding-check.mjs --template ${{ matrix.template }}
+
+      - name: Standalone owned Button gate (${{ matrix.template }})
+        run: node scripts/lean-install-check.mjs --template ${{ matrix.template }}

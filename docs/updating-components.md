@@ -309,3 +309,14 @@ retirement, so repeated updates are harmless and can detect a later return.
 If a remote URL changes its component name, its old paths are included in the
 same review: untouched paths can be removed, while edited paths block the
 entire batch until resolved.
+
+
+## Shared files in lean installs
+
+Configured web and native installs copy only referenced `_shared` files.
+Updating a subset of recorded roots preserves shared files outside that plan,
+since other installed components may still need them. A full update (no
+arguments, or every recorded root listed) also checks previously tracked shared
+files that the new plans no longer reference. Unmodified unused files are
+removed with backups; locally modified files produce a conflict before the
+batch writes anything. Untracked application files are not pruned.

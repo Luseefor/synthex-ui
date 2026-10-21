@@ -45,10 +45,10 @@ if (!existsSync(registryPath)) {
 }
 
 const registry = readJson(registryPath);
-const rootPkg = readJson(path.join(rootDir, "package.json"));
+const uiPkg = readJson(path.join(rootDir, "packages/ui/package.json"));
 
-if (registry.version !== rootPkg.version) {
-  errors.push(`version mismatch: registry.json is ${JSON.stringify(registry.version)} but package.json is ${JSON.stringify(rootPkg.version)}`);
+if (registry.version !== uiPkg.version) {
+  errors.push(`version mismatch: registry.json is ${JSON.stringify(registry.version)} but packages/ui/package.json is ${JSON.stringify(uiPkg.version)}`);
 }
 
 if (!Array.isArray(registry.components) || registry.components.length === 0) {

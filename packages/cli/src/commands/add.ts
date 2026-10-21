@@ -13,6 +13,8 @@ import type { ComponentPlan, ComponentMutation, RegistryComponentFile } from "..
 import { assertSafeComponentPath, readComponentStateSnapshot, serializeComponentState } from "../utils/componentState";
 import { relativeComponentPath, stateForComponentInstall } from "../utils/componentInstall";
 import { applyComponentTransaction } from "../utils/componentTransaction";
+import { selectComponentFiles } from "../utils/componentFiles";
+import { collectComponentDependencies } from "../utils/componentDependencies";
 
 export { getDefaultRegistryJsonPath } from "../utils/assets";
 
@@ -34,6 +36,9 @@ export interface AddManifest {
   readonly dryRun: boolean;
   readonly overwrite: boolean;
   readonly backupDir: string | null;
+  /** Packages referenced by the selected files, excluding host React peers. */
+  readonly dependencies: readonly string[];
+  readonly installCommand: string | null;
   readonly files: readonly AddFileEntry[];
 }
 
@@ -586,7 +591,13 @@ export async function planComponents(
     }
   }
 
-  return { cwd, destinationRoot, platform, files, removedComponents: removed };
+  const selectedFiles = selectComponentFiles(files, [...requestedLocals, ...fetchedRemotes.map((remote) => remote.component)], platform);
+  const dependencies = [...new Set([
+    ...collectComponentDependencies(selectedFiles),
+    // Unconfigured projects retain the legacy registry dependency contract.
+    ...(platform === null ? collectInstallDeps(requestedLocals, registry) : []),
+  ])].sort((a, b) => a.localeCompare(b));
+  return { cwd, destinationRoot, platform, files: selectedFiles, dependencies, removedComponents: removed };
 }
 
 export async function addComponents(
@@ -631,31 +642,8 @@ export async function addComponents(
   });
   const destinationRoot = componentPlan.destinationRoot;
 
-  // Reload scoped metadata for install hints (read-only, no writes).
-  // Plan already validated specs and registryDependencies, so this only
-  // affects hints and never introduces new pre-write failures.
-  let registry: RegistryDepFile | null = null;
-  {
-    const requestedForHints: string[] = [];
-    for (const spec of components) {
-      if (isUrlSpec(spec)) {
-        continue;
-      }
-      if (isRegistrySpec(spec)) {
-        requestedForHints.push(resolveLocalComponentName(spec));
-        continue;
-      }
-      requestedForHints.push(spec);
-    }
-    if (requestedForHints.length > 0) {
-      const isCustomRegistryRoot = options.registryRoot !== undefined;
-      registry = await loadRegistryForCopyScoped(
-        resolved.registryRoot,
-        isCustomRegistryRoot,
-        requestedForHints,
-      );
-    }
-  }
+  const dependencies = componentPlan.dependencies;
+  const installCommand = dependencies.length === 0 ? null : getInstallCommand(packageManager, dependencies);
 
   const snapshot = await readComponentStateSnapshot(cwd);
   const nextState = stateForComponentInstall(componentPlan, components, snapshot.state);
@@ -686,12 +674,12 @@ export async function addComponents(
     throw new CliError(`Refusing to overwrite ${conflicts.length} existing file(s). Re-run with --overwrite.`, 1, { files: conflicts });
   }
   if (dryRun) {
-    return { components: [...components], cwd, destinationRoot, dryRun, overwrite, backupDir: null, files };
+    return { components: [...components], cwd, destinationRoot, dryRun, overwrite, backupDir: null, dependencies, installCommand, files };
   }
   mutations.push({ path: ".synthex/components.json", content: serializeComponentState(nextState), expected: snapshot.raw });
   const transaction = await applyComponentTransaction(cwd, mutations);
 
-  await maybeLogInstallHint(components, resolved, registry);
+  if (installCommand !== null) logger.info(installCommand);
 
   return {
     components: [...components],
@@ -700,6 +688,8 @@ export async function addComponents(
     dryRun: resolved.dryRun,
     overwrite: resolved.overwrite,
     backupDir: transaction.backupDir,
+    dependencies,
+    installCommand,
     files,
   };
 }
@@ -949,31 +939,5 @@ async function readRegistryFile(filePath: string): Promise<RegistryDepFile | nul
     return data as RegistryDepFile;
   } catch {
     return null;
-  }
-}
-
-async function maybeLogInstallHint(
-  specs: readonly string[],
-  resolved: ResolvedAddOptions,
-  registry: RegistryDepFile | null,
-): Promise<void> {
-  if (resolved.dryRun) {
-    return;
-  }
-  try {
-    const names = resolveRequestedComponentNames(specs);
-    if (names.length === 0) {
-      return;
-    }
-    if (registry === null) {
-      return;
-    }
-    const deps = collectInstallDeps(names, registry);
-    if (deps.length === 0) {
-      return;
-    }
-    logger.info(getInstallCommand(resolved.packageManager, deps));
-  } catch {
-    return;
   }
 }

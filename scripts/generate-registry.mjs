@@ -106,7 +106,7 @@ const components = dirNames.map((name) => {
 
 let version = "1.1.0";
 try {
-  const pkg = JSON.parse(readFileSync(path.join(rootDir, "package.json"), "utf8"));
+  const pkg = JSON.parse(readFileSync(path.join(rootDir, "packages/ui/package.json"), "utf8"));
   if (typeof pkg.version === "string") version = pkg.version;
 } catch {
   // keep default
