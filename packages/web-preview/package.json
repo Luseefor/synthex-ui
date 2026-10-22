@@ -10,13 +10,13 @@
     "typecheck": "npx tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@luseefor/synthex-core": "^1.1.0",
-    "@luseefor/synthex-react-web": "^1.1.0",
+    "@luseefor/synthex-core": "^1.2.0",
+    "@luseefor/synthex-react-web": "^1.2.0",
     "mermaid": "^12.2.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router-dom": "^7.18.4",
-    "synthex-ui": "^1.1.0"
+    "synthex-ui": "^2.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
