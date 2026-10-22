@@ -27,6 +27,10 @@
   padding: 1.5rem;
 }
 
+.preview-main.preview-main-overview {
+  padding: 0;
+}
+
 .preview-mobile-topbar {
   display: none;
   align-items: center;

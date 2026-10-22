@@ -51,7 +51,7 @@ export function App() {
               accentPreset={theme.accentPreset}
               setAccentPreset={theme.setAccentPreset}
             />
-            <main className="preview-main">
+            <main className={`preview-main${location.pathname === "/" ? " preview-main-overview" : ""}`}>
               <Suspense fallback={<PreviewFallback />}>
                 <Routes>
                   <Route path="/" element={<DashboardPage onNavigate={navigate} />} />
