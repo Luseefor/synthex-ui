@@ -63,6 +63,12 @@ jobs:
       - name: npm pack smoke checks
         run: bun run pack:check
 
+      - name: Configure npm registry authentication
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
       - name: Guard release freshness
         id: fresh
         # v2 prepareBranch resets to context.sha, so fail unless the run
@@ -99,4 +105,4 @@ jobs:
           push-with-git-cli: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
