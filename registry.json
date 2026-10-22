@@ -12,6 +12,8 @@
         "direction-context.native.ts",
         "field-control.native.ts",
         "field-control.web.ts",
+        "modal-actions.contract.native.test.tsx",
+        "modal-actions.native.tsx",
         "overlay.native.test.tsx",
         "overlay.native.tsx",
         "positioning.native.test.ts",

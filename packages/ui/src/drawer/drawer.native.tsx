@@ -1,9 +1,7 @@
 import * as React from "react";
 import {
-  Modal,
   Pressable,
   Text,
-  type GestureResponderEvent,
   type TextProps,
   View,
   type PressableProps,
@@ -11,137 +9,62 @@ import {
   type TextStyle,
   type ViewProps,
   type ViewStyle,
+  type ModalProps,
 } from "react-native";
 import { CloseIcon } from "../icons/index.native";
+import { NativeDirectionContext } from "../_shared/direction-context.native";
+import { NativeModalAction, NativeModalSurface } from "../_shared/modal-actions.native";
 import { useTheme } from "../_shared/theme/context";
 import { useDialogController } from "../dialog/dialog.shared";
 import { DialogProvider, useDialogContext } from "../dialog/dialog.shared";
 import type { DrawerDirection, DrawerSharedProps } from "./drawer.shared";
 
+const DrawerNativeConfig = React.createContext<{ direction: DrawerDirection; dismissible: boolean }>({ direction: "bottom", dismissible: true });
+
 export interface DrawerProps extends DrawerSharedProps {
   readonly children?: React.ReactNode;
+  readonly dir?: "ltr" | "rtl";
 }
 
-export function Drawer({
-  children,
-  defaultOpen,
-  direction,
-  dismissible,
-  modal,
-  onOpenChange,
-  open,
-}: DrawerProps) {
-  void direction;
-  void dismissible;
+export function Drawer({ children, defaultOpen, direction = "bottom", dismissible = true, modal, onOpenChange, open, dir }: DrawerProps) {
   void modal;
   const controller = useDialogController({ defaultOpen, onOpenChange, open });
-
-  return <DialogProvider value={controller}>{children}</DialogProvider>;
+  const inherited = React.useContext(NativeDirectionContext);
+  const nativeDirection = React.useMemo(() => ({ ...inherited, dir: dir ?? inherited.dir }), [inherited, dir]);
+  const config = React.useMemo(() => ({ direction, dismissible }), [direction, dismissible]);
+  return <NativeDirectionContext.Provider value={nativeDirection}>
+    <DrawerNativeConfig.Provider value={config}>
+      <DialogProvider value={controller}>{children}</DialogProvider>
+    </DrawerNativeConfig.Provider>
+  </NativeDirectionContext.Provider>;
 }
 
 export interface DrawerTriggerProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
-  readonly style?: StyleProp<ViewStyle>;
+  readonly style?: PressableProps["style"];
   readonly asChild?: boolean;
 }
 
 export const DrawerTrigger: React.ForwardRefExoticComponent<
   React.PropsWithoutRef<DrawerTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
-> = React.forwardRef<
-  React.ElementRef<typeof Pressable>,
-  DrawerTriggerProps
->(({ children, onPress, style, asChild, testID, ...props }, ref) => {
+> = React.forwardRef<React.ElementRef<typeof Pressable>, DrawerTriggerProps>((props, ref) => {
   const context = useDialogContext();
-
-  const handlePress = React.useCallback(
-    (event: GestureResponderEvent) => {
-      context.setOpen(true);
-      onPress?.(event);
-    },
-    [context, onPress],
-  );
-
-  type AsChildProps = {
-    onPress?: ((event: GestureResponderEvent) => void) | null;
-    [key: string]: unknown;
-  };
-
-  if (asChild && React.isValidElement<AsChildProps>(children)) {
-    return React.cloneElement(children, {
-      ref,
-      testID: (children.props as { testID?: string }).testID ?? testID ?? "drawer-trigger",
-      ...props,
-      onPress: (e: GestureResponderEvent) => {
-        handlePress(e);
-        children.props.onPress?.(e);
-      },
-    });
-  }
-
-  return (
-    <Pressable
-      ref={ref}
-      onPress={handlePress}
-      style={style}
-      testID={testID ?? "drawer-trigger"}
-      {...props}
-    >
-      {children}
-    </Pressable>
-  );
+  return <NativeModalAction {...props} forwardedRef={ref} defaultTestID="drawer-trigger" expanded={context.open} onAction={() => context.setOpen(true)} />;
 });
-
 DrawerTrigger.displayName = "DrawerTrigger";
 
 export const DrawerClose: React.ForwardRefExoticComponent<
   React.PropsWithoutRef<DrawerTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
-> = React.forwardRef<
-  React.ElementRef<typeof Pressable>,
-  DrawerTriggerProps
->(({ children, onPress, style, asChild, testID, ...props }, ref) => {
+> = React.forwardRef<React.ElementRef<typeof Pressable>, DrawerTriggerProps>((props, ref) => {
   const context = useDialogContext();
-
-  const handlePress = React.useCallback(
-    (event: GestureResponderEvent) => {
-      context.setOpen(false);
-      onPress?.(event);
-    },
-    [context, onPress],
-  );
-
-  type AsChildProps = {
-    onPress?: ((event: GestureResponderEvent) => void) | null;
-    [key: string]: unknown;
-  };
-
-  if (asChild && React.isValidElement<AsChildProps>(children)) {
-    return React.cloneElement(children, {
-      ref,
-      testID: (children.props as { testID?: string }).testID ?? testID ?? "drawer-close",
-      ...props,
-      onPress: (e: GestureResponderEvent) => {
-        handlePress(e);
-        children.props.onPress?.(e);
-      },
-    });
-  }
-
-  return (
-    <Pressable
-      ref={ref}
-      onPress={handlePress}
-      style={style}
-      testID={testID ?? "drawer-close"}
-      {...props}
-    >
-      {children}
-    </Pressable>
-  );
+  return <NativeModalAction {...props} forwardedRef={ref} defaultTestID="drawer-close" onAction={() => context.setOpen(false)} />;
 });
-
 DrawerClose.displayName = "DrawerClose";
 
 export interface DrawerContentProps extends Omit<ViewProps, "style"> {
+  readonly modalProps?: Omit<ModalProps, "children" | "transparent" | "visible">;
+  readonly hideClose?: boolean;
+  readonly closeLabel?: string;
   readonly dismissible?: boolean;
   readonly side?: "bottom" | "left" | "right" | "top";
   readonly style?: StyleProp<ViewStyle>;
@@ -149,106 +72,13 @@ export interface DrawerContentProps extends Omit<ViewProps, "style"> {
 
 export const DrawerContent: React.ForwardRefExoticComponent<
   React.PropsWithoutRef<DrawerContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
-> = React.forwardRef<React.ElementRef<typeof View>, DrawerContentProps>(
-  ({ children, dismissible = true, side = "bottom", style, testID, ...props }, ref) => {
-    const context = useDialogContext();
-    const theme = useTheme();
-
-    if (!context.open) {
-      return null;
-    }
-
-    const isHorizontal = side === "top" || side === "bottom";
-
-    return (
-      <Modal
-        transparent
-        animationType="fade"
-        visible={context.open}
-        onRequestClose={() => {
-          if (dismissible) context.setOpen(false);
-        }}
-      >
-        <Pressable
-          testID="drawer-overlay"
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(15,23,42,0.38)",
-          }}
-          onPress={() => {
-            if (dismissible) context.setOpen(false);
-          }}
-        >
-          <Pressable
-            style={{
-              position: "absolute",
-              ...(isHorizontal
-                ? { left: 0, right: 0, [side]: 0, width: "100%" }
-                : { top: 0, bottom: 0, [side]: 0, width: "100%", maxWidth: 420 }),
-            } as ViewStyle}
-            onPress={(event) => event.stopPropagation()}
-          >
-            <View
-              ref={ref}
-              testID={testID ?? "drawer-content"}
-              style={[
-                {
-                  flex: 1,
-                  borderColor: theme.colors.border,
-                  backgroundColor: theme.colors.surface,
-                  padding: 24,
-                },
-                side === "right"
-                  ? { borderLeftWidth: 1 }
-                  : side === "left"
-                    ? { borderRightWidth: 1 }
-                    : side === "top"
-                      ? { borderBottomWidth: 1 }
-                      : { borderTopWidth: 1 },
-                style,
-              ]}
-              {...props}
-            >
-              <View
-                testID="drawer-handle"
-                style={{
-                  alignSelf: "center",
-                  height: 6,
-                  marginBottom: 16,
-                  width: 48,
-                  borderRadius: 999,
-                  backgroundColor: theme.colors.border,
-                }}
-              />
-              <Pressable
-                accessibilityRole="button"
-                testID="drawer-close"
-                onPress={() => context.setOpen(false)}
-                style={{
-                  position: "absolute",
-                  right: 16,
-                  top: 16,
-                  width: 36,
-                  height: 36,
-                  borderRadius: 999,
-                  borderWidth: 1,
-                  borderColor: theme.colors.border,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: theme.colors.surface,
-                }}
-              >
-                <CloseIcon size={16} />
-              </Pressable>
-              {children}
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
-    );
-  },
-);
-
+> = React.forwardRef<React.ElementRef<typeof View>, DrawerContentProps>(({ side, dismissible, ...props }, ref) => {
+  const context = useDialogContext();
+  const config = React.useContext(DrawerNativeConfig);
+  const { dir } = React.useContext(NativeDirectionContext);
+  return <NativeModalSurface {...props} family="drawer" closeIcon={<CloseIcon size={16} />} contentRef={ref} open={context.open} setOpen={context.setOpen}
+    dir={dir} side={side ?? config.direction} dismissible={dismissible ?? config.dismissible} />;
+});
 DrawerContent.displayName = "DrawerContent";
 
 export interface DrawerSectionProps extends Omit<ViewProps, "style"> {

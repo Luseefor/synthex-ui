@@ -1,6 +1,6 @@
 # Native device validation
 
-Scope: branch `ace/native-carousel`, stacked on OPEN PR #128 (`ace/native-resizable`),
+Scope: branch `ace/native-sheet-drawer`, stacked on OPEN PR #129 (`ace/native-carousel`),
 unreleased source in this checkout. The source tests use
 mocked React Native hosts plus pure geometry tests. The `native:check` gate installs
 the packed UI in an isolated Expo app, typechecks its native subpath imports
@@ -13,7 +13,7 @@ The generated type-only consumer also checks every exported native forwarded
 component's packed ref declaration against its host instance type under the
 Expo starter's React Native types.
 
-Full OTP contract in [native OTP](./native-otp.md). Full slider contract in [native slider](./native-slider.md). Full resizable contract in [native resizable](./native-resizable.md). Full carousel contract in [native carousel](./native-carousel.md).
+Full OTP contract in [native OTP](./native-otp.md). Full slider contract in [native slider](./native-slider.md). Full resizable contract in [native resizable](./native-resizable.md). Full carousel contract in [native carousel](./native-carousel.md). Sheet/Drawer contracts in [native Sheet/Drawer](./native-sheet-drawer.md).
 
 ## Reproduce the fixture
 
@@ -98,6 +98,13 @@ focus behavior require testing. See [React Native accessibility](https://reactna
 | Carousel RTL and vertical | `carousel-vertical`, `carousel-vertical-content`, `carousel-vertical-prev`, `carousel-vertical-next`, `carousel-vertical-index` (extent `height: 240`), global direction flip | RTL reverses horizontal physical order with positive LTR scroll coordinate; vertical stays physical; record mismatches | Pending | Pending |
 | Carousel ref and controlled index | Ref on `carousel-horizontal-content`; controlled `index` updates | Ref resolves; controlled renders props with no optimistic index; rejected requests realign; count changes emit `reInit` without `onIndexChange` | Pending | Pending |
 | Owned carousel | `owned-carousel`, `owned-carousel-content`, `owned-carousel-prev`, `owned-carousel-next`, `owned-carousel-index` | Owned copy mirrors packaged paging, button, direction, and API behavior | Pending | Pending |
+| Sheet controlled/disabled/cancelled actions | `sheet-trigger`, `sheet-disable-trigger`, `sheet-content`, `sheet-explicit-close` | Disabled trigger blocks caller/state changes; controlled open follows props; explicit close works with ambient dismissal off | Pending | Pending |
+| Sheet dismissal and interior hit-testing | `sheet-dismiss-toggle`, `sheet-request-count`, `sheet-overlay`, `sheet-close` | Backdrop/Android Back/accessibility escape follow setting; request observer still runs; interior interactions never dismiss via backdrop; close action labeled | Pending | Pending |
+| Sheet edges and RTL | `sheet-side-cycle`, global direction flip | All four physical edges, border and close-icon placement; rotation and nested Modal layout remain usable | Pending | Pending |
+| Drawer root configuration | `drawer-direction-cycle`, `drawer-dismiss-toggle`, `drawer-trigger`, `drawer-content` | Root direction and dismissible setting take effect; left/right stay physical under RTL; handle is decorative | Pending | Pending |
+| Drawer dismissal/disabled/refs | `drawer-disable-trigger`, `drawer-explicit-close`, `drawer-request-count`, `drawer-overlay`, `drawer-close` | Disabled guard, correct refs/cleanup, composed Back callback, interior hit-testing and explicit exit when ambient dismissal off | Pending | Pending |
+| Owned Sheet/Drawer | `owned-sheet-trigger/content/close`, `owned-drawer-trigger/content/close` | Owned left Sheet/right Drawer match packaged handlers, direction and blocked ambient dismissal; explicit close works | Pending | Pending |
+| Sheet/Drawer accessibility and keyboard | Both content surfaces | VoiceOver/TalkBack role/state/labels, focus containment/restoration, large text, keyboard occlusion and nested Modal behavior recorded; no pass inferred from bundle checks | Pending | Pending |
 | Chart geometry | `grouped-chart` | Category labels align with bar groups; chart label announces; record small-screen readability | Pending | Pending |
 | Modal interior and close | `open-dialog`, `dialog-interior-action`, `explicit-close` | Interior action increments without closing; explicit close closes | Pending | Pending |
 | Backdrop and system dismissal | `dismiss-mode`, `dialog-overlay`, Android Back / iOS accessibility escape | Backdrop and Android Back honor dismissal mode; record accessibility escape behavior separately | Pending | Pending |
@@ -142,8 +149,7 @@ claimed until real-device evidence lands.
 Caveats for device runs: content is measured on open and on window/root-layout changes only
 (continuous anchor tracking is not implemented); a trigger whose ref cannot be measured falls
 back to a centered surface; nested-Modal stacking and real device-keyboard behavior are pending
-and not claimed. Sheet/Drawer limits are unchanged (positional sheet `side` styles, no
-swipe-to-close; drawer always bottom-presented).
+and not claimed. Sheet/Drawer now honor their native placement/dismissal contracts, including Drawer root settings. Their press/ref/modal wiring is mocked and compiled in packaged + copied-source consumers; swipe-to-close, snap points and custom focus management remain unimplemented. See [native Sheet/Drawer](./native-sheet-drawer.md).
 
 For the remaining families, use the gaps and broader checklist in
 [native capabilities](./native-capabilities.md), the OTP contract in

@@ -10,6 +10,8 @@ import { Slider } from "./components/ui/slider";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "./components/ui/resizable";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type NativeCarouselApi } from "./components/ui/carousel";
 
+import { Sheet, SheetTrigger, SheetContent, SheetClose } from "./components/ui/sheet";
+import { Drawer, DrawerTrigger, DrawerContent, DrawerClose } from "./components/ui/drawer";
 // Copied by native:check next to the CLI's owned sources. These imports must
 // compile as source under the consumer's RN types, not just packaged .d.ts.
 export default function OwnedOverlays() {
@@ -30,6 +32,20 @@ export default function OwnedOverlays() {
     <DirectionProvider dir={rtl ? "rtl" : "ltr"}>
       <Text accessibilityRole="header">Owned source overlays</Text>
       <Text onPress={() => setRtl(!rtl)} accessibilityRole="button">Owned direction: {rtl ? "RTL" : "LTR"}</Text>
+      <Sheet>
+        <SheetTrigger testID="owned-sheet-trigger"><Text>Owned sheet</Text></SheetTrigger>
+        <SheetContent testID="owned-sheet-content" side="left" dismissible={false}>
+          <Text>Owned left sheet; ambient dismissal blocked</Text>
+          <SheetClose testID="owned-sheet-close"><Text>Close owned sheet</Text></SheetClose>
+        </SheetContent>
+      </Sheet>
+      <Drawer direction="right" dismissible={false}>
+        <DrawerTrigger testID="owned-drawer-trigger"><Text>Owned drawer</Text></DrawerTrigger>
+        <DrawerContent testID="owned-drawer-content">
+          <Text>Owned right drawer; root dismissal blocked</Text>
+          <DrawerClose testID="owned-drawer-close"><Text>Close owned drawer</Text></DrawerClose>
+        </DrawerContent>
+      </Drawer>
       <Carousel testID="owned-carousel" setApi={setCarouselApi}>
         <CarouselContent testID="owned-carousel-content" style={{ height: 160 }}>
           {[1, 2, 3].map(number => <CarouselItem key={number} style={{ flex: 1, padding: 16 }}><Text>Owned slide {number}</Text></CarouselItem>)}

@@ -1,7 +1,7 @@
 # Native capabilities
 
-Scope: `synthex-ui` native (`react-native` condition) vs web, branch `ace/native-carousel`
-stacked on OPEN PR #128 (`ace/native-resizable`), unreleased source in this checkout
+Scope: `synthex-ui` native (`react-native` condition) vs web, branch `ace/native-sheet-drawer`
+stacked on OPEN PR #129 (`ace/native-carousel`), unreleased source in this checkout
 (packed Expo checks pass, device evidence is pending).
 Method: read every `packages/ui/src/*/*.native.tsx|ts` + `index.native.ts`, `package.json` exports,
 `native-exports.test.ts`, the mocked native tests, `packages/ui/src/_shared/overlay.native.tsx`,
@@ -12,8 +12,8 @@ of complete web/native parity.
 See [device validation](./native-device-validation.md) for a runnable packed Expo fixture,
 [native OTP](./native-otp.md) for the one-time-code contract,
 [native slider](./native-slider.md) for the slider contract,
-[native resizable](./native-resizable.md) for the resizable contract, and
-[native carousel](./native-carousel.md) for the carousel contract.
+[native resizable](./native-resizable.md) for the resizable contract, [native carousel](./native-carousel.md) for the carousel contract, and
+[native Sheet/Drawer](./native-sheet-drawer.md) for modal interaction contracts.
 
 ## What each evidence tier means
 
@@ -39,7 +39,7 @@ See [device validation](./native-device-validation.md) for a runnable packed Exp
   `dist/<family>/index.native.js`, and every native graph is transitively web-file-free and
   DOM-package-free (no runtime `@radix/*`, `cmdk`, `embla`, `recharts`, `sonner`, `vaul`,
   `react-dom`, …). This checks export shape and source imports. It does not execute Metro or a device.
-- **Metro export:** `bun run native:check` installs the local UI tarball in an isolated Expo app, copies four overlays and direction using the local CLI tarball, typechecks native subpath imports and the copied implementations, and exports iOS + Android bundles. The fixture also imports the native root (including chart). This verifies packed module resolution, source compatibility and bundle generation, not device behavior.
+- **Metro export:** `bun run native:check` installs the local UI tarball in an isolated Expo app, copies overlays, direction, OTP, Slider, Resizable, Carousel, Sheet and Drawer using the local CLI tarball, typechecks native subpath imports and the copied implementations, and exports iOS + Android bundles. The fixture also imports the native root (including chart). This verifies packed module resolution, source compatibility and bundle generation, not device behavior.
 - **Pending real-device evidence:** everything under “Device checklist” below — none of it
   has been run in this stage.
 
@@ -93,7 +93,7 @@ applies to custom native themes.
 | data-table | TanStack `useReactTable` (sort/filter/pagination state) rendered with `ScrollView`+`View` rows + `TextInput` filter (`data-table/data-table.native.tsx`) | Real TanStack logic reused; UI is stacked rows, no column pinning/virtualization/column visibility; large tables will mount all rows (perf) | `data-table.web.test.tsx` is web-only; native has no test |
 | date-picker | `Pressable` trigger + inline `Calendar`; select closes (`date-picker/date-picker.native.tsx`) | No portal/modal, no input mask, no keyboard entry; calendar opens inline shifting layout | typecheck only |
 | dialog (+alert-dialog aliases) | `Modal{transparent,animation fade}` + overlay `Pressable` (dismiss) + inner `Pressable stopPropagation` + content `View` + absolute close button; `modal` prop ignored (`dialog/dialog.native.tsx`) | RN `Modal`; no custom initial-focus/containment/restoration implementation; interior stops propagation; OS behavior pending device checks; `modal=false` still modals | mocked `dialog.native.test.tsx` + `dialog.contract.native.test.tsx`; base dismissal and composed handlers tested, sheet/drawer are separate implementations |
-| drawer | Same `Modal` pattern as dialog, bottom-sheet styling; `direction/dismissible/modal` ignored (`drawer/drawer.native.tsx`) | Always bottom presentation; `direction` (left/right) silently ignored; no gesture drag-to-dismiss, no `vaul` snap points | typecheck only |
+| drawer | Shared native `Modal` surface and press/ref helpers (`drawer.native.tsx`, `_shared/modal-actions.native.tsx`); root `direction`/`dismissible` honored with content overrides; four physical edges, inherited/explicit `dir`, composed callbacks and optional labeled close control | Always Modal (`modal=false` ignored); decorative handle, no swipe-to-close/snap points/custom focus management; keyboard/RTL/device behavior pending | mocked `modal-actions.contract.native.test.tsx`; packed + copied Expo typecheck and Metro export |
 | dropdown-menu (+menubar base) | Anchored `Modal{transparent,overFullScreen}` via shared `NativeOverlayContent` + `NativeOverlayProvider` (`dropdown-menu/dropdown-menu.native.tsx`, `_shared/overlay.native.tsx`); `side/align/sideOffset/alignOffset` honored via `resolveNativeOverlayPosition`, RTL-aware, flip + clamp/shrink; outside-press and `onRequestClose` dismiss; `asChild` trigger clone supported; sub-menus (`SubTrigger/SubContent`) stay inline `View`s inside the modal surface; checkbox/radio items keep web-shared toggle semantics | `modal` prop accepted and always ignored (always Modal); no hover, no desktop keyboard menu pattern, no custom focus containment/restoration; nested-Modal and real Backdrop/Back behavior unverified on device | mocked `overlay.native.test.tsx` + pure `positioning.native.test.ts`; `dropdown-menu-extras.test.ts` (shared logic); no dropdown device test (see device-validation checklist) |
 | form | `View` wrappers + `FormFieldProvider/FormItemProvider(id=useId)`; `FormControl` clones child adding `accessibilityState.invalid`+`nativeID`; message/description via `nativeID` (`form/form.native.tsx`) | No `react-hook-form` binding natively (providers are context only); no submit handling; label↔control linkage is `nativeID` only (screen-reader support unverified) | `form.web.test.tsx` + `form.contract.web.test.tsx` are web-only |
 | hover-card | `onPress` toggles inline `View`; `side/align*` ignored (`hover-card/hover-card.native.tsx`) | Hover replaced by tap (no `openDelay` timing on device — prop accepted but tap-driven); still in-flow, not on the shared overlay layer | typecheck only |
@@ -109,7 +109,7 @@ applies to custom native themes.
 | resizable | `View` group + flex-ratio panels + `Pressable` handles with parent `PanResponder` drag past 4pt single-axis intent; adjacent pair total conserved with size-limit clamping; per-handle adjustable actions (`resizable/resizable.native.tsx` + math); see [native resizable](./native-resizable.md) | No imperative panel API, collapse, or autosave; measured panel span converts responder deltas to percentages (device layout/`ScrollView` negotiation pending); VoiceOver/TalkBack announcements pending | mocked contract tests; `native:check` bundles; device checks pending |
 | select | Anchored `Modal{transparent,overFullScreen}` via shared `NativeOverlayContent` + `NativeOverlayProvider` (`select/select.native.tsx`, `_shared/overlay.native.tsx`); `side/align/sideOffset/alignOffset` honored via `resolveNativeOverlayPosition`, RTL-aware, flip + clamp/shrink; `asChild` trigger clone supported (same pattern as dropdown/dialog); content is `KeyboardAvoidingView` + `SafeAreaView` + `ScrollView`; outside-press and `onRequestClose` dismiss; `Pressable` items register labels; root/part disabled state propagated and guarded | `name/required/position` accepted and inert (no native form behavior; `void name/required/position`); no desktop keyboard select pattern, no custom focus containment/restoration; nested-Modal and real Backdrop/Back behavior unverified on device | mocked `select.native.test.tsx` + `select.contract.native.test.tsx` + mocked `overlay.native.test.tsx` + pure `positioning.native.test.ts`; shared `select-extras.test.tsx`; no select device test (see device-validation checklist) |
 | separator | `View` line (`separator/separator.native.tsx`) | Orientation via props; no `role=separator` | typecheck only |
-| sheet | `Modal` pattern shared with dialog; `side` prop styles placement; `modal` ignored (`sheet/sheet.native.tsx`) | Side variants are positional styles inside one Modal; no swipe-to-close | typecheck only |
+| sheet | Shared native `Modal` surface and press/ref helpers; content `side` defaults right, `dismissible` true; four physical edges, inherited/explicit `dir`, composed callbacks and optional labeled close control | Always Modal (`modal=false` ignored); no swipe-to-close/custom focus management; keyboard/RTL/device behavior pending | mocked `modal-actions.contract.native.test.tsx`; packed + copied Expo typecheck and Metro export |
 | sidebar | `SidebarProvider{open state}` + fixed `width: open?288:88` View + `ScrollView` content (`sidebar/sidebar.native.tsx`) | No `collapsible=offcanvas/icon` modes, no sheet-on-mobile, no keyboard shortcut; `SidebarRail` is a static bar | typecheck only |
 | skeleton | Static `View` block (`skeleton/skeleton.native.tsx`) | No shimmer/pulse animation | typecheck only |
 | slider | Root `Pressable` track (ref/tap retained) + parent `PanResponder` drag past 4pt single-finger axis intent; nearest thumb fixed per gesture with no-cross clamp; per-thumb adjustable actions (`slider/slider.native.tsx` + math); see [native slider](./native-slider.md) | No `minStepsBetweenThumbs`; track measure paired with responder page coords (device frame/`ScrollView` negotiation pending); VoiceOver/TalkBack announcements pending | mocked contract tests; `native:check` bundles; device checks pending |
@@ -135,7 +135,7 @@ through the root/components native graph (`components/index.native.ts`, `index.n
 
 `calendar:_numberOfMonths,_required`;
 `chart:_config(×2),_indicator`; `command:_label,_filter,_loop`; `tabs:_orientation,_activationMode`;
-`dialog/sheet:modal`; `drawer:direction,dismissible,modal`; `dropdown/popover:modal` (always Modal);
+`dialog/sheet/drawer:modal`; `dropdown/popover:modal` (always Modal);
 `context-menu:dir,modal,side,align,sideOffset,alignOffset`; `hover-card/tooltip:same side/align set`;
 `select:name,required,position` (`void` each); `menubar:value,defaultValue,onValueChange,dir`;
 `navigation-menu:dir,asChild(×2)`; `switch/checkbox:name,required`; `toast viewport:richColors`.
@@ -146,7 +146,7 @@ via `NativeOverlayProvider`/`NativeDirectionContext`. Each remaining listed prop
 ## Placeholders / no-ops (concrete)
 
 - `ChartStyle` returns `null` (`chart/chart.native.tsx`) — documented CSS-var gap, not a runtime control.
-- `ResizableHandle` renders a `Pressable` with no press/move handler (`resizable/resizable.native.tsx`) — visual only.
+- `ResizableHandle` supports pair-conserved drag and adjustable actions; device evidence remains pending (see [native resizable](./native-resizable.md)).
 - `useMobile()` returns `false` unconditionally (`hooks/useMobile.native.ts`).
 - Old carousel placeholder (replaced by the `ScrollView` pager): `CarouselContent` rendered one item (`items[index]`, `carousel/carousel.native.tsx`); `api` was `undefined`, `carouselRef` was `()=>{}` cast to `never`. See [native carousel](./native-carousel.md).
 - `ToastViewport` `richColors`/`expand` change spacing only; `Sonner`/`Toaster` alias the same viewport.
@@ -189,9 +189,9 @@ via `NativeOverlayProvider`/`NativeDirectionContext`. Each remaining listed prop
    toasts announce, charts expose `accessibilityLabel`, OTP slots announce position (see [native OTP](./native-otp.md)).
 2. `Modal` families (dialog/sheet/drawer/toast) on real devices: backdrop dismiss, `onRequestClose`
    (Android back), rotation, nested Modal, background-timer toast dismissal.
-   Sheet/Drawer limits are unchanged by this stage: sheet `side` variants are positional styles
-   inside one Modal with no swipe-to-close; drawer is always bottom-presented (`direction` silently
-   ignored), no gesture drag-to-dismiss, no snap points. Shared overlay changes do not alter them.
+   Sheet/Drawer support four physical edges, composed handlers/refs, and ambient dismissal settings;
+   Drawer root direction and dismissal are honored. No gesture drag-to-dismiss, snap points or custom
+   focus management is implemented. See [native Sheet/Drawer](./native-sheet-drawer.md).
 3. Gesture families: carousel paging (`ScrollView` pager implemented in source, device pending — see [native carousel](./native-carousel.md)), slider drag (implemented in source, device pending — see [native slider](./native-slider.md)), resizable drag (implemented in source, device pending — see [native resizable](./native-resizable.md)), drawer swipe-to-close, tooltip press-hold vs hover, context-menu long-press
    timing, marquee `Animated` + `useNativeDriver` under reduced-motion on/off.
 4. Anchored overlays (Select/DropdownMenu/Popover/Combobox) on real devices: trigger→content anchoring
@@ -243,5 +243,4 @@ OPEN PR #128 (`ace/native-resizable`), not published/merged) adds the native
 `ScrollView` pager with full-page slides, controlled index semantics, and the stable native
 API; full contract in [native carousel](./native-carousel.md). The fixture and pending manual checks are
 in [native device validation](./native-device-validation.md). Shared native
-Dialog/overlay changes do not automatically fix the separate Sheet/Drawer implementations, whose limits
-above are unchanged.
+The Sheet/Drawer stage (`ace/native-sheet-drawer`, stacked on OPEN PR #129) adds shared native press/ref and modal-surface contracts, honors Drawer root configuration, and preserves the remaining gesture/device limitations described in [native Sheet/Drawer](./native-sheet-drawer.md).

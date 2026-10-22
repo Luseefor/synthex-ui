@@ -2,7 +2,7 @@
 
 Web + React Native components from one API, plus an optional dockable workbench engine.
 
-> Branch status (`ace/native-carousel`): `create --template`, `setup`,
+> Branch status (`ace/native-sheet-drawer`): `create --template`, `setup`,
 > and the lean `add` below describe the CLI source in this checkout. Forthcoming
 > CLI release; implemented in source, not yet published in
 > `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
@@ -231,3 +231,5 @@ The CLI records installed originals in `.synthex/components.json`. Preview with
 manual review, and applied changes have backups. See
 [updating components](./docs/updating-components.md) for conflict resolution,
 legacy copies, and recovery.
+
+Native Sheet and Drawer: see `docs/native-sheet-drawer.md` for disabled/cancelled presses, composed refs and dismissal callbacks, physical edge placement, RTL content direction and owned-source checks. Swipe gestures, snap points and device/screen-reader evidence remain pending.
