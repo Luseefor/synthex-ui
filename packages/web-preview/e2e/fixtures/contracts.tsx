@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import {
-  Badge, Button, Checkbox, DirectionProvider, Dialog, DialogClose, DialogContent,
+  Badge, Button, Card, H2, Checkbox, DirectionProvider, Dialog, DialogClose, DialogContent,
   DialogDescription, DialogTitle, DialogTrigger, Form, FormControl,
   FormDescription, FormField, FormItem, FormLabel, FormMessage, Input,
   RadioGroup, RadioGroupItem, Switch, Tabs, TabsContent, TabsList, TabsTrigger,
+  Toast, ToastAction, ToastClose, ToastDescription, ToastProvider, ToastTitle, ToastViewport,
 } from "synthex-ui/components";
 import { ThemeProvider } from "synthex-ui/theme";
+import { Icon } from "synthex-ui/icons";
 import type { AccentPresetName } from "../../../ui/src/_shared/types";
 import "./contracts.css";
 
@@ -17,6 +19,7 @@ export function Contracts() {
   const [direction, setDirection] = useState<"ltr" | "rtl">("rtl");
   const [activations, setActivations] = useState(0);
   const [submitted, setSubmitted] = useState("");
+  const [toastOpen, setToastOpen] = useState(false);
   useEffect(() => { document.documentElement.dataset.hydrated = "true"; }, []);
   return <ThemeProvider mode={mode} accentPreset={accent}>
     <main>
@@ -24,9 +27,17 @@ export function Contracts() {
       <section aria-label="Theme controls">
         <label>Accent<select aria-label="Accent" value={accent} onChange={(event) => setAccent(event.target.value as AccentPresetName)}>{accents.map((name) => <option key={name}>{name}</option>)}</select></label>
         <label>Mode<select aria-label="Mode" value={mode} onChange={(event) => setMode(event.target.value as "light" | "dark")}><option>light</option><option>dark</option></select></label>
-        <Button data-testid="brand">Primary action</Button>
-        <Button variant="destructive" data-testid="destructive">Destructive action</Button>
+        <Button data-testid="brand"><Icon name="add" />Primary action</Button>
+        <Button variant="destructive" data-testid="destructive"><Icon name="close" />Destructive action</Button>
         <Badge variant="destructive" data-testid="destructive-badge">Destructive badge</Badge>
+        <span data-testid="explicit-icon"><Icon name="check" color="#0055aa" /></span>
+      </section>
+      <section aria-label="Semantic borders">
+        <Card data-testid="default-card">Default card</Card>
+        <Badge variant="outline" data-testid="outline-badge">Outline badge</Badge>
+        <H2 data-testid="bordered-heading">Section heading</H2>
+        <Card variant="muted" data-testid="transparent-card">Muted card</Card>
+        <Card className="border-destructive" data-testid="custom-border-card">Custom border</Card>
       </section>
       <section aria-label="Button composition">
         <Button asChild disabled onClick={() => setActivations((value) => value + 1)}><a href="#unexpected" onClick={() => setActivations((value) => value + 1)}>Disabled link</a></Button>
@@ -62,6 +73,16 @@ export function Contracts() {
           <DialogTitle>Focus check</DialogTitle><DialogDescription>Keyboard focus stays inside until the dialog closes.</DialogDescription>
           <Button>First dialog action</Button><DialogClose asChild><Button>Last dialog action</Button></DialogClose>
         </DialogContent></Dialog>
+      </section>
+      <section aria-label="Toast feedback">
+        <ToastProvider>
+          <Button onClick={() => setToastOpen(true)}>Show critical toast</Button>
+          <Toast open={toastOpen} onOpenChange={setToastOpen} duration={Infinity} variant="destructive">
+            <div><ToastTitle>Publish failed</ToastTitle><ToastDescription>Retry the deployment.</ToastDescription></div>
+            <ToastAction altText="Retry deployment">Retry</ToastAction><ToastClose />
+          </Toast>
+          <ToastViewport />
+        </ToastProvider>
       </section>
     </main>
   </ThemeProvider>;

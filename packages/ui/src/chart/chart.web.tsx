@@ -7,6 +7,7 @@ import {
   CartesianGrid,
   Line as RechartsLine,
   LineChart as RechartsLineChart,
+  ResponsiveContainer as RechartsResponsiveContainer,
   Tooltip as RechartsTooltip,
   XAxis,
   YAxis,
@@ -26,8 +27,6 @@ import {
   type ChartSeries,
   type ChartTooltipContentSharedProps,
 } from "./chart.shared";
-
-const DEFAULT_WIDTH = 640;
 
 export interface ChartStyleProps {
   readonly id: string;
@@ -259,7 +258,7 @@ function ChartFrame({
   height,
 }: {
   readonly ariaLabel: string;
-  readonly children: React.ReactNode;
+  readonly children: React.ReactElement;
   readonly height: number;
 }) {
   return (
@@ -267,10 +266,12 @@ function ChartFrame({
       role="img"
       aria-label={ariaLabel}
       data-slot="chart-frame"
-      className="w-full overflow-visible"
-      style={{ height }}
+      className="w-full min-w-0 overflow-visible"
+      style={{ height, width: "100%" }}
     >
-      {children}
+      <RechartsResponsiveContainer width="100%" height={height}>
+        {children}
+      </RechartsResponsiveContainer>
     </div>
   );
 }
@@ -283,7 +284,7 @@ export function LineChart({ ariaLabel = "Line chart", height = 240, series, conf
 
   return (
     <ChartFrame ariaLabel={ariaLabel} height={height}>
-      <RechartsLineChart data={data as never} width={DEFAULT_WIDTH} height={height} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
+      <RechartsLineChart data={data as never} height={height} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
         <CartesianGrid stroke="var(--sx-color-border)" strokeDasharray="4 6" vertical={false} />
         <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} tick={{ fill: "var(--sx-color-foreground-muted)", fontSize: 12 }} />
         <YAxis tickLine={false} axisLine={false} width={40} tick={{ fill: "var(--sx-color-foreground-muted)", fontSize: 12 }} />
@@ -311,7 +312,7 @@ export function AreaChart({ ariaLabel = "Area chart", height = 240, series, conf
 
   return (
     <ChartFrame ariaLabel={ariaLabel} height={height}>
-      <RechartsAreaChart data={data as never} width={DEFAULT_WIDTH} height={height} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
+      <RechartsAreaChart data={data as never} height={height} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
         <CartesianGrid stroke="var(--sx-color-border)" strokeDasharray="4 6" vertical={false} />
         <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} tick={{ fill: "var(--sx-color-foreground-muted)", fontSize: 12 }} />
         <YAxis tickLine={false} axisLine={false} width={40} tick={{ fill: "var(--sx-color-foreground-muted)", fontSize: 12 }} />
@@ -342,7 +343,7 @@ export function BarChart({ ariaLabel = "Bar chart", height = 240, series, config
 
   return (
     <ChartFrame ariaLabel={ariaLabel} height={height}>
-      <RechartsBarChart data={data as never} width={DEFAULT_WIDTH} height={height} margin={{ top: 8, right: 16, bottom: 8, left: 0 }} barCategoryGap="20%">
+      <RechartsBarChart data={data as never} height={height} margin={{ top: 8, right: 16, bottom: 8, left: 0 }} barCategoryGap="20%">
         <CartesianGrid stroke="var(--sx-color-border)" strokeDasharray="4 6" vertical={false} />
         <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} tick={{ fill: "var(--sx-color-foreground-muted)", fontSize: 12 }} />
         <YAxis tickLine={false} axisLine={false} width={40} tick={{ fill: "var(--sx-color-foreground-muted)", fontSize: 12 }} />

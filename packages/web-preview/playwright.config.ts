@@ -1,5 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const port = Number(process.env.PLAYWRIGHT_PORT ?? 5173);
+if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("PLAYWRIGHT_PORT must be a valid port");
+const baseURL = `http://127.0.0.1:${port}`;
+
 export default defineConfig({
   testDir: "./e2e",
   timeout: 30_000,
@@ -12,13 +16,11 @@ export default defineConfig({
     },
   ],
   use: {
-    baseURL: "http://localhost:5173",
+    baseURL,
   },
   webServer: {
-    // package.json dev script is `vite --host` (defaults to port 5173);
-    // pass --port explicitly so the server always matches baseURL.
-    command: "bun run dev -- --port 5173",
-    url: "http://localhost:5173",
+    command: `npm run dev -- --host 127.0.0.1 --port ${port} --strictPort`,
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

@@ -7,6 +7,63 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
 });
 
+test("semantic borders follow the theme while explicit border utilities win", async ({ page }) => {
+  for (const mode of ["light", "dark"]) {
+    await page.getByRole("combobox", { name: "Mode" }).selectOption(mode);
+    for (const id of ["default-card", "outline-badge", "bordered-heading", "custom-border-card"]) {
+      const element = page.getByTestId(id);
+      const token = id === "custom-border-card" ? "--sx-color-destructive" : "--sx-color-border";
+      const expected = await element.evaluate((node, property) => {
+        const sample = document.createElement("span");
+        sample.style.color = getComputedStyle(node).getPropertyValue(property);
+        node.appendChild(sample);
+        const color = getComputedStyle(sample).color;
+        sample.remove();
+        return color;
+      }, token);
+      await expect(element, `${mode}/${id}`).toHaveCSS("border-bottom-color", expected);
+    }
+    await expect(page.getByTestId("transparent-card")).toHaveCSS("border-bottom-color", "rgba(0, 0, 0, 0)");
+  }
+});
+
+test("destructive toast text and controls follow their background in both modes", async ({ page }) => {
+  for (const mode of ["light", "dark"]) {
+    await page.getByRole("combobox", { name: "Mode" }).selectOption(mode);
+    await page.getByRole("button", { name: "Show critical toast", exact: true }).click();
+    const toast = page.locator('[data-slot="toast"]');
+    await expect(toast).toBeVisible();
+    const expected = await toast.evaluate((node) => {
+      const sample = document.createElement("span");
+      sample.style.color = getComputedStyle(node).getPropertyValue("--sx-color-foreground-on-destructive");
+      node.appendChild(sample);
+      const color = getComputedStyle(sample).color;
+      sample.remove();
+      return color;
+    });
+    for (const target of [toast, toast.locator('[data-slot="toast-description"]'), toast.getByRole("button", { name: "Retry", exact: true }), toast.getByRole("button", { name: "Dismiss toast" })]) {
+      await expect.soft(target, `${mode}/toast foreground`).toHaveCSS("color", expected, { timeout: 1000 });
+      await expect.soft(target).toHaveCSS("opacity", "1");
+    }
+    await expect(toast.getByRole("button", { name: "Dismiss toast" }).locator("svg")).toHaveCSS("stroke", expected);
+    await toast.getByRole("button", { name: "Dismiss toast" }).click();
+    await expect(toast).toBeHidden();
+  }
+});
+
+test("icons inherit action text colors and preserve explicit colors", async ({ page }) => {
+  for (const mode of ["light", "dark"]) {
+    await page.getByRole("combobox", { name: "Mode" }).selectOption(mode);
+    for (const id of ["destructive", "brand"]) {
+      const button = page.getByTestId(id);
+      await expect.poll(() => button.evaluate((node) => node.getAnimations().filter((animation) => animation.playState === "running").length)).toBe(0);
+      const foreground = await button.evaluate((node) => getComputedStyle(node).color);
+      await expect(button.locator("svg"), `${mode}/${id}`).toHaveCSS("stroke", foreground);
+    }
+    await expect(page.getByTestId("explicit-icon").locator("svg")).toHaveCSS("stroke", "rgb(0, 85, 170)");
+  }
+});
+
 test("server markup hydrates with working labels and no recovery errors", async ({ page }) => {
   const errors: string[] = [];
   page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });

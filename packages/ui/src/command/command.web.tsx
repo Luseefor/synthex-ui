@@ -29,14 +29,15 @@ export function Command({
   className,
   defaultQuery,
   defaultValue,
-  onQueryChange,
-  onValueChange,
-  query,
-  value,
-  shouldFilter = true,
   filter,
   label = "Command menu",
   loop,
+  onFocus,
+  onQueryChange,
+  onValueChange,
+  query,
+  shouldFilter = true,
+  value,
   ...props
 }: CommandProps) {
   const resolved = resolveCommandSearch({ defaultQuery, defaultValue, onQueryChange, onValueChange, query, value });
@@ -46,12 +47,36 @@ export function Command({
     value: resolved.query,
   });
 
+  // Suppress cmdk mount auto-select (which scrolls the page via scrollIntoView)
+  // with a unique per-instance token. Focus restores the actual first enabled
+  // rendered item observed from the DOM, so filtered and disabled states stay
+  // truthful. No fixed magic string, no scroll patching.
+  const instanceToken = React.useId();
+  const [selection, setSelection] = React.useState<string>(instanceToken);
+
   const contextValue = React.useMemo(
     () => ({
       search,
       setSearch: (next: string) => setSearch(next),
     }),
     [search, setSearch],
+  );
+
+  const handleRootFocus = React.useCallback(
+    (event: React.FocusEvent<HTMLDivElement>) => {
+      onFocus?.(event);
+      if (event.defaultPrevented) {
+        return;
+      }
+      const first = event.currentTarget.querySelector(
+        '[cmdk-item][aria-disabled="false"]',
+      );
+      const firstValue = first?.getAttribute("data-value");
+      if (firstValue) {
+        setSelection((current) => (current === instanceToken ? firstValue : current));
+      }
+    },
+    [instanceToken, onFocus],
   );
 
   return (
@@ -67,6 +92,9 @@ export function Command({
           className,
         )}
         {...props}
+        value={selection}
+        onValueChange={setSelection}
+        onFocus={handleRootFocus}
       >
         {children}
       </CommandPrimitive>

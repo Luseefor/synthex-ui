@@ -40,7 +40,7 @@ export function LayoutShowcase() {
         </Accordion>
         <Collapsible defaultOpen><div className="preview-section-stack"><CollapsibleTrigger className="preview-trigger">Release notes</CollapsibleTrigger><CollapsibleContent className="preview-pane">Collapsible regions help compress secondary guidance without losing structure.</CollapsibleContent></div></Collapsible>
         <ScrollArea border padding="md" radius="lg" style={{ height: 180 }}><div className="preview-section-stack"><div>Release notes</div><div>Migration guide</div><div>Workspace commands</div><div>Docking behavior</div><div>Theme tokens</div><div>Package checks</div></div></ScrollArea>
-        <Carousel><CarouselContent><CarouselItem><Card><CardHeader><CardTitle>Step 1</CardTitle><CardDescription>Install packages.</CardDescription></CardHeader></Card></CarouselItem><CarouselItem><Card><CardHeader><CardTitle>Step 2</CardTitle><CardDescription>Compose screens.</CardDescription></CardHeader></Card></CarouselItem></CarouselContent><div className="preview-inline-row"><CarouselPrevious /><CarouselNext /></div></Carousel>
+        <Carousel><CarouselContent><CarouselItem><Card><CardHeader><CardTitle>Step 1</CardTitle><CardDescription>Install packages.</CardDescription></CardHeader></Card></CarouselItem><CarouselItem><Card><CardHeader><CardTitle>Step 2</CardTitle><CardDescription>Compose screens.</CardDescription></CardHeader></Card></CarouselItem></CarouselContent><div className="preview-inline-row mt-3"><CarouselPrevious className="static translate-y-0" /><CarouselNext className="static translate-y-0" /></div></Carousel>
       </div>
     </ShowcaseSection>
   );

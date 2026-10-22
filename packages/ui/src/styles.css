@@ -582,6 +582,7 @@
   *::before,
   *::after {
     box-sizing: border-box;
+    border-color: var(--sx-color-border);
   }
 
   html,
