@@ -2,6 +2,11 @@
 
 Primary path is Changesets automation; the manual script is a fallback.
 
+Store the npm publishing token in the repository's `NPM_TOKEN` Actions secret.
+The release workflow configures npm's registry through `actions/setup-node`
+and supplies that secret as `NODE_AUTH_TOKEN` to the Changesets step.
+An `NPM_TOKEN` environment variable alone does not configure npm authentication.
+
 1. Add a changeset (`bunx changeset`), open a PR, get CI (`verify`, `e2e`) green.
 2. Review the automated `Version Packages` PR, including package versions,
    changelogs, lockfile and generated registry. Do not recreate it by hand.
