@@ -2,7 +2,7 @@
 
 Web + React Native components from one API, plus an optional dockable workbench engine.
 
-> Branch status (`ace/native-overlays`): `create --template`, `setup`,
+> Branch status (`ace/native-otp`): `create --template`, `setup`,
 > and the lean `add` below describe the CLI source in this checkout. Forthcoming
 > CLI release; implemented in source, not yet published in
 > `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
@@ -126,6 +126,8 @@ provides a packed Expo fixture, iOS/Android bundle checks, and a pending device 
 Native Select, DropdownMenu, Popover and Combobox use anchored modal surfaces
 with collision handling, RTL alignment, outside dismissal and keyboard avoidance.
 Device layout, keyboard and screen-reader checks remain pending.
+[Native OTP](./docs/native-otp.md) documents focus movement, paste and
+backspace behavior, controlled values and the pending device checks.
 
 ## Own the source (optional)
 

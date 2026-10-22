@@ -1,13 +1,16 @@
 # Native capabilities
 
-Scope: `synthex-ui` native (`react-native` condition) vs web, branch `ace/native-overlays`
-(unreleased source in this checkout; packed Expo checks pass, device evidence is pending).
+Scope: `synthex-ui` native (`react-native` condition) vs web, branch `ace/native-otp`
+stacked on OPEN PR #125 (`ace/native-overlays`), unreleased source in this checkout
+(packed Expo checks pass, device evidence is pending).
 Method: read every `packages/ui/src/*/*.native.tsx|ts` + `index.native.ts`, `package.json` exports,
 `native-exports.test.ts`, the mocked native tests, `packages/ui/src/_shared/overlay.native.tsx`,
-`packages/ui/src/_shared/positioning.native.ts`, and `packages/ui/src/_shared/direction-context.native.ts`.
+`packages/ui/src/_shared/positioning.native.ts`, `packages/ui/src/_shared/direction-context.native.ts`,
+and `packages/ui/src/input-otp/input-otp.edit.ts` + `input-otp.shared.tsx` for the OTP contract.
 No device run (devices/computer-use disabled). This is an implementation inventory, not a claim
 of complete web/native parity.
-See [device validation](./native-device-validation.md) for a runnable packed Expo fixture.
+See [device validation](./native-device-validation.md) for a runnable packed Expo fixture
+and [native OTP](./native-otp.md) for the one-time-code contract.
 
 ## What each evidence tier means
 
@@ -92,7 +95,7 @@ applies to custom native themes.
 | form | `View` wrappers + `FormFieldProvider/FormItemProvider(id=useId)`; `FormControl` clones child adding `accessibilityState.invalid`+`nativeID`; message/description via `nativeID` (`form/form.native.tsx`) | No `react-hook-form` binding natively (providers are context only); no submit handling; label↔control linkage is `nativeID` only (screen-reader support unverified) | `form.web.test.tsx` + `form.contract.web.test.tsx` are web-only |
 | hover-card | `onPress` toggles inline `View`; `side/align*` ignored (`hover-card/hover-card.native.tsx`) | Hover replaced by tap (no `openDelay` timing on device — prop accepted but tap-driven); still in-flow, not on the shared overlay layer | typecheck only |
 | input | `NativeTextInput` with field-control style; `disabled` maps to `editable=false` and accessibility disabled state (`input/input.native.tsx`) | No web `type`/date/file semantics; multiline is textarea’s job | `input.contract.native.test.tsx` (mocked) |
-| input-otp | N `TextInput{maxLength:1,keyboardType:number-pad}` slots sharing `value` string via `setValueAt(index,slice(-1))` (`input-otp/input-otp.native.tsx`, `input-otp.shared.tsx`) | No auto-advance, no backspace-to-previous, no paste-split, no focus refs — each slot must be tapped manually (see gap G3) | typecheck only |
+| input-otp | N `TextInput` slots sharing `value` via `useInputOTPController` + focus registry (`input-otp/input-otp.native.tsx`, `input-otp.shared.tsx`, `input-otp.edit.ts`); see [native OTP](./native-otp.md) | `View` + `TextInput` family (no web caret/fake-slot model); `keyboardType` defaults to `number-pad` but alphanumeric accepted with no filter; `selectTextOnFocus` defaults `true`; `autoComplete="one-time-code"` / `textContentType="oneTimeCode"` are hints only, no automatic SMS retrieval; no form-submit behavior; device paste/backspace/autofill/labels pending (see G3) | pure edit/controller + mocked native contract tests; `native:check` compiles packaged + owned OTP and checks ref declarations |
 | label | `NativeText` styled (`label/label.native.tsx`) | No `htmlFor` association; linkage depends on `FormControl nativeID` | typecheck only |
 | menubar | `Menubar` is row `View`; `MenubarMenu→DropdownMenu`, triggers/contents are dropdown aliases; `value/defaultValue/onValueChange/dir` ignored (`menubar/menubar.native.tsx`) | Desktop menubar keyboard model (arrows, mnemonics) absent; sub-menus are dropdown aliases — anchored-modal behavior follows the dropdown row, desktop patterns unverified | typecheck only |
 | navigation-menu | `Pressable` triggers + inline content/viewport `View`s; `dir` + both `asChild` ignored (`navigation-menu/navigation-menu.native.tsx`) | No viewport positioning/orientation animation; `asChild` silently ignored (extra wrapper vs web Slot); still in-flow, not on the shared overlay layer | typecheck only |
@@ -152,10 +155,11 @@ via `NativeOverlayProvider`/`NativeDirectionContext`. Each remaining listed prop
   `ResizablePanelGroup` computes `normalizePanelSizes` once and never updates; `ResizableHandle`
   has no `onPress`/`onMove`/`PanResponder`. Dragging the handle is a no-op; panels are fixed flex ratios.
   Either wire a gesture or rename/document as static layout.
-- **G3 — `InputOTP` has no focus management** (`input-otp/input-otp.native.tsx`,
-  `input-otp.shared.tsx:useInputOTPController`).
-  Slots are independent `TextInput`s with no refs, no auto-advance, no `onKeyPress` backspace routing,
-  no paste split. Users must tap each box; deleting does not move focus back. Web `input-otp` handles caret.
+- **G3 — OTP device validation remains pending.** Native focus, bounded paste and
+  Backspace handling are implemented and covered by edit/controller/mocked-host tests.
+  OS paste, keyboard event order, autofill, focus timing and screen-reader output
+  require the [device checklist](./native-device-validation.md). See the
+  [native OTP contract](./native-otp.md).
 - **G4 (narrowed) — Remaining in-flow overlays shift layout and clip**
   (`command/command.native.tsx`, `context-menu`, `hover-card`,
   `navigation-menu`, `tooltip`). Content renders as a sibling `View` gated on `open`, with no shared
@@ -172,7 +176,7 @@ via `NativeOverlayProvider`/`NativeDirectionContext`. Each remaining listed prop
 
 1. iOS VoiceOver + Android TalkBack pass per family: triggers announce role/state
    (button/checkbox/switch/radio/tab/select-item/slider/progress), record dialog focus containment/restoration and close labels,
-   toasts announce, charts expose `accessibilityLabel`, OTP slots announce position.
+   toasts announce, charts expose `accessibilityLabel`, OTP slots announce position (see [native OTP](./native-otp.md)).
 2. `Modal` families (dialog/sheet/drawer/toast) on real devices: backdrop dismiss, `onRequestClose`
    (Android back), rotation, nested Modal, background-timer toast dismissal.
    Sheet/Drawer limits are unchanged by this stage: sheet `side` variants are positional styles
@@ -212,12 +216,14 @@ bun --filter '@luseefor/synthex-cli' build
 bun run native:check
 ```
 
-Source fixes on `ace/native-overlays` (unreleased source in this checkout) implement the shared
+Source fixes on `ace/native-overlays` (unreleased source in this checkout, OPEN PR #125) implement the shared
 anchored overlay layer (`_shared/overlay.native.tsx`, `_shared/positioning.native.ts`,
 `_shared/direction-context.native.ts`) and adopt it in Select, DropdownMenu, Popover, and Combobox,
 including `SelectTrigger asChild` support (former gap G2 is resolved and removed) and a narrowed gap G4
 covering only the remaining in-flow families. Earlier stages covered Button/Checkbox/Switch/Input/Textarea,
-Tabs, Dialog, and chart geometry. The fixture and pending manual checks are
+Tabs, Dialog, and chart geometry. This stage (`ace/native-otp`, stacked on PR #125, not published/merged)
+adds native OTP focus, paste and Backspace handling; full contract
+in [native OTP](./native-otp.md). The fixture and pending manual checks are
 in [native device validation](./native-device-validation.md). Shared native
 Dialog/overlay changes do not automatically fix the separate Sheet/Drawer implementations, whose limits
 above are unchanged.

@@ -1,14 +1,19 @@
 # Native device validation
 
-Scope: branch `ace/native-overlays` (unreleased source in this checkout). The source tests use
+Scope: branch `ace/native-otp`, stacked on OPEN PR #125 (`ace/native-overlays`),
+unreleased source in this checkout. The source tests use
 mocked React Native hosts plus pure geometry tests. The `native:check` gate installs
-the packed UI in an isolated Expo app, typechecks its native subpath imports,
-adds owned overlays using the packed CLI, compiles their implementation files
-against the consumer's React Native types, and exports iOS and Android bundles.
+the packed UI in an isolated Expo app, typechecks its native subpath imports
+(including `synthex-ui/input-otp` via its `react-native` condition),
+adds owned overlays and owned OTP using the packed CLI, compiles their implementation files
+against the consumer's React Native types, checks forwarded ref declarations,
+and exports iOS and Android bundles.
 No step runs a native app.
 The generated type-only consumer also checks every exported native forwarded
 component's packed ref declaration against its host instance type under the
 Expo starter's React Native types.
+
+Full OTP contract in [native OTP](./native-otp.md).
 
 ## Reproduce the fixture
 
@@ -68,6 +73,13 @@ focus behavior require testing. See [React Native accessibility](https://reactna
 | Edge anchoring and rotation | `edge-trigger`, `edge-content` near a screen edge; rotate with content open | Content flips to the side with more room and clamps/shrinks inside the viewport; rotation re-anchors without clipping | Pending | Pending |
 | Nested Modal | `nested-popover-trigger`, `nested-popover-content` inside the controlled dialog | Record stacking, backdrop routing, Back behavior, and any unmount warnings; nested-Modal support is not claimed | Pending | Pending |
 | Tabs and handler composition | `tab-two`, `tab-disabled`, `tab-value` | Two selects its panel and increments handler count once; disabled tab does neither | Pending | Pending |
+| OTP typing and focus | `otp-slot-0..5`, `otp-value`, `otp-ref-focus` | Type in each slot auto-advances; ref button focuses slot `0`; `otp-value` shows the contiguous code; labels announce `Code character N of 6` | Pending | Pending |
+| OTP paste via OS menu | Paste into `otp-slot-0..5` using the OS context menu; check `otp-value` | Partial paste overwrites from the focused index with no gaps; full-code paste replaces from `0`; Unicode codepoints count as one | Pending | Pending |
+| OTP backspace order | `otp-slot-0..5`, `otp-value` | Backspace removes one character with suffix shift and focuses previous; empty-cell Backspace removes the previous filled character once; no double-delete from paired events | Pending | Pending |
+| OTP autofill platforms | `otp-slot-0..5`, iOS vs Android autofill | Record SMS/keyboard autofill differences; `one-time-code` / `oneTimeCode` are hints only, no automatic SMS retrieval is claimed | Pending | Pending |
+| OTP scaling and unicode | `otp-slot-0..5`, OS large font setting; `theme-toggle` | Slots stay legible and tappable under large fonts; multi-code-unit characters count as one codepoint | Pending | Pending |
+| OTP controlled and disable | `otp-fill`, `otp-clear`, `otp-disabled-toggle`, `otp-value` | Fill sets `123456`, clear empties; disabled toggle blocks edits without changing `otp-value` | Pending | Pending |
+| Owned OTP | `owned-otp-0..5`, `owned-otp-value` | Owned slots mirror packaged behavior for typing, focus, and controlled value | Pending | Pending |
 | Chart geometry | `grouped-chart` | Category labels align with bar groups; chart label announces; record small-screen readability | Pending | Pending |
 | Modal interior and close | `open-dialog`, `dialog-interior-action`, `explicit-close` | Interior action increments without closing; explicit close closes | Pending | Pending |
 | Backdrop and system dismissal | `dismiss-mode`, `dialog-overlay`, Android Back / iOS accessibility escape | Backdrop and Android Back honor dismissal mode; record accessibility escape behavior separately | Pending | Pending |
@@ -83,6 +95,14 @@ dismissing. `modal={false}` remains ignored — content always renders in a nati
 Dropdown sub-menus stay inline inside the modal surface; menu checkbox/radio semantics are
 unchanged from the shared controllers.
 
+OTP is a native `View` + `TextInput` family: no automatic SMS-code retrieval and no
+form-submit behavior is claimed. `keyboardType="number-pad"` is a hint only
+(alphanumeric accepted, no filter); `autoComplete="one-time-code"` and
+`textContentType="oneTimeCode"` are hints only. Mocked-host tests, pure geometry,
+typechecks, and packed Metro export verify wiring and bundle generation; none of
+them proves layout, keyboard behavior, SMS autofill, or TalkBack/VoiceOver
+announcements on iOS/Android.
+
 Caveats for device runs: content is measured on open and on window/root-layout changes only
 (continuous anchor tracking is not implemented); a trigger whose ref cannot be measured falls
 back to a centered surface; nested-Modal stacking and real device-keyboard behavior are pending
@@ -90,10 +110,12 @@ and not claimed. Sheet/Drawer limits are unchanged (positional sheet `side` styl
 swipe-to-close; drawer always bottom-presented).
 
 For the remaining families, use the gaps and broader checklist in
-[native capabilities](./native-capabilities.md). Carousel swipe, resizable drag,
-OTP focus/paste handling, slider gestures, and the remaining in-flow overlays (command,
+[native capabilities](./native-capabilities.md) and the OTP contract in
+[native OTP](./native-otp.md). Carousel swipe, resizable drag,
+slider gestures, and the remaining in-flow overlays (command,
 context-menu, hover-card, navigation-menu, tooltip) require separate
-implementation and device evidence.
+implementation and device evidence. OTP interaction is implemented in source;
+all OTP device checks above remain pending and require real-device evidence.
 
 ## Result record
 

@@ -14,6 +14,7 @@ import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, 
 import { ThemeProvider, useTheme } from "synthex-ui/theme";
 import { BarChart, DirectionProvider } from "synthex-ui/native";
 import OwnedOverlays from "./OwnedOverlays";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "synthex-ui/input-otp";
 
 export default function App() {
   const [dark, setDark] = React.useState(false);
@@ -44,6 +45,9 @@ function Contracts({ dark, setDark, rtl, setRtl }: { dark: boolean; setDark: (va
   const [popoverText, setPopoverText] = React.useState("");
   const [choice, setChoice] = React.useState("apple");
   const [choiceOpen, setChoiceOpen] = React.useState(false);
+  const [otp, setOtp] = React.useState("");
+  const [otpDisabled, setOtpDisabled] = React.useState(false);
+  const otpRef = React.useRef<React.ElementRef<typeof InputOTPSlot>>(null);
   const inputRef = React.useRef<React.ElementRef<typeof Input>>(null);
   const labelStyle = { color: theme.colors.foreground, fontSize: 16 };
   const headingStyle = { ...labelStyle, fontSize: 20, fontWeight: "700" as const };
@@ -52,6 +56,21 @@ function Contracts({ dark, setDark, rtl, setRtl }: { dark: boolean; setDark: (va
       <Text accessibilityRole="header" style={{ ...headingStyle, fontSize: 26 }}>Synthex native contracts</Text>
       <Text style={labelStyle}>Interactive fixture. Bundle success does not verify device behavior.</Text>
       <OwnedOverlays />
+
+      <View style={{ gap: 10 }}>
+        <Text accessibilityRole="header" style={headingStyle}>One-time code</Text>
+        <InputOTP length={6} value={otp} onValueChange={setOtp} disabled={otpDisabled}>
+          <InputOTPGroup style={{ flexWrap: "wrap" }}>
+            {Array.from({ length: 6 }, (_, index) => <InputOTPSlot key={index} index={index}
+              ref={index === 0 ? otpRef : undefined} testID={"otp-slot-" + index} />)}
+          </InputOTPGroup>
+        </InputOTP>
+        <Text testID="otp-value" style={labelStyle}>Code: {otp || "empty"}</Text>
+        <Button testID="otp-fill" variant="secondary" onPress={() => setOtp("123456")}>Set controlled code</Button>
+        <Button testID="otp-clear" variant="secondary" onPress={() => setOtp("")}>Clear code</Button>
+        <Button testID="otp-disabled-toggle" variant="outline" onPress={() => setOtpDisabled(!otpDisabled)}>OTP editing: {otpDisabled ? "off" : "on"}</Button>
+        <Button testID="otp-ref-focus" onPress={() => otpRef.current?.focus()}>Focus first code slot using ref</Button>
+      </View>
 
       <View style={{ gap: 10 }}>
         <Text accessibilityRole="header" style={headingStyle}>Theme and actions</Text>

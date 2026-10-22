@@ -1,6 +1,6 @@
 # Synthex UI, llms.txt
 
-> Branch status (`ace/native-overlays`): `create --template`, `setup`,
+> Branch status (`ace/native-otp`): `create --template`, `setup`,
 > and the lean `add` below describe the CLI source in this checkout. Forthcoming
 > CLI release; implemented in source, not yet published in
 > `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
@@ -168,3 +168,5 @@ Component behavior and verification: `docs/component-contracts.md` covers refs, 
 
 Native coverage: `docs/native-capabilities.md` lists implementation shapes, ignored props, and gaps by family. `docs/native-device-validation.md` describes the fixture and pending VoiceOver/TalkBack/device checks. After building UI and CLI, `bun run native:check` installs the local packed UI in an isolated Expo app, adds owned overlays with the packed CLI, typechecks native subpaths and copied implementations, and exports iOS + Android bundles. These are not simulator or device passes.
 Native Select/DropdownMenu/Popover/Combobox content uses a shared anchored transparent Modal, measured trigger placement, side/align offsets, RTL start/end, viewport flip/clamp, scroll limits, keyboard avoidance, and outside/system dismissal. SelectTrigger asChild composes child/parent handlers and refs. Native overlays always modal (modal=false does not opt out); no custom initial focus/containment/restoration or desktop keyboard navigation is implemented. Other native overlay families and dropdown submenus retain their documented limitations.
+
+Native InputOTP: `docs/native-otp.md` covers the bounded contiguous code string, focus refs, type/paste/autofill text delivery, separate filled-cell text deletion and empty-cell Backspace handling, controlled state and disabled/editable guards. Numeric keyboard and one-time-code props are hints; platform autofill and screen-reader behavior require device validation.
