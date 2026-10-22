@@ -1,7 +1,6 @@
 # Native device validation
 
-Scope: branch `ace/native-remaining-overlays`, stacked on OPEN PR #130 (`ace/native-sheet-drawer`),
-unreleased source in this checkout. The source tests use
+Scope: native contracts for `synthex-ui` 2.0 and CLI 1.2 in the v1.2 milestone. The source tests use
 mocked React Native hosts plus pure geometry tests. The `native:check` gate installs
 the packed UI in an isolated Expo app, typechecks its native subpath imports
 (including `synthex-ui/input-otp` via its `react-native` condition),

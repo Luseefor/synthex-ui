@@ -134,7 +134,26 @@ describe("component update workflows", () => {
   it("add records original bytes as base64 plus sha256 and registry version", async () => {
     const { registryRoot, cwd } = await setupFixture(stdComponents("1.0.0"));
     const manifest = await addComponents(["button"], { cwd, registryRoot });
-    expect(manifest.backupDir).toBeNull;
+    expect(manifest.backupDir).not.toBeNull();
+    expect(path.dirname(manifest.backupDir!)).toBe(path.join(path.resolve(cwd), ".synthex", "backups"));
+    expect(await listBackups(cwd)).toHaveLength(1);
+    const backupManifest = JSON.parse(
+      await readFile(path.join(manifest.backupDir!, "manifest.json"), "utf8"),
+    ) as { version: number; files: Array<{ path: string; existed: boolean }> };
+    expect(backupManifest.version).toBe(1);
+    expect(new Set(backupManifest.files.map((f) => f.path))).toEqual(
+      new Set([
+        "components/ui/button/index.ts",
+        "components/ui/button/button.tsx",
+        "components/ui/button/utils.ts",
+        ".synthex/components.json",
+      ]),
+    );
+    expect(backupManifest.files.every((f) => f.existed === false)).toBe(true);
+    expect(
+      await pathExists(path.join(manifest.backupDir!, "files", "components", "ui", "button", "button.tsx")),
+    ).toBe(false);
+    expect(await pathExists(path.join(manifest.backupDir!, "files", ".synthex", "components.json"))).toBe(false);
     expect(manifest.dryRun).toBe(false);
     const state = await readState(cwd);
     expect(state).not.toBeNull();

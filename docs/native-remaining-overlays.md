@@ -1,6 +1,6 @@
 # Native remaining overlays
 
-Scope: `ace/native-remaining-overlays`, stacked on OPEN PR #130 (`ace/native-sheet-drawer`), unreleased. Web implementations retain their existing behavior. Native `ContextMenu`, `HoverCard`, `Tooltip`, and `NavigationMenu` use the shared anchored `Modal` layer (`_shared/overlay.native.tsx` + `_shared/positioning.native.ts`); `Command` stays inline by design. Devices and screen tools are off in this session; no device, VoiceOver, or TalkBack result is claimed.
+Scope: `synthex-ui` 2.0, included in the v1.2 milestone. Web implementations retain their existing behavior. Native `ContextMenu`, `HoverCard`, `Tooltip`, and `NavigationMenu` use the shared anchored `Modal` layer (`_shared/overlay.native.tsx` + `_shared/positioning.native.ts`); `Command` stays inline by design. Devices and screen tools are off in this session; no device, VoiceOver, or TalkBack result is claimed.
 
 ```tsx
 import * as React from "react";

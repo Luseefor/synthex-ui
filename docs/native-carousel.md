@@ -1,6 +1,6 @@
 # Native carousel
 
-Scope: `ace/native-carousel`, stacked on PR #128 (`ace/native-resizable`), unreleased. Web Carousel retains its existing Embla API. Native gesture and screen-reader checks remain pending device validation.
+Scope: `synthex-ui` 2.0, included in the v1.2 milestone. Web Carousel retains its existing Embla API. Native gesture and screen-reader checks remain pending device validation.
 
 ```tsx
 import * as React from "react";

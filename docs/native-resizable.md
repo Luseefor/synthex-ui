@@ -1,6 +1,6 @@
 # Native resizable
 
-Scope: `ace/native-resizable`, stacked on OPEN PR #127 (`ace/native-slider`). These changes are implemented in source and await a package release.
+Scope: `synthex-ui` 2.0, included in the v1.2 milestone.
 
 ```tsx
 import { Text } from "react-native";

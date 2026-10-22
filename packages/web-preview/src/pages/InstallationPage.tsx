@@ -36,7 +36,7 @@ const expoWiring = `// App.tsx
 import { SynthexProvider } from "./components/synthex-provider";`;
 
 const REPO_URL = "https://github.com/Luseefor/synthex-ui";
-const FRAMEWORKS_URL = "https://github.com/Luseefor/synthex-ui/blob/ace/framework-onboarding/docs/frameworks.md";
+const FRAMEWORKS_URL = "https://github.com/Luseefor/synthex-ui/blob/main/docs/frameworks.md";
 
 function CodeBlock({ code }: { readonly code: string }) {
   return <pre className="preview-code-block"><code>{code}</code></pre>;
@@ -48,7 +48,7 @@ export function InstallationPage() {
       <div className="preview-page-heading">
         <Badge variant="outline">Quick Start</Badge>
         <H2>Installation</H2>
-        <Muted>Scaffold a Vite, Next, or Expo starter, or run setup in an existing app. Create and setup are in CLI source for an upcoming release.</Muted>
+        <Muted>Scaffold a Vite, Next, or Expo starter, or run setup in an existing app. These instructions target CLI 1.2 and UI 2.0.</Muted>
       </div>
       <div className="preview-install-grid">
         <Card>

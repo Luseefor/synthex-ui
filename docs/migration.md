@@ -2,6 +2,23 @@
 
 This covers the controlled-prop churn across the 15 merged PRs. All web parts now expose shadcn-compatible `data-slot` attributes; native exposes the same value as `testID`.
 
+The v1.2 milestone releases `synthex-ui` 2.0.0 and the CLI/core/react-web
+packages at 1.2.0. The UI major version records the breaking native Carousel
+type change. Package versions follow compatibility, rather than the milestone name.
+
+## Native Carousel in UI 2.0
+
+Native Carousel now uses a React Native `ScrollView` pager. Its `CarouselApi`,
+`CarouselOptions`, and `CarouselPlugin` exports describe the native pager,
+instead of exposing Embla's web engine types. Use `NativeCarouselApi` for
+native `setApi` callbacks. Web Carousel keeps its existing Embla API.
+
+Native options support `startIndex` and `loop: false`. Remove Embla-only
+options and plugins; unknown options, `loop: true`, and nonempty plugin arrays
+now throw rather than being silently ignored. Put spacing inside each slide.
+See [native Carousel](./native-carousel.md) for controlled selection, events,
+refs, and the device-validation limits.
+
 Preview codemod (import rewrites only, manual prop fixes below still apply):
 
 ```bash

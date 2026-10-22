@@ -1,6 +1,6 @@
 # Native Sheet and Drawer
 
-Scope: `ace/native-sheet-drawer`, stacked on PR #129, unreleased. Web implementations retain their existing behavior. Native uses React Native `Modal`; swipe-to-close, snap points and custom focus containment/restoration are not implemented.
+Scope: `synthex-ui` 2.0, included in the v1.2 milestone. Web implementations retain their existing behavior. Native uses React Native `Modal`; swipe-to-close, snap points and custom focus containment/restoration are not implemented.
 
 ```tsx
 import * as React from "react";

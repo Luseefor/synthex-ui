@@ -1,10 +1,9 @@
 # Framework setup (Vite / Next / Expo)
 
-> Branch status (`ace/lean-component-installs`): `create --template` and `setup`
-> below describe the CLI source in this checkout. The lean `add` behavior in
-> “Own the source” is a forthcoming CLI release; implemented in source, not
-> yet published in `npx @luseefor/synthex-cli@latest`. Run the CLI from source
-> (`packages/cli`) to use them today.
+> These instructions target `@luseefor/synthex-cli@1.2+` and `synthex-ui@2+`.
+> If your installed packages predate those versions, run the CLI from source
+> (`packages/cli`) in this checkout. See `docs/releases/v1.2.md` for
+> version scope.
 
 This is the single detailed reference for framework onboarding.
 `docs/getting-started.md` and `README.md` show the short path;
@@ -336,12 +335,11 @@ components continue using the package provider.
 
 ## Keep owned components updated (`diff` / `update`)
 
-> Forthcoming release: `diff` and `update`
-> below describe the CLI source in this checkout. They are slated for an
-> upcoming `@luseefor/synthex-cli` release and are not yet in the published
-> `npx @luseefor/synthex-cli@latest` build. Run the CLI from source
-> (`packages/cli`) to use them today. Full reference:
-> [`docs/updating-components.md`](./updating-components.md).
+> These instructions target `@luseefor/synthex-cli@1.2+` and `synthex-ui@2+`.
+> If your installed packages predate those versions, run the CLI from source
+> (`packages/cli`) in this checkout. Full reference:
+> [`docs/updating-components.md`](./updating-components.md) and
+> [`docs/releases/v1.2.md`](./releases/v1.2.md).
 
 ```sh
 npx @luseefor/synthex-cli@latest diff button --json
