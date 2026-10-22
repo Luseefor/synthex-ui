@@ -2,8 +2,9 @@
  * Carousel (native) — testID == web data-slot parity (extra moat coverage).
  *
  * Web slots (carousel.web.tsx): carousel, carousel-content, carousel-track,
- * carousel-item, carousel-previous, carousel-next. Native renders the active
- * slide only (no track); track has no native equivalent — gap documented.
+ * carousel-item, carousel-previous, carousel-next. Native renders all slides
+ * in a paging ScrollView (no track); track has no native equivalent — gap
+ * documented.
  */
 import * as React from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -19,6 +20,13 @@ vi.mock("react-native", () => {
     Pressable: mock("pressable"),
     Text: mock("text"),
     View: mock("view"),
+    ScrollView: ReactMock.forwardRef(({ children, ...props }: any, ref: any) => {
+      ReactMock.useImperativeHandle(ref, () => ({
+        scrollTo: () => {},
+      }));
+      const { ref: _omit, ...rest } = props;
+      return ReactMock.createElement("mock-scrollview", rest, children);
+    }),
     StyleSheet: {
       create: (styles: any) => styles,
       flatten: (styles: any) => styles,
@@ -26,6 +34,10 @@ vi.mock("react-native", () => {
     Platform: {
       OS: "ios",
       select: (options: any) => options.ios ?? options.default,
+    },
+    AccessibilityInfo: {
+      isReduceMotionEnabled: () => Promise.resolve(false),
+      addEventListener: () => ({ remove: () => {} }),
     },
   };
 });
@@ -48,6 +60,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "./carousel.native";
+import type { NativeCarouselApi } from "./carousel.types.native";
 
 describe("Carousel (native testID parity)", () => {
   it("exposes testIDs matching web data-slot", () => {
@@ -78,11 +91,12 @@ describe("Carousel (native testID parity)", () => {
     }
   });
 
-  it("advances via next/previous onPress", () => {
+  it("keeps all slides mounted and advances selected snap via next/previous", () => {
+    let api: NativeCarouselApi | undefined;
     let tree: TestRenderer.ReactTestRenderer | undefined;
     TestRenderer.act(() => {
       tree = TestRenderer.create(
-        <Carousel>
+        <Carousel setApi={(next) => { api = next; }}>
           <CarouselContent>
             <CarouselItem>Slide one</CarouselItem>
             <CarouselItem>Slide two</CarouselItem>
@@ -92,16 +106,33 @@ describe("Carousel (native testID parity)", () => {
         </Carousel>,
       );
     });
-    // Initially first slide.
+    expect(api?.selectedScrollSnap()).toBe(0);
+    // Both slides stay mounted (paging, not single active view).
     expect(
-      tree!.root.findAllByProps({ children: "Slide one" }).length,
-    ).toBeGreaterThan(0);
+      tree!.root.findAll(
+        (node) =>
+          (node.type as unknown as string) === "mock-view" &&
+          (node.props as any).testID === "carousel-item",
+      ).length,
+    ).toBe(2);
+    expect(tree!.root.findAllByProps({ children: "Slide one" }).length).toBeGreaterThan(0);
+    expect(tree!.root.findAllByProps({ children: "Slide two" }).length).toBeGreaterThan(0);
     const next = tree!.root.findByProps({ testID: "carousel-next" });
     TestRenderer.act(() => {
-      next.props.onPress();
+      next.props.onPress({ defaultPrevented: false });
     });
+    expect(api?.selectedScrollSnap()).toBe(1);
     expect(
-      tree!.root.findAllByProps({ children: "Slide two" }).length,
-    ).toBeGreaterThan(0);
+      tree!.root.findAll(
+        (node) =>
+          (node.type as unknown as string) === "mock-view" &&
+          (node.props as any).testID === "carousel-item",
+      ).length,
+    ).toBe(2);
+    const previous = tree!.root.findByProps({ testID: "carousel-previous" });
+    TestRenderer.act(() => {
+      previous.props.onPress({ defaultPrevented: false });
+    });
+    expect(api?.selectedScrollSnap()).toBe(0);
   });
 });

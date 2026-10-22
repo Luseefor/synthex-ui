@@ -17,6 +17,19 @@ import OwnedOverlays from "./OwnedOverlays";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "synthex-ui/input-otp";
 import { Slider } from "synthex-ui/slider";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "synthex-ui/resizable";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type NativeCarouselApi } from "synthex-ui/carousel";
+
+function useCarouselReadout(api: NativeCarouselApi | undefined) {
+  const [index, setIndex] = React.useState(0);
+  React.useEffect(() => {
+    if (!api) return;
+    const sync = () => setIndex(api.selectedScrollSnap());
+    sync();
+    api.on("select", sync).on("reInit", sync);
+    return () => { api.off("select", sync); api.off("reInit", sync); };
+  }, [api]);
+  return index;
+}
 
 export default function App() {
   const [dark, setDark] = React.useState(false);
@@ -64,6 +77,14 @@ function Contracts({ dark, setDark, rtl, setRtl }: { dark: boolean; setDark: (va
   const [horizontalCommits, setHorizontalCommits] = React.useState(0);
   const [verticalCommits, setVerticalCommits] = React.useState(0);
   const resizableRef = React.useRef<React.ElementRef<typeof ResizablePanelGroup>>(null);
+  const [carouselCount, setCarouselCount] = React.useState(3);
+  const [carouselDisabled, setCarouselDisabled] = React.useState(false);
+  const [carouselIndex, setCarouselIndex] = React.useState(0);
+  const [horizontalApi, setHorizontalApi] = React.useState<NativeCarouselApi>();
+  const [verticalApi, setVerticalApi] = React.useState<NativeCarouselApi>();
+  const horizontalIndex = useCarouselReadout(horizontalApi);
+  const verticalIndex = useCarouselReadout(verticalApi);
+  const carouselContentRef = React.useRef<React.ElementRef<typeof CarouselContent>>(null);
   const inputRef = React.useRef<React.ElementRef<typeof Input>>(null);
   const labelStyle = { color: theme.colors.foreground, fontSize: 16 };
   const headingStyle = { ...labelStyle, fontSize: 20, fontWeight: "700" as const };
@@ -72,6 +93,44 @@ function Contracts({ dark, setDark, rtl, setRtl }: { dark: boolean; setDark: (va
       <Text accessibilityRole="header" style={{ ...headingStyle, fontSize: 26 }}>Synthex native contracts</Text>
       <Text style={labelStyle}>Interactive fixture. Bundle success does not verify device behavior.</Text>
       <OwnedOverlays />
+
+      <View style={{ gap: 10 }}>
+        <Text accessibilityRole="header" style={headingStyle}>Paged carousels</Text>
+        <Carousel testID="carousel-horizontal" index={carouselIndex} onIndexChange={setCarouselIndex}
+          setApi={setHorizontalApi} disabled={carouselDisabled}>
+          <CarouselContent ref={carouselContentRef} testID="carousel-horizontal-content" style={{ height: 180 }}>
+            {Array.from({ length: carouselCount }, (_, index) => <CarouselItem key={index}
+              style={{ flex: 1, padding: 16, backgroundColor: theme.colors.surfaceRaised }}>
+              <Text style={labelStyle}>Horizontal slide {index + 1}</Text>
+              <Button onPress={() => setCount(count + 1)}>Slide action {index + 1}</Button>
+            </CarouselItem>)}
+          </CarouselContent>
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <CarouselPrevious testID="carousel-horizontal-prev" />
+            <CarouselNext testID="carousel-horizontal-next" />
+          </View>
+        </Carousel>
+        <Text testID="carousel-horizontal-index" style={labelStyle}>Horizontal index: {horizontalIndex}; slides: {carouselCount}</Text>
+        <Button testID="carousel-remove-slide" variant="secondary" disabled={carouselCount === 0}
+          onPress={() => setCarouselCount(count => Math.max(0, count - 1))}>Remove last slide</Button>
+        <Button testID="carousel-restore-slides" variant="secondary" onPress={() => setCarouselCount(3)}>Restore three slides</Button>
+        <Button testID="carousel-disabled-toggle" variant="outline" onPress={() => setCarouselDisabled(!carouselDisabled)}>
+          Carousel editing: {carouselDisabled ? "off" : "on"}
+        </Button>
+        <Carousel testID="carousel-vertical" orientation="vertical" opts={{ startIndex: 1 }}
+          setApi={setVerticalApi} disabled={carouselDisabled}>
+          <CarouselContent testID="carousel-vertical-content" style={{ height: 240 }}>
+            {[1, 2, 3].map(number => <CarouselItem key={number} style={{ flex: 1, padding: 16, backgroundColor: theme.colors.surfaceRaised }}>
+              <Text style={labelStyle}>Vertical slide {number}</Text>
+            </CarouselItem>)}
+          </CarouselContent>
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <CarouselPrevious testID="carousel-vertical-prev" />
+            <CarouselNext testID="carousel-vertical-next" />
+          </View>
+        </Carousel>
+        <Text testID="carousel-vertical-index" style={labelStyle}>Vertical index: {verticalIndex}</Text>
+      </View>
 
       <View style={{ gap: 10 }}>
         <Text accessibilityRole="header" style={headingStyle}>Resizable panels</Text>

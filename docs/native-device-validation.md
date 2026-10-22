@@ -1,6 +1,6 @@
 # Native device validation
 
-Scope: branch `ace/native-resizable`, stacked on OPEN PR #127 (`ace/native-slider`),
+Scope: branch `ace/native-carousel`, stacked on OPEN PR #128 (`ace/native-resizable`),
 unreleased source in this checkout. The source tests use
 mocked React Native hosts plus pure geometry tests. The `native:check` gate installs
 the packed UI in an isolated Expo app, typechecks its native subpath imports
@@ -13,7 +13,7 @@ The generated type-only consumer also checks every exported native forwarded
 component's packed ref declaration against its host instance type under the
 Expo starter's React Native types.
 
-Full OTP contract in [native OTP](./native-otp.md). Full slider contract in [native slider](./native-slider.md). Full resizable contract in [native resizable](./native-resizable.md).
+Full OTP contract in [native OTP](./native-otp.md). Full slider contract in [native slider](./native-slider.md). Full resizable contract in [native resizable](./native-resizable.md). Full carousel contract in [native carousel](./native-carousel.md).
 
 ## Reproduce the fixture
 
@@ -93,6 +93,11 @@ focus behavior require testing. See [React Native accessibility](https://reactna
 | Resizable labels, actions, scaling, and disable | `resizable-horizontal` with custom labels, OS large font, `resizable-disabled-toggle` | Handles expose leading-panel value plus feasible pair bounds; step actions stay in bounds; disabled blocks edits; large fonts stay usable | Pending | Pending |
 | Resizable ref and controlled sizes | Ref on `resizable-horizontal`; controlled `sizes` updates | Ref resolves; controlled renders props with no optimistic size; cancel/config change clears without commit | Pending | Pending |
 | Owned resizable | `owned-resizable`, `owned-resizable-sizes`, `owned-resizable-handle-0` | Owned copy mirrors packaged drag/size behavior | Pending | Pending |
+| Carousel paging and buttons | `carousel-horizontal`, `carousel-horizontal-content`, `carousel-horizontal-prev`, `carousel-horizontal-next`, `carousel-horizontal-index` | Button press and `ScrollView` paging advance one full-page slide; index label updates; endpoint guards hold | Pending | Pending |
+| Carousel count shrink and disable | `carousel-remove-slide`, `carousel-disabled-toggle`, `carousel-horizontal-index` | Removing a slide clamps into the remaining valid range; an empty list shows no page; disabled toggle blocks pager and button input | Pending | Pending |
+| Carousel RTL and vertical | `carousel-vertical`, `carousel-vertical-content`, `carousel-vertical-prev`, `carousel-vertical-next`, `carousel-vertical-index` (extent `height: 240`), global direction flip | RTL reverses horizontal physical order with positive LTR scroll coordinate; vertical stays physical; record mismatches | Pending | Pending |
+| Carousel ref and controlled index | Ref on `carousel-horizontal-content`; controlled `index` updates | Ref resolves; controlled renders props with no optimistic index; rejected requests realign; count changes emit `reInit` without `onIndexChange` | Pending | Pending |
+| Owned carousel | `owned-carousel`, `owned-carousel-content`, `owned-carousel-prev`, `owned-carousel-next`, `owned-carousel-index` | Owned copy mirrors packaged paging, button, direction, and API behavior | Pending | Pending |
 | Chart geometry | `grouped-chart` | Category labels align with bar groups; chart label announces; record small-screen readability | Pending | Pending |
 | Modal interior and close | `open-dialog`, `dialog-interior-action`, `explicit-close` | Interior action increments without closing; explicit close closes | Pending | Pending |
 | Backdrop and system dismissal | `dismiss-mode`, `dialog-overlay`, Android Back / iOS accessibility escape | Backdrop and Android Back honor dismissal mode; record accessibility escape behavior separately | Pending | Pending |
@@ -127,6 +132,13 @@ typechecks, and packed Metro export verify wiring and bundle generation; none of
 proves device frames, `ScrollView` negotiation, or TalkBack/VoiceOver announcements
 on iOS/Android.
 
+Carousel is a native `ScrollView` pager with full-page slides. Native
+types (`carousel.types.native.ts`), controlled index semantics, stable native API,
+and caller-first guarded buttons are documented in [native carousel](./native-carousel.md);
+the fixture and packed-consumer gates exercise packaged and copied sources. No paging frames, `ScrollView`
+negotiation, RTL order/coordinate behavior, or TalkBack/VoiceOver announcements are
+claimed until real-device evidence lands.
+
 Caveats for device runs: content is measured on open and on window/root-layout changes only
 (continuous anchor tracking is not implemented); a trigger whose ref cannot be measured falls
 back to a centered surface; nested-Modal stacking and real device-keyboard behavior are pending
@@ -136,12 +148,12 @@ swipe-to-close; drawer always bottom-presented).
 For the remaining families, use the gaps and broader checklist in
 [native capabilities](./native-capabilities.md), the OTP contract in
 [native OTP](./native-otp.md), the slider contract in
-[native slider](./native-slider.md), and the resizable contract in
-[native resizable](./native-resizable.md). Carousel swipe
-and the remaining in-flow overlays (command,
+[native slider](./native-slider.md), the resizable contract in
+[native resizable](./native-resizable.md), and the carousel contract in
+[native carousel](./native-carousel.md). The remaining in-flow overlays (command,
 context-menu, hover-card, navigation-menu, tooltip) require separate
-implementation and device evidence. OTP, slider, and resizable interaction are implemented in source;
-all OTP, slider, and resizable device checks above remain pending and require real-device evidence.
+implementation and device evidence. OTP, slider, resizable interaction, and carousel paging are implemented in source;
+all OTP, slider, resizable, and carousel device checks above remain pending and require real-device evidence.
 
 ## Result record
 

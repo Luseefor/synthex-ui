@@ -138,7 +138,7 @@ export {
   CarouselNext,
   CarouselPrevious,
 } from "../carousel/carousel.native";
-export type { CarouselApi, CarouselOptions, CarouselPlugin, CarouselSharedProps } from "../carousel/carousel.shared";
+export type { CarouselApi, CarouselOptions, CarouselPlugin, CarouselSharedProps, NativeCarouselApi, NativeCarouselOptions, NativeCarouselEvent, NativeCarouselListener } from "../carousel/carousel.types.native";
 export {
   AreaChart,
   BarChart,

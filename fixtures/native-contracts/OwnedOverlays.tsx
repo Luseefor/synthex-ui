@@ -8,6 +8,7 @@ import { DirectionProvider } from "./components/ui/direction/direction.native";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "./components/ui/input-otp";
 import { Slider } from "./components/ui/slider";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "./components/ui/resizable";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type NativeCarouselApi } from "./components/ui/carousel";
 
 // Copied by native:check next to the CLI's owned sources. These imports must
 // compile as source under the consumer's RN types, not just packaged .d.ts.
@@ -16,10 +17,29 @@ export default function OwnedOverlays() {
   const [otp, setOtp] = React.useState("");
   const [range, setRange] = React.useState([25, 75]);
   const [sizes, setSizes] = React.useState([50, 50]);
+  const [carouselApi, setCarouselApi] = React.useState<NativeCarouselApi>();
+  const [carouselIndex, setCarouselIndex] = React.useState(0);
+  React.useEffect(() => {
+    if (!carouselApi) return;
+    const sync = () => setCarouselIndex(carouselApi.selectedScrollSnap());
+    sync();
+    carouselApi.on("select", sync).on("reInit", sync);
+    return () => { carouselApi.off("select", sync); carouselApi.off("reInit", sync); };
+  }, [carouselApi]);
   return <View style={{ minHeight: 260 }}>
     <DirectionProvider dir={rtl ? "rtl" : "ltr"}>
       <Text accessibilityRole="header">Owned source overlays</Text>
       <Text onPress={() => setRtl(!rtl)} accessibilityRole="button">Owned direction: {rtl ? "RTL" : "LTR"}</Text>
+      <Carousel testID="owned-carousel" setApi={setCarouselApi}>
+        <CarouselContent testID="owned-carousel-content" style={{ height: 160 }}>
+          {[1, 2, 3].map(number => <CarouselItem key={number} style={{ flex: 1, padding: 16 }}><Text>Owned slide {number}</Text></CarouselItem>)}
+        </CarouselContent>
+        <View style={{ flexDirection: "row", gap: 8 }}>
+          <CarouselPrevious testID="owned-carousel-prev" />
+          <CarouselNext testID="owned-carousel-next" />
+        </View>
+      </Carousel>
+      <Text testID="owned-carousel-index">Owned carousel index: {carouselIndex}</Text>
       <ResizablePanelGroup testID="owned-resizable" direction="horizontal" sizes={sizes} onSizesChange={setSizes}>
         <ResizablePanel minSize={15} maxSize={85}><Text>Owned first panel</Text></ResizablePanel>
         <ResizableHandle testID="owned-resizable-handle-0" accessibilityLabel="Resize owned panels" />

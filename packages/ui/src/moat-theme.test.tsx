@@ -93,9 +93,9 @@ describe("Moat theme/RTL/motion (styles.css contracts)", () => {
     expect(readSource("chart/chart.web.tsx")).toContain("isAnimationActive={!reducedMotion}");
     // Embla animation duration drops to 0 under reduced motion.
     expect(readSource("carousel/carousel.web.tsx")).toContain("duration: 0");
-    // Native chart/carousel render static frames (no Animated/timing code),
-    // so they are reduced-motion compliant by construction.
+    // Native charts are static; the pager reads the accessibility preference
+    // before choosing whether to animate programmatic scrolling.
     expect(readSource("chart/chart.native.tsx")).not.toContain("Animated");
-    expect(readSource("carousel/carousel.native.tsx")).not.toContain("Animated");
+    expect(readSource("carousel/carousel.native.tsx")).toContain("useReducedMotion");
   });
 });
