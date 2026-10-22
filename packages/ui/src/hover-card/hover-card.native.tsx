@@ -2,13 +2,14 @@ import * as React from "react";
 import {
   Pressable,
   View,
-  type GestureResponderEvent,
   type PressableProps,
   type StyleProp,
   type ViewProps,
   type ViewStyle,
 } from "react-native";
 import type { OverlayPositionProps } from "../_shared/positioning";
+import { NativeOverlayProvider, NativeOverlayContent, useNativeOverlayTriggerRef } from "../_shared/overlay.native";
+import { NativePressableAction } from "../_shared/pressable.native";
 import { useTheme } from "../_shared/theme/context";
 import {
   HoverCardProvider,
@@ -22,10 +23,12 @@ export interface HoverCardProps
   HoverCardSharedProps {
   readonly children?: React.ReactNode;
   readonly style?: StyleProp<ViewStyle>;
+  readonly dir?: "ltr" | "rtl";
 }
 
 export function HoverCard({
   children,
+  dir,
   closeDelay,
   defaultOpen,
   onOpenChange,
@@ -44,75 +47,34 @@ export function HoverCard({
   });
 
   return (
-    <HoverCardProvider value={controller}>
+    <NativeOverlayProvider dir={dir}><HoverCardProvider value={controller}>
       <View testID={testID ?? "hover-card"} style={[{ position: "relative" }, style]} {...props}>
         {children}
       </View>
-    </HoverCardProvider>
+    </HoverCardProvider></NativeOverlayProvider>
   );
 }
 
 export interface HoverCardTriggerProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
-  readonly style?: StyleProp<ViewStyle>;
+  readonly style?: PressableProps["style"];
   readonly asChild?: boolean;
 }
 
 export const HoverCardTrigger: React.ForwardRefExoticComponent<
   React.PropsWithoutRef<HoverCardTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
-> = React.forwardRef<
-  React.ElementRef<typeof Pressable>,
-  HoverCardTriggerProps
->(({ children, onPress, style, asChild, testID, ...props }, ref) => {
+> = React.forwardRef<React.ElementRef<typeof Pressable>, HoverCardTriggerProps>((props, ref) => {
   const context = useHoverCardContext();
-
-  const handlePress = React.useCallback(
-    (event: GestureResponderEvent) => {
-      context.setOpen(!context.open);
-      onPress?.(event);
-    },
-    [context, onPress],
-  );
-
-  type AsChildProps = {
-    onPress?: ((event: GestureResponderEvent) => void) | null;
-    [key: string]: unknown;
-  };
-
-  if (asChild && React.isValidElement<AsChildProps>(children)) {
-    return React.cloneElement(children, {
-      ref,
-      testID: (children.props as { testID?: string }).testID ?? testID ?? "hover-card-trigger",
-      ...props,
-      onPress: (e: GestureResponderEvent) => {
-        handlePress(e);
-        children.props.onPress?.(e);
-      },
-    });
-  }
-
-  return (
-    <Pressable
-      ref={ref}
-      onPress={handlePress}
-      onHoverIn={() => context.setOpen(true)}
-      onHoverOut={() => context.setOpen(false)}
-      style={style}
-      testID={testID ?? "hover-card-trigger"}
-      {...props}
-    >
-      {children}
-    </Pressable>
-  );
+  const anchorRef = useNativeOverlayTriggerRef(ref);
+  return <NativePressableAction {...props} forwardedRef={anchorRef} collapsable={false}
+    defaultTestID="hover-card-trigger" activation="press" expanded={context.open} onAction={() => context.setOpen(!context.open)} />;
 });
-
 HoverCardTrigger.displayName = "HoverCardTrigger";
 
 export interface HoverCardContentProps extends Omit<ViewProps, "style">, OverlayPositionProps {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-// Native renders in normal flow; side/align/sideOffset/alignOffset are accepted for API parity and ignored.
 export const HoverCardContent: React.ForwardRefExoticComponent<
   React.PropsWithoutRef<HoverCardContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
 > = React.forwardRef<
@@ -122,22 +84,15 @@ export const HoverCardContent: React.ForwardRefExoticComponent<
   const context = useHoverCardContext();
   const theme = useTheme();
 
-  void align;
-  void alignOffset;
-  void side;
-  void sideOffset;
-
-  if (!context.open) {
-    return null;
-  }
 
   return (
-    <View
+    <NativeOverlayContent
+      open={context.open} onDismiss={() => context.setOpen(false)}
+      side={side} align={align} sideOffset={sideOffset} alignOffset={alignOffset}
       ref={ref}
       testID={testID ?? "hover-card-content"}
       style={[
         {
-          marginTop: 8,
           minWidth: 256,
           borderWidth: 1,
           borderColor: theme.colors.border,

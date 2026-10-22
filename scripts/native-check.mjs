@@ -46,6 +46,9 @@ try {
     filter: source => !["node_modules", ".expo", ".git", "dist", "build", "package-lock.json", "bun.lock", "pnpm-lock.yaml", "yarn.lock"].includes(path.basename(source)) && !source.endsWith(".tsbuildinfo") });
   cpSync(path.join(root, "fixtures/native-contracts/App.tsx"), path.join(app, "App.tsx"));
   cpSync(path.join(root, "fixtures/native-contracts/OwnedOverlays.tsx"), path.join(app, "OwnedOverlays.tsx"));
+  for (const fixture of ["RemainingOverlays.tsx", "OwnedRemainingOverlays.tsx"]) {
+    cpSync(path.join(root, "fixtures/native-contracts", fixture), path.join(app, fixture));
+  }
   // Compile copied implementation files against the consumer's RN version too:
   // declaration-only checks cannot catch removed APIs in implementation bodies.
   const cliPack = JSON.parse(run("npm", ["pack", "--json", "--pack-destination", scratch], path.join(root, "packages/cli")));
@@ -56,7 +59,7 @@ try {
   run("tar", ["-xzf", cliTarball, "-C", cliExtract], scratch);
   const cli = path.join(cliExtract, "package/dist/index.js");
   run("node", [cli, "setup", "--cwd", app, "--framework", "expo", "--package-manager", "npm"], app);
-  run("node", [cli, "add", "select", "dropdown-menu", "popover", "combobox", "direction", "input-otp", "slider", "resizable", "carousel", "sheet", "drawer", "--cwd", app], app);
+  run("node", [cli, "add", "select", "dropdown-menu", "popover", "combobox", "direction", "input-otp", "slider", "resizable", "carousel", "sheet", "drawer", "context-menu", "hover-card", "tooltip", "navigation-menu", "command", "--cwd", app], app);
   const refs = generateNativeRefFixture(root);
   writeFileSync(path.join(app, "native-ref-contracts.ts"), refs.source);
   const manifestPath = path.join(app, "package.json");
@@ -72,7 +75,7 @@ try {
   if (installedManifest.version !== pack[0].version) throw new Error("Installed UI version differs from the tarball.");
   console.log("Packed UI installed: " + installedManifest.version + "; React Native " + JSON.parse(readFileSync(path.join(app, "node_modules/react-native/package.json"), "utf8")).version);
   run("npm", ["run", "typecheck"], app);
-  console.log("Native contracts typecheck passed (" + refs.count + " forwarded ref declarations, copied overlays, OTP, Slider, Resizable, Carousel, Sheet and Drawer implementations).");
+  console.log("Native contracts typecheck passed (" + refs.count + " forwarded ref declarations, copied overlays, OTP, Slider, Resizable, Carousel, Sheet, Drawer, remaining overlay and inline Command implementations).");
   for (const platform of ["ios", "android"]) {
     const output = path.join("dist", platform);
     run("node", ["node_modules/expo/bin/cli", "export", "--platform", platform, "--output-dir", output], app);

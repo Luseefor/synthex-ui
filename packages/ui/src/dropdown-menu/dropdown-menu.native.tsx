@@ -398,7 +398,7 @@ export const DropdownMenuSubTrigger: React.ForwardRefExoticComponent<
 > = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DropdownMenuSubTriggerProps
->(({ children, onPress, style, textStyle, testID, ...props }, ref) => {
+>(({ children, onPress, style, textStyle, testID, disabled, accessibilityState, ...props }, ref) => {
   const sub = useDropdownMenuSubContext();
   const theme = useTheme();
 
@@ -407,11 +407,13 @@ export const DropdownMenuSubTrigger: React.ForwardRefExoticComponent<
       ref={ref}
       testID={testID ?? "dropdown-menu-sub-trigger"}
       accessibilityRole="button"
-      accessibilityState={{ expanded: sub.open }}
+      disabled={disabled}
+      accessibilityState={{ ...accessibilityState, expanded: sub.open, disabled: !!disabled }}
       accessibilityHint="Opens submenu"
       onPress={(event) => {
-        sub.setOpen(!sub.open);
+        if (disabled) return;
         onPress?.(event);
+        if (!event.defaultPrevented) sub.setOpen(!sub.open);
       }}
       style={({ pressed }) => [
         {
@@ -502,7 +504,7 @@ export const DropdownMenuCheckboxItem: React.ForwardRefExoticComponent<
 > = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DropdownMenuCheckboxItemProps
->(({ children, checked, defaultChecked = false, onCheckedChange, onPress, style, textStyle, testID, ...props }, ref) => {
+>(({ children, checked, defaultChecked = false, onCheckedChange, onPress, style, textStyle, testID, disabled, accessibilityState, ...props }, ref) => {
   const theme = useTheme();
   const [currentChecked, setCurrentChecked] = useControllableState<boolean>({
     defaultValue: defaultChecked,
@@ -515,10 +517,12 @@ export const DropdownMenuCheckboxItem: React.ForwardRefExoticComponent<
       ref={ref}
       testID={testID ?? "dropdown-menu-checkbox-item"}
       accessibilityRole="checkbox"
-      accessibilityState={{ checked: currentChecked }}
+      disabled={disabled}
+      accessibilityState={{ ...accessibilityState, checked: currentChecked, disabled: !!disabled }}
       onPress={(event) => {
-        setCurrentChecked(!currentChecked);
+        if (disabled) return;
         onPress?.(event);
+        if (!event.defaultPrevented) setCurrentChecked(!currentChecked);
       }}
       style={({ pressed }) => [
         {
@@ -583,7 +587,7 @@ export const DropdownMenuRadioItem: React.ForwardRefExoticComponent<
 > = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   DropdownMenuRadioItemProps
->(({ children, onPress, style, textStyle, value, testID, ...props }, ref) => {
+>(({ children, onPress, style, textStyle, value, testID, disabled, accessibilityState, ...props }, ref) => {
   const theme = useTheme();
   const group = useOptionalDropdownMenuRadioGroupContext();
   const checked = group ? group.value === value : false;
@@ -593,10 +597,12 @@ export const DropdownMenuRadioItem: React.ForwardRefExoticComponent<
       ref={ref}
       testID={testID ?? "dropdown-menu-radio-item"}
       accessibilityRole="radio"
-      accessibilityState={{ checked, selected: checked }}
+      disabled={disabled}
+      accessibilityState={{ ...accessibilityState, checked, selected: checked, disabled: !!disabled }}
       onPress={(event) => {
-        group?.onValueChange(value);
+        if (disabled) return;
         onPress?.(event);
+        if (!event.defaultPrevented) group?.onValueChange(value);
       }}
       style={({ pressed }) => [
         {

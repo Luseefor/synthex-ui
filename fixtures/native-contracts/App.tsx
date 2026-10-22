@@ -14,6 +14,8 @@ import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, 
 import { ThemeProvider, useTheme } from "synthex-ui/theme";
 import { BarChart, DirectionProvider } from "synthex-ui/native";
 import OwnedOverlays from "./OwnedOverlays";
+import RemainingOverlays from "./RemainingOverlays";
+import OwnedRemainingOverlays from "./OwnedRemainingOverlays";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "synthex-ui/input-otp";
 import { Slider } from "synthex-ui/slider";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "synthex-ui/resizable";
@@ -108,6 +110,8 @@ function Contracts({ dark, setDark, rtl, setRtl }: { dark: boolean; setDark: (va
       <Text accessibilityRole="header" style={{ ...headingStyle, fontSize: 26 }}>Synthex native contracts</Text>
       <Text style={labelStyle}>Interactive fixture. Bundle success does not verify device behavior.</Text>
       <OwnedOverlays />
+      <RemainingOverlays />
+      <OwnedRemainingOverlays />
 
       <View style={{ gap: 10 }}>
         <Text accessibilityRole="header" style={headingStyle}>Sheet and Drawer interactions</Text>

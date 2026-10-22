@@ -43,10 +43,14 @@ Command supports controlled and uncontrolled query state. Pass `value` with `onV
 | `defaultValue` | `string` | None |
 | `onValueChange` | `(value: string) => void` | None |
 
-## Accessibility
+## Accessibility on web
 
 Command follows combobox listbox behavior. Up and Down move the active item, Enter runs it, and Escape clears or closes the dialog form. Keep item text concise so screen readers announce each option clearly.
 
 ## Native support
 
 On native command parts accept `testID` with the same value as their web `data-slot`, such as `command-input` and `command-list`. Pass `testID` only when a test needs a custom query value.
+
+Native Command is an inline searchable list, with no native `CommandDialog`. It honors `shouldFilter={false}`, custom score filters, `keywords`, and an accessible `label`. Enabled item selection calls the caller `onPress` first and skips selection when it prevents default. Desktop arrow-key navigation and `loop` are not implemented.
+
+See [native overlay contracts](../native-remaining-overlays.md) for native behavior and pending device checks.

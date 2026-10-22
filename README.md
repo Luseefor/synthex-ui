@@ -2,7 +2,7 @@
 
 Web + React Native components from one API, plus an optional dockable workbench engine.
 
-> Branch status (`ace/native-sheet-drawer`): `create --template`, `setup`,
+> Branch status (`ace/native-remaining-overlays`): `create --template`, `setup`,
 > and the lean `add` below describe the CLI source in this checkout. Forthcoming
 > CLI release; implemented in source, not yet published in
 > `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
@@ -233,3 +233,5 @@ manual review, and applied changes have backups. See
 legacy copies, and recovery.
 
 Native Sheet and Drawer: see `docs/native-sheet-drawer.md` for disabled/cancelled presses, composed refs and dismissal callbacks, physical edge placement, RTL content direction and owned-source checks. Swipe gestures, snap points and device/screen-reader evidence remain pending.
+
+Native ContextMenu, HoverCard, Tooltip and NavigationMenu: see [native overlay contracts](./docs/native-remaining-overlays.md) for anchored Modal positioning, long-press versus tap interaction, per-item navigation anchors and Tooltip surface styling. Command remains inline. Packed and copied sources are checked in Expo; native device and screen-reader checks remain pending.

@@ -31,7 +31,10 @@ export function NativeOverlayProvider({ children, dir }: React.PropsWithChildren
   const inherited = React.useContext(NativeDirectionContext);
   const resolvedDir = dir ?? inherited.dir;
   const value = React.useMemo(() => ({ anchorRef, dir: resolvedDir }), [resolvedDir]);
-  return <OverlayContext.Provider value={value}>{children}</OverlayContext.Provider>;
+  const direction = React.useMemo(() => ({ ...inherited, dir: resolvedDir }), [inherited, resolvedDir]);
+  return <NativeDirectionContext.Provider value={direction}>
+    <OverlayContext.Provider value={value}>{children}</OverlayContext.Provider>
+  </NativeDirectionContext.Provider>;
 }
 
 function useOverlayContext() {

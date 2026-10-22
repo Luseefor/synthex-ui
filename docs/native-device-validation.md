@@ -1,6 +1,6 @@
 # Native device validation
 
-Scope: branch `ace/native-sheet-drawer`, stacked on OPEN PR #129 (`ace/native-carousel`),
+Scope: branch `ace/native-remaining-overlays`, stacked on OPEN PR #130 (`ace/native-sheet-drawer`),
 unreleased source in this checkout. The source tests use
 mocked React Native hosts plus pure geometry tests. The `native:check` gate installs
 the packed UI in an isolated Expo app, typechecks its native subpath imports
@@ -50,9 +50,10 @@ See the [Expo CLI guide](https://docs.expo.dev/more/expo-cli/).
 
 ## Device checks
 
-All entries are **pending on both iOS and Android**. Device and computer-use
-tools were disabled for this stage; no VoiceOver/TalkBack result is claimed.
-Native accessibility props describe intended state; actual announcements and
+All entries are **pending on both iOS and Android**. Devices and screen tools are off
+in this session (device and computer-use groups disabled); no VoiceOver/TalkBack result is claimed.
+Mocked-host tests, typechecks, and Metro export verify wiring and bundle generation — none of them
+is device validation. Native accessibility props describe intended state; actual announcements and
 focus behavior require testing. See [React Native accessibility](https://reactnative.dev/docs/accessibility).
 
 | Check | Fixture IDs / action | Expected behavior | iOS | Android |
@@ -69,7 +70,7 @@ focus behavior require testing. See [React Native accessibility](https://reactna
 | Combobox interaction | `combobox-trigger`, `combobox-content`, `combobox-search`, `combobox-apple`, `combobox-banana`, `combobox-disabled`, `combobox-value` | Apple/Banana update summary and close; disabled item does not activate; search filters without closing | Pending | Pending |
 | Combobox keyboard search first tap | Type in `combobox-search`, then tap a matching item while the keyboard is open | First item tap selects and closes rather than only hiding the keyboard; record keyboard-avoidance shrink and ScrollView scrolling of tall results | Pending | Pending |
 | Combobox outside/back dismissal | `combobox-content-overlay`, `combobox-content-modal`, Android Back | Outside press and Android Back dismiss; interior taps do not dismiss | Pending | Pending |
-| RTL overlay direction | `overlay-direction` flips the global `DirectionProvider`; re-run Select/Dropdown/Popover/Combobox checks | `start`/`end` alignment mirrors under RTL; record any trigger/content mismatch | Pending | Pending |
+| RTL overlay direction | `overlay-direction` flips the global `DirectionProvider`; re-run Select/Dropdown/Popover/Combobox checks | `start`/`end` alignment mirrors under RTL for top/bottom placements; record any trigger/content mismatch | Pending | Pending |
 | Edge anchoring and rotation | `edge-trigger`, `edge-content` near a screen edge; rotate with content open | Content flips to the side with more room and clamps/shrinks inside the viewport; rotation re-anchors without clipping | Pending | Pending |
 | Nested Modal | `nested-popover-trigger`, `nested-popover-content` inside the controlled dialog | Record stacking, backdrop routing, Back behavior, and any unmount warnings; nested-Modal support is not claimed | Pending | Pending |
 | Tabs and handler composition | `tab-two`, `tab-disabled`, `tab-value` | Two selects its panel and increments handler count once; disabled tab does neither | Pending | Pending |
@@ -104,6 +105,13 @@ focus behavior require testing. See [React Native accessibility](https://reactna
 | Drawer root configuration | `drawer-direction-cycle`, `drawer-dismiss-toggle`, `drawer-trigger`, `drawer-content` | Root direction and dismissible setting take effect; left/right stay physical under RTL; handle is decorative | Pending | Pending |
 | Drawer dismissal/disabled/refs | `drawer-disable-trigger`, `drawer-explicit-close`, `drawer-request-count`, `drawer-overlay`, `drawer-close` | Disabled guard, correct refs/cleanup, composed Back callback, interior hit-testing and explicit exit when ambient dismissal off | Pending | Pending |
 | Owned Sheet/Drawer | `owned-sheet-trigger/content/close`, `owned-drawer-trigger/content/close` | Owned left Sheet/right Drawer match packaged handlers, direction and blocked ambient dismissal; explicit close works | Pending | Pending |
+| Remaining overlay toggles | `advanced-direction`, `advanced-disabled`, `advanced-cancel` (owned: `owned-advanced-direction`, `owned-advanced-disabled`, `owned-advanced-cancel`) | Direction flip mirrors `start`/`end` only on `top`/`bottom` placements; disabled toggle blocks activations; cancel toggle keeps `preventDefault()` paths testable | Pending | Pending |
+| ContextMenu long-press anchored surface | `advanced-context-trigger`, `advanced-context-content`, `advanced-context-state` (owned: `owned-advanced-context-trigger`, `owned-advanced-context-content`, `owned-advanced-context-state`) | Long-press opens a trigger-anchored surface (not pointer-anchored); plain press does not open; outside press and Android Back dismiss | Pending | Pending |
+| HoverCard tap-toggle anchored surface | `advanced-hover-trigger`, `advanced-hover-content`, `advanced-hover-action` (owned: `owned-advanced-hover-trigger`, `owned-advanced-hover-content`, `owned-advanced-hover-action`) | Tap toggles the anchored surface; interior action runs without closing; outside press and Android Back dismiss | Pending | Pending |
+| Tooltip tap-toggle anchored surface | `advanced-tooltip-trigger`, `advanced-tooltip-content`, `advanced-tooltip-state` (owned: `owned-advanced-tooltip-trigger`, `owned-advanced-tooltip-content`, `owned-advanced-tooltip-state`) | Tap toggles the anchored tip; outside press and Android Back dismiss; `containerStyle` sizes the surface | Pending | Pending |
+| NavigationMenu per-item anchors, orientation, Link | `advanced-nav-overview`, `advanced-nav-account`, `advanced-nav-content-overview`, `advanced-nav-content-account`, `advanced-nav-link-overview`, `advanced-nav-link-account`, `advanced-navigation-state` (owned: same suffixes under `owned-advanced-`) | Each item's content anchors to its own trigger; `vertical` orientation stacks the list; Link chooses and dismisses; disabled/cancelled Link presses never dismiss | Pending | Pending |
+| Command inline filter and selection | `advanced-command-input`, `advanced-last-action` (owned: `owned-advanced-command-input`, `owned-advanced-last-action`; items expose no testID — drive by visible text) | Search filters inline without opening a surface; `shouldFilter=false` renders all items; disabled/cancelled selection never invokes `onCommandSelect` | Pending | Pending |
+| Owned remaining overlays | All `owned-advanced-*` IDs above, mirroring the packaged `advanced-*` checks | Owned copies mirror packaged anchoring, tap-toggle/long-press, per-item navigation, and inline command behavior | Pending | Pending |
 | Sheet/Drawer accessibility and keyboard | Both content surfaces | VoiceOver/TalkBack role/state/labels, focus containment/restoration, large text, keyboard occlusion and nested Modal behavior recorded; no pass inferred from bundle checks | Pending | Pending |
 | Chart geometry | `grouped-chart` | Category labels align with bar groups; chart label announces; record small-screen readability | Pending | Pending |
 | Modal interior and close | `open-dialog`, `dialog-interior-action`, `explicit-close` | Interior action increments without closing; explicit close closes | Pending | Pending |
@@ -117,7 +125,7 @@ arrow-key menus, Escape-to-close beyond the OS `onRequestClose`/accessibility-es
 claimed for the overlays: outside-press dismisses via the `-overlay` Pressable, Android Back via
 the `-modal` `onRequestClose`, and accessibility escape composes the caller's handler before
 dismissing. `modal={false}` remains ignored — content always renders in a native `Modal`.
-Dropdown sub-menus stay inline inside the modal surface; menu checkbox/radio semantics are
+Dropdown/ContextMenu sub-menus stay inline inside the modal surface; menu checkbox/radio semantics are
 unchanged from the shared controllers.
 
 OTP is a native `View` + `TextInput` family: no automatic SMS-code retrieval and no
@@ -155,11 +163,14 @@ For the remaining families, use the gaps and broader checklist in
 [native capabilities](./native-capabilities.md), the OTP contract in
 [native OTP](./native-otp.md), the slider contract in
 [native slider](./native-slider.md), the resizable contract in
-[native resizable](./native-resizable.md), and the carousel contract in
-[native carousel](./native-carousel.md). The remaining in-flow overlays (command,
-context-menu, hover-card, navigation-menu, tooltip) require separate
-implementation and device evidence. OTP, slider, resizable interaction, and carousel paging are implemented in source;
-all OTP, slider, resizable, and carousel device checks above remain pending and require real-device evidence.
+[native resizable](./native-resizable.md), the carousel contract in
+[native carousel](./native-carousel.md), the Sheet/Drawer contract in
+[native Sheet/Drawer](./native-sheet-drawer.md), and the remaining-overlays contract in
+[native remaining overlays](./native-remaining-overlays.md). ContextMenu, HoverCard, Tooltip,
+and NavigationMenu are implemented as anchored native surfaces in source; Command stays inline
+by design (web `Command` is inline too; native provides no `CommandDialog`). OTP, slider,
+resizable, and carousel interaction are implemented in source; all OTP, slider, resizable,
+carousel, and remaining-overlay device checks above remain pending and require real-device evidence.
 
 ## Result record
 

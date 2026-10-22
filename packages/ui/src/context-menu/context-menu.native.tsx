@@ -3,13 +3,14 @@ import {
   Pressable,
   Text,
   View,
-  type GestureResponderEvent,
   type PressableProps,
   type StyleProp,
   type TextStyle,
   type ViewProps,
   type ViewStyle,
 } from "react-native";
+import { NativeOverlayProvider, NativeOverlayContent, useNativeOverlayTriggerRef } from "../_shared/overlay.native";
+import { NativePressableAction } from "../_shared/pressable.native";
 import { useTheme } from "../_shared/theme/context";
 import type { OverlayPositionProps } from "../_shared/positioning";
 import {
@@ -58,70 +59,34 @@ export function ContextMenu({
   testID,
   ...props
 }: ContextMenuProps) {
-  // `dir`/`modal` are web-only Radix props; accepted for parity, ignored native.
-  void dir;
   void modal;
   const controller = useContextMenuController({ defaultOpen, onOpenChange, open });
 
   // testID mirrors web `data-slot="context-menu"` for parity.
   return (
-    <ContextMenuProvider value={controller}>
+    <NativeOverlayProvider dir={dir}><ContextMenuProvider value={controller}>
       <View testID={testID ?? "context-menu"} style={[{ position: "relative" }, style]} {...props}>
         {children}
       </View>
-    </ContextMenuProvider>
+    </ContextMenuProvider></NativeOverlayProvider>
   );
 }
 
 export interface ContextMenuTriggerProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
-  readonly style?: StyleProp<ViewStyle>;
+  readonly style?: PressableProps["style"];
   readonly asChild?: boolean;
   readonly testID?: string;
 }
 
 export const ContextMenuTrigger: React.ForwardRefExoticComponent<
   React.PropsWithoutRef<ContextMenuTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
-> = React.forwardRef<
-  React.ElementRef<typeof Pressable>,
-  ContextMenuTriggerProps
->(({ children, onLongPress, style, asChild, testID, ...props }, ref) => {
+> = React.forwardRef<React.ElementRef<typeof Pressable>, ContextMenuTriggerProps>((props, ref) => {
   const context = useContextMenuContext();
-
-  type AsChildProps = {
-    onLongPress?: ((event: GestureResponderEvent) => void) | null;
-    [key: string]: unknown;
-  };
-
-  if (asChild && React.isValidElement<AsChildProps>(children)) {
-    return React.cloneElement(children, {
-      ref,
-      testID: (children.props as { testID?: string }).testID ?? testID ?? "context-menu-trigger",
-      ...props,
-      onLongPress: (e: GestureResponderEvent) => {
-        context.setOpen(true);
-        onLongPress?.(e);
-        children.props.onLongPress?.(e);
-      },
-    });
-  }
-
-  return (
-    <Pressable
-      ref={ref}
-      onLongPress={(event) => {
-        context.setOpen(true);
-        onLongPress?.(event);
-      }}
-      style={style}
-      testID={testID ?? "context-menu-trigger"}
-      {...props}
-    >
-      {children}
-    </Pressable>
-  );
+  const anchorRef = useNativeOverlayTriggerRef(ref);
+  return <NativePressableAction {...props} forwardedRef={anchorRef} collapsable={false}
+    defaultTestID="context-menu-trigger" activation="longPress" expanded={context.open} onAction={() => context.setOpen(true)} />;
 });
-
 ContextMenuTrigger.displayName = "ContextMenuTrigger";
 
 export interface ContextMenuContentProps extends Omit<ViewProps, "style">, OverlayPositionProps {
@@ -129,7 +94,6 @@ export interface ContextMenuContentProps extends Omit<ViewProps, "style">, Overl
   readonly testID?: string;
 }
 
-// Native renders in normal flow; side/align/sideOffset/alignOffset are accepted for API parity and ignored.
 export const ContextMenuContent: React.ForwardRefExoticComponent<
   React.PropsWithoutRef<ContextMenuContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
 > = React.forwardRef<
@@ -138,22 +102,15 @@ export const ContextMenuContent: React.ForwardRefExoticComponent<
 >(({ align, alignOffset, side, sideOffset, style, testID, ...props }, ref) => {
   const context = useContextMenuContext();
   const theme = useTheme();
-  void align;
-  void alignOffset;
-  void side;
-  void sideOffset;
-
-  if (!context.open) {
-    return null;
-  }
 
   return (
-    <View
+    <NativeOverlayContent
+      open={context.open} onDismiss={() => context.setOpen(false)}
+      side={side} align={align} sideOffset={sideOffset} alignOffset={alignOffset}
       ref={ref}
       testID={testID ?? "context-menu-content"}
       style={[
         {
-          marginTop: 8,
           minWidth: 224,
           borderWidth: 1,
           borderColor: theme.colors.border,
@@ -250,14 +207,11 @@ export const ContextMenuItem: React.ForwardRefExoticComponent<
   const theme = useTheme();
 
   return (
-    <Pressable
-      ref={ref}
+    <NativePressableAction
+      forwardedRef={ref} defaultTestID="context-menu-item"
+      onAction={() => context.setOpen(false)} onPress={onPress}
       testID={testID ?? "context-menu-item"}
       accessibilityRole="button"
-      onPress={(event) => {
-        onPress?.(event);
-        context.setOpen(false);
-      }}
       style={({ pressed }) => [
         {
           minHeight: 40,
@@ -287,7 +241,7 @@ export const ContextMenuItem: React.ForwardRefExoticComponent<
       ) : (
         children
       )}
-    </Pressable>
+    </NativePressableAction>
   );
 });
 

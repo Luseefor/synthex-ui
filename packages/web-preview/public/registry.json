@@ -20,6 +20,8 @@
         "positioning.native.ts",
         "positioning.ts",
         "positioning.web.ts",
+        "pressable.native.tsx",
+        "remaining-overlays.contract.native.test.tsx",
         "slot.web.tsx",
         "theme/context.tsx",
         "theme/createTheme.test.ts",
