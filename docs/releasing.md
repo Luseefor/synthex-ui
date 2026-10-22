@@ -16,6 +16,8 @@ Primary path is Changesets automation; the manual script is a fallback.
    Verify that the run's `headSha` equals the version PR's current head and that
    `verify`, `e2e`, and all three onboarding jobs pass. A later version-PR update
    requires another run. Only then merge the version PR.
+   The version branch skips only the changeset-presence check, because versioning
+   has consumed those files; all build, test, registry and artifact checks remain.
 3. `CI` push run on `main` must succeed; the `Release` workflow only runs on
    `CI` success for the same `main` SHA and rebuilds + revalidates artifacts
    (`registry:check`, `build`, `release:check`, `pack:check`) before publish.
