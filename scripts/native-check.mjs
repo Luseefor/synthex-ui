@@ -56,7 +56,7 @@ try {
   run("tar", ["-xzf", cliTarball, "-C", cliExtract], scratch);
   const cli = path.join(cliExtract, "package/dist/index.js");
   run("node", [cli, "setup", "--cwd", app, "--framework", "expo", "--package-manager", "npm"], app);
-  run("node", [cli, "add", "select", "dropdown-menu", "popover", "combobox", "direction", "input-otp", "slider", "resizable", "--cwd", app], app);
+  run("node", [cli, "add", "select", "dropdown-menu", "popover", "combobox", "direction", "input-otp", "slider", "resizable", "carousel", "--cwd", app], app);
   const refs = generateNativeRefFixture(root);
   writeFileSync(path.join(app, "native-ref-contracts.ts"), refs.source);
   const manifestPath = path.join(app, "package.json");
@@ -72,7 +72,7 @@ try {
   if (installedManifest.version !== pack[0].version) throw new Error("Installed UI version differs from the tarball.");
   console.log("Packed UI installed: " + installedManifest.version + "; React Native " + JSON.parse(readFileSync(path.join(app, "node_modules/react-native/package.json"), "utf8")).version);
   run("npm", ["run", "typecheck"], app);
-  console.log("Native contracts typecheck passed (" + refs.count + " forwarded ref declarations, copied overlays, OTP, Slider and Resizable implementations).");
+  console.log("Native contracts typecheck passed (" + refs.count + " forwarded ref declarations, copied overlays, OTP, Slider, Resizable and Carousel implementations).");
   for (const platform of ["ios", "android"]) {
     const output = path.join("dist", platform);
     run("node", ["node_modules/expo/bin/cli", "export", "--platform", platform, "--output-dir", output], app);

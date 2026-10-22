@@ -264,9 +264,13 @@
       "dir": "packages/ui/src/carousel",
       "internal": false,
       "files": [
+        "carousel.contract.native.test.tsx",
+        "carousel.math.test.ts",
+        "carousel.math.ts",
         "carousel.native.test.tsx",
         "carousel.native.tsx",
         "carousel.shared.tsx",
+        "carousel.types.native.ts",
         "carousel.web.tsx",
         "index.native.ts",
         "index.ts"

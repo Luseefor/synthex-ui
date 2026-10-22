@@ -2,7 +2,7 @@
 
 Web + React Native components from one API, plus an optional dockable workbench engine.
 
-> Branch status (`ace/native-resizable`): `create --template`, `setup`,
+> Branch status (`ace/native-carousel`): `create --template`, `setup`,
 > and the lean `add` below describe the CLI source in this checkout. Forthcoming
 > CLI release; implemented in source, not yet published in
 > `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
@@ -132,6 +132,8 @@ backspace behavior, controlled values and the pending device checks.
 RTL/inverted axes and adjustable accessibility actions.
 [Native Resizable](./docs/native-resizable.md) covers panel dragging, size limits,
 controlled layouts and adjustable handle actions.
+[Native Carousel](./docs/native-carousel.md) covers native paging, selection events,
+controls and the native API migration.
 
 ## Own the source (optional)
 

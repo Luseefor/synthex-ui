@@ -1,6 +1,6 @@
 # Synthex UI, llms.txt
 
-> Branch status (`ace/native-resizable`): `create --template`, `setup`,
+> Branch status (`ace/native-carousel`): `create --template`, `setup`,
 > and the lean `add` below describe the CLI source in this checkout. Forthcoming
 > CLI release; implemented in source, not yet published in
 > `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
@@ -174,3 +174,5 @@ Native InputOTP: `docs/native-otp.md` covers the bounded contiguous code string,
 Native Slider: `docs/native-slider.md` covers bounded min-relative step values, dragging with a fixed active thumb, non-crossing ranges, RTL/inversion, controlled change/commit behavior and per-thumb adjustable accessibility actions. The Expo gate compiles packaged and copied slider implementations; actual touch/ScrollView negotiation and VoiceOver/TalkBack remain pending device checks.
 
 Native Resizable: `docs/native-resizable.md` covers adjacent-pair dragging, bounded percentage sizes, controlled layouts, RTL direction and adjustable handle actions. The Expo gate compiles packaged and copied implementations; device gestures, ScrollView negotiation and VoiceOver/TalkBack remain pending.
+
+Native Carousel: `docs/native-carousel.md` covers ScrollView paging, controlled indices, live native navigation/events and API type migration. Native aliases describe NativeCarouselApi; looping, plugins and unsupported Embla options raise errors. Web remains on Embla. Packed and copied sources are checked in Expo; native gestures, RTL offsets and screen-reader behavior remain pending device validation.

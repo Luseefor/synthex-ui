@@ -1,7 +1,7 @@
 # Native capabilities
 
-Scope: `synthex-ui` native (`react-native` condition) vs web, branch `ace/native-resizable`
-stacked on OPEN PR #127 (`ace/native-slider`), unreleased source in this checkout
+Scope: `synthex-ui` native (`react-native` condition) vs web, branch `ace/native-carousel`
+stacked on OPEN PR #128 (`ace/native-resizable`), unreleased source in this checkout
 (packed Expo checks pass, device evidence is pending).
 Method: read every `packages/ui/src/*/*.native.tsx|ts` + `index.native.ts`, `package.json` exports,
 `native-exports.test.ts`, the mocked native tests, `packages/ui/src/_shared/overlay.native.tsx`,
@@ -11,8 +11,9 @@ No device run (devices/computer-use disabled). This is an implementation invento
 of complete web/native parity.
 See [device validation](./native-device-validation.md) for a runnable packed Expo fixture,
 [native OTP](./native-otp.md) for the one-time-code contract,
-[native slider](./native-slider.md) for the slider contract, and
-[native resizable](./native-resizable.md) for the resizable contract.
+[native slider](./native-slider.md) for the slider contract,
+[native resizable](./native-resizable.md) for the resizable contract, and
+[native carousel](./native-carousel.md) for the carousel contract.
 
 ## What each evidence tier means
 
@@ -81,7 +82,7 @@ applies to custom native themes.
 | button | `Pressable` + string/number children wrapped in `Text`; `asChild` clones child merging `onPress`/`style` (`button/button.native.tsx`) | `asChild` composes press handlers and refs; disabled state is guarded; no web `:focus-visible` or form submit | mocked `button.native.test.tsx` + `button.contract.native.test.tsx` |
 | calendar | Hand-rolled month grid (`Pressable` days, `createCalendarGrid`), `mode` single/multiple/range, prev/next chevrons; `numberOfMonths`/`required` ignored (`calendar/calendar.native.tsx`) | Single month only (web `react-day-picker` multi-month ignored); no keyboard navigation, no `required` form validation, no locale/date-fns parsing beyond shared helpers | mocked `calendar.native.test.tsx` |
 | card (+`CardAction`) | `View` tones (default/elevated/interactive/muted) + `Text` parts (`card/card.native.tsx`) | Shadows are `shadow*`+`elevation` approximations; `CardAction` is positioned View, not web absolute corner | mocked `card.native.test.tsx` |
-| carousel | `index` state + `CarouselContent` renders **only** `items[index]`; Prev/Next `Button`s; `orientation/opts/plugins/setApi` ignored (`carousel/carousel.native.tsx`) | No swipe/scroll, no Embla, no loop, no keyboard, no partial slides; `setApi` never called so controlled API is dead | mocked `carousel.native.test.tsx` (render only) |
+| carousel | `ScrollView` pager with paging enabled, horizontal/vertical full-page slides, all slides mounted with inactive slides hidden from accessibility; `index/defaultIndex/onIndexChange/dir/disabled/animated`, `opts.startIndex` (`loop:false` only, non-empty `plugins`/unknown `opts`/`loop:true` rejected), stable native API (`scrollTo/scrollNext/scrollPrev/selectedScrollSnap/scrollSnapList/canScrollNext/canScrollPrev/on/off`) via `setApi` (`carousel.types.native.ts`) — native aliases, not Embla; see [native carousel](./native-carousel.md) | No loop, no partial slides, no plugins, no DOM/Embla engine, no hardware-keyboard promise; programmatic animation honors reduced motion, user-drag physics are OS behavior (unclaimed); RTL horizontal order/scroll coordinate pending device checks | pure index/offset helpers and mocked pager interaction/ref contracts; packed consumer typecheck and Metro export; device evidence pending |
 | chart | `react-native-svg` (`Svg/Polyline/Path/Rect/Circle/Line/SvgText`), fixed `SVG_WIDTH=640` viewBox, `series`-prop API; `ChartStyle→null`, `config→ignored`, `indicator→dot-only` (`chart/chart.native.tsx`) | No recharts interactivity/tooltip-hover/responsive container; axis labels from `series[0]` only; bar groups share label centers; all-zero data has a finite baseline | mocked `chart.native.test.tsx`, `chart.geometry.native.test.tsx`, `chart-compat.test.tsx` |
 | checkbox | `Pressable` box + `CheckIcon`/indeterminate bar; `indeterminate→accessibilityState.checked:"mixed"`; `name/required` ignored (`checkbox/checkbox.native.tsx`) | No native form element; tri-state toggles `true→false` (indeterminate not reachable by press); no keyboard space handling beyond Pressable | `checkbox.contract.native.test.tsx` (mocked) |
 | collapsible | `Pressable` trigger + conditional content, `asChild` clone supported (`collapsible/collapsible.native.tsx`) | No height animation; `forceMount` accepted but content still gated on open | typecheck only |
@@ -132,7 +133,7 @@ through the root/components native graph (`components/index.native.ts`, `index.n
 
 ## Accepted-but-ignored props (concrete `void` inventory, not exhaustive)
 
-`calendar:_numberOfMonths,_required`; `carousel:_orientation,_opts,_plugins,_setApi`;
+`calendar:_numberOfMonths,_required`;
 `chart:_config(×2),_indicator`; `command:_label,_filter,_loop`; `tabs:_orientation,_activationMode`;
 `dialog/sheet:modal`; `drawer:direction,dismissible,modal`; `dropdown/popover:modal` (always Modal);
 `context-menu:dir,modal,side,align,sideOffset,alignOffset`; `hover-card/tooltip:same side/align set`;
@@ -147,7 +148,7 @@ via `NativeOverlayProvider`/`NativeDirectionContext`. Each remaining listed prop
 - `ChartStyle` returns `null` (`chart/chart.native.tsx`) — documented CSS-var gap, not a runtime control.
 - `ResizableHandle` renders a `Pressable` with no press/move handler (`resizable/resizable.native.tsx`) — visual only.
 - `useMobile()` returns `false` unconditionally (`hooks/useMobile.native.ts`).
-- `CarouselContent` renders one item (`items[index]`, `carousel/carousel.native.tsx`); `api` is `undefined`, `carouselRef` is `()=>{}` cast to `never`.
+- Old carousel placeholder (replaced by the `ScrollView` pager): `CarouselContent` rendered one item (`items[index]`, `carousel/carousel.native.tsx`); `api` was `undefined`, `carouselRef` was `()=>{}` cast to `never`. See [native carousel](./native-carousel.md).
 - `ToastViewport` `richColors`/`expand` change spacing only; `Sonner`/`Toaster` alias the same viewport.
 - `Spinner` is a static bordered `View`, never animates (`utilities/utilities.native.tsx`).
 
@@ -191,7 +192,7 @@ via `NativeOverlayProvider`/`NativeDirectionContext`. Each remaining listed prop
    Sheet/Drawer limits are unchanged by this stage: sheet `side` variants are positional styles
    inside one Modal with no swipe-to-close; drawer is always bottom-presented (`direction` silently
    ignored), no gesture drag-to-dismiss, no snap points. Shared overlay changes do not alter them.
-3. Gesture families: carousel swipe (currently absent — confirm expected UX), slider drag (implemented in source, device pending — see [native slider](./native-slider.md)), resizable drag (implemented in source, device pending — see [native resizable](./native-resizable.md)), drawer swipe-to-close, tooltip press-hold vs hover, context-menu long-press
+3. Gesture families: carousel paging (`ScrollView` pager implemented in source, device pending — see [native carousel](./native-carousel.md)), slider drag (implemented in source, device pending — see [native slider](./native-slider.md)), resizable drag (implemented in source, device pending — see [native resizable](./native-resizable.md)), drawer swipe-to-close, tooltip press-hold vs hover, context-menu long-press
    timing, marquee `Animated` + `useNativeDriver` under reduced-motion on/off.
 4. Anchored overlays (Select/DropdownMenu/Popover/Combobox) on real devices: trigger→content anchoring
    after open, `side/align/offset` + RTL start/end, flip near edges, clamp/shrink of oversized content,
@@ -237,7 +238,10 @@ per-thumb adjustable actions, and controlled commit semantics; full contract
 in [native slider](./native-slider.md). This stage (`ace/native-resizable`, stacked on
 OPEN PR #127, not published/merged) adds native resizable pair-conserved drag with feasible
 clamping, per-handle adjustable actions, and controlled commit semantics; full contract
-in [native resizable](./native-resizable.md). The fixture and pending manual checks are
+in [native resizable](./native-resizable.md). This stage (`ace/native-carousel`, stacked on
+OPEN PR #128 (`ace/native-resizable`), not published/merged) adds the native
+`ScrollView` pager with full-page slides, controlled index semantics, and the stable native
+API; full contract in [native carousel](./native-carousel.md). The fixture and pending manual checks are
 in [native device validation](./native-device-validation.md). Shared native
 Dialog/overlay changes do not automatically fix the separate Sheet/Drawer implementations, whose limits
 above are unchanged.
