@@ -1,6 +1,6 @@
 # Native device validation
 
-Scope: branch `ace/native-otp`, stacked on OPEN PR #125 (`ace/native-overlays`),
+Scope: branch `ace/native-slider`, stacked on OPEN PR #126 (`ace/native-otp`),
 unreleased source in this checkout. The source tests use
 mocked React Native hosts plus pure geometry tests. The `native:check` gate installs
 the packed UI in an isolated Expo app, typechecks its native subpath imports
@@ -13,7 +13,7 @@ The generated type-only consumer also checks every exported native forwarded
 component's packed ref declaration against its host instance type under the
 Expo starter's React Native types.
 
-Full OTP contract in [native OTP](./native-otp.md).
+Full OTP contract in [native OTP](./native-otp.md). Full slider contract in [native slider](./native-slider.md).
 
 ## Reproduce the fixture
 
@@ -80,6 +80,13 @@ focus behavior require testing. See [React Native accessibility](https://reactna
 | OTP scaling and unicode | `otp-slot-0..5`, OS large font setting; `theme-toggle` | Slots stay legible and tappable under large fonts; multi-code-unit characters count as one codepoint | Pending | Pending |
 | OTP controlled and disable | `otp-fill`, `otp-clear`, `otp-disabled-toggle`, `otp-value` | Fill sets `123456`, clear empties; disabled toggle blocks edits without changing `otp-value` | Pending | Pending |
 | Owned OTP | `owned-otp-0..5`, `owned-otp-value` | Owned slots mirror packaged behavior for typing, focus, and controlled value | Pending | Pending |
+| Slider tap, drag, and commit | `slider-single`, `slider-single-value`, `slider-single-commit`, thumbs `<root>-thumb-<i>` | Tap jumps nearest thumb; drag past 4pt follows axis; release commits once when changed | Pending | Pending |
+| Slider drag beyond track and in ScrollView | Drag `slider-single` beyond track ends; drag each slider inside a `ScrollView` | Clamps to `min`/`max`/neighbor without switching thumbs; scroll negotiation recorded per gesture | Pending | Pending |
+| Slider RTL, vertical, and inverted | `slider-vertical`, `slider-vertical-value`, `slider-inverted-toggle`, global direction flip | RTL mirrors horizontal axis; vertical keeps `min` at bottom; `inverted` flips; record mismatches | Pending | Pending |
+| Slider range overlap and thumb identity | `slider-range`, `slider-range-value`, `slider-range-commit` | Press-time nearest thumb stays active; thumbs clamp without crossing; overlap keeps identity | Pending | Pending |
+| Slider labels, actions, scaling, and disable | `slider-range` with `thumbLabels`, OS large font, `slider-disabled-toggle` | Thumbs expose own value plus global `min`/`max`; step actions do not cross; disabled blocks edits; large fonts stay usable | Pending | Pending |
+| Slider ref and controlled value | Ref on `slider-single`; controlled `value` updates | Ref resolves; controlled renders props with no optimistic value; cancel/config change clears without commit | Pending | Pending |
+| Owned slider | `owned-slider`, `owned-slider-value` | Owned copy mirrors packaged tap/drag/value behavior | Pending | Pending |
 | Chart geometry | `grouped-chart` | Category labels align with bar groups; chart label announces; record small-screen readability | Pending | Pending |
 | Modal interior and close | `open-dialog`, `dialog-interior-action`, `explicit-close` | Interior action increments without closing; explicit close closes | Pending | Pending |
 | Backdrop and system dismissal | `dismiss-mode`, `dialog-overlay`, Android Back / iOS accessibility escape | Backdrop and Android Back honor dismissal mode; record accessibility escape behavior separately | Pending | Pending |
@@ -103,6 +110,11 @@ typechecks, and packed Metro export verify wiring and bundle generation; none of
 them proves layout, keyboard behavior, SMS autofill, or TalkBack/VoiceOver
 announcements on iOS/Android.
 
+Slider is a native `Pressable` track plus `PanResponder` drag: track-frame pairing with
+page coordinates, mocked tap/drag/accessibility/ref contracts, typechecks, and packed
+Metro export verify wiring and bundle generation; none of them proves device frames,
+`ScrollView` negotiation, or TalkBack/VoiceOver announcements on iOS/Android.
+
 Caveats for device runs: content is measured on open and on window/root-layout changes only
 (continuous anchor tracking is not implemented); a trigger whose ref cannot be measured falls
 back to a centered surface; nested-Modal stacking and real device-keyboard behavior are pending
@@ -110,12 +122,13 @@ and not claimed. Sheet/Drawer limits are unchanged (positional sheet `side` styl
 swipe-to-close; drawer always bottom-presented).
 
 For the remaining families, use the gaps and broader checklist in
-[native capabilities](./native-capabilities.md) and the OTP contract in
-[native OTP](./native-otp.md). Carousel swipe, resizable drag,
-slider gestures, and the remaining in-flow overlays (command,
+[native capabilities](./native-capabilities.md), the OTP contract in
+[native OTP](./native-otp.md), and the slider contract in
+[native slider](./native-slider.md). Carousel swipe, resizable drag,
+and the remaining in-flow overlays (command,
 context-menu, hover-card, navigation-menu, tooltip) require separate
-implementation and device evidence. OTP interaction is implemented in source;
-all OTP device checks above remain pending and require real-device evidence.
+implementation and device evidence. OTP and slider interaction are implemented in source;
+all OTP and slider device checks above remain pending and require real-device evidence.
 
 ## Result record
 

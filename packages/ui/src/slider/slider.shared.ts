@@ -11,4 +11,6 @@ export interface SliderSharedProps {
   readonly value?: number[];
   readonly disabled?: boolean;
   readonly orientation?: SliderOrientation;
+  readonly dir?: "ltr" | "rtl";
+  readonly inverted?: boolean;
 }

@@ -1090,6 +1090,9 @@
       "files": [
         "index.native.ts",
         "index.ts",
+        "slider.contract.native.test.tsx",
+        "slider.math.test.ts",
+        "slider.math.ts",
         "slider.native.tsx",
         "slider.shared.ts",
         "slider.web.tsx"
