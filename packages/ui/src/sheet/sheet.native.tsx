@@ -1,9 +1,7 @@
 import * as React from "react";
 import {
-  Modal,
   Pressable,
   Text,
-  type GestureResponderEvent,
   type TextProps,
   View,
   type PressableProps,
@@ -11,8 +9,11 @@ import {
   type TextStyle,
   type ViewProps,
   type ViewStyle,
+  type ModalProps,
 } from "react-native";
 import { CloseIcon } from "../icons/index.native";
+import { NativeDirectionContext } from "../_shared/direction-context.native";
+import { NativeModalAction, NativeModalSurface } from "../_shared/modal-actions.native";
 import { useTheme } from "../_shared/theme/context";
 import {
   DialogProvider as SheetProvider,
@@ -24,118 +25,45 @@ import {
 export interface SheetProps extends DialogSharedProps {
   readonly children: React.ReactNode;
   readonly modal?: boolean;
+  readonly dir?: "ltr" | "rtl";
 }
 
-export function Sheet({ children, defaultOpen, modal, onOpenChange, open }: SheetProps) {
+export function Sheet({ children, defaultOpen, modal, onOpenChange, open, dir }: SheetProps) {
   void modal;
   const controller = useSheetController({ defaultOpen, onOpenChange, open });
-
-  return <SheetProvider value={controller}>{children}</SheetProvider>;
+  const inherited = React.useContext(NativeDirectionContext);
+  const direction = React.useMemo(() => ({ ...inherited, dir: dir ?? inherited.dir }), [inherited, dir]);
+  return <NativeDirectionContext.Provider value={direction}>
+    <SheetProvider value={controller}>{children}</SheetProvider>
+  </NativeDirectionContext.Provider>;
 }
 
 export interface SheetTriggerProps extends Omit<PressableProps, "style"> {
   readonly children?: React.ReactNode;
-  readonly style?: StyleProp<ViewStyle>;
+  readonly style?: PressableProps["style"];
   readonly asChild?: boolean;
 }
 
 export const SheetTrigger: React.ForwardRefExoticComponent<
   React.PropsWithoutRef<SheetTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
-> = React.forwardRef<
-  React.ElementRef<typeof Pressable>,
-  SheetTriggerProps
->(({ children, onPress, style, asChild, testID, ...props }, ref) => {
+> = React.forwardRef<React.ElementRef<typeof Pressable>, SheetTriggerProps>((props, ref) => {
   const context = useSheetContext();
-
-  const handlePress = React.useCallback(
-    (event: GestureResponderEvent) => {
-      context.setOpen(true);
-      onPress?.(event);
-    },
-    [context, onPress]
-  );
-
-  type AsChildProps = {
-    onPress?: ((event: GestureResponderEvent) => void) | null;
-    [key: string]: unknown;
-  };
-
-  if (asChild && React.isValidElement<AsChildProps>(children)) {
-    return React.cloneElement(children, {
-      ref,
-      testID: (children.props as { testID?: string }).testID ?? testID ?? "sheet-trigger",
-      ...props,
-      onPress: (e: GestureResponderEvent) => {
-        handlePress(e);
-        children.props.onPress?.(e);
-      },
-    });
-  }
-
-  return (
-    <Pressable
-      ref={ref}
-      onPress={handlePress}
-      style={style}
-      testID={testID ?? "sheet-trigger"}
-      {...props}
-    >
-      {children}
-    </Pressable>
-  );
+  return <NativeModalAction {...props} forwardedRef={ref} defaultTestID="sheet-trigger" expanded={context.open} onAction={() => context.setOpen(true)} />;
 });
-
 SheetTrigger.displayName = "SheetTrigger";
 
 export const SheetClose: React.ForwardRefExoticComponent<
   React.PropsWithoutRef<SheetTriggerProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
-> = React.forwardRef<
-  React.ElementRef<typeof Pressable>,
-  SheetTriggerProps
->(({ children, onPress, style, asChild, testID, ...props }, ref) => {
+> = React.forwardRef<React.ElementRef<typeof Pressable>, SheetTriggerProps>((props, ref) => {
   const context = useSheetContext();
-
-  const handlePress = React.useCallback(
-    (event: GestureResponderEvent) => {
-      context.setOpen(false);
-      onPress?.(event);
-    },
-    [context, onPress]
-  );
-
-  type AsChildProps = {
-    onPress?: ((event: GestureResponderEvent) => void) | null;
-    [key: string]: unknown;
-  };
-
-  if (asChild && React.isValidElement<AsChildProps>(children)) {
-    return React.cloneElement(children, {
-      ref,
-      testID: (children.props as { testID?: string }).testID ?? testID ?? "sheet-close",
-      ...props,
-      onPress: (e: GestureResponderEvent) => {
-        handlePress(e);
-        children.props.onPress?.(e);
-      },
-    });
-  }
-
-  return (
-    <Pressable
-      ref={ref}
-      onPress={handlePress}
-      style={style}
-      testID={testID ?? "sheet-close"}
-      {...props}
-    >
-      {children}
-    </Pressable>
-  );
+  return <NativeModalAction {...props} forwardedRef={ref} defaultTestID="sheet-close" onAction={() => context.setOpen(false)} />;
 });
-
 SheetClose.displayName = "SheetClose";
 
 export interface SheetContentProps extends Omit<ViewProps, "style"> {
+  readonly modalProps?: Omit<ModalProps, "children" | "transparent" | "visible">;
+  readonly hideClose?: boolean;
+  readonly closeLabel?: string;
   readonly dismissible?: boolean;
   readonly side?: "top" | "right" | "bottom" | "left";
   readonly style?: StyleProp<ViewStyle>;
@@ -143,95 +71,12 @@ export interface SheetContentProps extends Omit<ViewProps, "style"> {
 
 export const SheetContent: React.ForwardRefExoticComponent<
   React.PropsWithoutRef<SheetContentProps> & React.RefAttributes<React.ElementRef<typeof View>>
-> = React.forwardRef<React.ElementRef<typeof View>, SheetContentProps>(
-  ({ children, dismissible = true, side = "right", style, testID, ...props }, ref) => {
-    const context = useSheetContext();
-    const theme = useTheme();
-
-    if (!context.open) {
-      return null;
-    }
-
-    const isHorizontal = side === "top" || side === "bottom";
-
-    return (
-      <Modal
-        transparent
-        animationType="fade"
-        visible={context.open}
-        onRequestClose={() => {
-          if (dismissible) context.setOpen(false);
-        }}
-      >
-        <Pressable
-          testID="sheet-overlay"
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(15,23,42,0.38)",
-          }}
-          onPress={() => {
-            if (dismissible) context.setOpen(false);
-          }}
-        >
-          <Pressable
-            style={{
-              position: "absolute",
-              ...(isHorizontal
-                ? { left: 0, right: 0, [side]: 0, width: "100%" }
-                : { top: 0, bottom: 0, [side]: 0, width: "100%", maxWidth: 420 }),
-            } as ViewStyle}
-            onPress={(event) => event.stopPropagation()}
-          >
-            <View
-              ref={ref}
-              testID={testID ?? "sheet-content"}
-              style={[
-                {
-                  flex: 1,
-                  borderColor: theme.colors.border,
-                  backgroundColor: theme.colors.surface,
-                  padding: 24,
-                },
-                side === "right"
-                  ? { borderLeftWidth: 1 }
-                  : side === "left"
-                    ? { borderRightWidth: 1 }
-                    : side === "top"
-                      ? { borderBottomWidth: 1 }
-                      : { borderTopWidth: 1 },
-                style,
-              ]}
-              {...props}
-            >
-              <Pressable
-                accessibilityRole="button"
-                testID="sheet-close"
-                onPress={() => context.setOpen(false)}
-                style={{
-                  position: "absolute",
-                  right: 16,
-                  top: 16,
-                  width: 36,
-                  height: 36,
-                  borderRadius: 999,
-                  borderWidth: 1,
-                  borderColor: theme.colors.border,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: theme.colors.surface,
-                }}
-              >
-                <CloseIcon size={16} />
-              </Pressable>
-              {children}
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
-    );
-  },
-);
-
+> = React.forwardRef<React.ElementRef<typeof View>, SheetContentProps>(({ side, dismissible, ...props }, ref) => {
+  const context = useSheetContext();
+  const { dir } = React.useContext(NativeDirectionContext);
+  return <NativeModalSurface {...props} family="sheet" closeIcon={<CloseIcon size={16} />} contentRef={ref} open={context.open} setOpen={context.setOpen}
+    dir={dir} side={side ?? "right"} dismissible={dismissible ?? true} />;
+});
 SheetContent.displayName = "SheetContent";
 
 export interface SheetSectionProps extends Omit<ViewProps, "style"> {

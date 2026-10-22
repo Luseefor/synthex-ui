@@ -17,6 +17,8 @@ import OwnedOverlays from "./OwnedOverlays";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "synthex-ui/input-otp";
 import { Slider } from "synthex-ui/slider";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "synthex-ui/resizable";
+import { Sheet, SheetTrigger, SheetContent, SheetClose, SheetTitle } from "synthex-ui/sheet";
+import { Drawer, DrawerTrigger, DrawerContent, DrawerClose, DrawerTitle } from "synthex-ui/drawer";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type NativeCarouselApi } from "synthex-ui/carousel";
 
 function useCarouselReadout(api: NativeCarouselApi | undefined) {
@@ -77,6 +79,19 @@ function Contracts({ dark, setDark, rtl, setRtl }: { dark: boolean; setDark: (va
   const [horizontalCommits, setHorizontalCommits] = React.useState(0);
   const [verticalCommits, setVerticalCommits] = React.useState(0);
   const resizableRef = React.useRef<React.ElementRef<typeof ResizablePanelGroup>>(null);
+  const [sheetOpen, setSheetOpen] = React.useState(false);
+  const [sheetDisabled, setSheetDisabled] = React.useState(false);
+  const [sheetDismissible, setSheetDismissible] = React.useState(true);
+  const [sheetSide, setSheetSide] = React.useState<"top" | "right" | "bottom" | "left">("right");
+  const [sheetRequests, setSheetRequests] = React.useState(0);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [drawerDisabled, setDrawerDisabled] = React.useState(false);
+  const [drawerDismissible, setDrawerDismissible] = React.useState(true);
+  const [drawerDirection, setDrawerDirection] = React.useState<"top" | "right" | "bottom" | "left">("bottom");
+  const [drawerRequests, setDrawerRequests] = React.useState(0);
+  const sheetTriggerRef = React.useRef<React.ElementRef<typeof SheetTrigger>>(null);
+  const drawerContentRef = React.useRef<React.ElementRef<typeof DrawerContent>>(null);
+  const modalSides = ["top", "right", "bottom", "left"] as const;
   const [carouselCount, setCarouselCount] = React.useState(3);
   const [carouselDisabled, setCarouselDisabled] = React.useState(false);
   const [carouselIndex, setCarouselIndex] = React.useState(0);
@@ -93,6 +108,38 @@ function Contracts({ dark, setDark, rtl, setRtl }: { dark: boolean; setDark: (va
       <Text accessibilityRole="header" style={{ ...headingStyle, fontSize: 26 }}>Synthex native contracts</Text>
       <Text style={labelStyle}>Interactive fixture. Bundle success does not verify device behavior.</Text>
       <OwnedOverlays />
+
+      <View style={{ gap: 10 }}>
+        <Text accessibilityRole="header" style={headingStyle}>Sheet and Drawer interactions</Text>
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <SheetTrigger asChild ref={sheetTriggerRef} testID="sheet-trigger" disabled={sheetDisabled}>
+            <Button>Open sheet ({sheetSide})</Button>
+          </SheetTrigger>
+          <SheetContent side={sheetSide} dismissible={sheetDismissible} testID="sheet-content"
+            modalProps={{ onRequestClose: () => setSheetRequests(n => n + 1) }}>
+            <SheetTitle>Sheet: {sheetSide}</SheetTitle>
+            <Text style={labelStyle}>Backdrop/Back: {sheetDismissible ? "dismisses" : "blocked"}. Explicit close remains available.</Text>
+            <SheetClose asChild testID="sheet-explicit-close"><Button>Close sheet explicitly</Button></SheetClose>
+          </SheetContent>
+        </Sheet>
+        <Button testID="sheet-disable-trigger" variant="outline" onPress={() => setSheetDisabled(!sheetDisabled)}>Sheet trigger: {sheetDisabled ? "disabled" : "enabled"}</Button>
+        <Button testID="sheet-dismiss-toggle" variant="outline" onPress={() => setSheetDismissible(!sheetDismissible)}>Sheet ambient dismissal: {sheetDismissible ? "on" : "off"}</Button>
+        <Button testID="sheet-side-cycle" variant="outline" onPress={() => setSheetSide(side => modalSides[(modalSides.indexOf(side) + 1) % 4]!)}>Sheet side: {sheetSide}</Button>
+        <Text testID="sheet-request-count" style={labelStyle}>Sheet system requests: {sheetRequests}</Text>
+        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen} direction={drawerDirection} dismissible={drawerDismissible}>
+          <DrawerTrigger asChild testID="drawer-trigger" disabled={drawerDisabled}><Button>Open drawer ({drawerDirection})</Button></DrawerTrigger>
+          <DrawerContent ref={drawerContentRef} testID="drawer-content"
+            modalProps={{ onRequestClose: () => setDrawerRequests(n => n + 1) }}>
+            <DrawerTitle>Drawer: {drawerDirection}</DrawerTitle>
+            <Text style={labelStyle}>Root dismissal: {drawerDismissible ? "on" : "off"}. The handle is decorative.</Text>
+            <DrawerClose asChild testID="drawer-explicit-close"><Button>Close drawer explicitly</Button></DrawerClose>
+          </DrawerContent>
+        </Drawer>
+        <Button testID="drawer-disable-trigger" variant="outline" onPress={() => setDrawerDisabled(!drawerDisabled)}>Drawer trigger: {drawerDisabled ? "disabled" : "enabled"}</Button>
+        <Button testID="drawer-dismiss-toggle" variant="outline" onPress={() => setDrawerDismissible(!drawerDismissible)}>Drawer ambient dismissal: {drawerDismissible ? "on" : "off"}</Button>
+        <Button testID="drawer-direction-cycle" variant="outline" onPress={() => setDrawerDirection(side => modalSides[(modalSides.indexOf(side) + 1) % 4]!)}>Drawer direction: {drawerDirection}</Button>
+        <Text testID="drawer-request-count" style={labelStyle}>Drawer system requests: {drawerRequests}</Text>
+      </View>
 
       <View style={{ gap: 10 }}>
         <Text accessibilityRole="header" style={headingStyle}>Paged carousels</Text>

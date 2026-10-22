@@ -40,8 +40,10 @@ Sheet supports controlled and uncontrolled use through the same dialog controlle
 
 ## Accessibility
 
-Sheet follows Radix dialog behavior. Escape closes the panel, focus moves into the panel on open and returns to the trigger on close, and Tab cycles inside while modal. Keep `SheetTitle` present for screen reader naming.
+On web, Sheet follows Radix dialog behavior. Escape closes the panel, focus moves into the panel on open and returns to the trigger on close, and Tab cycles inside while modal. Keep `SheetTitle` present for screen reader naming.
 
 ## Native support
 
 On native each part accepts `testID` with the same value as its web `data-slot`, such as `sheet-trigger` and `sheet-content`. Pass `testID` only when a test needs a custom query value.
+
+Native interaction, placement, dismissal and ref behavior are documented in [native Sheet/Drawer](../native-sheet-drawer.md). Native always uses Modal and has no swipe/snap-point or custom focus-management implementation; device and screen-reader checks are pending.
