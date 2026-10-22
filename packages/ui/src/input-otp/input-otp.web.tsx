@@ -15,6 +15,7 @@ export interface InputOTPProps
   readonly onChange?: (value: string) => void;
   readonly onValueChange?: InputOTPSharedProps["onValueChange"];
   readonly value?: string;
+  readonly ref?: React.Ref<HTMLInputElement>;
 }
 
 function InputOTP({
@@ -27,19 +28,32 @@ function InputOTP({
   onChange,
   onValueChange,
   value,
+  ref,
   ...props
 }: InputOTPProps) {
+  const [uncontrolledValue, setUncontrolledValue] = React.useState<string>(
+    typeof defaultValue === "string" ? defaultValue : "",
+  );
+  const isControlled = value !== undefined;
+  const currentValue = isControlled ? value : uncontrolledValue;
+  const handleChange = React.useCallback(
+    (next: string) => {
+      if (!isControlled) {
+        setUncontrolledValue(next);
+      }
+      onChange?.(next);
+      onValueChange?.(next);
+    },
+    [isControlled, onChange, onValueChange],
+  );
   return (
     <OTPInput
+      ref={ref}
       data-slot="input-otp"
       containerClassName={cn("flex items-center gap-2 has-disabled:opacity-50", containerClassName)}
       maxLength={length ?? maxLength}
-      value={value}
-      defaultValue={defaultValue}
-      onChange={(next) => {
-        onChange?.(next);
-        onValueChange?.(next);
-      }}
+      value={currentValue}
+      onChange={handleChange}
       className={cn("disabled:cursor-not-allowed", className)}
       {...props}
     >

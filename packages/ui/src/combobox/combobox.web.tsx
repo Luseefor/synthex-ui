@@ -162,30 +162,39 @@ ComboboxValue.displayName = "ComboboxValue";
 export const ComboboxContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ children, className, id, onKeyDown, ...props }, ref) => {
+>(({ children, className, id, onKeyDown, style, ...rest }, ref) => {
   const context = useComboboxContext();
+  const open = context.open;
 
-  if (!context.open) {
-    return null;
-  }
-
+  // Keep the content mounted while closed so `ComboboxItem` registration
+  // effects still run and `ComboboxValue` can resolve the label for a
+  // default or controlled value before the first open. Caller props spread
+  // first so the computed hiding below always wins: `hidden` plus an
+  // inline `display: none` removes the subtree from layout, the
+  // accessibility tree, and tab order while closed, even if a caller
+  // passes `hidden={false}`, a display class, or a display style.
   return (
     <div
+      {...rest}
       ref={ref}
       id={id ?? context.contentId}
       data-slot="combobox-content"
       role="dialog"
       aria-labelledby={context.triggerId}
+      hidden={!open}
+      aria-hidden={!open ? true : undefined}
+      inert={!open}
       className={cn(
         "absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 rounded-[calc(var(--sx-radius-lg)+2px)] border border-[color:var(--sx-color-border)] bg-[color:var(--sx-color-surface)] shadow-[0_18px_42px_rgba(15,23,42,0.14)] overflow-hidden",
+        !open && "hidden",
         className,
       )}
+      style={{ ...style, display: open ? style?.display : "none" }}
       onKeyDown={(event) => {
         onKeyDown?.(event);
         if (event.defaultPrevented) return;
         handleMenuArrowKeys(event);
       }}
-      {...props}
     >
       <CommandPrimitive
         data-slot="combobox-command"

@@ -2,6 +2,7 @@ import {
   Alert,
   AlertDescription,
   AlertTitle,
+  Button,
   Empty,
   EmptyDescription,
   EmptyHeader,
@@ -9,20 +10,30 @@ import {
   Progress,
   Skeleton,
   Spinner,
-  Toast,
-  ToastAction,
-  ToastClose,
-  ToastDescription,
   ToastProvider,
-  ToastTitle,
+  ToastViewport,
+  useToast,
 } from "synthex-ui/components";
 import { ShowcaseSection } from "./ShowcaseSection";
+
+function ToastExamples() {
+  const { toast } = useToast();
+  return <div className="preview-section-stack">
+    <p>Open a toast to inspect its colors, actions, and dismissal.</p>
+    <div className="preview-inline-row preview-wrap">
+      <Button variant="outline" onClick={() => toast({ title: "Regular toast", description: "Your changes were saved.", actionLabel: "Undo", duration: 8000 })}>Show regular toast</Button>
+      <Button variant="outline" onClick={() => toast({ title: "Alert toast", description: "This deployment needs attention.", variant: "warning", duration: 8000 })}>Show warning toast</Button>
+      <Button variant="destructive" onClick={() => toast({ title: "Critical toast", description: "The deployment failed. Try again.", variant: "destructive", duration: 8000 })}>Show critical toast</Button>
+    </div>
+    <ToastViewport />
+  </div>;
+}
 
 export function FeedbackShowcase() {
   return (
     <ShowcaseSection
       title="Feedback"
-      description="Alerts, loading states, empty states, and toast variants presented as direct static examples instead of ad hoc triggers."
+      description="Alerts, loading states, empty states, and interactive toast feedback."
       includes={["Alert", "Empty", "Progress", "Skeleton", "Spinner", "Toast"]}
     >
       <div className="preview-section-stack">
@@ -46,30 +57,7 @@ export function FeedbackShowcase() {
             <Skeleton className="h-4 w-[78%]" />
           </div>
           <ToastProvider>
-            <div className="preview-section-stack">
-              <Toast open duration={0}>
-                <div className="flex flex-1 flex-col gap-1">
-                  <ToastTitle>Regular toast</ToastTitle>
-                  <ToastDescription>Default neutral feedback for a normal completion state.</ToastDescription>
-                </div>
-                <ToastAction altText="Undo">Undo</ToastAction>
-                <ToastClose />
-              </Toast>
-              <Toast open duration={0} variant="warning">
-                <div className="flex flex-1 flex-col gap-1">
-                  <ToastTitle>Alert toast</ToastTitle>
-                  <ToastDescription>A warning surface for something that needs attention but is not destructive.</ToastDescription>
-                </div>
-                <ToastClose />
-              </Toast>
-              <Toast open duration={0} variant="destructive">
-                <div className="flex flex-1 flex-col gap-1">
-                  <ToastTitle>Critical toast</ToastTitle>
-                  <ToastDescription>Destructive feedback for failed or irreversible actions.</ToastDescription>
-                </div>
-                <ToastClose />
-              </Toast>
-            </div>
+            <ToastExamples />
           </ToastProvider>
         </div>
       </div>

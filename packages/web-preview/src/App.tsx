@@ -1,6 +1,6 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import { SidebarInset, SidebarProvider } from "synthex-ui/components";
+import { SidebarInset, SidebarProvider, useSidebar } from "synthex-ui/components";
 import { useMobile } from "synthex-ui/hooks";
 import { ThemeProvider } from "synthex-ui/theme";
 import { MobileTopbar } from "./app/MobileTopbar";
@@ -20,6 +20,14 @@ function PreviewFallback() {
   return <div className="preview-loading">Loading preview…</div>;
 }
 
+function MobileNavigation({ isMobile }: { isMobile: boolean }) {
+  const { setOpen } = useSidebar();
+  useEffect(() => {
+    if (isMobile) setOpen(false);
+  }, [isMobile, setOpen]);
+  return null;
+}
+
 export function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -34,6 +42,7 @@ export function App() {
     <ThemeProvider mode={theme.mode} theme={theme.themeOverrides}>
       <div className="preview-site">
         <SidebarProvider defaultOpen={!isMobile}>
+          <MobileNavigation isMobile={isMobile} />
           <AppSidebar {...theme} />
           <SidebarInset className="preview-inset">
             <MobileTopbar

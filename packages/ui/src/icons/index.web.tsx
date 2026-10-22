@@ -31,7 +31,6 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import { useTheme } from "../_shared/theme/context";
 import type { IconName, IconProps } from "./shared";
 
 export const iconMap: Record<IconName, LucideIcon> = {
@@ -68,13 +67,12 @@ export const iconMap: Record<IconName, LucideIcon> = {
 };
 
 export function Icon({ className, color, name, size = 18, strokeWidth = 1.8 }: IconProps) {
-  const theme = useTheme();
   const Component = iconMap[name];
 
   return (
     <Component
       className={className}
-      color={color ?? theme.colors.foreground}
+      color={color ?? "currentColor"}
       size={size}
       strokeWidth={strokeWidth}
     />

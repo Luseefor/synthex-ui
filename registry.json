@@ -363,6 +363,7 @@
       "dir": "packages/ui/src/combobox",
       "internal": false,
       "files": [
+        "combobox.contract.web.test.tsx",
         "combobox.native.tsx",
         "combobox.overlay.native.test.tsx",
         "combobox.shared.tsx",
@@ -386,6 +387,7 @@
       "dir": "packages/ui/src/command",
       "internal": false,
       "files": [
+        "command.contract.web.test.tsx",
         "command.native.tsx",
         "command.shared.tsx",
         "command.web.tsx",
@@ -767,6 +769,7 @@
         "index.native.ts",
         "index.ts",
         "input-otp.contract.native.test.tsx",
+        "input-otp.contract.web.test.tsx",
         "input-otp.edit.test.ts",
         "input-otp.edit.ts",
         "input-otp.native.tsx",

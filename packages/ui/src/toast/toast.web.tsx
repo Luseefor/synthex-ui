@@ -100,7 +100,7 @@ const toastVariants = cva(
       variant: {
         default: "bg-card text-card-foreground border",
         destructive:
-          "destructive group border-destructive bg-destructive text-white",
+          "destructive group border-destructive bg-destructive text-destructive-foreground",
         success: "bg-card text-card-foreground border-emerald-500/40",
         warning: "bg-card text-card-foreground border-amber-500/40",
       },
@@ -137,7 +137,7 @@ const ToastAction = React.forwardRef<
     ref={ref}
     data-slot="toast-action"
     className={cn(
-      "ring-ring hover:bg-secondary focus:ring-ring inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors focus:ring-1 focus:outline-none disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-white/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-white group-[.destructive]:focus:ring-destructive",
+      "ring-ring hover:bg-secondary focus:ring-ring inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors focus:ring-1 focus:outline-none disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-current/40 group-[.destructive]:hover:bg-current/10 group-[.destructive]:hover:text-inherit group-[.destructive]:focus:ring-current",
       className,
     )}
     {...props}
@@ -155,7 +155,7 @@ const ToastClose = React.forwardRef<
     data-slot="toast-close"
     aria-label="Dismiss toast"
     className={cn(
-      "text-foreground/50 hover:text-foreground absolute top-1 right-1 rounded-md p-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus:opacity-100 group-[.destructive]:text-red-300 group-[.destructive]:hover:text-red-50 [&_svg]:size-4",
+      "text-muted-foreground hover:text-foreground absolute top-1 right-1 rounded-md p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group-[.destructive]:text-inherit group-[.destructive]:hover:text-inherit group-[.destructive]:focus-visible:ring-current [&_svg]:size-4",
       className,
     )}
     {...props}
@@ -187,7 +187,7 @@ const ToastDescription = React.forwardRef<
   <ToastPrimitives.Description
     ref={ref}
     data-slot="toast-description"
-    className={cn("text-muted-foreground text-sm opacity-90", className)}
+    className={cn("text-muted-foreground text-sm group-[.destructive]:text-inherit", className)}
     {...props}
   />
 ));

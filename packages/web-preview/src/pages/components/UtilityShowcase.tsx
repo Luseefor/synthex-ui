@@ -39,6 +39,8 @@ export function UtilityShowcase() {
           <div className="preview-section-stack">
             <div className="preview-inline-row preview-wrap">
               <Badge>Stable</Badge>
+              <Badge variant="secondary">Secondary</Badge>
+              <Badge variant="destructive">Critical</Badge>
               <Badge variant="outline">Token aware</Badge>
               <div className="preview-inline-row">
                 <Kbd className="min-w-[2.25rem] font-sans text-sm">⌘</Kbd>
