@@ -24,6 +24,8 @@ import {
   type CommandSharedProps,
 } from "./command.shared";
 
+const NativeCommandFiltering = React.createContext<Pick<CommandSharedProps, "shouldFilter" | "filter">>({});
+
 export interface CommandProps
   extends Omit<ViewProps, "style">,
     CommandSharedProps {
@@ -34,8 +36,8 @@ export function Command({
   children,
   defaultQuery,
   defaultValue,
-  label: _label,
-  filter: _filter,
+  label,
+  filter,
   loop: _loop,
   onQueryChange,
   onValueChange,
@@ -45,8 +47,6 @@ export function Command({
   style,
   ...props
 }: CommandProps) {
-  void _label;
-  void _filter;
   void _loop;
   const theme = useTheme();
   const resolved = resolveCommandSearch({
@@ -65,6 +65,7 @@ export function Command({
   });
 
   return (
+    <NativeCommandFiltering.Provider value={{ shouldFilter, filter }}>
     <CommandProvider value={controller}>
       <View
         style={[
@@ -77,10 +78,12 @@ export function Command({
           style,
         ]}
         {...props}
+        accessibilityLabel={props.accessibilityLabel ?? label}
       >
         {children}
       </View>
     </CommandProvider>
+    </NativeCommandFiltering.Provider>
   );
 }
 
@@ -247,16 +250,19 @@ export interface CommandItemProps
 export const CommandItem: React.ForwardRefExoticComponent<
   React.PropsWithoutRef<CommandItemProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
 > = React.forwardRef<React.ElementRef<typeof Pressable>, CommandItemProps>(
-  ({ children, keywords, onCommandSelect, onPress, style, textStyle, textValue, value, ...props }, ref) => {
+  ({ children, keywords, onCommandSelect, onPress, style, textStyle, textValue, value, disabled, accessibilityState, ...props }, ref) => {
     const context = useCommandContext();
     const theme = useTheme();
+    const filtering = React.useContext(NativeCommandFiltering);
     const itemId = React.useId();
     const searchValue =
       textValue ??
       (typeof children === "string" || typeof children === "number" ? String(children) : value) ??
       "";
     const itemValue = value ?? searchValue;
-    const visible = matchesCommandQuery(context.query, searchValue, keywords);
+    const visible = filtering.shouldFilter === false || (filtering.filter
+      ? filtering.filter(itemValue, context.query, keywords ? [...keywords] : undefined) > 0
+      : matchesCommandQuery(context.query, searchValue, keywords));
 
     React.useEffect(() => {
       context.setItemVisibility(itemId, visible);
@@ -271,9 +277,12 @@ export const CommandItem: React.ForwardRefExoticComponent<
       <Pressable
         ref={ref}
         accessibilityRole="button"
+        disabled={disabled}
+        accessibilityState={{ ...accessibilityState, disabled: !!disabled }}
         onPress={(event) => {
-          onCommandSelect?.(itemValue);
+          if (disabled) return;
           onPress?.(event);
+          if (!event.defaultPrevented) onCommandSelect?.(itemValue);
         }}
         style={({ pressed }) => [
           {

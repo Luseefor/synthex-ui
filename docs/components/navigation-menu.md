@@ -44,10 +44,14 @@ Navigation menu supports controlled and uncontrolled use. Pass `value` with `onV
 | `defaultValue` | `string` | None |
 | `onValueChange` | `(value: string) => void` | None |
 
-## Accessibility
+## Accessibility on web
 
 Navigation menu follows Radix behavior. Arrows move between triggers, Enter opens content, and Escape closes. Links stay keyboard reachable and viewport content is announced as a group.
 
 ## Native support
 
 On native each part accepts `testID` with the same value as its web `data-slot`, such as `navigation-menu-trigger` and `navigation-menu-content`. Pass `testID` only when a test needs a custom query value.
+
+Native NavigationMenu toggles each item by tapping its trigger. Each item has its own measured anchor and transparent Modal content. List orientation and `dir` are honored; an uncancelled enabled Link press closes the active item. Handle navigation in `onPress`; native links do not use web `href`. `NavigationMenuViewport` remains a compatibility layout View.
+
+See [native overlay contracts](../native-remaining-overlays.md) for native behavior and pending device checks.

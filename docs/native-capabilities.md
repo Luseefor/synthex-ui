@@ -1,7 +1,7 @@
 # Native capabilities
 
-Scope: `synthex-ui` native (`react-native` condition) vs web, branch `ace/native-sheet-drawer`
-stacked on OPEN PR #129 (`ace/native-carousel`), unreleased source in this checkout
+Scope: `synthex-ui` native (`react-native` condition) vs web, branch `ace/native-remaining-overlays`
+stacked on OPEN PR #130 (`ace/native-sheet-drawer`), unreleased source in this checkout
 (packed Expo checks pass, device evidence is pending).
 Method: read every `packages/ui/src/*/*.native.tsx|ts` + `index.native.ts`, `package.json` exports,
 `native-exports.test.ts`, the mocked native tests, `packages/ui/src/_shared/overlay.native.tsx`,
@@ -12,8 +12,9 @@ of complete web/native parity.
 See [device validation](./native-device-validation.md) for a runnable packed Expo fixture,
 [native OTP](./native-otp.md) for the one-time-code contract,
 [native slider](./native-slider.md) for the slider contract,
-[native resizable](./native-resizable.md) for the resizable contract, [native carousel](./native-carousel.md) for the carousel contract, and
-[native Sheet/Drawer](./native-sheet-drawer.md) for modal interaction contracts.
+[native resizable](./native-resizable.md) for the resizable contract, [native carousel](./native-carousel.md) for the carousel contract,
+[native Sheet/Drawer](./native-sheet-drawer.md) for modal interaction contracts, and
+[native remaining overlays](./native-remaining-overlays.md) for ContextMenu/HoverCard/Tooltip/NavigationMenu/Command contracts.
 
 ## What each evidence tier means
 
@@ -87,8 +88,8 @@ applies to custom native themes.
 | checkbox | `Pressable` box + `CheckIcon`/indeterminate bar; `indeterminate→accessibilityState.checked:"mixed"`; `name/required` ignored (`checkbox/checkbox.native.tsx`) | No native form element; tri-state toggles `true→false` (indeterminate not reachable by press); no keyboard space handling beyond Pressable | `checkbox.contract.native.test.tsx` (mocked) |
 | collapsible | `Pressable` trigger + conditional content, `asChild` clone supported (`collapsible/collapsible.native.tsx`) | No height animation; `forceMount` accepted but content still gated on open | typecheck only |
 | combobox | Anchored `Modal{transparent,overFullScreen}` via shared `NativeOverlayContent` + `NativeOverlayProvider`; `side/align/sideOffset/alignOffset` honored via `resolveNativeOverlayPosition`, RTL-aware, flip + clamp/shrink; content is `KeyboardAvoidingView` + `SafeAreaView` + `ScrollView` (reduced viewport scrolls, `keyboardShouldPersistTaps="handled"`); outside-press and `onRequestClose` dismiss (`combobox/combobox.native.tsx`, `_shared/overlay.native.tsx`) | `modal` prop does not exist natively (always Modal); no desktop keyboard combobox pattern (no roving highlight/Enter selection beyond tap, no scoring beyond substring filter); no custom focus containment/restoration; nested-Modal and real keyboard behavior unverified on device | mocked `overlay.native.test.tsx` + pure `positioning.native.test.ts`; no combobox device test (see device-validation checklist) |
-| command | `TextInput` + `ScrollView` list + filter props `_label/_filter/_loop` ignored (`command/command.native.tsx`) | No `cmdk` keyboard navigation/loop/scoring; search is substring filter only; still in-flow (not on the shared overlay layer), no dialog semantics | typecheck only |
-| context-menu | `onLongPress` trigger → inline `View` content; `dir/modal/side/align*` ignored (`context-menu/context-menu.native.tsx`) | Long-press replaces right-click (discoverability gap); still in-flow (pushes layout, clipped, no shared overlay layer, unverified flip/outside-dismiss); sub-menu behavior unchanged | typecheck only |
+| command | Inline themed `View` + `TextInput` row + `ScrollView` list (`maxHeight: 288`); `shouldFilter=false` renders all items, custom `filter(value, search, keywords?)` selects by positive score, `label` maps to `accessibilityLabel` with caller priority; item `disabled`/caller-cancel guards selection (`command/command.native.tsx` + `command.shared.tsx`) | No `cmdk` keyboard navigation/scoring, no `CommandDialog`, no overlay layer, no dialog semantics; `loop` accepted and inert; search is substring match unless custom `filter` supplied; see [native remaining overlays](./native-remaining-overlays.md) | mocked `remaining-overlays.contract.native.test.tsx` (inline/filter/label/selection matrix); packed + owned typecheck and Metro export; device evidence pending |
+| context-menu | Long-press trigger → anchored `Modal{transparent,overFullScreen}` via shared `NativeOverlayContent` + `NativeOverlayProvider`; `side/align/sideOffset/alignOffset` honored via `resolveNativeOverlayPosition`, RTL-aware, flip + clamp/shrink; content is `KeyboardAvoidingView` + `SafeAreaView` + `ScrollView`; outside-press and `onRequestClose` dismiss; item press closes unless disabled/cancelled; sub/checkbox/radio aliases over dropdown-menu native stay inline (`context-menu/context-menu.native.tsx`, `_shared/overlay.native.tsx`) | Long-press replaces right-click (discoverability gap); pointer position unused — surface anchors to the trigger frame; `modal` accepted and always ignored (always Modal); no desktop keyboard menu pattern, no custom focus containment/restoration; nested-Modal and real Backdrop/Back behavior unverified on device; see [native remaining overlays](./native-remaining-overlays.md) | mocked `remaining-overlays.contract.native.test.tsx` + mocked `overlay.native.test.tsx` + pure `positioning.native.test.ts`; no context-menu device test (see device-validation checklist) |
 | dashboard (`DashboardView`) | Composes native `Button/Input/Table/Stack/Surface/Text` + bar-strip usage chart (`dashboard/dashboard.native.tsx`) | Web version has search results, branding toggle, `Card` header, GitHub copy (`chartTitle/chartDescription/componentResults/showBranding` absent natively); usage chart is proportional bars, not real chart | typecheck only |
 | data-table | TanStack `useReactTable` (sort/filter/pagination state) rendered with `ScrollView`+`View` rows + `TextInput` filter (`data-table/data-table.native.tsx`) | Real TanStack logic reused; UI is stacked rows, no column pinning/virtualization/column visibility; large tables will mount all rows (perf) | `data-table.web.test.tsx` is web-only; native has no test |
 | date-picker | `Pressable` trigger + inline `Calendar`; select closes (`date-picker/date-picker.native.tsx`) | No portal/modal, no input mask, no keyboard entry; calendar opens inline shifting layout | typecheck only |
@@ -96,12 +97,12 @@ applies to custom native themes.
 | drawer | Shared native `Modal` surface and press/ref helpers (`drawer.native.tsx`, `_shared/modal-actions.native.tsx`); root `direction`/`dismissible` honored with content overrides; four physical edges, inherited/explicit `dir`, composed callbacks and optional labeled close control | Always Modal (`modal=false` ignored); decorative handle, no swipe-to-close/snap points/custom focus management; keyboard/RTL/device behavior pending | mocked `modal-actions.contract.native.test.tsx`; packed + copied Expo typecheck and Metro export |
 | dropdown-menu (+menubar base) | Anchored `Modal{transparent,overFullScreen}` via shared `NativeOverlayContent` + `NativeOverlayProvider` (`dropdown-menu/dropdown-menu.native.tsx`, `_shared/overlay.native.tsx`); `side/align/sideOffset/alignOffset` honored via `resolveNativeOverlayPosition`, RTL-aware, flip + clamp/shrink; outside-press and `onRequestClose` dismiss; `asChild` trigger clone supported; sub-menus (`SubTrigger/SubContent`) stay inline `View`s inside the modal surface; checkbox/radio items keep web-shared toggle semantics | `modal` prop accepted and always ignored (always Modal); no hover, no desktop keyboard menu pattern, no custom focus containment/restoration; nested-Modal and real Backdrop/Back behavior unverified on device | mocked `overlay.native.test.tsx` + pure `positioning.native.test.ts`; `dropdown-menu-extras.test.ts` (shared logic); no dropdown device test (see device-validation checklist) |
 | form | `View` wrappers + `FormFieldProvider/FormItemProvider(id=useId)`; `FormControl` clones child adding `accessibilityState.invalid`+`nativeID`; message/description via `nativeID` (`form/form.native.tsx`) | No `react-hook-form` binding natively (providers are context only); no submit handling; label↔control linkage is `nativeID` only (screen-reader support unverified) | `form.web.test.tsx` + `form.contract.web.test.tsx` are web-only |
-| hover-card | `onPress` toggles inline `View`; `side/align*` ignored (`hover-card/hover-card.native.tsx`) | Hover replaced by tap (no `openDelay` timing on device — prop accepted but tap-driven); still in-flow, not on the shared overlay layer | typecheck only |
+| hover-card | Press-toggle trigger → anchored `Modal{transparent,overFullScreen}` via shared `NativeOverlayContent` + `NativeOverlayProvider`; `side/align/sideOffset/alignOffset` honored via `resolveNativeOverlayPosition`, RTL-aware, flip + clamp/shrink; outside-press and `onRequestClose` dismiss (`hover-card/hover-card.native.tsx`, `_shared/overlay.native.tsx`) | Hover replaced by tap-toggle; `openDelay`/`closeDelay` accepted into the controller with no timer path natively; no hover/press-in takeover; no custom focus containment/restoration; nested-Modal and real Backdrop/Back behavior unverified on device; see [native remaining overlays](./native-remaining-overlays.md) | mocked `remaining-overlays.contract.native.test.tsx` + mocked `overlay.native.test.tsx` + pure `positioning.native.test.ts`; no hover-card device test (see device-validation checklist) |
 | input | `NativeTextInput` with field-control style; `disabled` maps to `editable=false` and accessibility disabled state (`input/input.native.tsx`) | No web `type`/date/file semantics; multiline is textarea’s job | `input.contract.native.test.tsx` (mocked) |
 | input-otp | N `TextInput` slots sharing `value` via `useInputOTPController` + focus registry (`input-otp/input-otp.native.tsx`, `input-otp.shared.tsx`, `input-otp.edit.ts`); see [native OTP](./native-otp.md) | `View` + `TextInput` family (no web caret/fake-slot model); `keyboardType` defaults to `number-pad` but alphanumeric accepted with no filter; `selectTextOnFocus` defaults `true`; `autoComplete="one-time-code"` / `textContentType="oneTimeCode"` are hints only, no automatic SMS retrieval; no form-submit behavior; device paste/backspace/autofill/labels pending (see G3) | pure edit/controller + mocked native contract tests; `native:check` compiles packaged + owned OTP and checks ref declarations |
 | label | `NativeText` styled (`label/label.native.tsx`) | No `htmlFor` association; linkage depends on `FormControl nativeID` | typecheck only |
 | menubar | `Menubar` is row `View`; `MenubarMenu→DropdownMenu`, triggers/contents are dropdown aliases; `value/defaultValue/onValueChange/dir` ignored (`menubar/menubar.native.tsx`) | Desktop menubar keyboard model (arrows, mnemonics) absent; sub-menus are dropdown aliases — anchored-modal behavior follows the dropdown row, desktop patterns unverified | typecheck only |
-| navigation-menu | `Pressable` triggers + inline content/viewport `View`s; `dir` + both `asChild` ignored (`navigation-menu/navigation-menu.native.tsx`) | No viewport positioning/orientation animation; `asChild` silently ignored (extra wrapper vs web Slot); still in-flow, not on the shared overlay layer | typecheck only |
+| navigation-menu | One anchored `Modal{transparent,overFullScreen}` per item via per-item `NativeOverlayProvider` + shared `NativeOverlayContent`; `side/align/sideOffset/alignOffset` honored via `resolveNativeOverlayPosition`; `orientation` switches list direction (`horizontal` row, `vertical` column); `dir` honored via direction context; `Viewport` is a layout container only (`navigation-menu/navigation-menu.native.tsx`, `_shared/overlay.native.tsx`) | No viewport positioning animation; no desktop keyboard menu pattern; no custom focus containment/restoration; `delayDuration`/`skipDelayDuration` accepted and inert; nested-Modal and real Backdrop/Back behavior unverified on device; see [native remaining overlays](./native-remaining-overlays.md) | mocked `remaining-overlays.contract.native.test.tsx` + mocked `overlay.native.test.tsx` + pure `positioning.native.test.ts`; no navigation-menu device test (see device-validation checklist) |
 | pagination | `Pressable` links with `accessibilityRole/state` (`pagination/pagination.native.tsx`) | Page changes are caller-driven; no URL/router integration | typecheck only |
 | popover | Anchored `Modal{transparent,overFullScreen}` via shared `NativeOverlayContent` + `NativeOverlayProvider` (`popover/popover.native.tsx`, `_shared/overlay.native.tsx`); `side/align/sideOffset/alignOffset` honored via `resolveNativeOverlayPosition`, RTL-aware, flip + clamp/shrink; content is `KeyboardAvoidingView` + `SafeAreaView` + `ScrollView`; outside-press and `onRequestClose` dismiss; `asChild` trigger clone supported | `modal` prop accepted and always ignored (always Modal); no Escape key, no custom focus containment/restoration; nested-Modal and real Backdrop/Back behavior unverified on device | mocked `overlay.native.test.tsx` + pure `positioning.native.test.ts`; no popover device test (see device-validation checklist) |
 | progress | `View` track + `%`-width fill, clamped (`progress/progress.native.tsx`) | No `aria-valuenow` numbers exposed beyond `accessibilityRole=progressbar` (no `accessibilityValue`) | typecheck only |
@@ -121,7 +122,7 @@ applies to custom native themes.
 | toast/sonner | `ToastProvider` store + `ToastViewport` renders `Modal{visible=toasts.length>0}` with stacked `ToastCard`s + auto-dismiss timeout; `richColors/expand/position` styling only (`toast/toast.native.tsx`) | RN Modal; no swipe-to-dismiss, no queue limit/pause-on-hover, `Sonner/Toaster` are aliases over same viewport; timeout uses `setTimeout` (background-timer drift) | mocked `toast.native.test.tsx` (Modal mocked) |
 | toggle | `Pressable` with `pressed` state (`toggle/toggle.native.tsx`) | No keyboard toggle beyond Pressable | typecheck only |
 | toggle-group | `ToggleGroup` context + `Toggle` items; single toggles `""`, multiple toggles array (`toggle-group/toggle-group.native.tsx`) | No roving tabindex; `disabled` is group-OR-item | typecheck only |
-| tooltip | `onPressIn→open/onPressOut→close` + `absolute` content View; `side/align*` ignored (`tooltip/tooltip.native.tsx`) | Press-hold replaces hover/focus; absolute positioning inside relative parent with no flip/collision handling; still in-flow, not on the shared overlay layer | typecheck only |
+| tooltip | Tap-toggle trigger → anchored `Modal{transparent,overFullScreen}` via shared `NativeOverlayContent` + `NativeOverlayProvider`; `side/align/sideOffset/alignOffset` honored via `resolveNativeOverlayPosition`, RTL-aware, flip + clamp/shrink; public ref stays `Text`, `style` targets the text, `containerStyle` sizes the surface (`tooltip/tooltip.native.tsx`, `_shared/overlay.native.tsx`) | Press-toggle replaces hover/focus; `delayDuration` accepted and inert; no hover/press-in takeover (`onLongPress` omitted unless supplied as an observer); no custom focus containment/restoration; nested-Modal and real Backdrop/Back behavior unverified on device; see [native remaining overlays](./native-remaining-overlays.md) | mocked `remaining-overlays.contract.native.test.tsx` + mocked `overlay.native.test.tsx` + pure `positioning.native.test.ts`; no tooltip device test (see device-validation checklist) |
 | typography (`H1-H4/P/Lead/Large/Small/Muted/Blockquote/Code`) | Styled `Text` from theme tokens (`typography/typography.native.tsx`) | No semantic HTML mapping (`h1`/`blockquote` are styled Text); no responsive type | typecheck only |
 | utilities (`Spinner/Kbd/ButtonGroup/Field*/InputGroup*/Empty*/Item*/NativeSelect`) | `Spinner` is bordered `View` (no `ActivityIndicator`, no rotation); `NativeSelect` is styled `TextInput`; rest are `View`/`Text` stacks (`utilities/utilities.native.tsx`) | `Spinner` never animates (static ring); `NativeSelect` is a text field, not a picker; `Field/InputGroup/Empty/Item` are layout aliases | typecheck only |
 | helpers (`cn/cva/defineVariants/resolveVariants`, `field-control.native`, `positioning`, tokens) | Pure style/geometric resolvers; `positioning.ts` holds shared `OverlaySide/Align/PositionProps` types; `positioning.native.ts` implements pure `resolveNativeOverlayPosition` for the anchored overlay layer (other native families may still accept the props without implementing positioning); `field-control.native.ts` returns RN style object | No runtime host behavior; geometry is pure math, host measurement lives in `overlay.native.tsx` | `variants.test.ts`, `positioning.native.test.ts` |
@@ -134,13 +135,13 @@ through the root/components native graph (`components/index.native.ts`, `index.n
 ## Accepted-but-ignored props (concrete `void` inventory, not exhaustive)
 
 `calendar:_numberOfMonths,_required`;
-`chart:_config(×2),_indicator`; `command:_label,_filter,_loop`; `tabs:_orientation,_activationMode`;
+`chart:_config(×2),_indicator`; `command:_loop` (`label` maps to `accessibilityLabel`, `filter`/`shouldFilter` honored); `tabs:_orientation,_activationMode`;
 `dialog/sheet/drawer:modal`; `dropdown/popover:modal` (always Modal);
-`context-menu:dir,modal,side,align,sideOffset,alignOffset`; `hover-card/tooltip:same side/align set`;
+`context-menu:modal` (always Modal; `dir`/`side/align/sideOffset/alignOffset` honored); `hover-card:openDelay,closeDelay` (accepted, no timer path natively) and `tooltip:delayDuration` (void; hover-card/tooltip `side/align` honored);
 `select:name,required,position` (`void` each); `menubar:value,defaultValue,onValueChange,dir`;
-`navigation-menu:dir,asChild(×2)`; `switch/checkbox:name,required`; `toast viewport:richColors`.
-Dropdown/popover/select/combobox `side/align/sideOffset/alignOffset` are honored by the shared overlay
-layer; select/popover/dropdown `asChild` clones the child; select/combobox/dropdown/popover `dir` resolves
+`navigation-menu:delayDuration,skipDelayDuration` (void; `dir`/`orientation` honored, Trigger/Link `asChild` supported); `switch/checkbox:name,required`; `toast viewport:richColors`.
+Dropdown/popover/select/combobox/context-menu/hover-card/tooltip/navigation-menu `side/align/sideOffset/alignOffset` are honored by the shared overlay
+layer; select/popover/dropdown/context-menu/hover-card/tooltip/navigation-menu-trigger/link `asChild` clones the child; select/combobox/dropdown/popover/context-menu/hover-card/tooltip/navigation-menu `dir` resolves
 via `NativeOverlayProvider`/`NativeDirectionContext`. Each remaining listed prop is API-parity-accepted and inert at runtime.
 
 ## Placeholders / no-ops (concrete)
@@ -166,14 +167,18 @@ via `NativeOverlayProvider`/`NativeDirectionContext`. Each remaining listed prop
   OS paste, keyboard event order, autofill, focus timing and screen-reader output
   require the [device checklist](./native-device-validation.md). See the
   [native OTP contract](./native-otp.md).
-- **G4 (narrowed) — Remaining in-flow overlays shift layout and clip**
-  (`command/command.native.tsx`, `context-menu`, `hover-card`,
-  `navigation-menu`, `tooltip`). Content renders as a sibling `View` gated on `open`, with no shared
-  `Modal` layer, no flip, no outside-press/Escape dismiss. Near screen edges or inside `ScrollView`/`Modal`
-  parents the content pushes layout or clips. Select/DropdownMenu/Popover/Combobox are out of scope for
-  this gap: on `ace/native-overlays` they use the shared anchored transparent-`Modal` layer
+- **G4 (resolved in source, device pending) — Anchored overlays for the four in-flow families.**
+  ContextMenu/HoverCard/Tooltip/NavigationMenu now use the shared anchored transparent-`Modal` layer
   (`_shared/overlay.native.tsx` + `positioning.native.ts`) with flip/clamp/shrink and outside/system
-  dismissal; dropdown sub-menus stay inline `View`s inside the modal surface (no nested modal per submenu).
+  dismissal, covered by source + mocked-host tests; trigger anchoring, flip/clamp near edges,
+  rotation, nested-Modal stacking, and screen-reader behavior require the
+  [device checklist](./native-device-validation.md). Dropdown/context sub-menus stay inline `View`s
+  inside the modal surface (no nested modal per submenu).
+  Command staying inline is by design, not a defect: web `Command` is inline too and `CommandDialog`
+  is a separate export, which native does not provide. The native missing `CommandDialog`/desktop
+  keyboard pattern is an explicit limitation in its matrix row and
+  [guide](./native-remaining-overlays.md), not a gap. See the
+  [native remaining overlays contract](./native-remaining-overlays.md).
 - **G5 (narrowed) — Slider device validation remains pending** (`slider/slider.native.tsx` + math).
   Tap, drag with fixed thumb identity and no-cross clamp, per-thumb adjustable actions,
   direction/inverted handling, and controlled commit semantics are implemented and covered
@@ -191,16 +196,15 @@ via `NativeOverlayProvider`/`NativeDirectionContext`. Each remaining listed prop
    (Android back), rotation, nested Modal, background-timer toast dismissal.
    Sheet/Drawer support four physical edges, composed handlers/refs, and ambient dismissal settings;
    Drawer root direction and dismissal are honored. No gesture drag-to-dismiss, snap points or custom
-   focus management is implemented. See [native Sheet/Drawer](./native-sheet-drawer.md).
-3. Gesture families: carousel paging (`ScrollView` pager implemented in source, device pending — see [native carousel](./native-carousel.md)), slider drag (implemented in source, device pending — see [native slider](./native-slider.md)), resizable drag (implemented in source, device pending — see [native resizable](./native-resizable.md)), drawer swipe-to-close, tooltip press-hold vs hover, context-menu long-press
+   focus management is implemented. See [native Sheet/Drawer](./native-sheet-drawer.md). ContextMenu/HoverCard/Tooltip/NavigationMenu/Command contracts are in [native remaining overlays](./native-remaining-overlays.md). Devices and screen tools are off in this session; mocked-host tests, typechecks, and Metro export are not device validation.
+3. Gesture families: carousel paging (`ScrollView` pager implemented in source, device pending — see [native carousel](./native-carousel.md)), slider drag (implemented in source, device pending — see [native slider](./native-slider.md)), resizable drag (implemented in source, device pending — see [native resizable](./native-resizable.md)), drawer swipe-to-close, tooltip tap-toggle feel, context-menu long-press
    timing, marquee `Animated` + `useNativeDriver` under reduced-motion on/off.
-4. Anchored overlays (Select/DropdownMenu/Popover/Combobox) on real devices: trigger→content anchoring
+4. Anchored overlays (Select/DropdownMenu/Popover/Combobox plus ContextMenu/HoverCard/Tooltip/NavigationMenu) on real devices: trigger→content anchoring
    after open, `side/align/offset` + RTL start/end, flip near edges, clamp/shrink of oversized content,
    `ScrollView` scrolling of tall content, outside-press and Android Back dismissal, keyboard-avoidance
    for combobox/popover inputs, rotation, and nested-Modal stacking. Mocked-host + pure-geometry tests
    cover the math; none of the device behavior has been run (see device-validation checklist for IDs).
-   Remaining in-flow families (command/context-menu/hover-card/navigation-menu/tooltip) still need
-   clipping review inside `ScrollView`, `Modal`, and near screen edges on small phones.
+   Inline `Command` still needs clipping review inside `ScrollView`, `Modal`, and near screen edges on small phones.
 5. Visual: theme `mode` switching, `elevation` vs iOS shadow parity, `lucide-react-native` stroke
    rendering, `Spinner` static-ring acceptability, bar/line/area chart legibility at 320pt widths.
 6. Perf: data-table with 100+ rows (no virtualization), synthex `Animated.loop` marquee battery/CPU,
@@ -228,8 +232,7 @@ bun run native:check
 Source fixes on `ace/native-overlays` (unreleased source in this checkout, OPEN PR #125) implement the shared
 anchored overlay layer (`_shared/overlay.native.tsx`, `_shared/positioning.native.ts`,
 `_shared/direction-context.native.ts`) and adopt it in Select, DropdownMenu, Popover, and Combobox,
-including `SelectTrigger asChild` support (former gap G2 is resolved and removed) and a narrowed gap G4
-covering only the remaining in-flow families. Earlier stages covered Button/Checkbox/Switch/Input/Textarea,
+including `SelectTrigger asChild` support (former gap G2 is resolved and removed). Earlier stages covered Button/Checkbox/Switch/Input/Textarea,
 Tabs, Dialog, and chart geometry. The OTP stage (`ace/native-otp`, stacked on PR #125, not published/merged)
 adds native OTP focus, paste and Backspace handling; full contract
 in [native OTP](./native-otp.md). The slider stage (`ace/native-slider`, stacked on OPEN PR #126,
@@ -242,5 +245,4 @@ in [native resizable](./native-resizable.md). This stage (`ace/native-carousel`,
 OPEN PR #128 (`ace/native-resizable`), not published/merged) adds the native
 `ScrollView` pager with full-page slides, controlled index semantics, and the stable native
 API; full contract in [native carousel](./native-carousel.md). The fixture and pending manual checks are
-in [native device validation](./native-device-validation.md). Shared native
-The Sheet/Drawer stage (`ace/native-sheet-drawer`, stacked on OPEN PR #129) adds shared native press/ref and modal-surface contracts, honors Drawer root configuration, and preserves the remaining gesture/device limitations described in [native Sheet/Drawer](./native-sheet-drawer.md).
+in [native device validation](./native-device-validation.md). The Sheet/Drawer stage (`ace/native-sheet-drawer`, stacked on OPEN PR #129) adds shared native press/ref and modal-surface contracts, honors Drawer root configuration, and preserves the remaining gesture/device limitations described in [native Sheet/Drawer](./native-sheet-drawer.md). This stage (`ace/native-remaining-overlays`, stacked on OPEN PR #130, not published/merged) adopts the shared anchored `Modal` layer in ContextMenu, HoverCard, Tooltip, and NavigationMenu, keeps `Command` inline by design with real filtering and guarded selection, and records the pending device checks in [native remaining overlays](./native-remaining-overlays.md) and [native device validation](./native-device-validation.md).

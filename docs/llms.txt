@@ -1,6 +1,6 @@
 # Synthex UI, llms.txt
 
-> Branch status (`ace/native-sheet-drawer`): `create --template`, `setup`,
+> Branch status (`ace/native-remaining-overlays`): `create --template`, `setup`,
 > and the lean `add` below describe the CLI source in this checkout. Forthcoming
 > CLI release; implemented in source, not yet published in
 > `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
@@ -178,3 +178,5 @@ Native Resizable: `docs/native-resizable.md` covers adjacent-pair dragging, boun
 Native Carousel: `docs/native-carousel.md` covers ScrollView paging, controlled indices, live native navigation/events and API type migration. Native aliases describe NativeCarouselApi; looping, plugins and unsupported Embla options raise errors. Web remains on Embla. Packed and copied sources are checked in Expo; native gestures, RTL offsets and screen-reader behavior remain pending device validation.
 
 Native Sheet and Drawer: see `docs/native-sheet-drawer.md` for disabled/cancelled presses, composed refs and dismissal callbacks, physical edge placement, RTL content direction and owned-source checks. Swipe gestures, snap points and device/screen-reader evidence remain pending.
+
+Native ContextMenu, HoverCard, Tooltip and NavigationMenu: see [native overlay contracts](./native-remaining-overlays.md) for anchored Modal positioning, long-press versus tap interaction, per-item navigation anchors and Tooltip surface styling. Command remains inline. Packed and copied sources are checked in Expo; native device and screen-reader checks remain pending.

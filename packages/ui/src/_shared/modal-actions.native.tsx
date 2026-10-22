@@ -1,92 +1,14 @@
 import * as React from "react";
-import { Modal, Pressable, View, type ModalProps, type PressableProps, type ViewProps, type ViewStyle } from "react-native";
+import { Modal, Pressable, View, type ModalProps, type ViewProps, type ViewStyle } from "react-native";
 import { useTheme } from "./theme/context";
-import { NativeDirectionContext } from "./direction-context.native";
 
-/** Compose React 19 cleanup refs without losing void-callback detach notifications. */
-export function mergeNativeModalRefs<T>(
-  ...refs: Array<React.Ref<T> | undefined>
-): React.RefCallback<T> {
-  return (node) => {
-    const cleanups: Array<() => void> = [];
-    for (const ref of refs) {
-      if (typeof ref === "function") {
-        const cleanup = ref(node);
-        cleanups.push(typeof cleanup === "function" ? cleanup : () => { ref(null); });
-      } else if (ref != null) {
-        ref.current = node;
-        cleanups.push(() => { ref.current = null; });
-      }
-    }
-    return () => { for (const cleanup of cleanups) cleanup(); };
-  };
-}
-
-export function getNativeModalChildRef<T>(child: React.ReactElement): React.Ref<T> | undefined {
-  return (child.props as { readonly ref?: React.Ref<T> }).ref;
-}
-
-/** Evaluate both callback styles with the same Pressable state, then merge child last. */
-export function composeNativeModalStyles(
-  parent: PressableProps["style"],
-  child: PressableProps["style"],
-): PressableProps["style"] {
-  if (typeof parent === "function" || typeof child === "function") {
-    return (state) => [
-      typeof parent === "function" ? parent(state) : parent,
-      typeof child === "function" ? child(state) : child,
-    ];
-  }
-  return [parent, child];
-}
-
-export interface NativeModalActionProps extends Omit<PressableProps, "children"> {
-  readonly children?: React.ReactNode;
-  readonly asChild?: boolean;
-  readonly onAction: () => void;
-  readonly expanded?: boolean;
-  readonly defaultTestID: string;
-  readonly forwardedRef?: React.Ref<React.ElementRef<typeof Pressable>>;
-}
-
-export function NativeModalAction({
-  children, asChild, onAction, expanded, defaultTestID, forwardedRef,
-  onPress, disabled, accessibilityState, accessibilityRole, style, testID, ...props
-}: NativeModalActionProps) {
-  const { dir } = React.useContext(NativeDirectionContext);
-  const child = asChild && React.isValidElement<PressableProps & { ref?: React.Ref<React.ElementRef<typeof Pressable>> }>(children)
-    ? children : null;
-  const childRef = child ? getNativeModalChildRef<React.ElementRef<typeof Pressable>>(child) : undefined;
-  const mergedRef = React.useMemo(() => mergeNativeModalRefs(forwardedRef, childRef), [forwardedRef, childRef]);
-  const isDisabled = disabled === true || child?.props.disabled === true;
-  const state = {
-    ...child?.props.accessibilityState, ...accessibilityState,
-    disabled: isDisabled,
-    ...(expanded === undefined ? {} : { expanded }),
-  };
-  const handlePress: NonNullable<PressableProps["onPress"]> = (event) => {
-    if (isDisabled) return;
-    child?.props.onPress?.(event);
-    if (event.defaultPrevented) return;
-    onPress?.(event);
-    if (!event.defaultPrevented) onAction();
-  };
-  const mergedStyle = child ? composeNativeModalStyles(style, child.props.style) : style;
-  const directedStyle: PressableProps["style"] = typeof mergedStyle === "function"
-    ? state => [mergedStyle(state), { direction: dir }]
-    : [mergedStyle, { direction: dir }];
-  const actionProps: PressableProps & { ref?: React.Ref<React.ElementRef<typeof Pressable>> } = {
-    ...props,
-    ref: child ? mergedRef : forwardedRef,
-    testID: child?.props.testID ?? testID ?? defaultTestID,
-    accessibilityRole: accessibilityRole ?? child?.props.accessibilityRole ?? "button",
-    accessibilityState: state,
-    disabled: isDisabled,
-    style: directedStyle,
-    onPress: handlePress,
-  };
-  return child ? React.cloneElement(child, actionProps) : <Pressable {...actionProps}>{children}</Pressable>;
-}
+export {
+  NativePressableAction as NativeModalAction,
+  mergeNativePressableRefs as mergeNativeModalRefs,
+  getNativeChildRef as getNativeModalChildRef,
+  composeNativePressableStyles as composeNativeModalStyles,
+} from "./pressable.native";
+export type { NativePressableActionProps as NativeModalActionProps } from "./pressable.native";
 
 export type NativeModalSide = "top" | "right" | "bottom" | "left";
 export interface NativeModalSurfaceProps extends Omit<ViewProps, "style"> {
