@@ -1,7 +1,7 @@
 # Native capabilities
 
-Scope: `synthex-ui` native (`react-native` condition) vs web, branch `ace/native-slider`
-stacked on OPEN PR #126 (`ace/native-otp`), unreleased source in this checkout
+Scope: `synthex-ui` native (`react-native` condition) vs web, branch `ace/native-resizable`
+stacked on OPEN PR #127 (`ace/native-slider`), unreleased source in this checkout
 (packed Expo checks pass, device evidence is pending).
 Method: read every `packages/ui/src/*/*.native.tsx|ts` + `index.native.ts`, `package.json` exports,
 `native-exports.test.ts`, the mocked native tests, `packages/ui/src/_shared/overlay.native.tsx`,
@@ -10,8 +10,9 @@ and `packages/ui/src/input-otp/input-otp.edit.ts` + `input-otp.shared.tsx` for t
 No device run (devices/computer-use disabled). This is an implementation inventory, not a claim
 of complete web/native parity.
 See [device validation](./native-device-validation.md) for a runnable packed Expo fixture,
-[native OTP](./native-otp.md) for the one-time-code contract, and
-[native slider](./native-slider.md) for the slider contract.
+[native OTP](./native-otp.md) for the one-time-code contract,
+[native slider](./native-slider.md) for the slider contract, and
+[native resizable](./native-resizable.md) for the resizable contract.
 
 ## What each evidence tier means
 
@@ -104,7 +105,7 @@ applies to custom native themes.
 | popover | Anchored `Modal{transparent,overFullScreen}` via shared `NativeOverlayContent` + `NativeOverlayProvider` (`popover/popover.native.tsx`, `_shared/overlay.native.tsx`); `side/align/sideOffset/alignOffset` honored via `resolveNativeOverlayPosition`, RTL-aware, flip + clamp/shrink; content is `KeyboardAvoidingView` + `SafeAreaView` + `ScrollView`; outside-press and `onRequestClose` dismiss; `asChild` trigger clone supported | `modal` prop accepted and always ignored (always Modal); no Escape key, no custom focus containment/restoration; nested-Modal and real Backdrop/Back behavior unverified on device | mocked `overlay.native.test.tsx` + pure `positioning.native.test.ts`; no popover device test (see device-validation checklist) |
 | progress | `View` track + `%`-width fill, clamped (`progress/progress.native.tsx`) | No `aria-valuenow` numbers exposed beyond `accessibilityRole=progressbar` (no `accessibilityValue`) | typecheck only |
 | radio-group | `radiogroup` View + `radio` Pressables (`radio-group/radio-group.native.tsx`) | No arrow-key roving; disabled resolution is per-item `effectiveDisabled` | `radio-group.direction.test.tsx` is web-only; no dedicated native test |
-| resizable | `PanelGroup` computes fixed `normalizePanelSizes` once, clones panels with `__size`; `Handle` is bare `Pressable` with **no gesture** (`resizable/resizable.native.tsx`) | Resize is non-functional (visual only) — see gap G1 | typecheck only |
+| resizable | `View` group + flex-ratio panels + `Pressable` handles with parent `PanResponder` drag past 4pt single-axis intent; adjacent pair total conserved with size-limit clamping; per-handle adjustable actions (`resizable/resizable.native.tsx` + math); see [native resizable](./native-resizable.md) | No imperative panel API, collapse, or autosave; measured panel span converts responder deltas to percentages (device layout/`ScrollView` negotiation pending); VoiceOver/TalkBack announcements pending | mocked contract tests; `native:check` bundles; device checks pending |
 | select | Anchored `Modal{transparent,overFullScreen}` via shared `NativeOverlayContent` + `NativeOverlayProvider` (`select/select.native.tsx`, `_shared/overlay.native.tsx`); `side/align/sideOffset/alignOffset` honored via `resolveNativeOverlayPosition`, RTL-aware, flip + clamp/shrink; `asChild` trigger clone supported (same pattern as dropdown/dialog); content is `KeyboardAvoidingView` + `SafeAreaView` + `ScrollView`; outside-press and `onRequestClose` dismiss; `Pressable` items register labels; root/part disabled state propagated and guarded | `name/required/position` accepted and inert (no native form behavior; `void name/required/position`); no desktop keyboard select pattern, no custom focus containment/restoration; nested-Modal and real Backdrop/Back behavior unverified on device | mocked `select.native.test.tsx` + `select.contract.native.test.tsx` + mocked `overlay.native.test.tsx` + pure `positioning.native.test.ts`; shared `select-extras.test.tsx`; no select device test (see device-validation checklist) |
 | separator | `View` line (`separator/separator.native.tsx`) | Orientation via props; no `role=separator` | typecheck only |
 | sheet | `Modal` pattern shared with dialog; `side` prop styles placement; `modal` ignored (`sheet/sheet.native.tsx`) | Side variants are positional styles inside one Modal; no swipe-to-close | typecheck only |
@@ -152,10 +153,13 @@ via `NativeOverlayProvider`/`NativeDirectionContext`. Each remaining listed prop
 
 ## Remaining implementation gaps
 
-- **G1 — Resizable does not resize** (`resizable/resizable.native.tsx`).
-  `ResizablePanelGroup` computes `normalizePanelSizes` once and never updates; `ResizableHandle`
-  has no `onPress`/`onMove`/`PanResponder`. Dragging the handle is a no-op; panels are fixed flex ratios.
-  Either wire a gesture or rename/document as static layout.
+- **G1 (resolved in source, device pending) — Resizable drag is implemented.**
+  Pair-conserved drag with feasible `minSize`/`maxSize` clamping, per-handle adjustable
+  actions, direction handling, and controlled commit semantics are implemented and covered
+  by source + mocked-host tests. Drag beyond the pair, `ScrollView` negotiation, RTL/vertical
+  axes, labels/actions under large fonts and disable, ref/controlled behavior,
+  and the owned copy require the [device checklist](./native-device-validation.md). See the
+  [native resizable contract](./native-resizable.md).
 - **G3 — OTP device validation remains pending.** Native focus, bounded paste and
   Backspace handling are implemented and covered by edit/controller/mocked-host tests.
   OS paste, keyboard event order, autofill, focus timing and screen-reader output
@@ -187,8 +191,7 @@ via `NativeOverlayProvider`/`NativeDirectionContext`. Each remaining listed prop
    Sheet/Drawer limits are unchanged by this stage: sheet `side` variants are positional styles
    inside one Modal with no swipe-to-close; drawer is always bottom-presented (`direction` silently
    ignored), no gesture drag-to-dismiss, no snap points. Shared overlay changes do not alter them.
-3. Gesture families: carousel swipe (currently absent — confirm expected UX), slider drag (implemented in source, device pending — see [native slider](./native-slider.md)), resizable
-   drag (currently no-op), drawer swipe-to-close, tooltip press-hold vs hover, context-menu long-press
+3. Gesture families: carousel swipe (currently absent — confirm expected UX), slider drag (implemented in source, device pending — see [native slider](./native-slider.md)), resizable drag (implemented in source, device pending — see [native resizable](./native-resizable.md)), drawer swipe-to-close, tooltip press-hold vs hover, context-menu long-press
    timing, marquee `Animated` + `useNativeDriver` under reduced-motion on/off.
 4. Anchored overlays (Select/DropdownMenu/Popover/Combobox) on real devices: trigger→content anchoring
    after open, `side/align/offset` + RTL start/end, flip near edges, clamp/shrink of oversized content,
@@ -228,10 +231,13 @@ including `SelectTrigger asChild` support (former gap G2 is resolved and removed
 covering only the remaining in-flow families. Earlier stages covered Button/Checkbox/Switch/Input/Textarea,
 Tabs, Dialog, and chart geometry. The OTP stage (`ace/native-otp`, stacked on PR #125, not published/merged)
 adds native OTP focus, paste and Backspace handling; full contract
-in [native OTP](./native-otp.md). This stage (`ace/native-slider`, stacked on OPEN PR #126,
+in [native OTP](./native-otp.md). The slider stage (`ace/native-slider`, stacked on OPEN PR #126,
 not published/merged) adds native slider tap/drag with fixed thumb identity, no-cross clamp,
 per-thumb adjustable actions, and controlled commit semantics; full contract
-in [native slider](./native-slider.md). The fixture and pending manual checks are
+in [native slider](./native-slider.md). This stage (`ace/native-resizable`, stacked on
+OPEN PR #127, not published/merged) adds native resizable pair-conserved drag with feasible
+clamping, per-handle adjustable actions, and controlled commit semantics; full contract
+in [native resizable](./native-resizable.md). The fixture and pending manual checks are
 in [native device validation](./native-device-validation.md). Shared native
 Dialog/overlay changes do not automatically fix the separate Sheet/Drawer implementations, whose limits
 above are unchanged.
