@@ -3,6 +3,7 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   verify:
@@ -32,6 +33,9 @@ jobs:
         run: npm run registry:check
 
       - name: Changeset status
+        # The automated version branch has already consumed its changesets.
+        # It still runs every build, test, registry and artifact gate below.
+        if: github.head_ref != 'changeset-release/main' && github.ref_name != 'changeset-release/main'
         run: npx changeset status --since=origin/main
 
       - name: Build

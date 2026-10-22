@@ -11,19 +11,19 @@ import uiPackage from "../../../../ui/package.json";
 
 const RELEASE_NOTES = [
   {
-    title: "Theme popover stability",
+    title: "Web styling and Overview",
     body:
-      "Reworked switcher placement logic for web and native so the theme panel opens with deterministic anchoring and no initial jump. The panel now measures before reveal and picks above or below based on available viewport space.",
+      "Compact dashboard metrics, responsive charts, semantic borders and action colors, selected combobox labels before opening, and command lists that keep the page in place.",
   },
   {
-    title: "Cleaner theme customization UI",
+    title: "Own and update components",
     body:
-      "Updated appearance and accent controls with clearer active states and reduced visual clutter while preserving the existing trigger style. This keeps the control readable in compact sidebar and full panel layouts.",
+      "Vite, Next and Expo starters, framework-aware setup, platform-specific source copies, and three-way updates with recorded originals, backups and conflict protection.",
   },
   {
-    title: "Workspace release alignment",
+    title: "v1.2 milestone versions",
     body:
-      "All publishable packages are now aligned to v1.1.0 with synchronized internal dependency ranges across core, UI, React web adapter, CLI, and web preview surfaces.",
+      "The release targets UI 2.0.0 and CLI, core and React web adapter 1.2.0. Native Carousel now exposes a native pager API rather than Embla types. Native device and screen-reader validation remains pending.",
   },
 ] as const;
 

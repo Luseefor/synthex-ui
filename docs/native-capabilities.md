@@ -1,8 +1,7 @@
 # Native capabilities
 
-Scope: `synthex-ui` native (`react-native` condition) vs web, branch `ace/native-remaining-overlays`
-stacked on OPEN PR #130 (`ace/native-sheet-drawer`), unreleased source in this checkout
-(packed Expo checks pass, device evidence is pending).
+Scope: `synthex-ui` 2.0 native (`react-native` condition) vs web, included in the
+v1.2 milestone. Packed Expo checks pass; device evidence is pending.
 Method: read every `packages/ui/src/*/*.native.tsx|ts` + `index.native.ts`, `package.json` exports,
 `native-exports.test.ts`, the mocked native tests, `packages/ui/src/_shared/overlay.native.tsx`,
 `packages/ui/src/_shared/positioning.native.ts`, `packages/ui/src/_shared/direction-context.native.ts`,
@@ -229,20 +228,21 @@ bun --filter '@luseefor/synthex-cli' build
 bun run native:check
 ```
 
-Source fixes on `ace/native-overlays` (unreleased source in this checkout, OPEN PR #125) implement the shared
-anchored overlay layer (`_shared/overlay.native.tsx`, `_shared/positioning.native.ts`,
-`_shared/direction-context.native.ts`) and adopt it in Select, DropdownMenu, Popover, and Combobox,
-including `SelectTrigger asChild` support (former gap G2 is resolved and removed). Earlier stages covered Button/Checkbox/Switch/Input/Textarea,
-Tabs, Dialog, and chart geometry. The OTP stage (`ace/native-otp`, stacked on PR #125, not published/merged)
-adds native OTP focus, paste and Backspace handling; full contract
-in [native OTP](./native-otp.md). The slider stage (`ace/native-slider`, stacked on OPEN PR #126,
-not published/merged) adds native slider tap/drag with fixed thumb identity, no-cross clamp,
-per-thumb adjustable actions, and controlled commit semantics; full contract
-in [native slider](./native-slider.md). This stage (`ace/native-resizable`, stacked on
-OPEN PR #127, not published/merged) adds native resizable pair-conserved drag with feasible
-clamping, per-handle adjustable actions, and controlled commit semantics; full contract
-in [native resizable](./native-resizable.md). This stage (`ace/native-carousel`, stacked on
-OPEN PR #128 (`ace/native-resizable`), not published/merged) adds the native
-`ScrollView` pager with full-page slides, controlled index semantics, and the stable native
-API; full contract in [native carousel](./native-carousel.md). The fixture and pending manual checks are
-in [native device validation](./native-device-validation.md). The Sheet/Drawer stage (`ace/native-sheet-drawer`, stacked on OPEN PR #129) adds shared native press/ref and modal-surface contracts, honors Drawer root configuration, and preserves the remaining gesture/device limitations described in [native Sheet/Drawer](./native-sheet-drawer.md). This stage (`ace/native-remaining-overlays`, stacked on OPEN PR #130, not published/merged) adopts the shared anchored `Modal` layer in ContextMenu, HoverCard, Tooltip, and NavigationMenu, keeps `Command` inline by design with real filtering and guarded selection, and records the pending device checks in [native remaining overlays](./native-remaining-overlays.md) and [native device validation](./native-device-validation.md).
+The v1.2 milestone includes these native source implementations in `synthex-ui` 2.0:
+
+- Shared anchored overlays in Select, DropdownMenu, Popover, Combobox,
+  ContextMenu, HoverCard, Tooltip and NavigationMenu, including SelectTrigger
+  `asChild` support. Command remains inline with filtering and guarded selection.
+- OTP focus, paste and Backspace handling. See [native OTP](./native-otp.md).
+- Slider tap/drag, stable thumb identity, no-cross clamping and per-thumb actions.
+  See [native slider](./native-slider.md).
+- Resizable pair-conserved drag, bounded sizes and per-handle actions.
+  See [native resizable](./native-resizable.md).
+- A native ScrollView carousel with controlled selection and a native API.
+  See [native Carousel](./native-carousel.md) for the breaking type change.
+- Sheet/Drawer handler, ref and dismissal contracts. Swipe gestures and snap points
+  remain unsupported. See [native Sheet/Drawer](./native-sheet-drawer.md).
+
+These implementations have source-contract and packed-consumer evidence.
+The [device checklist](./native-device-validation.md) remains pending; no device
+or screen-reader pass is inferred from typechecks or bundle generation.

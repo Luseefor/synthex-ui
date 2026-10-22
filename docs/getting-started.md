@@ -1,10 +1,9 @@
 # Getting started
 
-> Branch status (`ace/framework-onboarding`): `create --template` and `setup`
-> below describe the CLI source in this checkout. They are slated for an
-> upcoming `@luseefor/synthex-cli` release and are not yet in the published
-> `npx @luseefor/synthex-cli@latest` build. See `docs/frameworks.md` for the
-> per-framework reference.
+> These instructions target `@luseefor/synthex-cli@1.2+` and `synthex-ui@2+`.
+> If your installed packages predate those versions, run the CLI from source
+> (`packages/cli`) in this checkout. See `docs/frameworks.md` for the
+> per-framework reference and `docs/releases/v1.2.md` for version scope.
 
 ## Option A: scaffold with the CLI
 

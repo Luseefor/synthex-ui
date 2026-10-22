@@ -1,15 +1,13 @@
 # Updating owned components (`diff` / `update`)
 
-> Forthcoming release status (`ace/safe-component-updates`): `diff` and
-> `update` below describe the CLI source in this checkout
-> (`packages/cli/src/commands/diff.ts`,
+> These instructions target `@luseefor/synthex-cli@1.2+` and `synthex-ui@2+`.
+> If your installed packages predate those versions, run the CLI from source
+> (`packages/cli`) in this checkout. See `docs/releases/v1.2.md` for version
+> scope. Source locations: `packages/cli/src/commands/diff.ts`,
 > `packages/cli/src/commands/update.ts`,
 > `packages/cli/src/utils/componentUpdates.ts`,
 > `componentMerge.ts`, `componentState.ts`, `componentTransaction.ts`,
-> `componentInstall.ts`, `componentTypes.ts`). They are slated for an
-> upcoming `@luseefor/synthex-cli` release and are not yet in the published
-> `npx @luseefor/synthex-cli@latest` build. Run the CLI from source
-> (`packages/cli`) to use them today. A newer CLI also ships a newer bundled
+> `componentInstall.ts`, `componentTypes.ts`. A newer CLI also ships a newer bundled
 > registry, so the `availableVersion` you see can change after you upgrade the
 > CLI itself.
 
@@ -55,7 +53,7 @@ requests; update-all then fetches the active source.
 
 ```sh
 npx @luseefor/synthex-cli@latest diff [component...] --cwd <dir> --json
-# from source in this checkout: run packages/cli instead of npx until published
+# These examples target @luseefor/synthex-cli@1.2+; run packages/cli from source in this checkout if needed
 ```
 
 - With no `component...`, previews all recorded installs (`requests`).
@@ -85,7 +83,7 @@ matches base, your edit/deletion is kept), `created` (new upstream file),
 ```sh
 npx @luseefor/synthex-cli@latest update [component...] --cwd <dir> --dry-run --json --write-conflicts
 npx @luseefor/synthex-cli@latest update button --resolved components/ui/button/index.ts
-# from source in this checkout: run packages/cli instead of npx until published
+# These examples target @luseefor/synthex-cli@1.2+; run packages/cli from source in this checkout if needed
 ```
 
 - With no `component...`, updates all recorded installs. Updates only apply

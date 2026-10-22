@@ -1,10 +1,9 @@
 # Component registry
 
-> Branch status (`ace/lean-component-installs`): the lean `add` behavior below
-> describes the CLI source in this checkout. It is a forthcoming CLI release;
-> implemented in source, not yet published in
-> `npx @luseefor/synthex-cli@latest`. Run the CLI from source (`packages/cli`)
-> to use it today.
+> These instructions target `@luseefor/synthex-cli@1.2+` and `synthex-ui@2+`.
+> If your installed packages predate those versions, run the CLI from source
+> (`packages/cli`) in this checkout. See `docs/releases/v1.2.md` for
+> version scope.
 > `registry.json` in the repo root is the source of truth;
 > a generator builds it from `packages/ui/src`, so do not edit it by hand.
 
@@ -13,10 +12,9 @@ npm run registry:generate   # rebuild registry.json + public copy
 npm run registry:check      # validate registry.json
 ```
 
-On this branch the CLI ships that registry plus the Vite, Next, and Expo
+In `@luseefor/synthex-cli@1.2+` the CLI bundles that registry plus the Vite, Next, and Expo
 starter templates inside `dist/assets` (`packages/cli/scripts/copy-assets.mjs`, resolved via
-`packages/cli/src/utils/assets.ts`), so an
-installed CLI works outside this checkout after the release.
+`packages/cli/src/utils/assets.ts`), so an installed CLI works outside this checkout.
 
 ## Layout
 

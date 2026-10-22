@@ -2,10 +2,10 @@
 
 Web + React Native components from one API, plus an optional dockable workbench engine.
 
-> Branch status (`ace/native-remaining-overlays`): `create --template`, `setup`,
-> and the lean `add` below describe the CLI source in this checkout. Forthcoming
-> CLI release; implemented in source, not yet published in
-> `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
+> These instructions target `@luseefor/synthex-cli@1.2+` and `synthex-ui@2+`.
+> If your installed packages predate those versions, run the CLI from source
+> (`packages/cli`) in this checkout. See `docs/frameworks.md`,
+> `docs/registry.md`, and `docs/releases/v1.2.md`.
 
 ## Install
 
@@ -223,14 +223,16 @@ No full web/native API parity or full a11y certification is claimed.
 
 MIT. See [LICENSE](LICENSE).
 
-### Safe component updates (upcoming CLI release)
+### Safe component updates (`diff` / `update`)
 
+These instructions target `@luseefor/synthex-cli@1.2+` and `synthex-ui@2+`.
 The CLI records installed originals in `.synthex/components.json`. Preview with
 `synthex diff button`, then use `synthex update button --dry-run` before applying
 `synthex update button`. Independent edits merge; conflicting edits require
 manual review, and applied changes have backups. See
 [updating components](./docs/updating-components.md) for conflict resolution,
-legacy copies, and recovery.
+legacy copies, and recovery, and [v1.2 release note](./docs/releases/v1.2.md)
+for version scope.
 
 Native Sheet and Drawer: see `docs/native-sheet-drawer.md` for disabled/cancelled presses, composed refs and dismissal callbacks, physical edge placement, RTL content direction and owned-source checks. Swipe gestures, snap points and device/screen-reader evidence remain pending.
 

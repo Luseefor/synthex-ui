@@ -1,9 +1,9 @@
 # Synthex UI, llms.txt
 
-> Branch status (`ace/native-remaining-overlays`): `create --template`, `setup`,
-> and the lean `add` below describe the CLI source in this checkout. Forthcoming
-> CLI release; implemented in source, not yet published in
-> `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
+> These instructions target `@luseefor/synthex-cli@1.2+` and `synthex-ui@2+`.
+> If your installed packages predate those versions, run the CLI from source
+> (`packages/cli`) in this checkout. See `docs/frameworks.md`,
+> `docs/registry.md`, and `docs/releases/v1.2.md`.
 
 Component sources live under `packages/ui/src/*`. With `synthex-ui.json`,
 `add` copies web files for Vite/Next and native files for Expo (legacy
@@ -134,9 +134,9 @@ under `.synthex/backups/<uuid>`, saving `base`/`local`/`incoming` sidecars
 under `.synthex/conflicts/<uuid>` only on a real conflicting run, and
 advancing the `.synthex/components.json` baseline (original bytes + hash +
 registry version, distinct from layout-engine history) so a manual
-resolution accepted via `--resolved` does not re-conflict. Forthcoming
-release (CLI source in this checkout, not yet in published `npx ...@latest`).
-Full reference: `docs/updating-components.md`.
+resolution accepted via `--resolved` does not re-conflict. These instructions
+target `@luseefor/synthex-cli@1.2+` and `synthex-ui@2+`.
+Full reference: `docs/updating-components.md` and `docs/releases/v1.2.md`.
 
 ## Components (`synthex-ui/components`)
 

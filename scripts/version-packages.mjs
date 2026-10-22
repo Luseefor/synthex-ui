@@ -3,7 +3,7 @@
 // Runs `changeset version`, then regenerates registry.json from packages/ui/src
 // so the Version Packages PR carries package bumps AND the derived registry
 // files together. The private root stays at its own version; the registry
-// version follows the root package.json by design (see generate-registry.mjs).
+// version follows packages/ui/package.json (see generate-registry.mjs).
 import { spawnSync } from "node:child_process";
 
 const rootDir = process.cwd();

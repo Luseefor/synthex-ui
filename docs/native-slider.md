@@ -1,6 +1,6 @@
 # Native slider
 
-Scope: `ace/native-slider`, stacked on OPEN PR #126 (`ace/native-otp`). These changes are implemented in source and await a package release.
+Scope: `synthex-ui` 2.0, included in the v1.2 milestone.
 
 ```tsx
 import * as React from "react";
