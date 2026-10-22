@@ -5,6 +5,7 @@ import {
   Text,
   TextInput,
   View,
+  type GestureResponderEvent,
   type PressableProps,
   type StyleProp,
   type TextInputProps,
@@ -14,6 +15,12 @@ import {
 } from "react-native";
 import { CheckIcon, ChevronDownIcon, SearchIcon } from "../icons/index.native";
 import { useTheme } from "../_shared/theme/context";
+import type { OverlayPositionProps } from "../_shared/positioning";
+import {
+  NativeOverlayContent,
+  NativeOverlayProvider,
+  useNativeOverlayTriggerRef,
+} from "../_shared/overlay.native";
 import {
   ComboboxProvider,
   matchesComboboxQuery,
@@ -69,11 +76,13 @@ export function Combobox({
 
   // testID mirrors web data-slot="combobox" for parity.
   return (
-    <ComboboxProvider value={controller}>
-      <View testID={testID ?? "combobox"} style={style} {...props}>
-        {children}
-      </View>
-    </ComboboxProvider>
+    <NativeOverlayProvider>
+      <ComboboxProvider value={controller}>
+        <View testID={testID ?? "combobox"} style={style} {...props}>
+          {children}
+        </View>
+      </ComboboxProvider>
+    </NativeOverlayProvider>
   );
 }
 
@@ -88,19 +97,27 @@ export const ComboboxTrigger: React.ForwardRefExoticComponent<
 > = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   ComboboxTriggerProps
->(({ children, onPress, style, testID, ...props }, ref) => {
+>(({ children, onPress, style, testID, disabled, accessibilityState, ...props }, ref) => {
   const context = useComboboxContext();
   const theme = useTheme();
+  const mergedRef = useNativeOverlayTriggerRef(
+    ref as React.Ref<React.ElementRef<typeof View>>,
+  );
+  const isDisabled = !!disabled;
 
   return (
     <Pressable
-      ref={ref}
+      ref={mergedRef as React.Ref<React.ElementRef<typeof Pressable>>}
+      collapsable={false}
       testID={testID ?? "combobox-trigger"}
       accessibilityRole="button"
-      accessibilityState={{ expanded: context.open }}
-      onPress={(event) => {
-        context.setOpen(!context.open);
+      accessibilityState={{ ...accessibilityState, expanded: context.open, disabled: isDisabled }}
+      disabled={isDisabled}
+      onPress={(event: GestureResponderEvent) => {
+        if (isDisabled) return;
         onPress?.(event);
+        if (event.defaultPrevented) return;
+        context.setOpen(!context.open);
       }}
       style={({ pressed }) => [
         {
@@ -172,7 +189,7 @@ export const ComboboxValue: React.ForwardRefExoticComponent<
 
 ComboboxValue.displayName = "ComboboxValue";
 
-export interface ComboboxContentProps extends Omit<ViewProps, "style"> {
+export interface ComboboxContentProps extends Omit<ViewProps, "style">, OverlayPositionProps {
   readonly style?: StyleProp<ViewStyle>;
   readonly testID?: string;
 }
@@ -182,21 +199,22 @@ export const ComboboxContent: React.ForwardRefExoticComponent<
 > = React.forwardRef<
   React.ElementRef<typeof View>,
   ComboboxContentProps
->(({ style, testID, ...props }, ref) => {
+>(({ style, testID, side, align, sideOffset, alignOffset, ...props }, ref) => {
   const context = useComboboxContext();
   const theme = useTheme();
 
-  if (!context.open) {
-    return null;
-  }
-
   return (
-    <View
+    <NativeOverlayContent
       ref={ref}
+      open={context.open}
+      onDismiss={() => context.setOpen(false)}
       testID={testID ?? "combobox-content"}
+      side={side}
+      align={align}
+      sideOffset={sideOffset}
+      alignOffset={alignOffset}
       style={[
         {
-          marginTop: 8,
           borderWidth: 1,
           borderColor: theme.colors.border,
           borderRadius: theme.radius.lg + 2,
@@ -280,6 +298,8 @@ export const ComboboxList: React.ForwardRefExoticComponent<
       style={[{ maxHeight: 256 }, style]}
       contentContainerStyle={{ padding: 8 }}
       {...props}
+      keyboardShouldPersistTaps="handled"
+      nestedScrollEnabled
     >
       {children}
     </ScrollView>
@@ -339,10 +359,11 @@ export interface ComboboxItemProps
 export const ComboboxItem: React.ForwardRefExoticComponent<
   React.PropsWithoutRef<ComboboxItemProps> & React.RefAttributes<React.ElementRef<typeof Pressable>>
 > = React.forwardRef<React.ElementRef<typeof Pressable>, ComboboxItemProps>(
-  ({ children, keywords, onPress, style, textStyle, textValue, testID, value, ...props }, ref) => {
+  ({ children, keywords, onPress, style, textStyle, textValue, testID, value, disabled, accessibilityState, ...props }, ref) => {
     const context = useComboboxContext();
     const theme = useTheme();
     const itemId = React.useId();
+    const isDisabled = !!disabled;
     const label =
       textValue ??
       (typeof children === "string" || typeof children === "number" ? String(children) : value);
@@ -367,12 +388,15 @@ export const ComboboxItem: React.ForwardRefExoticComponent<
         ref={ref}
         testID={testID ?? "combobox-item"}
         accessibilityRole="button"
-        accessibilityState={{ selected: active }}
-        onPress={(event) => {
+        accessibilityState={{ ...accessibilityState, selected: active, disabled: isDisabled }}
+        disabled={isDisabled}
+        onPress={(event: GestureResponderEvent) => {
+          if (isDisabled) return;
+          onPress?.(event);
+          if (event.defaultPrevented) return;
           context.setValue(value);
           context.setQuery("");
           context.setOpen(false);
-          onPress?.(event);
         }}
         style={({ pressed }) => [
           {

@@ -2,7 +2,7 @@
 
 Web + React Native components from one API, plus an optional dockable workbench engine.
 
-> Branch status (`ace/native-capabilities`): `create --template`, `setup`,
+> Branch status (`ace/native-overlays`): `create --template`, `setup`,
 > and the lean `add` below describe the CLI source in this checkout. Forthcoming
 > CLI release; implemented in source, not yet published in
 > `npx @luseefor/synthex-cli@latest`. See `docs/frameworks.md` and `docs/registry.md`.
@@ -123,6 +123,9 @@ including custom-theme and nested-portal limitations.
 [Native capabilities](./docs/native-capabilities.md) lists implementation differences
 and remaining gaps. [Native device validation](./docs/native-device-validation.md)
 provides a packed Expo fixture, iOS/Android bundle checks, and a pending device checklist.
+Native Select, DropdownMenu, Popover and Combobox use anchored modal surfaces
+with collision handling, RTL alignment, outside dismissal and keyboard avoidance.
+Device layout, keyboard and screen-reader checks remain pending.
 
 ## Own the source (optional)
 

@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   Pressable,
   Text,
+  type GestureResponderEvent,
   type TextProps,
   View,
   type PressableProps,
@@ -13,6 +14,12 @@ import {
 import { CheckIcon, ChevronDownIcon } from "../icons/index.native";
 import { useTheme } from "../_shared/theme/context";
 import { createFieldControlStyle } from "../_shared/field-control.native";
+import type { OverlayPositionProps } from "../_shared/positioning";
+import {
+  NativeOverlayContent,
+  NativeOverlayProvider,
+  useNativeOverlayTriggerRef,
+} from "../_shared/overlay.native";
 import {
   SelectProvider,
   useSelectContext,
@@ -50,7 +57,6 @@ export function Select({
   value,
   ...props
 }: SelectProps) {
-  void dir;
   void name;
   void required;
   const controller = useSelectController({
@@ -64,14 +70,16 @@ export function Select({
   });
 
   return (
-    <SelectProvider value={controller}>
-      <NativeSelectDisabledContext.Provider value={!!disabled}>
-      {/* testID mirrors web `data-slot="select"` for parity. */}
-      <View testID={testID ?? "select"} style={style} {...props}>
-        {children}
-      </View>
-      </NativeSelectDisabledContext.Provider>
-    </SelectProvider>
+    <NativeOverlayProvider dir={dir}>
+      <SelectProvider value={controller}>
+        <NativeSelectDisabledContext.Provider value={!!disabled}>
+        {/* testID mirrors web `data-slot="select"` for parity. */}
+        <View testID={testID ?? "select"} style={[dir ? { direction: dir } : null, style]} {...props}>
+          {children}
+        </View>
+        </NativeSelectDisabledContext.Provider>
+      </SelectProvider>
+    </NativeOverlayProvider>
   );
 }
 
@@ -89,13 +97,76 @@ export const SelectTrigger: React.ForwardRefExoticComponent<
 >(({ children, onPress, style, asChild, testID, disabled, accessibilityState, ...props }, ref) => {
   const context = useSelectContext();
   const rootDisabled = React.useContext(NativeSelectDisabledContext);
-  const isDisabled = rootDisabled || !!disabled;
-  void asChild;
   const theme = useTheme();
+
+  type AsChildProps = {
+    readonly onPress?: ((event: GestureResponderEvent) => void) | null;
+    readonly disabled?: boolean;
+    readonly accessibilityState?: PressableProps["accessibilityState"];
+    readonly testID?: string;
+    readonly style?: PressableProps["style"];
+    readonly accessibilityRole?: PressableProps["accessibilityRole"];
+    readonly [key: string]: unknown;
+  };
+
+  const childElement =
+    asChild && React.isValidElement<AsChildProps>(children) ? children : null;
+  const childRef = (
+    childElement?.props as { readonly ref?: React.Ref<React.ElementRef<typeof View>> } | undefined
+  )?.ref;
+  const mergedRef = useNativeOverlayTriggerRef(
+    ref as React.Ref<React.ElementRef<typeof View>>,
+    childRef,
+  );
+
+  if (childElement) {
+    const childProps = childElement.props as AsChildProps;
+    const childDisabled = childProps.disabled === true;
+    const isDisabled = !!rootDisabled || !!disabled || childDisabled;
+    const childOnPress = childProps.onPress;
+    const childAccessibilityState = childProps.accessibilityState;
+    const childTestID = childProps.testID;
+    const childStyle = childProps.style as PressableProps["style"] | undefined;
+    const childRole = childProps.accessibilityRole;
+    const resolvedStyle = (() => {
+      if (style == null) return childStyle;
+      if (childStyle == null) return style;
+      if (typeof childStyle === "function") {
+        return (state: { pressed: boolean }) => [style, childStyle(state)];
+      }
+      return [style, childStyle];
+    })();
+    return React.cloneElement(childElement, {
+      ref: mergedRef,
+      testID: childTestID ?? testID ?? "select-trigger",
+      disabled: isDisabled,
+      collapsable: false,
+      accessibilityRole: childRole ?? "button",
+      ...props,
+      accessibilityState: {
+        ...childAccessibilityState,
+        ...accessibilityState,
+        expanded: context.open,
+        disabled: isDisabled,
+      },
+      style: resolvedStyle,
+      onPress: (event: GestureResponderEvent) => {
+        if (isDisabled) return;
+        childOnPress?.(event);
+        if (event.defaultPrevented) return;
+        onPress?.(event);
+        if (event.defaultPrevented) return;
+        context.setOpen(!context.open);
+      },
+    });
+  }
+
+  const isDisabled = !!rootDisabled || !!disabled;
 
   return (
     <Pressable
-      ref={ref}
+      ref={mergedRef as React.Ref<React.ElementRef<typeof Pressable>>}
+      collapsable={false}
       testID={testID ?? "select-trigger"}
       accessibilityRole="button"
       accessibilityState={{ ...accessibilityState, expanded: context.open, disabled: isDisabled }}
@@ -172,13 +243,9 @@ export const SelectValue: React.ForwardRefExoticComponent<
 
 SelectValue.displayName = "SelectValue";
 
-export interface SelectContentProps extends Omit<ViewProps, "style"> {
+export interface SelectContentProps extends Omit<ViewProps, "style">, OverlayPositionProps {
   readonly style?: StyleProp<ViewStyle>;
   readonly position?: "item-aligned" | "popper";
-  readonly side?: "top" | "right" | "bottom" | "left";
-  readonly align?: "start" | "center" | "end";
-  readonly sideOffset?: number;
-  readonly alignOffset?: number;
 }
 
 export const SelectContent: React.ForwardRefExoticComponent<
@@ -188,24 +255,21 @@ export const SelectContent: React.ForwardRefExoticComponent<
   SelectContentProps
 >(({ style, position, side, align, sideOffset, alignOffset, testID, ...props }, ref) => {
   void position;
-  void side;
-  void align;
-  void sideOffset;
-  void alignOffset;
   const context = useSelectContext();
   const theme = useTheme();
 
-  if (!context.open) {
-    return null;
-  }
-
   return (
-    <View
+    <NativeOverlayContent
       ref={ref}
+      open={context.open}
+      onDismiss={() => context.setOpen(false)}
       testID={testID ?? "select-content"}
+      side={side}
+      align={align}
+      sideOffset={sideOffset}
+      alignOffset={alignOffset}
       style={[
         {
-          marginTop: 8,
           borderWidth: 1,
           borderColor: theme.colors.border,
           borderRadius: theme.radius.lg,

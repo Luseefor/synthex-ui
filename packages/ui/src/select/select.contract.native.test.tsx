@@ -4,10 +4,32 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { GestureResponderEvent } from "react-native";
 
 vi.mock("react-native", () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const ReactMock = require("react") as typeof React;
   const host = (name: string) => ReactMock.forwardRef(({ children, ...props }: any, ref: any) =>
     ReactMock.createElement(name, { ...props, ref }, children));
-  return { Pressable: host("native-pressable"), Text: host("native-text"), View: host("native-view") };
+  const flatten = (value: any): any =>
+    Array.isArray(value)
+      ? Object.assign({}, ...value.filter(Boolean).map(flatten))
+      : (value ?? {});
+  return {
+    Pressable: host("native-pressable"),
+    Text: host("native-text"),
+    View: host("native-view"),
+    ScrollView: host("native-scroll"),
+    SafeAreaView: host("native-safe-area"),
+    KeyboardAvoidingView: host("native-kav"),
+    Modal: ({ children, visible, ...props }: any) =>
+      visible ? ReactMock.createElement("native-modal", props, children) : null,
+    Keyboard: { dismiss: vi.fn() },
+    useWindowDimensions: () => ({ width: 400, height: 800, scale: 1, fontScale: 1 }),
+    Platform: { OS: "ios", select: (options: any) => options.ios ?? options.default },
+    StyleSheet: {
+      create: (styles: any) => styles,
+      flatten,
+      absoluteFillObject: { position: "absolute", left: 0, right: 0, top: 0, bottom: 0 },
+    },
+  };
 });
 vi.mock("../icons/index.native", () => ({ CheckIcon: () => null, ChevronDownIcon: () => null }));
 
