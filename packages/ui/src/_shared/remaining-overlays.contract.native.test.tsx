@@ -156,13 +156,14 @@ for (const { name, Root, Trigger, Content, activation, text } of families) {
 }
 
 describe("native activation and multi-item navigation", () => {
-  it("dismisses Tooltip from its Text escape action after the caller observer", () => {
+  it("routes Tooltip escape through its portable surface after the caller observer", () => {
     const order: string[] = [];
     const tree = render(<Tooltip defaultOpen onOpenChange={() => order.push("close")}>
       <TooltipTrigger><Text>Help</Text></TooltipTrigger>
       <TooltipContent testID="tip" onAccessibilityEscape={() => order.push("caller")}>Hint</TooltipContent>
     </Tooltip>);
-    act(() => host(tree, "tip").props.onAccessibilityEscape());
+    expect(host(tree, "tip").props.onAccessibilityEscape).toBeUndefined();
+    act(() => host(tree, "tip-surface").props.onAccessibilityEscape());
     expect(order).toEqual(["caller", "close"]);
     expect(hosts(tree, "tip-surface-modal")).toHaveLength(0);
     expect(state.dismiss).toHaveBeenCalledOnce();

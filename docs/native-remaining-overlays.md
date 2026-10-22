@@ -48,7 +48,7 @@ Both triggers activate on `onPress` toggle only. `HoverCard` `openDelay`/`closeD
 
 `HoverCardContent` honors `side/align/sideOffset/alignOffset`. Both families support controlled `open`/`onOpenChange` (controlled requests notify without mutating rendered state) and `dir` via the overlay provider with explicit RTL reaching the surface, trigger style, and nested context.
 
-Tooltip surface split: the public ref stays `React.ElementRef<typeof Text>`, and `style` (`TextStyle`) applies to that inner `Text`. The new `containerStyle` (`ViewStyle`) sizes the modal surface (`testID + "-surface"`, default `minWidth: 160`). Callers that need surface geometry must use `containerStyle`; `style` never affects the surface frame. Its Text accessibility-escape handler runs the caller observer, dismisses the keyboard and requests close; the outer surface also supports escape dismissal.
+Tooltip surface split: the public ref stays `React.ElementRef<typeof Text>`, and `style` (`TextStyle`) applies to that inner `Text`. The new `containerStyle` (`ViewStyle`) sizes the modal surface (`testID + "-surface"`, default `minWidth: 160`). Callers that need surface geometry must use `containerStyle`; `style` never affects the surface frame. Its `onAccessibilityEscape` callback is routed through the outer surface, which runs the caller observer, dismisses the keyboard and requests close. The callback is declared explicitly for portability: React Native 0.88 no longer exposes it on `TextProps`.
 
 ## NavigationMenu: one anchor per item, vertical orientation, Link behavior
 

@@ -1,6 +1,5 @@
 import * as React from "react";
 import {
-  Keyboard,
   Pressable,
   Text,
   type TextProps,
@@ -58,6 +57,8 @@ TooltipTrigger.displayName = "TooltipTrigger";
 export interface TooltipContentProps extends Omit<TextProps, "style">, OverlayPositionProps {
   readonly style?: StyleProp<TextStyle>;
   readonly containerStyle?: StyleProp<ViewStyle>;
+  /** Escape belongs to the overlay surface; RN 0.88 Text no longer exposes it. */
+  readonly onAccessibilityEscape?: () => void;
 }
 
 // Keep the public ref and Text props on the explanatory text, not its portal shell.
@@ -69,9 +70,8 @@ export const TooltipContent: React.ForwardRefExoticComponent<
     const theme = useTheme();
     return <NativeOverlayContent open={context.open} onDismiss={() => context.setOpen(false)}
       side={side} align={align} sideOffset={sideOffset} alignOffset={alignOffset}
-      testID={testID + "-surface"} style={[{ minWidth: 160 }, containerStyle]}>
-      <Text {...props} ref={ref} testID={testID}
-        onAccessibilityEscape={() => { onAccessibilityEscape?.(); Keyboard.dismiss(); context.setOpen(false); }} style={[
+      testID={testID + "-surface"} onAccessibilityEscape={onAccessibilityEscape} style={[{ minWidth: 160 }, containerStyle]}>
+      <Text {...props} ref={ref} testID={testID} style={[
         { borderRadius: theme.radius.md, backgroundColor: "#0f172a", color: "#ffffff",
           paddingHorizontal: 12, paddingVertical: 8, fontFamily: theme.typography.family.sans,
           fontSize: theme.typography.size.xs, fontWeight: theme.typography.weight.medium }, style,
