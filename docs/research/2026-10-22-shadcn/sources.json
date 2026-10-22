@@ -1,0 +1,10 @@
+{
+  "reviewDate": "2026-10-22",
+  "synthexCommit": "7babe5ef2c2d1959e680d6edfc19bc384ce428ea",
+  "shadcnCommit": "25af02b1b467fcd53b63e0c6d6d324c57c16ef18",
+  "shadcnVersion": "4.22.1",
+  "synthexPublishedVersion": "1.1.0",
+  "synthexCliPublishedVersion": "1.1.0",
+  "synthexNpmModified": "2026-03-06",
+  "comparison": "Merged Synthex source versus pinned official shadcn source; release readiness scored separately. Ratings are evidence-based judgments, not measurements."
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "synthexCommit": "7babe5ef2c2d1959e680d6edfc19bc384ce428ea",
+  "scope": "Synthex source APIs, temporary local registry and project; no shadcn execution, performance timing, semantic compilation, crash or device test",
+  "checks": [
+    {
+      "name": "install records exact original bytes and hash",
+      "passed": true
+    },
+    {
+      "name": "recorded history distinguishes upstream change from local customization",
+      "passed": true
+    },
+    {
+      "name": "diff previews a disjoint merge without changing any project file",
+      "passed": true
+    },
+    {
+      "name": "update keeps customization, applies upstream change, backs up local, advances upstream baseline",
+      "passed": true
+    },
+    {
+      "name": "repeated update preserves bytes and creates no new backup",
+      "passed": true
+    },
+    {
+      "name": "overlapping edit blocks the entire two-component batch, in real and dry runs",
+      "passed": true
+    },
+    {
+      "name": "explicit resolution accepts current bytes and prevents the same conflict recurring",
+      "passed": true
+    },
+    {
+      "name": "stale transaction expectation refuses overwrite without project mutation",
+      "passed": true
+    }
+  ],
+  "passed": 8
+}
