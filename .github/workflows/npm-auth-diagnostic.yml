@@ -1,0 +1,60 @@
+name: npm authentication diagnostic
+
+on:
+  push:
+    branches: [ace/diagnose-release-auth]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure npm
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Check token identity and available permission metadata
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        shell: bash
+        run: |
+          node --input-type=module <<'JS'
+          const token = process.env.NODE_AUTH_TOKEN;
+          if (!token) throw new Error("NPM_TOKEN is absent");
+          console.log(JSON.stringify({ tokenPresent: true, surroundingWhitespace: token !== token.trim() }));
+          if (/\s/.test(token)) throw new Error("Stored token contains whitespace");
+          const headers = { authorization: `Bearer ${token}` };
+          const identity = await fetch("https://registry.npmjs.org/-/whoami", { headers });
+          console.log(JSON.stringify({ identityHttpStatus: identity.status }));
+          if (!identity.ok) process.exit(1);
+          const user = await identity.json();
+          console.log(JSON.stringify({ npmUsername: user.username }));
+          const response = await fetch("https://registry.npmjs.org/-/npm/v1/tokens?perPage=100", { headers });
+          console.log(JSON.stringify({ permissionMetadataHttpStatus: response.status }));
+          if (response.ok) {
+            const data = await response.json();
+            const matches = (data.objects ?? []).filter(item => {
+              if (typeof item.token !== "string") return false;
+              if (item.token === token) return true;
+              const parts = item.token.split(/\.{3}|…/);
+              return parts.length === 2 && parts.every(Boolean)
+                && token.startsWith(parts[0]) && token.endsWith(parts[1]);
+            });
+            console.log(JSON.stringify({ matchingTokenRecords: matches.length }));
+            if (matches.length === 1) {
+              const item = matches[0];
+              console.log(JSON.stringify({
+                bypass2fa: item.bypass_2fa ?? null,
+                readOnly: item.readonly ?? null,
+                permissions: (item.permissions ?? []).map(p => ({ name: p.name, action: p.action })),
+                scopes: (item.scopes ?? []).map(s => ({ type: s.type, name: s.name })),
+              }));
+            }
+          }
+          JS
+          npm whoami --registry=https://registry.npmjs.org
