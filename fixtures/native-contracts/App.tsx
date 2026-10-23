@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Keyboard, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, Text, View } from "react-native";
+import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text, View } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "synthex-ui/button";
 import { Checkbox } from "synthex-ui/checkbox";
 import { Switch } from "synthex-ui/switch";
@@ -38,11 +39,13 @@ function useCarouselReadout(api: NativeCarouselApi | undefined) {
 export default function App() {
   const [dark, setDark] = React.useState(false);
   const [rtl, setRtl] = React.useState(false);
-  return <ThemeProvider mode={dark ? "dark" : "light"}>
-    <DirectionProvider dir={rtl ? "rtl" : "ltr"}>
-      <Contracts dark={dark} setDark={setDark} rtl={rtl} setRtl={setRtl} />
-    </DirectionProvider>
-  </ThemeProvider>;
+  return <SafeAreaProvider>
+    <ThemeProvider mode={dark ? "dark" : "light"}>
+      <DirectionProvider dir={rtl ? "rtl" : "ltr"}>
+        <Contracts dark={dark} setDark={setDark} rtl={rtl} setRtl={setRtl} />
+      </DirectionProvider>
+    </ThemeProvider>
+  </SafeAreaProvider>;
 }
 
 function Contracts({ dark, setDark, rtl, setRtl }: { dark: boolean; setDark: (value: boolean) => void; rtl: boolean; setRtl: (value: boolean) => void }) {

@@ -66,6 +66,36 @@ character's state update. Subsequent interaction checks use that synchronization
 Android interaction and screen-reader checks remain pending. Bundle-export
 results above are separate from these runtime checks.
 
+## Simulator follow-up, 2026-10-23
+
+The local packed candidate containing the mixed-label fix and the Resizable
+delayed-update fix was exercised in Expo Go 58.0.5 with React Native 0.88.0.
+The targets were an iPhone 17 Pro simulator on iOS 26.3.1 and an ARM64 Android
+15 emulator at 720 by 1280 pixels. These results describe the candidate, not
+the published UI 2.0.0 or a physical-device certification.
+
+| Interaction | iOS simulator | Android emulator |
+| --- | --- | --- |
+| Controlled horizontal resize, three panels | Passed | Passed |
+| Controlled vertical resize, two panels | Passed | Passed |
+| Resize pair total conserved, third panel unchanged, exactly one release commit | Passed | Passed |
+| Full scrolling fixture: horizontal and vertical resize | Passed | Pending |
+| Popover: type with keyboard open, interior action increments once without closing, outside press dismisses | Passed | Pending |
+| Normal button increments once; disabled button leaves the count unchanged | Previously exercised | Passed |
+
+The resize regression was reproduced on both platforms before the fix: sizes
+changed but the release callback did not run. The iOS event trace showed React
+still rendering an earlier emitted proposal at release. Treating that proposal
+as an unrelated parent correction cancelled the gesture. The fixed candidate
+accepts outstanding proposals and commits the final sizes once. Unit tests also
+cover delayed updates, repeated moves at an acknowledged value, rejection by a
+controlled parent, and genuine external corrections.
+
+The iOS checks use XCTest. Android checks use ADB and UIAutomator with observed
+element bounds and before/after readouts. Outside taps exclude the content,
+keyboard, and Expo Go developer control. VoiceOver, TalkBack, SMS autofill,
+large-font coverage, and the remaining device-matrix rows are still pending.
+
 ## Device checks
 
 The matrix remains pending unless a complete row has been exercised. Simulator
