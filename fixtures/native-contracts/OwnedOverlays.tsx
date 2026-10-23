@@ -145,7 +145,7 @@ export default function OwnedOverlays() {
           <PopoverContent><Text>Owned surface</Text></PopoverContent>
         </Popover>
         <Combobox>
-          <ComboboxTrigger testID="owned-combobox-trigger"><ComboboxValue /></ComboboxTrigger>
+          <ComboboxTrigger testID="owned-combobox-trigger"><ComboboxValue testID="owned-combobox-trigger-label" /></ComboboxTrigger>
           <ComboboxContent><ComboboxInput /><ComboboxList><ComboboxItem value="one">One</ComboboxItem></ComboboxList></ComboboxContent>
         </Combobox>
       </View>
