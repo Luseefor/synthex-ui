@@ -1,5 +1,5 @@
 import * as React from "react";
-import { KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, Text, View } from "react-native";
+import { Keyboard, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, Text, View } from "react-native";
 import { Button } from "synthex-ui/button";
 import { Checkbox } from "synthex-ui/checkbox";
 import { Switch } from "synthex-ui/switch";
@@ -107,7 +107,7 @@ function Contracts({ dark, setDark, rtl, setRtl }: { dark: boolean; setDark: (va
   const headingStyle = { ...labelStyle, fontSize: 20, fontWeight: "700" as const };
   return <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-    <ScrollView testID="native-contracts" keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 24, gap: 20 }}>
+    <ScrollView style={{ flex: 1 }} testID="native-contracts" keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 24, gap: 20 }}>
       <View style={{ gap: 8 }}>
         <Text accessibilityRole="header" style={{ ...headingStyle, fontSize: 26 }}>Synthex native contracts</Text>
         <Text style={labelStyle}>Interactive fixture. Bundle success does not verify device behavior.</Text>
@@ -374,6 +374,9 @@ function Contracts({ dark, setDark, rtl, setRtl }: { dark: boolean; setDark: (va
         <Text testID="dialog-value" style={labelStyle}>Dialog: {open ? "open" : "closed"}; Interior count: {dialogPresses}</Text>
       </View>
     </ScrollView>
+    <View style={{ paddingHorizontal: 24, paddingVertical: 8, borderTopWidth: 1, borderColor: theme.colors.border }}>
+      <Button testID="dismiss-keyboard" variant="secondary" onPress={() => Keyboard.dismiss()}>Hide keyboard</Button>
+    </View>
   </KeyboardAvoidingView>
   </SafeAreaView>;
 }

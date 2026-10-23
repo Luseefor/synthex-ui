@@ -1,7 +1,6 @@
 import * as React from "react";
 import {
   Pressable,
-  Text,
   View,
   type PressableProps,
   type StyleProp,
@@ -10,6 +9,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import { useTheme } from "../_shared/theme/context";
+import { renderNativeInlineText } from "../_shared/native-text";
 import {
   TabsProvider,
   useTabsContext,
@@ -162,7 +162,7 @@ export const TabsTrigger: React.ForwardRefExoticComponent<
       ]}
       {...props}
     >
-      {renderTabsText(children, [labelStyle, textStyle])}
+      {renderNativeInlineText(children, [labelStyle, textStyle])}
     </Pressable>
   );
 });
@@ -213,16 +213,3 @@ export const TabsContent: React.ForwardRefExoticComponent<
 });
 
 TabsContent.displayName = "TabsContent";
-
-function renderTabsText(
-  children: React.ReactNode,
-  textStyle: StyleProp<TextStyle>,
-) {
-  return React.Children.map(children, (child) => {
-    if (typeof child === "string" || typeof child === "number") {
-      return <Text style={textStyle}>{child}</Text>;
-    }
-
-    return child;
-  });
-}

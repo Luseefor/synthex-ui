@@ -58,11 +58,13 @@ menu, the checkbox label toggled and restored, and outside press dismissed it.
 Both packaged and copied-source menus were exercised without a text redbox.
 This is candidate evidence; the patch has not been published.
 
-The broader interaction run remains incomplete. Its controlled-input check
-received only `R` after automation typed `Rij`; a plain React Native comparison
-is being used to distinguish the cause. Android interaction and screen-reader
-checks remain pending. Bundle-export results above are separate from these
-runtime checks.
+The broader interaction run remains incomplete. Its first controlled-input
+check received only `R` after automation typed `Rij`. An isolated comparison
+reproduced the dropped burst on plain React Native `TextInput`; the library
+input accepted the burst, and both inputs passed when the test waited for each
+character's state update. Subsequent interaction checks use that synchronization.
+Android interaction and screen-reader checks remain pending. Bundle-export
+results above are separate from these runtime checks.
 
 ## Device checks
 

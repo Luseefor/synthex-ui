@@ -202,4 +202,59 @@ describe("native-text inline host invariant", () => {
       console.error = orig;
     }
   });
+
+  it("preserves nested array namespaces to avoid duplicate key warnings", () => {
+    const errors: unknown[] = [];
+    const orig = console.error;
+    console.error = (...args: unknown[]) => {
+      errors.push(args);
+    };
+    let tree!: TestRenderer.ReactTestRenderer;
+    try {
+      const nested = [
+        [<span key="icon">x</span>],
+        [<span key="icon">y</span>],
+      ] as any;
+      const out = renderNativeInlineText(nested, undefined);
+      act(() => {
+        tree = TestRenderer.create(React.createElement("div", null, out as any));
+      });
+      const keyErrors = errors.filter((a) =>
+        String((a as unknown[])[0]).includes("duplicate") ||
+        (String((a as unknown[])[0]).includes("key") && String((a as unknown[])[0]).includes("unique")),
+      );
+      expect(keyErrors).toEqual([]);
+    } finally {
+      console.error = orig;
+      if (tree!) act(() => tree.unmount());
+    }
+  });
+
+  it("generated Text keys skip caller element keys at the same level", () => {
+    const errors: unknown[] = [];
+    const orig = console.error;
+    console.error = (...args: unknown[]) => {
+      errors.push(args);
+    };
+    let tree!: TestRenderer.ReactTestRenderer;
+    try {
+      const caller = <span key="inline-text-0">icon</span>;
+      const out = renderNativeInlineText(["hi", caller] as any, undefined) as any[];
+      expect(Array.isArray(out)).toBe(true);
+      expect(out.length).toBe(2);
+      const textKey = React.isValidElement(out[0]) ? String((out[0] as any).key) : "";
+      expect(textKey).not.toBe("inline-text-0");
+      act(() => {
+        tree = TestRenderer.create(React.createElement("div", null, out as any));
+      });
+      const keyErrors = errors.filter((a) =>
+        String((a as unknown[])[0]).includes("duplicate") ||
+        (String((a as unknown[])[0]).includes("key") && String((a as unknown[])[0]).includes("unique")),
+      );
+      expect(keyErrors).toEqual([]);
+    } finally {
+      console.error = orig;
+      if (tree!) act(() => tree.unmount());
+    }
+  });
 });

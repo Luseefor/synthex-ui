@@ -15,6 +15,7 @@ import {
   useNativeOverlayTriggerRef,
 } from "../_shared/overlay.native";
 import { useTheme } from "../_shared/theme/context";
+import { renderNativeInlineText } from "../_shared/native-text";
 import {
   PopoverProvider,
   usePopoverContext,
@@ -93,6 +94,7 @@ export const PopoverTrigger: React.ForwardRefExoticComponent<
   PopoverTriggerProps
 >(({ children, onPress, style, asChild, testID, disabled, accessibilityState, accessibilityRole, ...props }, ref) => {
   const context = usePopoverContext();
+  const theme = useTheme();
 
   type AsChildProps = {
     onPress?: ((event: GestureResponderEvent) => void) | null;
@@ -176,7 +178,11 @@ export const PopoverTrigger: React.ForwardRefExoticComponent<
       testID={testID ?? "popover-trigger"}
       {...props}
     >
-      {children}
+      {renderNativeInlineText(children, {
+        color: theme.colors.foreground,
+        fontFamily: theme.typography.family.sans,
+        fontSize: theme.typography.size.sm,
+      })}
     </Pressable>
   );
 });

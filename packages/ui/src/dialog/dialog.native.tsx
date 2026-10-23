@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { CloseIcon } from "../icons/index.native";
 import { useTheme } from "../_shared/theme/context";
+import { renderNativeInlineText } from "../_shared/native-text";
 import {
   DialogProvider,
   useDialogContext,
@@ -86,6 +87,7 @@ export const DialogTrigger: React.ForwardRefExoticComponent<
   DialogTriggerProps
 >(({ children, onPress, style, asChild, testID, disabled, accessibilityState, ...props }, ref) => {
   const context = useDialogContext();
+  const theme = useTheme();
 
   const handlePress = React.useCallback(
     (event: GestureResponderEvent) => {
@@ -157,7 +159,11 @@ export const DialogTrigger: React.ForwardRefExoticComponent<
       disabled={disabled}
       {...props}
     >
-      {children}
+      {renderNativeInlineText(children, {
+        color: theme.colors.foreground,
+        fontFamily: theme.typography.family.sans,
+        fontSize: theme.typography.size.sm,
+      })}
     </Pressable>
   );
 });
@@ -177,6 +183,7 @@ export const DialogClose: React.ForwardRefExoticComponent<
   DialogCloseProps
 >(({ children, onPress, style, asChild, testID, disabled, accessibilityState, ...props }, ref) => {
   const context = useDialogContext();
+  const theme = useTheme();
 
   const handlePress = React.useCallback(
     (event: GestureResponderEvent) => {
@@ -248,7 +255,11 @@ export const DialogClose: React.ForwardRefExoticComponent<
       disabled={disabled}
       {...props}
     >
-      {children}
+      {renderNativeInlineText(children, {
+        color: theme.colors.foreground,
+        fontFamily: theme.typography.family.sans,
+        fontSize: theme.typography.size.sm,
+      })}
     </Pressable>
   );
 });
