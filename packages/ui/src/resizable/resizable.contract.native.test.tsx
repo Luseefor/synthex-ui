@@ -880,6 +880,226 @@ describe("Resizable native contract", () => {
     tree.unmount();
   });
 
+  it("commits latest proposal when a delayed older echo arrives before release", () => {
+    const onChange = vi.fn();
+    const onCommit = vi.fn();
+    const tree = render(
+      <ResizablePanelGroup
+        direction="horizontal"
+        sizes={[50, 50]}
+        onSizesChange={onChange}
+        onSizesCommit={onCommit}
+      >
+        <ResizablePanel>{null}</ResizablePanel>
+        <ResizableHandle />
+        <ResizablePanel>{null}</ResizablePanel>
+      </ResizablePanelGroup>,
+    );
+    firePanelLayouts(tree, [100, 100]);
+    fireGroupLayout(tree, 212);
+    expect(capture(tree, 0, 10, 0)).toBe(true);
+    grant(tree, 0);
+    move(tree, 0, 20, 0);
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const first = [...(onChange.mock.calls[0]![0] as number[])];
+    move(tree, 0, 30, 0);
+    expect(onChange).toHaveBeenCalledTimes(2);
+    const second = [...(onChange.mock.calls[1]![0] as number[])];
+    // Delayed echo of the older proposal arrives after the newer one.
+    TestRenderer.act(() => {
+      tree.update(
+        <ResizablePanelGroup
+          direction="horizontal"
+          sizes={first}
+          onSizesChange={onChange}
+          onSizesCommit={onCommit}
+        >
+          <ResizablePanel>{null}</ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel>{null}</ResizablePanel>
+        </ResizablePanelGroup>,
+      );
+    });
+    release(tree, 0, 30, 0);
+    expect(onCommit).toHaveBeenCalledTimes(1);
+    expect(onCommit.mock.calls[0]![0]).toEqual(second);
+    tree.unmount();
+  });
+
+  it("keeps dragging after an older pending echo arrives mid-gesture", () => {
+    const onChange = vi.fn();
+    const onCommit = vi.fn();
+    const tree = render(
+      <ResizablePanelGroup
+        direction="horizontal"
+        sizes={[50, 50]}
+        onSizesChange={onChange}
+        onSizesCommit={onCommit}
+      >
+        <ResizablePanel>{null}</ResizablePanel>
+        <ResizableHandle />
+        <ResizablePanel>{null}</ResizablePanel>
+      </ResizablePanelGroup>,
+    );
+    firePanelLayouts(tree, [100, 100]);
+    fireGroupLayout(tree, 212);
+    expect(capture(tree, 0, 10, 0)).toBe(true);
+    grant(tree, 0);
+    move(tree, 0, 20, 0);
+    const first = [...(onChange.mock.calls[0]![0] as number[])];
+    move(tree, 0, 30, 0);
+    TestRenderer.act(() => {
+      tree.update(
+        <ResizablePanelGroup
+          direction="horizontal"
+          sizes={first}
+          onSizesChange={onChange}
+          onSizesCommit={onCommit}
+        >
+          <ResizablePanel>{null}</ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel>{null}</ResizablePanel>
+        </ResizablePanelGroup>,
+      );
+    });
+    move(tree, 0, 40, 0);
+    expect(onChange).toHaveBeenCalledTimes(3);
+    release(tree, 0, 40, 0);
+    expect(onCommit).toHaveBeenCalledTimes(1);
+    expect(onCommit.mock.calls[0]![0]).toEqual(onChange.mock.calls[2]![0]);
+    tree.unmount();
+  });
+
+  it("still cancels when the parent corrects beyond acknowledged proposals", () => {
+    const onChange = vi.fn();
+    const onCommit = vi.fn();
+    const tree = render(
+      <ResizablePanelGroup
+        direction="horizontal"
+        sizes={[50, 50]}
+        onSizesChange={onChange}
+        onSizesCommit={onCommit}
+      >
+        <ResizablePanel>{null}</ResizablePanel>
+        <ResizableHandle />
+        <ResizablePanel>{null}</ResizablePanel>
+      </ResizablePanelGroup>,
+    );
+    firePanelLayouts(tree, [100, 100]);
+    fireGroupLayout(tree, 212);
+    expect(capture(tree, 0, 10, 0)).toBe(true);
+    grant(tree, 0);
+    move(tree, 0, 20, 0);
+    const first = [...(onChange.mock.calls[0]![0] as number[])];
+    TestRenderer.act(() => {
+      tree.update(
+        <ResizablePanelGroup
+          direction="horizontal"
+          sizes={first}
+          onSizesChange={onChange}
+          onSizesCommit={onCommit}
+        >
+          <ResizablePanel>{null}</ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel>{null}</ResizablePanel>
+        </ResizablePanelGroup>,
+      );
+    });
+    TestRenderer.act(() => {
+      tree.update(
+        <ResizablePanelGroup
+          direction="horizontal"
+          sizes={[80, 20]}
+          onSizesChange={onChange}
+          onSizesCommit={onCommit}
+        >
+          <ResizablePanel>{null}</ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel>{null}</ResizablePanel>
+        </ResizablePanelGroup>,
+      );
+    });
+    move(tree, 0, 30, 0);
+    release(tree, 0, 30, 0);
+    expect(onCommit).not.toHaveBeenCalled();
+    expect(onChange).toHaveBeenCalledTimes(1);
+    tree.unmount();
+  });
+
+  it("releases cleanly after repeated moves while props stay at acknowledged A", () => {
+    const onChange = vi.fn();
+    const onCommit = vi.fn();
+    const tree = render(
+      <ResizablePanelGroup
+        direction="horizontal"
+        sizes={[50, 50]}
+        onSizesChange={onChange}
+        onSizesCommit={onCommit}
+      >
+        <ResizablePanel>{null}</ResizablePanel>
+        <ResizableHandle />
+        <ResizablePanel>{null}</ResizablePanel>
+      </ResizablePanelGroup>,
+    );
+    firePanelLayouts(tree, [100, 100]);
+    fireGroupLayout(tree, 212);
+    expect(capture(tree, 0, 10, 0)).toBe(true);
+    grant(tree, 0);
+    move(tree, 0, 20, 0);
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const first = [...(onChange.mock.calls[0]![0] as number[])];
+    TestRenderer.act(() => {
+      tree.update(
+        <ResizablePanelGroup
+          direction="horizontal"
+          sizes={first}
+          onSizesChange={onChange}
+          onSizesCommit={onCommit}
+        >
+          <ResizablePanel>{null}</ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel>{null}</ResizablePanel>
+        </ResizablePanelGroup>,
+      );
+    });
+    // Same totals while props stay at A: noop moves, no new proposals.
+    move(tree, 0, 20, 0);
+    move(tree, 0, 20, 0);
+    expect(onChange).toHaveBeenCalledTimes(1);
+    release(tree, 0, 20, 0);
+    expect(onCommit).toHaveBeenCalledTimes(1);
+    expect(onCommit.mock.calls[0]![0]).toEqual(first);
+    tree.unmount();
+  });
+
+  it("commits after repeated moves with no parent echo (rejected parent)", () => {
+    const onChange = vi.fn();
+    const onCommit = vi.fn();
+    const tree = render(
+      <ResizablePanelGroup
+        direction="horizontal"
+        sizes={[50, 50]}
+        onSizesChange={onChange}
+        onSizesCommit={onCommit}
+      >
+        <ResizablePanel>{null}</ResizablePanel>
+        <ResizableHandle />
+        <ResizablePanel>{null}</ResizablePanel>
+      </ResizablePanelGroup>,
+    );
+    firePanelLayouts(tree, [100, 100]);
+    fireGroupLayout(tree, 212);
+    expect(capture(tree, 0, 10, 0)).toBe(true);
+    grant(tree, 0);
+    move(tree, 0, 20, 0);
+    move(tree, 0, 30, 0);
+    expect(onChange).toHaveBeenCalledTimes(2);
+    release(tree, 0, 30, 0);
+    expect(onCommit).toHaveBeenCalledTimes(1);
+    expect(onCommit.mock.calls[0]![0]).toEqual(onChange.mock.calls[1]![0]);
+    tree.unmount();
+  });
+
   it("supports deeply nested fragments without duplicate keys", () => {
     const tree = render(
       <ResizablePanelGroup direction="horizontal">

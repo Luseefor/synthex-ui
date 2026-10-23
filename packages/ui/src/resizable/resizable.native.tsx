@@ -67,6 +67,7 @@ interface GroupDragSession {
   readonly snapshotSpan: number;
   readonly snapshotGroupExtent: number | null;
   readonly captureDelta: { readonly dx: number; readonly dy: number };
+  pending: number[][];
   proposed: number[] | null;
   changed: boolean;
 }
@@ -885,6 +886,7 @@ export const ResizablePanelGroup: React.ForwardRefExoticComponent<
           snapshotSpan: span,
           snapshotGroupExtent: groupExtentRef.current,
           captureDelta: { dx: captureDelta.dx, dy: captureDelta.dy },
+          pending: [],
           proposed: null,
           changed: false,
         };
@@ -893,12 +895,17 @@ export const ResizablePanelGroup: React.ForwardRefExoticComponent<
       [],
     );
 
-    // Controlled-correction policy (documented): a drag stays active while the
-    // latest rendered sizes equal either the grant snapshot (parent rejected
-    // or has not echoed yet) or the last proposal we emitted (parent echoed).
-    // When the parent renders anything else (external correction of the pair
-    // or any other panel), the session cancels without commit; already
-    // reported onSizesChange values are retained.
+    // Controlled-acknowledgement policy (documented): a drag stays active
+    // while the latest rendered sizes equal either the grant snapshot
+    // (parent rejected or has not echoed yet) or any proposal previously
+    // emitted during this drag (a controlled parent echoes asynchronously,
+    // so an older echo may arrive after newer proposals were emitted, and
+    // the rendered echo lags behind further moves). Entries strictly older
+    // than the acknowledged one are pruned; the acknowledged entry is kept
+    // because it may stay rendered across subsequent moves. Anything else
+    // (a true external correction of the pair or any other panel) cancels
+    // the session without commit; already reported onSizesChange values
+    // are retained.
     const moveSession = React.useCallback(
       (pairIndex: number, totalPixels: number): void => {
         const session = sessionRef.current;
@@ -925,13 +932,13 @@ export const ResizablePanelGroup: React.ForwardRefExoticComponent<
           sessionRef.current = null;
           return;
         }
-        const lastProposal = session.proposed;
-        if (
-          !areSizesEqual(latest, snapshot) &&
-          (lastProposal === null || !areSizesEqual(latest, lastProposal))
-        ) {
-          sessionRef.current = null;
-          return;
+        if (!areSizesEqual(latest, snapshot)) {
+          const acknowledged = session.pending.findIndex((sizes) => areSizesEqual(latest, sizes));
+          if (acknowledged === -1) {
+            sessionRef.current = null;
+            return;
+          }
+          session.pending = session.pending.slice(acknowledged);
         }
         if (typeof totalPixels !== "number" || !Number.isFinite(totalPixels)) {
           return;
@@ -955,12 +962,13 @@ export const ResizablePanelGroup: React.ForwardRefExoticComponent<
         if (areSizesEqual(next, lastEmitted)) {
           return;
         }
+        session.pending.push(next);
+        session.proposed = next;
+        session.changed = true;
         if (sizesPropRef.current === undefined) {
           setUncontrolledSizes(next);
         }
         onChangeRef.current?.([...next]);
-        session.proposed = next;
-        session.changed = true;
       },
       [],
     );
