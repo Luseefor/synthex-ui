@@ -10,6 +10,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import { NativeOverlayProvider, NativeOverlayContent, useNativeOverlayTriggerRef } from "../_shared/overlay.native";
+import { renderNativeInlineText } from "../_shared/native-text";
 import { NativePressableAction } from "../_shared/pressable.native";
 import { useTheme } from "../_shared/theme/context";
 import type { OverlayPositionProps } from "../_shared/positioning";
@@ -225,22 +226,14 @@ export const ContextMenuItem: React.ForwardRefExoticComponent<
       ]}
       {...props}
     >
-      {typeof children === "string" || typeof children === "number" ? (
-        <Text
-          style={[
-            {
-              color: theme.colors.foreground,
-              fontFamily: theme.typography.family.sans,
-              fontSize: theme.typography.size.sm,
-            },
-            textStyle,
-          ]}
-        >
-          {children}
-        </Text>
-      ) : (
-        children
-      )}
+      {renderNativeInlineText(children, [
+        {
+          color: theme.colors.foreground,
+          fontFamily: theme.typography.family.sans,
+          fontSize: theme.typography.size.sm,
+        },
+        textStyle,
+      ])}
     </NativePressableAction>
   );
 });

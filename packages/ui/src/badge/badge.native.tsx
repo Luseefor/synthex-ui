@@ -1,12 +1,12 @@
 import * as React from "react";
 import {
-  Text,
   View,
   type StyleProp,
   type TextStyle,
   type ViewProps,
   type ViewStyle,
 } from "react-native";
+import { renderNativeInlineText } from "../_shared/native-text";
 import { useTheme } from "../_shared/theme/context";
 import { resolveBadgeVariants, type BadgeSharedProps } from "./badge.shared";
 
@@ -60,20 +60,7 @@ export function Badge({
 
   return (
     <View testID={testID ?? "badge"} style={[containerStyle, style]} {...props}>
-      {renderBadgeText(children, [labelStyle, textStyle])}
+      {renderNativeInlineText(children, [labelStyle, textStyle])}
     </View>
   );
-}
-
-function renderBadgeText(
-  children: React.ReactNode,
-  textStyle: StyleProp<TextStyle>,
-) {
-  return React.Children.map(children, (child) => {
-    if (typeof child === "string" || typeof child === "number") {
-      return <Text style={textStyle}>{child}</Text>;
-    }
-
-    return child;
-  });
 }

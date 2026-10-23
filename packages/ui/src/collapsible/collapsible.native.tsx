@@ -1,5 +1,7 @@
 import * as React from "react";
 import { Pressable, View, type PressableProps, type StyleProp, type ViewProps, type ViewStyle } from "react-native";
+import { useTheme } from "../_shared/theme/context";
+import { renderNativeInlineText } from "../_shared/native-text";
 import {
   CollapsibleProvider,
   useCollapsibleContext,
@@ -34,6 +36,7 @@ export const CollapsibleTrigger: React.ForwardRefExoticComponent<
 > = React.forwardRef<React.ElementRef<typeof Pressable>, CollapsibleTriggerProps>(
   ({ children, onPress, style, asChild, testID, ...props }, ref) => {
     const context = useCollapsibleContext();
+    const theme = useTheme();
 
     const handlePress = (event: Parameters<NonNullable<typeof onPress>>[0]) => {
       onPress?.(event);
@@ -70,7 +73,11 @@ export const CollapsibleTrigger: React.ForwardRefExoticComponent<
         style={style}
         {...props}
       >
-        {children}
+        {renderNativeInlineText(children, {
+          color: theme.colors.foreground,
+          fontFamily: theme.typography.family.sans,
+          fontSize: theme.typography.size.sm,
+        })}
       </Pressable>
     );
   },

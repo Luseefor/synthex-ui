@@ -1,4 +1,5 @@
 import * as React from "react";
+import { renderNativeInlineText } from "../_shared/native-text";
 import {
   Pressable,
   Text,
@@ -113,6 +114,7 @@ export const DropdownMenuTrigger: React.ForwardRefExoticComponent<
   DropdownMenuTriggerProps
 >(({ children, onPress, style, asChild, testID, disabled, accessibilityState, accessibilityRole, ...props }, ref) => {
   const context = useDropdownMenuContext();
+  const theme = useTheme();
 
   type AsChildProps = {
     onPress?: ((event: GestureResponderEvent) => void) | null;
@@ -196,7 +198,11 @@ export const DropdownMenuTrigger: React.ForwardRefExoticComponent<
       style={style}
       {...props}
     >
-      {children}
+      {renderNativeInlineText(children, {
+        color: theme.colors.foreground,
+        fontFamily: theme.typography.family.sans,
+        fontSize: theme.typography.size.sm,
+      })}
     </Pressable>
   );
 });
@@ -257,24 +263,21 @@ export const DropdownMenuLabel: React.ForwardRefExoticComponent<
   DropdownMenuLabelProps
 >(({ children, style, textStyle, testID, ...props }, ref) => {
   const theme = useTheme();
+  const labelStyle: StyleProp<TextStyle> = [
+    {
+      color: theme.colors.foregroundMuted,
+      fontFamily: theme.typography.family.sans,
+      fontSize: 11,
+      fontWeight: "600",
+      textTransform: "uppercase",
+      letterSpacing: 1.2,
+    },
+    textStyle,
+  ];
 
   return (
     <View ref={ref} testID={testID ?? "dropdown-menu-label"} style={[{ paddingHorizontal: 12, paddingVertical: 8 }, style]} {...props}>
-      <Text
-        style={[
-          {
-            color: theme.colors.foregroundMuted,
-            fontFamily: theme.typography.family.sans,
-            fontSize: 11,
-            fontWeight: "600",
-            textTransform: "uppercase",
-            letterSpacing: 1.2,
-          },
-          textStyle,
-        ]}
-      >
-        {children}
-      </Text>
+      {renderNativeInlineText(children, labelStyle)}
     </View>
   );
 });
@@ -349,22 +352,14 @@ export const DropdownMenuItem: React.ForwardRefExoticComponent<
       ]}
       {...props}
     >
-      {typeof children === "string" || typeof children === "number" ? (
-        <Text
-          style={[
-            {
-              color: theme.colors.foreground,
-              fontFamily: theme.typography.family.sans,
-              fontSize: theme.typography.size.sm,
-            },
-            textStyle,
-          ]}
-        >
-          {children}
-        </Text>
-      ) : (
-        children
-      )}
+      {renderNativeInlineText(children, [
+        {
+          color: theme.colors.foreground,
+          fontFamily: theme.typography.family.sans,
+          fontSize: theme.typography.size.sm,
+        },
+        textStyle,
+      ])}
     </Pressable>
   );
 });
@@ -431,18 +426,10 @@ export const DropdownMenuSubTrigger: React.ForwardRefExoticComponent<
       {...props}
     >
       <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 12 }}>
-        {typeof children === "string" || typeof children === "number" ? (
-          <Text
-            style={[
-              { color: theme.colors.foreground, fontFamily: theme.typography.family.sans, fontSize: theme.typography.size.sm },
-              textStyle,
-            ]}
-          >
-            {children}
-          </Text>
-        ) : (
-          children
-        )}
+        {renderNativeInlineText(children, [
+          { color: theme.colors.foreground, fontFamily: theme.typography.family.sans, fontSize: theme.typography.size.sm },
+          textStyle,
+        ])}
       </View>
       <ChevronRightIcon size={14} />
     </Pressable>
@@ -552,7 +539,12 @@ export const DropdownMenuCheckboxItem: React.ForwardRefExoticComponent<
           {children}
         </Text>
       ) : (
-        <View style={{ flex: 1 }}>{children}</View>
+        <View style={{ flex: 1 }}>
+          {renderNativeInlineText(children, [
+            { color: theme.colors.foreground, fontFamily: theme.typography.family.sans, fontSize: theme.typography.size.sm },
+            textStyle,
+          ])}
+        </View>
       )}
     </Pressable>
   );
@@ -634,7 +626,12 @@ export const DropdownMenuRadioItem: React.ForwardRefExoticComponent<
           {children}
         </Text>
       ) : (
-        <View style={{ flex: 1 }}>{children}</View>
+        <View style={{ flex: 1 }}>
+          {renderNativeInlineText(children, [
+            { color: theme.colors.foreground, fontFamily: theme.typography.family.sans, fontSize: theme.typography.size.sm },
+            textStyle,
+          ])}
+        </View>
       )}
     </Pressable>
   );
@@ -655,23 +652,15 @@ export const DropdownMenuShortcut: React.ForwardRefExoticComponent<
 
     return (
       <View ref={ref} testID={testID ?? "dropdown-menu-shortcut"} style={[{ marginLeft: "auto", paddingLeft: 16 }, style]} {...props}>
-        {typeof children === "string" || typeof children === "number" ? (
-          <Text
-            style={[
-              {
-                color: theme.colors.foregroundMuted,
-                fontFamily: theme.typography.family.sans,
-                fontSize: 12,
-                letterSpacing: 1,
-              },
-              textStyle,
-            ]}
-          >
-            {children}
-          </Text>
-        ) : (
-          children
-        )}
+        {renderNativeInlineText(children, [
+          {
+            color: theme.colors.foregroundMuted,
+            fontFamily: theme.typography.family.sans,
+            fontSize: 12,
+            letterSpacing: 1,
+          },
+          textStyle,
+        ])}
       </View>
     );
   },

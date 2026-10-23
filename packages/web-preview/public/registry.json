@@ -14,6 +14,11 @@
         "field-control.web.ts",
         "modal-actions.contract.native.test.tsx",
         "modal-actions.native.tsx",
+        "native-labels.contract.test.tsx",
+        "native-pressable-text.contract.test.tsx",
+        "native-text.contract.test.tsx",
+        "native-text.tsx",
+        "native-trigger-labels.contract.test.tsx",
         "overlay.native.test.tsx",
         "overlay.native.tsx",
         "positioning.native.test.ts",
@@ -204,6 +209,7 @@
         "button.native.test.tsx",
         "button.native.tsx",
         "button.shared.ts",
+        "button.text.native.test.tsx",
         "button.web.test.tsx",
         "button.web.tsx",
         "index.native.ts",
@@ -355,6 +361,7 @@
         "react-native"
       ],
       "registryDependencies": [
+        "_shared",
         "hooks"
       ]
     },
@@ -640,6 +647,7 @@
         "dropdown-menu.native.tsx",
         "dropdown-menu.overlay.native.test.tsx",
         "dropdown-menu.shared.tsx",
+        "dropdown-menu.text.native.test.tsx",
         "dropdown-menu.web.tsx",
         "index.native.ts",
         "index.ts"

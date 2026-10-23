@@ -11,16 +11,13 @@ import {
   type ViewStyle,
 } from "react-native";
 import { useTheme } from "../_shared/theme/context";
+import { renderNativeInlineText } from "../_shared/native-text";
 
 function renderCellContent(
   children: React.ReactNode,
-  textStyle: TextStyle,
+  textStyle: StyleProp<TextStyle>,
 ) {
-  if (typeof children === "string" || typeof children === "number") {
-    return <Text style={textStyle}>{children}</Text>;
-  }
-
-  return children;
+  return renderNativeInlineText(children, textStyle);
 }
 
 export interface TableProps extends Omit<ScrollViewProps, "style"> {

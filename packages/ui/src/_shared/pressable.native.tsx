@@ -1,6 +1,8 @@
 import * as React from "react";
 import { Pressable, type PressableProps } from "react-native";
 import { NativeDirectionContext } from "./direction-context.native";
+import { renderNativeInlineText } from "./native-text";
+import { useTheme } from "./theme/context";
 
 /** Compose React 19 cleanup refs without losing void-callback detach notifications. */
 export function mergeNativePressableRefs<T>(
@@ -56,6 +58,7 @@ export function NativePressableAction({
   disabled, accessibilityState, accessibilityRole, style, testID, ...props
 }: NativePressableActionProps) {
   const { dir } = React.useContext(NativeDirectionContext);
+  const theme = useTheme();
   const child = asChild && React.isValidElement<PressableProps & { ref?: React.Ref<React.ElementRef<typeof Pressable>> }>(children)
     ? children : null;
   const childRef = child ? getNativeChildRef<React.ElementRef<typeof Pressable>>(child) : undefined;
@@ -102,5 +105,13 @@ export function NativePressableAction({
     onFocus: compose(child?.props.onFocus, onFocus, undefined, false),
     onBlur: compose(child?.props.onBlur, onBlur, undefined, false),
   };
-  return child ? React.cloneElement(child, actionProps) : <Pressable {...actionProps}>{children}</Pressable>;
+  return child ? React.cloneElement(child, actionProps) : (
+    <Pressable {...actionProps}>
+      {renderNativeInlineText(children, {
+        color: theme.colors.foreground,
+        fontFamily: theme.typography.family.sans,
+        fontSize: theme.typography.size.sm,
+      })}
+    </Pressable>
+  );
 }

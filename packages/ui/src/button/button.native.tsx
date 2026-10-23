@@ -1,12 +1,12 @@
 import * as React from "react";
 import {
   Pressable,
-  Text,
   type PressableProps,
   type StyleProp,
   type TextStyle,
   type ViewStyle,
 } from "react-native";
+import { renderNativeInlineText } from "../_shared/native-text";
 import { useTheme } from "../_shared/theme/context";
 import { resolveButtonVariants, type ButtonSharedProps } from "./button.shared";
 
@@ -253,23 +253,10 @@ export const Button: React.ForwardRefExoticComponent<
         ]}
         {...props}
       >
-        {renderButtonChildren(children, [styles.label, textStyle])}
+        {renderNativeInlineText(children, [styles.label, textStyle])}
       </Pressable>
     );
   },
 );
 
 Button.displayName = "Button";
-
-function renderButtonChildren(
-  children: React.ReactNode,
-  textStyle: StyleProp<TextStyle>,
-) {
-  return React.Children.map(children, (child) => {
-    if (typeof child === "string" || typeof child === "number") {
-      return <Text style={textStyle}>{child}</Text>;
-    }
-
-    return child;
-  });
-}
