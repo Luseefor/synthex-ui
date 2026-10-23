@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import { SearchIcon } from "../icons/index.native";
+import { renderNativeInlineText } from "../_shared/native-text";
 import { useTheme } from "../_shared/theme/context";
 import {
   CommandProvider,
@@ -297,22 +298,14 @@ export const CommandItem: React.ForwardRefExoticComponent<
         ]}
         {...props}
       >
-        {typeof children === "string" || typeof children === "number" ? (
-          <Text
-            style={[
-              {
-                color: theme.colors.foreground,
-                fontFamily: theme.typography.family.sans,
-                fontSize: theme.typography.size.sm,
-              },
-              textStyle,
-            ]}
-          >
-            {children}
-          </Text>
-        ) : (
-          children
-        )}
+        {renderNativeInlineText(children, [
+          {
+            color: theme.colors.foreground,
+            fontFamily: theme.typography.family.sans,
+            fontSize: theme.typography.size.sm,
+          },
+          textStyle,
+        ])}
       </Pressable>
     );
   },

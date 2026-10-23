@@ -1,7 +1,6 @@
 import * as React from "react";
 import {
   Pressable,
-  Text,
   type PressableProps,
   type StyleProp,
   type TextStyle,
@@ -9,6 +8,7 @@ import {
 } from "react-native";
 import { useControllableState } from "../hooks/useControllableState";
 import { useTheme } from "../_shared/theme/context";
+import { renderNativeInlineText } from "../_shared/native-text";
 import { resolveToggleVariants, type ToggleSharedProps } from "./toggle.shared";
 
 export interface ToggleProps
@@ -137,11 +137,7 @@ export const Toggle: React.ForwardRefExoticComponent<
         ]}
         {...props}
       >
-        {typeof children === "string" || typeof children === "number" ? (
-          <Text style={[labelStyle, textStyle]}>{children}</Text>
-        ) : (
-          children
-        )}
+        {renderNativeInlineText(children, [labelStyle, textStyle])}
       </Pressable>
     );
   },

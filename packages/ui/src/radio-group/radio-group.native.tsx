@@ -1,7 +1,6 @@
 import * as React from "react";
 import {
   Pressable,
-  Text,
   View,
   type PressableProps,
   type StyleProp,
@@ -10,6 +9,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import { useTheme } from "../_shared/theme/context";
+import { renderNativeInlineText } from "../_shared/native-text";
 import {
   RadioGroupProvider,
   useRadioGroupContext,
@@ -121,23 +121,15 @@ export const RadioGroupItem: React.ForwardRefExoticComponent<
           }}
         />
       </View>
-      {typeof children === "string" || typeof children === "number" ? (
-        <Text
-          style={[
-            {
-              color: theme.colors.foreground,
-              fontFamily: theme.typography.family.sans,
-              fontSize: theme.typography.size.sm,
-              fontWeight: theme.typography.weight.medium,
-            },
-            textStyle,
-          ]}
-        >
-          {children}
-        </Text>
-      ) : (
-        children
-      )}
+      {renderNativeInlineText(children, [
+        {
+          color: theme.colors.foreground,
+          fontFamily: theme.typography.family.sans,
+          fontSize: theme.typography.size.sm,
+          fontWeight: theme.typography.weight.medium,
+        },
+        textStyle,
+      ])}
     </Pressable>
   );
 });

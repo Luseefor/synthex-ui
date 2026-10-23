@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { ChevronLeftIcon, ChevronRightIcon } from "../icons/index.native";
 import { useTheme } from "../_shared/theme/context";
+import { renderNativeInlineText } from "../_shared/native-text";
 import type { PaginationLinkSharedProps } from "./pagination.shared";
 
 export interface PaginationProps extends Omit<ViewProps, "style"> {
@@ -91,23 +92,15 @@ export const PaginationLink: React.ForwardRefExoticComponent<
       ]}
       {...props}
     >
-      {typeof children === "string" || typeof children === "number" ? (
-        <Text
-          style={[
-            {
-              color: isActive ? theme.colors.foregroundOnBrand : theme.colors.foreground,
-              fontFamily: theme.typography.family.sans,
-              fontSize: theme.typography.size.sm,
-              fontWeight: theme.typography.weight.medium,
-            },
-            textStyle,
-          ]}
-        >
-          {children}
-        </Text>
-      ) : (
-        children
-      )}
+      {renderNativeInlineText(children, [
+        {
+          color: isActive ? theme.colors.foregroundOnBrand : theme.colors.foreground,
+          fontFamily: theme.typography.family.sans,
+          fontSize: theme.typography.size.sm,
+          fontWeight: theme.typography.weight.medium,
+        },
+        textStyle,
+      ])}
     </Pressable>
   );
 });

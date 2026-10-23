@@ -12,6 +12,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import { CheckIcon, ChevronDownIcon } from "../icons/index.native";
+import { renderNativeInlineText } from "../_shared/native-text";
 import { useTheme } from "../_shared/theme/context";
 import { createFieldControlStyle } from "../_shared/field-control.native";
 import type { OverlayPositionProps } from "../_shared/positioning";
@@ -190,7 +191,11 @@ export const SelectTrigger: React.ForwardRefExoticComponent<
       ]}
       {...props}
     >
-      <View style={{ flex: 1 }}>{children}</View>
+      <View style={{ flex: 1 }}>{renderNativeInlineText(children, {
+        color: theme.colors.foreground,
+        fontFamily: theme.typography.family.sans,
+        fontSize: theme.typography.size.sm,
+      })}</View>
       <View style={{ transform: [{ rotate: context.open ? "180deg" : "0deg" }] }}>
         <ChevronDownIcon size={16} />
       </View>
@@ -341,22 +346,14 @@ export const SelectItem: React.ForwardRefExoticComponent<
         ]}
         {...props}
       >
-        {typeof children === "string" || typeof children === "number" ? (
-          <Text
-            style={[
-              {
-                color: active ? theme.colors.primary : theme.colors.foreground,
-                fontFamily: theme.typography.family.sans,
-                fontSize: theme.typography.size.sm,
-              },
-              textStyle,
-            ]}
-          >
-            {children}
-          </Text>
-        ) : (
-          children
-        )}
+        {renderNativeInlineText(children, [
+          {
+            color: active ? theme.colors.primary : theme.colors.foreground,
+            fontFamily: theme.typography.family.sans,
+            fontSize: theme.typography.size.sm,
+          },
+          textStyle,
+        ])}
         {active ? <CheckIcon size={14} strokeWidth={2.4} /> : null}
       </Pressable>
     );

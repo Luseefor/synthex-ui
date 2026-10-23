@@ -47,10 +47,28 @@ OS, device, app commit, Expo/React Native versions, screen-reader settings,
 and results below. An exported bundle is not an installable app or a device pass.
 See the [Expo CLI guide](https://docs.expo.dev/more/expo-cli/).
 
+## Simulator regression check, 2026-10-22
+
+An iPhone 17 Pro simulator running iOS 26.3.1, Expo Go 58.0.5, and React Native
+0.88 reproduced a native text crash in the released UI 2.0.0. The checkbox label
+`Checked: {checked ? "yes" : "no"}` reached a `View` as multiple primitive
+children. A local patched UI tarball and sources copied by the rebuilt CLI passed
+startup and a context-menu regression check in XCTest: long-press opened the
+menu, the checkbox label toggled and restored, and outside press dismissed it.
+Both packaged and copied-source menus were exercised without a text redbox.
+This is candidate evidence; the patch has not been published.
+
+The broader interaction run remains incomplete. Its controlled-input check
+received only `R` after automation typed `Rij`; a plain React Native comparison
+is being used to distinguish the cause. Android interaction and screen-reader
+checks remain pending. Bundle-export results above are separate from these
+runtime checks.
+
 ## Device checks
 
-All entries are **pending on both iOS and Android**. Devices and screen tools are off
-in this session (device and computer-use groups disabled); no VoiceOver/TalkBack result is claimed.
+The matrix remains pending unless a complete row has been exercised. Simulator
+interaction evidence is recorded separately below; it does not establish
+VoiceOver or TalkBack behavior.
 Mocked-host tests, typechecks, and Metro export verify wiring and bundle generation — none of them
 is device validation. Native accessibility props describe intended state; actual announcements and
 focus behavior require testing. See [React Native accessibility](https://reactnative.dev/docs/accessibility).

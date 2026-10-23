@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
+import { renderNativeInlineText } from "../_shared/native-text";
 import { useTheme } from "../_shared/theme/context";
 import type {
   SidebarContextValue,
@@ -148,19 +149,11 @@ export function SidebarMenuButton({ active, children, onPress, testID }: Sidebar
         paddingVertical: 10,
       }}
     >
-      {typeof children === "string" ? (
-        <Text
-          style={{
-            color: active ? theme.colors.foreground : theme.colors.foregroundMuted,
-            fontSize: theme.typography.size.sm,
-            fontWeight: "500",
-          }}
-        >
-          {children}
-        </Text>
-      ) : (
-        children
-      )}
+      {renderNativeInlineText(children, {
+        color: active ? theme.colors.foreground : theme.colors.foregroundMuted,
+        fontSize: theme.typography.size.sm,
+        fontWeight: "500",
+      })}
     </Pressable>
   );
 }
