@@ -1,5 +1,14 @@
 # synthex-ui
 
+## 2.0.1
+
+### Patch Changes
+
+- 6249dce: Prevent native label crashes when JSX children contain interpolated text, numbers, arrays, or fragments. Wrap primitive label segments in Text while preserving custom elements and fragment boundaries. Apply the fix to menus, selectors, commands, accordion triggers, pagination, radio items, sidebar items, table cells, and toggles, including CLI-copied sources.
+- 574d6fb: Preserve native Resizable drag commits when a controlled parent renders an earlier size proposal before the latest update. Keep cancellation for unrelated parent corrections. The CLI includes the corrected implementation in copied native components.
+  
+  Keep the Expo starter content clear of system status and navigation bars with the SDK-compatible safe-area provider.
+
 ## 2.0.0
 
 ### Major Changes
