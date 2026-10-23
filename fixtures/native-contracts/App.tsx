@@ -325,7 +325,7 @@ function Contracts({ dark, setDark, rtl, setRtl }: { dark: boolean; setDark: (va
         </Popover>
         <Text testID="popover-value" style={labelStyle}>Popover count: {popoverActions}; Note: {popoverText}</Text>
         <Combobox value={choice} onValueChange={setChoice} open={choiceOpen} onOpenChange={setChoiceOpen}>
-          <ComboboxTrigger testID="combobox-trigger" accessibilityLabel="Search fruit"><ComboboxValue /></ComboboxTrigger>
+          <ComboboxTrigger testID="combobox-trigger" accessibilityLabel="Search fruit"><ComboboxValue testID="combobox-trigger-label" /></ComboboxTrigger>
           <ComboboxContent testID="combobox-content" side="bottom" align="start">
             <ComboboxInput testID="combobox-search" accessibilityLabel="Filter fruit" />
             <ComboboxList>

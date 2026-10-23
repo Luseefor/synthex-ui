@@ -56,7 +56,7 @@ children. A local patched UI tarball and sources copied by the rebuilt CLI passe
 startup and a context-menu regression check in XCTest: long-press opened the
 menu, the checkbox label toggled and restored, and outside press dismissed it.
 Both packaged and copied-source menus were exercised without a text redbox.
-This is candidate evidence; the patch has not been published.
+These checks used a local candidate rather than a registry install.
 
 The broader interaction run remains incomplete. Its first controlled-input
 check received only `R` after automation typed `Rij`. An isolated comparison
@@ -82,6 +82,13 @@ the published UI 2.0.0 or a physical-device certification.
 | Full scrolling fixture: horizontal and vertical resize | Passed | Pending |
 | Popover: type with keyboard open, interior action increments once without closing, outside press dismisses | Passed | Pending |
 | Normal button increments once; disabled button leaves the count unchanged | Previously exercised | Passed |
+| Packaged and copied context-menu mixed labels toggle and restore; outside press dismisses | Earlier candidate run | Passed |
+| Dropdown action increments once and closes; Android Back dismisses without another action | Pending | Passed |
+| Cancelled dropdown action keeps the menu open and leaves the count unchanged | Previously exercised | Passed |
+| Select Banana updates the summary and closes | Previously exercised | Passed |
+| Disabled Select item leaves the value unchanged | Previously exercised | Passed |
+| Search with the keyboard open, then select Banana with one tap and close the combobox | Previously exercised | Passed |
+| Fixture content clears system bars | Visual check passed | Bounds check passed |
 
 The resize regression was reproduced on both platforms before the fix: sizes
 changed but the release callback did not run. The iOS event trace showed React
@@ -95,6 +102,9 @@ The iOS checks use XCTest. Android checks use ADB and UIAutomator with observed
 element bounds and before/after readouts. Outside taps exclude the content,
 keyboard, and Expo Go developer control. VoiceOver, TalkBack, SMS autofill,
 large-font coverage, and the remaining device-matrix rows are still pending.
+The fixture gives the combobox trigger labels distinct IDs,
+`combobox-trigger-label` and `owned-combobox-trigger-label`, so the
+`combobox-value` state summary can be queried without matching a trigger label.
 
 ## Device checks
 
